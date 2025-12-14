@@ -10,7 +10,6 @@ Complete guide to Microbuild packages and distribution tools.
 | [QUICKSTART.md](QUICKSTART.md) | Setup guide for MCP & CLI | New users |
 | [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide | DevOps/Teams |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
-| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) | Implementation details | Contributors |
 
 ## 🎯 Quick Navigation
 
@@ -36,8 +35,8 @@ Complete guide to Microbuild packages and distribution tools.
 
 ### Technical Reference
 - [Architecture](ARCHITECTURE.md) - System diagrams
-- [Registry](packages/mcp-server/src/registry.ts) - Component metadata
-- [Build Process](IMPLEMENTATION_SUMMARY.md#-build-commands) - Build instructions
+- [Registry](packages/registry.json) - Component metadata
+- [Build Commands](README.md#-workspace-commands) - Build instructions
 
 ## 📦 Package Documentation
 
@@ -260,5 +259,4 @@ Microbuild Architecture
 
 **Quick Links:**
 - [Get Started](QUICKSTART.md) | [Packages](packages/README.md) | [Architecture](ARCHITECTURE.md)
-- [MCP Server](packages/mcp-server/README.md) | [CLI Tool](packages/cli/README.md)
-- [Distribution Guide](DISTRIBUTION.md) | [Implementation](IMPLEMENTATION_SUMMARY.md)
+- [MCP Server](packages/mcp-server/README.md) | [CLI Tool](packages/cli/README.md) | [Distribution](DISTRIBUTION.md)
