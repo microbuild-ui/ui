@@ -1,0 +1,39 @@
+{
+  "name": "@microbuild/mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Microbuild components - enables AI agents to discover and use Microbuild packages",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "microbuild-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "claude",
+    "directus",
+    "cms",
+    "components"
+  ],
+  "author": "Microbuild",
+  "license": "MIT"
+}

@@ -48,6 +48,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Build outputs
+dist/
+packages/*/dist/
+
 # extensions (user extensions directory)
 /extensions/
 

@@ -13,7 +13,9 @@ Microbuild/
 │   ├── ui-collections/     # Collection Form & List (@microbuild/ui-collections)
 │   ├── types/              # Shared TypeScript types (@microbuild/types)
 │   ├── services/           # Shared service classes (@microbuild/services)
-│   └── hooks/              # Shared React hooks (@microbuild/hooks)
+│   ├── hooks/              # Shared React hooks (@microbuild/hooks)
+│   ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp-server)
+│   └── cli/                # CLI tool for developers (@microbuild/cli)
 ├── main-nextjs/            # Main Next.js CMS (template project)
 └── nextjs-supabase-daas/   # DaaS Platform
 ```
@@ -223,15 +225,74 @@ import { CollectionForm, CollectionList } from '@microbuild/ui-collections';
 />
 ```
 
+## 🤖 Distribution & AI Tools
+
+Microbuild includes two powerful distribution tools:
+
+### MCP Server - For AI Agents
+
+Expose Microbuild components to AI assistants like Claude Desktop.
+
+```bash
+# Build and configure
+pnpm build:mcp
+
+# Add to Claude Desktop config:
+# ~/Library/Application Support/Claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "microbuild": {
+      "command": "node",
+      "args": ["/path/to/microbuild/packages/mcp-server/dist/index.js"]
+    }
+  }
+}
+
+# Use with Claude:
+# "Show me how to use the Input component from Microbuild"
+# "Generate a CollectionForm for products"
+```
+
+### CLI Tool - For Developers
+
+Copy components directly to your project (like shadcn/ui).
+
+```bash
+# Build CLI
+pnpm build:cli
+
+# Use in any project
+npx @microbuild/cli init
+npx @microbuild/cli add input select-dropdown
+npx @microbuild/cli list
+
+# Or install globally
+pnpm install -g ./packages/cli
+microbuild add collection-form
+```
+
+**Benefits:**
+- ✅ Source code remains private
+- ✅ AI agents can discover and use components
+- ✅ Developers get full control over copied code
+- ✅ No npm publishing required
+
+See [DISTRIBUTION.md](./DISTRIBUTION.md) for complete setup guide.
+
 ## 🔧 Workspace Commands
 
 | Command | Description |
 |---------|-------------|
 | `pnpm install` | Install all dependencies |
 | `pnpm build` | Build all packages and apps |
+| `pnpm build:mcp` | Build MCP server for AI agents |
+| `pnpm build:cli` | Build CLI tool |
 | `pnpm dev` | Run all apps in dev mode |
+| `pnpm mcp:dev` | Run MCP server in watch mode |
+| `pnpm cli` | Run CLI tool locally |
 | `pnpm lint` | Lint all projects |
 | `pnpm clean` | Remove node_modules and build artifacts |
+| `pnpm storybook` | Run Storybook for component development |
 
 ## 📋 Project-Specific Commands
 

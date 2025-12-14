@@ -15,6 +15,8 @@ Microbuild provides a complete toolkit for building headless CMS frontends that 
 | [@microbuild/hooks](./hooks) | React hooks for managing relational data (M2M, M2O, O2M, M2A) |
 | [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (inputs, selects, file uploads, etc.) |
 | [@microbuild/ui-collections](./ui-collections) | Dynamic collection components (CollectionForm, CollectionList) |
+| [@microbuild/mcp-server](./mcp-server) | Model Context Protocol server for AI agents (Claude Desktop) |
+| [@microbuild/cli](./cli) | CLI tool for copying components to projects (like shadcn/ui) |
 
 ## Architecture
 
