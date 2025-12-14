@@ -1,0 +1,4 @@
+packages:
+  - 'main-nextjs'
+  - 'nextjs-supabase-daas'
+  - 'packages/*'

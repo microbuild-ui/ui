@@ -1,0 +1,444 @@
+import { useState, useEffect, useCallback } from 'react';
+import { FieldsService, ItemsService } from '@microbuild/services';
+import type { Field } from '@microbuild/types';
+
+/**
+ * Information about a One-to-Many relationship
+ */
+export interface O2MRelationInfo {
+  /** The related collection (the "many" side) */
+  relatedCollection: {
+    collection: string;
+    meta?: Record<string, unknown>;
+  };
+  /** The field in the related collection that points back to this collection (foreign key) */
+  reverseJunctionField: {
+    field: string;
+    type: string;
+  };
+  /** Primary key field of the related collection */
+  relatedPrimaryKeyField: {
+    field: string;
+    type: string;
+  };
+  /** Primary key field of the current (parent) collection */
+  parentPrimaryKeyField: {
+    field: string;
+    type: string;
+  };
+  /** Sort field for ordering items (if configured) */
+  sortField?: string;
+  /** Display template for the related item */
+  displayTemplate?: string;
+  /** Relation metadata */
+  relation: {
+    field: string;
+    collection: string;
+    related_collection: string;
+    meta?: Record<string, unknown> | null;
+  };
+}
+
+/**
+ * Custom hook for managing One-to-Many (O2M) relationship information
+ * 
+ * In O2M relationships:
+ * - The RELATED collection has a foreign key pointing to the CURRENT collection
+ * - MULTIPLE related items can exist for a single parent item
+ * - Example: A "category" has MANY "posts" (posts have category_id foreign key)
+ */
+export function useRelationO2M(collection: string, field: string) {
+  const [relationInfo, setRelationInfo] = useState<O2MRelationInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadRelationInfo = async () => {
+      if (!collection || !field) {
+        setRelationInfo(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Get field info
+        const fieldsService = new FieldsService();
+        const fieldsData = await fieldsService.readAll(collection);
+        const currentField = fieldsData.find((f: Field) => f.field === field);
+
+        if (!currentField) {
+          setError(`Field "${field}" not found in collection "${collection}"`);
+          setRelationInfo(null);
+          setLoading(false);
+          return;
+        }
+
+        // Check if this is an O2M interface
+        const interfaceType = currentField.meta?.interface;
+        if (interfaceType !== 'list-o2m' && interfaceType !== 'one-to-many') {
+          setError(`Field "${field}" is not configured as a list-o2m interface`);
+          setRelationInfo(null);
+          setLoading(false);
+          return;
+        }
+
+        // Get the related collection and reverse field from field options
+        const fieldOptions = currentField.meta?.options as Record<string, unknown> | undefined;
+        let relatedCollectionName: string | null = 
+          (fieldOptions?.related_collection as string | undefined) ||
+          (fieldOptions?.relatedCollection as string | undefined) ||
+          null;
+
+        let reverseFieldName: string | null =
+          (fieldOptions?.foreign_key_field as string | undefined) ||
+          (fieldOptions?.foreignKeyField as string | undefined) ||
+          (fieldOptions?.reverse_field as string | undefined) ||
+          null;
+
+        const sortFieldName: string | undefined =
+          (fieldOptions?.sort_field as string | undefined) ||
+          (fieldOptions?.sortField as string | undefined) ||
+          undefined;
+
+        // If not found in options, try fetching from directus_relations
+        if (!relatedCollectionName || !reverseFieldName) {
+          try {
+            const relationsResponse = await fetch(`/api/relations`);
+            if (relationsResponse.ok) {
+              const relationsData = await relationsResponse.json();
+              
+              const o2mRelation = relationsData.data?.find(
+                (r: { meta?: { one_collection: string; one_field: string; many_collection: string; many_field: string } }) => 
+                  r.meta?.one_collection === collection && r.meta?.one_field === field
+              );
+              
+              if (o2mRelation) {
+                relatedCollectionName = relatedCollectionName || o2mRelation.meta?.many_collection;
+                reverseFieldName = reverseFieldName || o2mRelation.meta?.many_field;
+              }
+              
+              // Auto-discover FK field if needed
+              if (relatedCollectionName && !reverseFieldName) {
+                const m2oRelation = relationsData.data?.find(
+                  (r: { collection: string; related_collection: string | null; field: string }) => 
+                    r.collection === relatedCollectionName && r.related_collection === collection
+                );
+                
+                if (m2oRelation) {
+                  reverseFieldName = m2oRelation.field;
+                }
+              }
+            }
+          } catch {
+            // Ignore relation fetch errors
+          }
+        }
+
+        if (!relatedCollectionName) {
+          setError(`No related collection configured for field "${field}".`);
+          setRelationInfo(null);
+          setLoading(false);
+          return;
+        }
+
+        if (!reverseFieldName) {
+          setError(`No foreign key field configured for field "${field}".`);
+          setRelationInfo(null);
+          setLoading(false);
+          return;
+        }
+
+        // Build relation info
+        const info: O2MRelationInfo = {
+          relatedCollection: {
+            collection: relatedCollectionName,
+            meta: {},
+          },
+          reverseJunctionField: {
+            field: reverseFieldName,
+            type: 'uuid',
+          },
+          relatedPrimaryKeyField: {
+            field: 'id',
+            type: 'uuid',
+          },
+          parentPrimaryKeyField: {
+            field: 'id',
+            type: 'uuid',
+          },
+          sortField: sortFieldName,
+          displayTemplate: fieldOptions?.template as string | undefined,
+          relation: {
+            field,
+            collection,
+            related_collection: relatedCollectionName,
+            meta: currentField.meta as Record<string, unknown> | undefined,
+          },
+        };
+
+        setRelationInfo(info);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load relationship configuration';
+        setError(errorMessage);
+        setRelationInfo(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRelationInfo();
+  }, [collection, field]);
+
+  return {
+    relationInfo,
+    loading,
+    error,
+  };
+}
+
+/**
+ * O2M Item - a related item in a One-to-Many relationship
+ */
+export interface O2MItem {
+  id: string | number;
+  $index?: number;
+  $type?: 'created' | 'updated' | 'deleted' | 'staged';
+  $edits?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/**
+ * Query parameters for loading O2M items
+ */
+export interface O2MQueryParams {
+  limit?: number;
+  page?: number;
+  search?: string;
+  sortField?: string;
+  sortDirection?: 'asc' | 'desc';
+  fields?: string[];
+  filter?: Record<string, unknown>;
+}
+
+/**
+ * Custom hook for managing O2M relationship items (CRUD operations)
+ */
+export function useRelationO2MItems(
+  relationInfo: O2MRelationInfo | null,
+  parentPrimaryKey: string | number | null
+) {
+  const [items, setItems] = useState<O2MItem[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load items from the related collection
+  const loadItems = useCallback(async (params?: O2MQueryParams) => {
+    if (!relationInfo || !parentPrimaryKey) {
+      setItems([]);
+      setTotalCount(0);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const query: Record<string, unknown> = {
+        limit: params?.limit || 15,
+        page: params?.page || 1,
+        filter: {
+          [relationInfo.reverseJunctionField.field]: {
+            _eq: parentPrimaryKey
+          }
+        },
+        meta: ['total_count', 'filter_count'],
+      };
+
+      if (params?.filter) {
+        query.filter = {
+          _and: [
+            query.filter,
+            params.filter
+          ]
+        };
+      }
+
+      if (params?.fields && params.fields.length > 0) {
+        query.fields = params.fields.join(',');
+      }
+
+      if (params?.search) {
+        query.search = params.search;
+      }
+
+      if (params?.sortField) {
+        query.sort = params.sortDirection === 'desc' 
+          ? `-${params.sortField}` 
+          : params.sortField;
+      } else if (relationInfo.sortField) {
+        query.sort = relationInfo.sortField;
+      }
+
+      const response = await fetch(
+        `/api/items/${relationInfo.relatedCollection.collection}?${new URLSearchParams(
+          Object.entries(query)
+            .filter(([, v]) => v !== undefined && v !== null)
+            .map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)])
+        )}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to load items: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setItems(data.data || []);
+      setTotalCount(data.meta?.total_count || data.meta?.filter_count || data.data?.length || 0);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load related items';
+      setError(errorMessage);
+      setItems([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [relationInfo, parentPrimaryKey]);
+
+  // Create a new item
+  const createItem = useCallback(async (data: Partial<O2MItem>): Promise<O2MItem | null> => {
+    if (!relationInfo || !parentPrimaryKey) return null;
+
+    try {
+      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      
+      const itemData = {
+        ...data,
+        [relationInfo.reverseJunctionField.field]: parentPrimaryKey,
+      };
+
+      const id = await itemsService.createOne(itemData);
+      const createdItem = await itemsService.readOne(id);
+      return createdItem as O2MItem;
+    } catch (err) {
+      throw err;
+    }
+  }, [relationInfo, parentPrimaryKey]);
+
+  // Update an existing item
+  const updateItem = useCallback(async (id: string | number, data: Partial<O2MItem>): Promise<O2MItem | null> => {
+    if (!relationInfo) return null;
+
+    try {
+      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      await itemsService.updateOne(id, data);
+      const updatedItem = await itemsService.readOne(id);
+      return updatedItem as O2MItem;
+    } catch (err) {
+      throw err;
+    }
+  }, [relationInfo]);
+
+  // Remove (unlink) an item
+  const removeItem = useCallback(async (item: O2MItem): Promise<void> => {
+    if (!relationInfo) return;
+
+    try {
+      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      await itemsService.updateOne(item.id, {
+        [relationInfo.reverseJunctionField.field]: null,
+      });
+      setItems(prev => prev.filter(i => i.id !== item.id));
+      setTotalCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      throw err;
+    }
+  }, [relationInfo]);
+
+  // Delete an item completely
+  const deleteItem = useCallback(async (item: O2MItem): Promise<void> => {
+    if (!relationInfo) return;
+
+    try {
+      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      await itemsService.deleteOne(item.id);
+      setItems(prev => prev.filter(i => i.id !== item.id));
+      setTotalCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      throw err;
+    }
+  }, [relationInfo]);
+
+  // Link existing items
+  const selectItems = useCallback(async (itemIds: (string | number)[]): Promise<void> => {
+    if (!relationInfo || !parentPrimaryKey) return;
+
+    try {
+      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      await Promise.all(
+        itemIds.map(id => 
+          itemsService.updateOne(id, {
+            [relationInfo.reverseJunctionField.field]: parentPrimaryKey,
+          })
+        )
+      );
+    } catch (err) {
+      throw err;
+    }
+  }, [relationInfo, parentPrimaryKey]);
+
+  // Reorder items
+  const reorderItems = useCallback(async (reorderedItems: O2MItem[]): Promise<void> => {
+    if (!relationInfo?.sortField) return;
+
+    try {
+      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      await Promise.all(
+        reorderedItems.map((item, index) => 
+          itemsService.updateOne(item.id, {
+            [relationInfo.sortField!]: index + 1,
+          })
+        )
+      );
+      setItems(reorderedItems);
+    } catch (err) {
+      throw err;
+    }
+  }, [relationInfo]);
+
+  // Move item up
+  const moveItemUp = useCallback(async (index: number): Promise<void> => {
+    if (index <= 0 || !relationInfo?.sortField) return;
+    const newItems = [...items];
+    [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+    await reorderItems(newItems);
+  }, [items, relationInfo, reorderItems]);
+
+  // Move item down
+  const moveItemDown = useCallback(async (index: number): Promise<void> => {
+    if (index >= items.length - 1 || !relationInfo?.sortField) return;
+    const newItems = [...items];
+    [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
+    await reorderItems(newItems);
+  }, [items, relationInfo, reorderItems]);
+
+  return {
+    items,
+    totalCount,
+    loading,
+    error,
+    loadItems,
+    createItem,
+    updateItem,
+    removeItem,
+    deleteItem,
+    selectItems,
+    reorderItems,
+    moveItemUp,
+    moveItemDown,
+    setItems,
+  };
+}

@@ -55,6 +55,6 @@ next-env.d.ts
 /sdk/
 
 # projects
-main-nextjs
-nextjs-supabase-daas
+/main-nextjs
+/nextjs-supabase-daas
 /*/*/node_modules/

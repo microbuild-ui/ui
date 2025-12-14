@@ -1,0 +1,26 @@
+{
+  "name": "@microbuild/services",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared service classes for Microbuild projects - Directus-compatible CRUD services",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./items": "./src/items.ts",
+    "./fields": "./src/fields.ts",
+    "./collections": "./src/collections.ts",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@microbuild/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "microbuild-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Microbuild monorepo workspace - shared components between Next.js projects",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "build:main": "pnpm --filter main-nextjs build",
+    "build:daas": "pnpm --filter nextjs-supabase-daas build",
+    "build:packages": "pnpm --filter './packages/**' build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r exec rm -rf node_modules .next dist",
+    "install:all": "pnpm install"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.17.0"
+}

@@ -1,0 +1,42 @@
+[20:13:24.669] [INFO] storybook v10.1.8
+[20:13:24.879] [DEBUG] Getting package.json info for /Users/macbook/Documents/microbuild/packages/ui-interfaces/package.json...
+[20:13:24.881] [WARN] You are currently using Storybook [1m10.1.8[22m but you have packages which are incompatible with it:
+
+- @storybook/blocks@8.6.14 which depends on ^8.6.14
+ Repo: https://github.com/storybookjs/storybook/tree/next/code/lib/blocks
+- @storybook/test@8.6.14 which depends on 8.6.14
+ Repo: https://github.com/storybookjs/storybook/tree/next/code/lib/test
+
+Please consider updating your packages or contacting the maintainers for compatibility details.
+
+For more details on compatibility guidance, see:
+https://github.com/storybookjs/storybook/issues/32836
+[20:13:24.894] [ERROR] [38;2;241;97;97mSB_CORE-SERVER_0002 (CriticalPresetLoadError): Storybook failed to load the following preset: @storybook/react-vite/preset.
+
+Please check whether your setup is correct, the Storybook dependencies (and their peer dependencies) are installed correctly and there are no package version clashes.
+
+If you believe this is a bug, please open an issue on Github.
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@storybook/react-vite' imported from /Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/_node-chunks/chunk-MOOIRZDT.js
+    at packageResolve (node:internal/modules/esm/resolve:857:9)
+    at moduleResolve (node:internal/modules/esm/resolve:926:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1056:11)
+    at nextResolve (node:internal/modules/esm/hooks:748:28)
+    at Hooks.resolve (node:internal/modules/esm/hooks:240:30)
+    at MessagePort.handleMessage (node:internal/modules/esm/worker:199:24)
+    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:827:20)
+    at MessagePort.<anonymous> (node:internal/per_context/messageport:23:28)
+
+More info: 
+[39m
+    at loadPreset (file:///Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/_node-chunks/chunk-76UP3JOL.js:10101:13)
+    at async Promise.all (index 0)
+    at async loadPresets (file:///Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/_node-chunks/chunk-76UP3JOL.js:10110:73)
+    at async getPresets (file:///Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/_node-chunks/chunk-76UP3JOL.js:10141:23)
+    at async buildDevStandalone (file:///Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/core-server/index.js:7163:17)
+    at async withTelemetry (file:///Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/_node-chunks/chunk-6CJUCYYK.js:209:12)
+    at async dev (file:///Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/bin/core.js:2734:3)
+    at async _Command.<anonymous> (file:///Users/macbook/.npm/_npx/6fe9a9991b157df1/node_modules/storybook/dist/bin/core.js:2801:92)
+[20:13:24.895] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
+[20:13:29.262] [PROMPT] Would you like to send anonymous crash reports to improve Storybook and fix bugs faster? {"choice":false}
