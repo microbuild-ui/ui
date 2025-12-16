@@ -2,7 +2,7 @@
 
 This guide will help you set up and use the Microbuild distribution tools.
 
-## 🤖 Setup MCP Server for Claude Desktop
+## 🤖 Setup MCP Server for VS Code Copilot
 
 ### Step 1: Build the MCP Server
 
@@ -11,23 +11,25 @@ cd /path/to/microbuild
 pnpm build:mcp
 ```
 
-### Step 2: Configure Claude Desktop
+### Step 2: Configure VS Code
 
-1. **Find your Claude Desktop config file:**
+1. **Open VS Code Settings:**
 
-   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
+   - Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows/Linux)
+   - Type "Preferences: Open User Settings (JSON)"
 
-2. **Edit the config file** and add:
+2. **Add MCP server configuration:**
 
 ```json
 {
-  "mcpServers": {
-    "microbuild": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
-      ]
+  "mcp": {
+    "servers": {
+      "microbuild": {
+        "command": "node",
+        "args": [
+          "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
+        ]
+      }
     }
   }
 }
@@ -35,13 +37,13 @@ pnpm build:mcp
 
 **Important:** Replace `/absolute/path/to/microbuild` with the actual absolute path to your Microbuild directory.
 
-### Step 3: Restart Claude Desktop
+### Step 3: Reload VS Code
 
-Close and reopen Claude Desktop for the changes to take effect.
+Reload the VS Code window for the changes to take effect (`Cmd+Shift+P` → "Developer: Reload Window").
 
-### Step 4: Test with Claude
+### Step 4: Test with Copilot
 
-Ask Claude:
+Ask Copilot:
 
 - "List all Microbuild components"
 - "Show me how to use the Input component from Microbuild"
@@ -146,11 +148,9 @@ microbuild list --json
    # Press Ctrl+C to exit
    ```
 
-4. Check Claude Desktop logs:
-   ```bash
-   # macOS
-   tail -f ~/Library/Logs/Claude/mcp*.log
-   ```
+4. Check VS Code Output panel:
+   - Open Output panel (`Cmd+Shift+U` or `Ctrl+Shift+U`)
+   - Select "MCP" from the dropdown to see server logs
 
 ### Test CLI
 
@@ -214,11 +214,11 @@ pnpm cli list
 
 ### MCP Server Issues
 
-**Claude doesn't show Microbuild:**
-- Check absolute path in config file
+**VS Code doesn't show Microbuild MCP:**
+- Check absolute path in settings.json
 - Ensure server is built: `pnpm build:mcp`
-- Check logs: `~/Library/Logs/Claude/mcp*.log`
-- Restart Claude Desktop
+- Check Output panel for MCP errors
+- Reload VS Code window
 
 **"Module not found" errors:**
 - Run `pnpm install` in workspace root
@@ -242,8 +242,8 @@ pnpm cli list
 ## 📚 Next Steps
 
 1. **For AI Development:**
-   - Configure Claude Desktop with MCP server
-   - Ask Claude to generate forms and components
+   - Configure VS Code with MCP server
+   - Ask Copilot to generate forms and components
    - Let AI discover and use your component library
 
 2. **For Team Development:**

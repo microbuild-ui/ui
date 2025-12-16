@@ -1,296 +1,607 @@
 {
-  "$schema": "https://json.schemastore.org/package.json",
+  "$schema": "https://microbuild.dev/registry.schema.json",
   "version": "1.0.0",
-  "packages": [
-    {
-      "name": "@microbuild/types",
-      "description": "TypeScript type definitions for collections, fields, files, and relations",
-      "path": "packages/types",
-      "exports": ["Field", "FieldMeta", "FieldSchema", "Collection", "CollectionMeta", "Query", "Filter", "Relation", "RelationMeta", "DirectusFile", "PrimaryKey", "AnyItem"]
+  "name": "microbuild",
+  "description": "A collection of copy-and-own components for building Directus-compatible CMS frontends",
+  "license": "MIT",
+  "repository": "https://github.com/your-org/microbuild",
+  
+  "meta": {
+    "model": "copy-own",
+    "framework": "react",
+    "uiLibrary": "mantine-v8",
+    "typescript": true
+  },
+
+  "aliases": {
+    "@/lib/microbuild": "./lib/microbuild",
+    "@/components/ui": "./components/ui"
+  },
+
+  "dependencies": {
+    "core": ["@mantine/core", "@mantine/hooks", "react", "react-dom"],
+    "icons": ["@tabler/icons-react"],
+    "dates": ["@mantine/dates", "dayjs"],
+    "dropzone": ["@mantine/dropzone"],
+    "notifications": ["@mantine/notifications"],
+    "richText": ["@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link"]
+  },
+
+  "lib": {
+    "utils": {
+      "name": "utils",
+      "description": "Utility functions (cn, formatFileSize, etc.)",
+      "path": "cli/templates/lib/utils.ts",
+      "target": "lib/microbuild/utils.ts"
     },
-    {
-      "name": "@microbuild/services",
+    "types": {
+      "name": "types",
+      "description": "Core TypeScript types for collections, fields, files, and relations",
+      "files": [
+        {
+          "source": "types/src/core.ts",
+          "target": "lib/microbuild/types/core.ts"
+        },
+        {
+          "source": "types/src/file.ts",
+          "target": "lib/microbuild/types/file.ts"
+        },
+        {
+          "source": "types/src/relations.ts",
+          "target": "lib/microbuild/types/relations.ts"
+        },
+        {
+          "source": "cli/templates/lib/types/index.ts",
+          "target": "lib/microbuild/types/index.ts"
+        }
+      ]
+    },
+    "services": {
+      "name": "services",
       "description": "CRUD service classes for items, fields, and collections",
-      "path": "packages/services",
-      "exports": ["ItemsService", "FieldsService", "CollectionsService", "apiRequest"]
+      "files": [
+        {
+          "source": "services/src/api-request.ts",
+          "target": "lib/microbuild/services/api-request.ts"
+        },
+        {
+          "source": "services/src/items.ts",
+          "target": "lib/microbuild/services/items.ts"
+        },
+        {
+          "source": "services/src/fields.ts",
+          "target": "lib/microbuild/services/fields.ts"
+        },
+        {
+          "source": "services/src/collections.ts",
+          "target": "lib/microbuild/services/collections.ts"
+        },
+        {
+          "source": "cli/templates/lib/services/index.ts",
+          "target": "lib/microbuild/services/index.ts"
+        }
+      ],
+      "internalDependencies": ["types"]
     },
-    {
-      "name": "@microbuild/hooks",
-      "description": "React hooks for managing relational data",
-      "path": "packages/hooks",
-      "exports": ["useRelationM2M", "useRelationM2MItems", "useRelationM2O", "useRelationM2OItem", "useRelationO2M", "useRelationO2MItems", "useRelationM2A", "useFiles", "api", "directusAPI"]
-    },
-    {
-      "name": "@microbuild/ui-interfaces",
-      "description": "Field interface components (inputs, selects, file uploads, etc.)",
-      "path": "packages/ui-interfaces",
-      "exports": []
-    },
-    {
-      "name": "@microbuild/ui-collections",
-      "description": "Dynamic collection components (CollectionForm, CollectionList)",
-      "path": "packages/ui-collections",
-      "exports": []
+    "hooks": {
+      "name": "hooks",
+      "description": "React hooks for managing relational data (M2M, M2O, O2M, M2A)",
+      "files": [
+        {
+          "source": "hooks/src/api.ts",
+          "target": "lib/microbuild/hooks/api.ts"
+        },
+        {
+          "source": "hooks/src/utils.ts",
+          "target": "lib/microbuild/hooks/utils.ts"
+        },
+        {
+          "source": "hooks/src/useFiles.ts",
+          "target": "lib/microbuild/hooks/useFiles.ts"
+        },
+        {
+          "source": "hooks/src/useRelationM2M.ts",
+          "target": "lib/microbuild/hooks/useRelationM2M.ts"
+        },
+        {
+          "source": "hooks/src/useRelationM2MItems.ts",
+          "target": "lib/microbuild/hooks/useRelationM2MItems.ts"
+        },
+        {
+          "source": "hooks/src/useRelationM2O.ts",
+          "target": "lib/microbuild/hooks/useRelationM2O.ts"
+        },
+        {
+          "source": "hooks/src/useRelationO2M.ts",
+          "target": "lib/microbuild/hooks/useRelationO2M.ts"
+        },
+        {
+          "source": "hooks/src/useRelationM2A.ts",
+          "target": "lib/microbuild/hooks/useRelationM2A.ts"
+        },
+        {
+          "source": "cli/templates/lib/hooks/index.ts",
+          "target": "lib/microbuild/hooks/index.ts"
+        }
+      ],
+      "internalDependencies": ["types", "services"]
     }
-  ],
+  },
+
   "components": [
     {
-      "name": "Input",
-      "package": "@microbuild/ui-interfaces",
+      "name": "input",
+      "title": "Input",
+      "description": "Text input with validation, numeric support, and slug conversion",
       "category": "input",
-      "description": "Text input with validation",
-      "path": "packages/ui-interfaces/src/input",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/input/Input.tsx",
+          "target": "components/ui/input.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
-      "name": "Textarea",
-      "package": "@microbuild/ui-interfaces",
+      "name": "textarea",
+      "title": "Textarea",
+      "description": "Multi-line text input with character count",
       "category": "input",
-      "description": "Multi-line text input",
-      "path": "packages/ui-interfaces/src/textarea",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/textarea/Textarea.tsx",
+          "target": "components/ui/textarea.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "InputCode",
-      "package": "@microbuild/ui-interfaces",
+      "name": "input-code",
+      "title": "InputCode",
+      "description": "Code editor with syntax highlighting and line numbers",
       "category": "input",
-      "description": "Code editor with syntax highlighting",
-      "path": "packages/ui-interfaces/src/input-code",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/input-code/InputCode.tsx",
+          "target": "components/ui/input-code.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks"],
+      "internalDependencies": []
     },
     {
-      "name": "Tags",
-      "package": "@microbuild/ui-interfaces",
-      "category": "input",
+      "name": "tags",
+      "title": "Tags",
       "description": "Tag input with presets and custom tags",
-      "path": "packages/ui-interfaces/src/tags",
-      "peerDependencies": ["@mantine/core", "react"]
+      "category": "input",
+      "files": [
+        {
+          "source": "ui-interfaces/src/tags/Tags.tsx",
+          "target": "components/ui/tags.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
-      "name": "SelectDropdown",
-      "package": "@microbuild/ui-interfaces",
+      "name": "select-dropdown",
+      "title": "SelectDropdown",
+      "description": "Dropdown select with search and custom option support",
       "category": "selection",
-      "description": "Dropdown select with search",
-      "path": "packages/ui-interfaces/src/select-dropdown",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/select-dropdown/SelectDropdown.tsx",
+          "target": "components/ui/select-dropdown.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "SelectRadio",
-      "package": "@microbuild/ui-interfaces",
+      "name": "select-radio",
+      "title": "SelectRadio",
+      "description": "Radio button group with customizable layout",
       "category": "selection",
-      "description": "Radio button group",
-      "path": "packages/ui-interfaces/src/select-radio",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/select-radio/SelectRadio.tsx",
+          "target": "components/ui/select-radio.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "SelectMultipleCheckbox",
-      "package": "@microbuild/ui-interfaces",
+      "name": "select-multiple-checkbox",
+      "title": "SelectMultipleCheckbox",
+      "description": "Checkbox group with 'other' option support",
       "category": "selection",
-      "description": "Checkbox group with 'other' option",
-      "path": "packages/ui-interfaces/src/select-multiple-checkbox",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/select-multiple-checkbox/SelectMultipleCheckbox.tsx",
+          "target": "components/ui/select-multiple-checkbox.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "SelectIcon",
-      "package": "@microbuild/ui-interfaces",
+      "name": "select-icon",
+      "title": "SelectIcon",
+      "description": "Icon picker with categorized Tabler icons",
       "category": "selection",
-      "description": "Icon picker with categorized Material icons",
-      "path": "packages/ui-interfaces/src/select-icon",
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/select-icon/SelectIcon.tsx",
+          "target": "components/ui/select-icon.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
-      "name": "AutocompleteAPI",
-      "package": "@microbuild/ui-interfaces",
+      "name": "autocomplete-api",
+      "title": "AutocompleteAPI",
+      "description": "External API-backed autocomplete input",
       "category": "selection",
-      "description": "External API-backed autocomplete",
-      "path": "packages/ui-interfaces/src/autocomplete-api",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/autocomplete-api/AutocompleteApi.tsx",
+          "target": "components/ui/autocomplete-api.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks"],
+      "internalDependencies": []
     },
     {
-      "name": "CollectionItemDropdown",
-      "package": "@microbuild/ui-interfaces",
-      "category": "selection",
+      "name": "collection-item-dropdown",
+      "title": "CollectionItemDropdown",
       "description": "Collection item selector dropdown",
-      "path": "packages/ui-interfaces/src/collection-item-dropdown",
-      "dependencies": ["@microbuild/services", "@microbuild/types"],
-      "peerDependencies": ["@mantine/core", "react"]
+      "category": "selection",
+      "files": [
+        {
+          "source": "ui-interfaces/src/collection-item-dropdown/CollectionItemDropdown.tsx",
+          "target": "components/ui/collection-item-dropdown.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks"],
+      "internalDependencies": ["types", "services"]
     },
     {
-      "name": "DateTime",
-      "package": "@microbuild/ui-interfaces",
-      "category": "datetime",
+      "name": "datetime",
+      "title": "DateTime",
       "description": "Date, time, and datetime picker",
-      "path": "packages/ui-interfaces/src/datetime",
-      "peerDependencies": ["@mantine/core", "@mantine/dates", "react"]
+      "category": "datetime",
+      "files": [
+        {
+          "source": "ui-interfaces/src/datetime/DateTime.tsx",
+          "target": "components/ui/datetime.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/dates", "dayjs"],
+      "internalDependencies": []
     },
     {
-      "name": "Boolean",
-      "package": "@microbuild/ui-interfaces",
+      "name": "boolean",
+      "title": "Boolean",
+      "description": "Checkbox toggle for boolean fields",
       "category": "boolean",
-      "description": "Checkbox toggle",
-      "path": "packages/ui-interfaces/src/boolean",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/boolean/Boolean.tsx",
+          "target": "components/ui/boolean.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "Toggle",
-      "package": "@microbuild/ui-interfaces",
+      "name": "toggle",
+      "title": "Toggle",
+      "description": "Enhanced switch toggle with icons and state labels",
       "category": "boolean",
-      "description": "Enhanced switch toggle with icons and labels",
-      "path": "packages/ui-interfaces/src/toggle",
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/toggle/Toggle.tsx",
+          "target": "components/ui/toggle.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
-      "name": "FileInterface",
-      "package": "@microbuild/ui-interfaces",
+      "name": "file",
+      "title": "FileInterface",
+      "description": "Single file upload with preview",
       "category": "media",
-      "description": "Single file upload",
-      "path": "packages/ui-interfaces/src/file",
-      "dependencies": ["@microbuild/types"],
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/file/FileInterface.tsx",
+          "target": "components/ui/file.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": ["types"]
     },
     {
-      "name": "FileImage",
-      "package": "@microbuild/ui-interfaces",
+      "name": "file-image",
+      "title": "FileImage",
+      "description": "Image file picker with preview and focal point",
       "category": "media",
-      "description": "Image file picker with preview",
-      "path": "packages/ui-interfaces/src/file-image",
-      "dependencies": ["@microbuild/types"],
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/file-image/FileImage.tsx",
+          "target": "components/ui/file-image.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": ["types"]
     },
     {
-      "name": "Files",
-      "package": "@microbuild/ui-interfaces",
+      "name": "files",
+      "title": "Files",
+      "description": "Multiple file upload interface with drag & drop",
       "category": "media",
-      "description": "Multiple file upload interface",
-      "path": "packages/ui-interfaces/src/files",
-      "dependencies": ["@microbuild/types", "@microbuild/hooks"],
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/files/Files.tsx",
+          "target": "components/ui/files.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": ["types", "hooks"]
     },
     {
-      "name": "Upload",
-      "package": "@microbuild/ui-interfaces",
-      "category": "media",
+      "name": "upload",
+      "title": "Upload",
       "description": "Drag-and-drop file upload zone",
-      "path": "packages/ui-interfaces/src/upload",
-      "peerDependencies": ["@mantine/core", "@mantine/dropzone", "react"]
-    },
-    {
-      "name": "Color",
-      "package": "@microbuild/ui-interfaces",
       "category": "media",
-      "description": "Color picker with RGB/HSL support and presets",
-      "path": "packages/ui-interfaces/src/color",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/upload/Upload.tsx",
+          "target": "components/ui/upload.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/dropzone"],
+      "internalDependencies": []
     },
     {
-      "name": "ListM2M",
-      "package": "@microbuild/ui-interfaces",
-      "category": "relational",
-      "description": "Many-to-Many relationship interface",
-      "path": "packages/ui-interfaces/src/list-m2m",
-      "dependencies": ["@microbuild/types", "@microbuild/hooks", "@microbuild/services"],
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "name": "color",
+      "title": "Color",
+      "description": "Color picker with RGB/HSL support, presets, and opacity",
+      "category": "media",
+      "files": [
+        {
+          "source": "ui-interfaces/src/color/Color.tsx",
+          "target": "components/ui/color.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "ListM2O",
-      "package": "@microbuild/ui-interfaces",
+      "name": "list-m2m",
+      "title": "ListM2M",
+      "description": "Many-to-Many relationship interface with inline editing",
       "category": "relational",
+      "files": [
+        {
+          "source": "ui-interfaces/src/list-m2m/ListM2M.tsx",
+          "target": "components/ui/list-m2m.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/list-m2m/ListM2MInterface.tsx",
+          "target": "components/ui/list-m2m-interface.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": ["types", "hooks", "services"],
+      "registryDependencies": ["collection-form", "collection-list"]
+    },
+    {
+      "name": "list-m2o",
+      "title": "ListM2O",
       "description": "Many-to-One relationship interface",
-      "path": "packages/ui-interfaces/src/list-m2o",
-      "dependencies": ["@microbuild/types", "@microbuild/hooks", "@microbuild/services"],
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "category": "relational",
+      "files": [
+        {
+          "source": "ui-interfaces/src/list-m2o/ListM2O.tsx",
+          "target": "components/ui/list-m2o.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": ["types", "hooks", "services"]
     },
     {
-      "name": "ListO2M",
-      "package": "@microbuild/ui-interfaces",
-      "category": "relational",
+      "name": "list-o2m",
+      "title": "ListO2M",
       "description": "One-to-Many relationship interface",
-      "path": "packages/ui-interfaces/src/list-o2m",
-      "dependencies": ["@microbuild/types", "@microbuild/hooks", "@microbuild/services"],
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
-    },
-    {
-      "name": "ListM2A",
-      "package": "@microbuild/ui-interfaces",
       "category": "relational",
+      "files": [
+        {
+          "source": "ui-interfaces/src/list-o2m/ListO2M.tsx",
+          "target": "components/ui/list-o2m.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": ["types", "hooks", "services"]
+    },
+    {
+      "name": "list-m2a",
+      "title": "ListM2A",
       "description": "Many-to-Any polymorphic relationship interface",
-      "path": "packages/ui-interfaces/src/list-m2a",
-      "dependencies": ["@microbuild/types", "@microbuild/hooks", "@microbuild/services"],
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "category": "relational",
+      "files": [
+        {
+          "source": "ui-interfaces/src/list-m2a/ListM2A.tsx",
+          "target": "components/ui/list-m2a.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": ["types", "hooks", "services"]
     },
     {
-      "name": "Divider",
-      "package": "@microbuild/ui-interfaces",
-      "category": "layout",
+      "name": "divider",
+      "title": "Divider",
       "description": "Horizontal/vertical divider with title support",
-      "path": "packages/ui-interfaces/src/divider",
-      "peerDependencies": ["@mantine/core", "react"]
+      "category": "layout",
+      "files": [
+        {
+          "source": "ui-interfaces/src/divider/Divider.tsx",
+          "target": "components/ui/divider.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
-      "name": "Notice",
-      "package": "@microbuild/ui-interfaces",
-      "category": "layout",
+      "name": "notice",
+      "title": "Notice",
       "description": "Alert/notice component (info, success, warning, danger)",
-      "path": "packages/ui-interfaces/src/notice",
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "category": "layout",
+      "files": [
+        {
+          "source": "ui-interfaces/src/notice/Notice.tsx",
+          "target": "components/ui/notice.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
-      "name": "GroupDetail",
-      "package": "@microbuild/ui-interfaces",
+      "name": "group-detail",
+      "title": "GroupDetail",
+      "description": "Collapsible form section with header",
       "category": "layout",
-      "description": "Collapsible form section",
-      "path": "packages/ui-interfaces/src/group-detail",
-      "peerDependencies": ["@mantine/core", "@tabler/icons-react", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/group-detail/GroupDetail.tsx",
+          "target": "components/ui/group-detail.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
-      "name": "Slider",
-      "package": "@microbuild/ui-interfaces",
-      "category": "layout",
+      "name": "slider",
+      "title": "Slider",
       "description": "Range slider with numeric type support",
-      "path": "packages/ui-interfaces/src/slider",
-      "peerDependencies": ["@mantine/core", "react"]
+      "category": "layout",
+      "files": [
+        {
+          "source": "ui-interfaces/src/slider/Slider.tsx",
+          "target": "components/ui/slider.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "InputBlockEditor",
-      "package": "@microbuild/ui-interfaces",
+      "name": "rich-text-html",
+      "title": "RichTextHtml",
+      "description": "WYSIWYG HTML editor powered by TipTap",
       "category": "rich-text",
-      "description": "Block-based content editor",
-      "path": "packages/ui-interfaces/src/input-block-editor",
-      "peerDependencies": ["@mantine/core", "react"]
+      "files": [
+        {
+          "source": "ui-interfaces/src/rich-text-html/RichTextHtml.tsx",
+          "target": "components/ui/rich-text-html.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link"],
+      "internalDependencies": []
     },
     {
-      "name": "RichTextHtml",
-      "package": "@microbuild/ui-interfaces",
-      "category": "rich-text",
-      "description": "WYSIWYG HTML editor with TipTap",
-      "path": "packages/ui-interfaces/src/rich-text-html",
-      "peerDependencies": ["@mantine/core", "react"]
-    },
-    {
-      "name": "RichTextMarkdown",
-      "package": "@microbuild/ui-interfaces",
-      "category": "rich-text",
+      "name": "rich-text-markdown",
+      "title": "RichTextMarkdown",
       "description": "Markdown editor with live preview",
-      "path": "packages/ui-interfaces/src/rich-text-markdown",
-      "peerDependencies": ["@mantine/core", "react"]
+      "category": "rich-text",
+      "files": [
+        {
+          "source": "ui-interfaces/src/rich-text-markdown/RichTextMarkdown.tsx",
+          "target": "components/ui/rich-text-markdown.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core"],
+      "internalDependencies": []
     },
     {
-      "name": "CollectionForm",
-      "package": "@microbuild/ui-collections",
-      "category": "layout",
+      "name": "collection-form",
+      "title": "CollectionForm",
       "description": "Dynamic form that auto-renders fields based on collection schema",
-      "path": "packages/ui-collections/src/collection-form",
-      "dependencies": ["@microbuild/types", "@microbuild/services", "@microbuild/ui-interfaces"],
-      "peerDependencies": ["@mantine/core", "react"]
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-collections/src/CollectionForm.tsx",
+          "target": "components/ui/collection-form.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/notifications"],
+      "internalDependencies": ["types", "services"],
+      "registryDependencies": ["input", "textarea", "select-dropdown", "datetime", "toggle", "boolean"]
     },
     {
-      "name": "CollectionList",
-      "package": "@microbuild/ui-collections",
-      "category": "layout",
-      "description": "Dynamic table with pagination, search, selection, bulk actions",
-      "path": "packages/ui-collections/src/collection-list",
-      "dependencies": ["@microbuild/types", "@microbuild/services"],
-      "peerDependencies": ["@mantine/core", "react"]
+      "name": "collection-list",
+      "title": "CollectionList",
+      "description": "Dynamic table with pagination, search, selection, and bulk actions",
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-collections/src/CollectionList.tsx",
+          "target": "components/ui/collection-list.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": ["types", "services"]
+    }
+  ],
+
+  "categories": [
+    {
+      "name": "input",
+      "title": "Input",
+      "description": "Text and data input components"
+    },
+    {
+      "name": "selection",
+      "title": "Selection",
+      "description": "Dropdowns, checkboxes, and selection components"
+    },
+    {
+      "name": "datetime",
+      "title": "Date & Time",
+      "description": "Date and time picker components"
+    },
+    {
+      "name": "boolean",
+      "title": "Boolean",
+      "description": "Toggle and checkbox components"
+    },
+    {
+      "name": "media",
+      "title": "Media",
+      "description": "File upload and media components"
+    },
+    {
+      "name": "relational",
+      "title": "Relational",
+      "description": "Relationship management components (M2M, M2O, O2M)"
+    },
+    {
+      "name": "layout",
+      "title": "Layout",
+      "description": "Layout and organizational components"
+    },
+    {
+      "name": "rich-text",
+      "title": "Rich Text",
+      "description": "Rich text and content editing components"
+    },
+    {
+      "name": "collection",
+      "title": "Collection",
+      "description": "Dynamic collection components"
     }
   ]
 }

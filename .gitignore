@@ -59,6 +59,4 @@ packages/*/dist/
 /sdk/
 
 # projects
-/main-nextjs
-/nextjs-supabase-daas
 /*/*/node_modules/

@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "microbuild": {
+      "command": "node",
+      "args": [
+        "/Users/macbook/Documents/microbuild/packages/mcp-server/dist/index.js"
+      ]
+    }
+  }
+}

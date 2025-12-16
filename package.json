@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
-    "build:main": "pnpm --filter main-nextjs build",
-    "build:daas": "pnpm --filter nextjs-supabase-daas build",
     "build:packages": "pnpm --filter './packages/**' build",
     "build:mcp": "pnpm --filter @microbuild/mcp-server build",
     "build:cli": "pnpm --filter @microbuild/cli build",

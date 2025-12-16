@@ -29,7 +29,8 @@
     "mcp",
     "model-context-protocol",
     "ai",
-    "claude",
+    "copilot",
+    "vscode",
     "directus",
     "cms",
     "components"

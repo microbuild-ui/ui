@@ -2,7 +2,14 @@
 /**
  * Microbuild CLI
  * 
- * CLI tool for adding Microbuild components to your project, similar to shadcn/ui.
+ * Copy & Own CLI tool for adding Microbuild components to your project.
+ * 
+ * Benefits:
+ * ✅ No dependency on external packages for component code
+ * ✅ Full customization - components become part of your codebase
+ * ✅ No breaking changes from upstream updates
+ * ✅ Bundle only what you use - tree-shaking friendly
+ * ✅ Works offline after installation
  */
 
 import { Command } from 'commander';
@@ -15,19 +22,19 @@ const program = new Command();
 
 program
   .name('microbuild')
-  .description('Add Microbuild components to your project')
+  .description('Copy & Own CLI - Add Microbuild components to your project')
   .version('1.0.0');
 
 program
   .command('init')
-  .description('Initialize Microbuild in your project')
+  .description('Initialize Microbuild in your project (creates microbuild.json)')
   .option('-y, --yes', 'Skip prompts and use defaults')
   .option('-c, --cwd <path>', 'Project directory', process.cwd())
   .action(init);
 
 program
   .command('add')
-  .description('Add components to your project')
+  .description('Copy components to your project (with transformed imports)')
   .argument('[components...]', 'Component names to add')
   .option('-a, --all', 'Add all components')
   .option('--category <name>', 'Add all components from a category')
@@ -40,6 +47,7 @@ program
   .description('List all available components')
   .option('--category <name>', 'Filter by category')
   .option('--json', 'Output as JSON')
+  .option('--cwd <path>', 'Project directory', process.cwd())
   .action(list);
 
 program

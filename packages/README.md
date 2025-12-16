@@ -1,59 +1,152 @@
-# Microbuild Packages
+# Microbuild
 
-A modular monorepo of shared packages for building Directus-compatible content management applications with React and Mantine v8.
+Microbuild is a set of beautifully-designed, accessible components and a code distribution platform for building Directus-compatible content management applications. Works with React 18/19, Mantine v8, and AI models. **Open Source. Open Code.**
 
-## Overview
+This is not a component library. It is how you build your component library.
 
-Microbuild provides a complete toolkit for building headless CMS frontends that work seamlessly with Directus-style backends. The packages are designed to work together while remaining independently usable.
+## Philosophy
+
+Microbuild is built around the following principles:
+
+- **Open Code**: The component code is yours to modify and extend
+- **Composition**: Every component uses a common, composable interface
+- **Distribution**: A flat-file schema and CLI make it easy to distribute components
+- **AI-Ready**: Open code for LLMs to read, understand, and improve
+
+### Open Code
+
+Microbuild hands you the actual component code. You have full control to customize and extend:
+
+- **Full Transparency**: You see exactly how each component is built
+- **Easy Customization**: Modify any part of a component to fit your requirements
+- **AI Integration**: Access to the code makes it straightforward for LLMs to understand and improve your components
+
+In a typical library, if you need to change a component's behavior, you have to override styles or wrap the component. With Microbuild, you simply edit the code directly.
+
+### Distribution
+
+Microbuild is also a code distribution system. It defines a schema for components and a CLI to distribute them:
+
+- **Schema**: A flat-file structure (`registry.json`) that defines the components, their dependencies, and properties
+- **CLI**: A command-line tool to distribute and install components with import transformation
+
+## Quick Start
+
+```bash
+# 1. Initialize in your project
+npx @microbuild/cli init
+
+# 2. Add components you need
+npx @microbuild/cli add input select-dropdown datetime
+
+# 3. Use in your code
+import { Input } from '@/components/ui/input'
+```
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
+| [@microbuild/cli](./cli) | CLI tool for copying components to projects |
 | [@microbuild/types](./types) | TypeScript type definitions for collections, fields, files, and relations |
 | [@microbuild/services](./services) | CRUD service classes for items, fields, and collections |
 | [@microbuild/hooks](./hooks) | React hooks for managing relational data (M2M, M2O, O2M, M2A) |
 | [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (inputs, selects, file uploads, etc.) |
 | [@microbuild/ui-collections](./ui-collections) | Dynamic collection components (CollectionForm, CollectionList) |
-| [@microbuild/mcp-server](./mcp-server) | Model Context Protocol server for AI agents (Claude Desktop) |
-| [@microbuild/cli](./cli) | CLI tool for copying components to projects (like shadcn/ui) |
+| [@microbuild/mcp-server](./mcp-server) | Model Context Protocol server for AI agents (VS Code Copilot) |
 
-## Architecture
+## Architecture (Copy & Own)
+
+### Package Layers
+
+The packages are designed in layers, where higher-level packages depend on lower-level ones:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Your Application                         │
 ├─────────────────────────────────────────────────────────────┤
-│  @microbuild/ui-collections   │   @microbuild/ui-interfaces │
+│  ui-collections               │   ui-interfaces             │
 │  (CollectionForm, List)       │   (Field Components)        │
+│  → @/components/ui/           │   → @/components/ui/        │
 ├───────────────────────────────┴─────────────────────────────┤
-│                     @microbuild/hooks                       │
+│                         hooks                               │
 │        (useRelationM2M, useRelationM2O, useFiles, etc.)     │
+│                  → @/lib/microbuild/hooks/                  │
 ├─────────────────────────────────────────────────────────────┤
-│                    @microbuild/services                     │
+│                        services                             │
 │        (ItemsService, FieldsService, CollectionsService)    │
+│                → @/lib/microbuild/services/                 │
 ├─────────────────────────────────────────────────────────────┤
-│                     @microbuild/types                       │
+│                         types                               │
 │        (TypeScript definitions for all entities)            │
+│                 → @/lib/microbuild/types/                   │
 └─────────────────────────────────────────────────────────────┘
+```
+
+### Project Structure After Installation
+
+When you add components, they're copied to your project with this structure:
+
+```
+your-project/
+├── src/
+│   ├── components/
+│   │   └── ui/                      # Copied UI components
+│   │       ├── input.tsx
+│   │       ├── select-dropdown.tsx
+│   │       ├── datetime.tsx
+│   │       └── ...
+│   └── lib/
+│       └── microbuild/              # Copied lib modules
+│           ├── utils.ts             # Utility functions (cn, etc.)
+│           ├── types/               # TypeScript types
+│           │   ├── core.ts
+│           │   ├── file.ts
+│           │   └── relations.ts
+│           ├── services/            # CRUD services
+│           │   ├── items.ts
+│           │   ├── fields.ts
+│           │   └── collections.ts
+│           └── hooks/               # React hooks
+│               ├── useRelationM2M.ts
+│               ├── useRelationM2O.ts
+│               └── ...
+└── microbuild.json                  # Tracks installed components
 ```
 
 ## Installation
 
-Using pnpm (recommended):
+### CLI (Recommended - Copy & Own)
 
 ```bash
-# Install individual packages
-pnpm add @microbuild/types
-pnpm add @microbuild/services
-pnpm add @microbuild/hooks
-pnpm add @microbuild/ui-interfaces
-pnpm add @microbuild/ui-collections
+# Initialize Microbuild in your project
+npx @microbuild/cli init
+
+# Add specific components
+npx @microbuild/cli add input select-dropdown toggle
+
+# Add all components in a category
+npx @microbuild/cli add --category selection
+
+# Add all components
+npx @microbuild/cli add --all
+
+# List available components
+npx @microbuild/cli list
+```
+
+### Traditional Package Installation (Alternative)
+
+If you prefer the traditional package model:
+
+```bash
+pnpm add @microbuild/types @microbuild/services @microbuild/hooks
+pnpm add @microbuild/ui-interfaces @microbuild/ui-collections
 ```
 
 ### Peer Dependencies
 
-The UI packages require the following peer dependencies:
+The UI components require:
 
 ```bash
 pnpm add @mantine/core @mantine/hooks @mantine/dates @mantine/notifications @tabler/icons-react react react-dom

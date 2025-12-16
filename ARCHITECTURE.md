@@ -42,7 +42,7 @@
 │                          ▼                                          │
 │         ┌────────────────────────────────────┐                     │
 │         │    ui-interfaces/                  │                     │
-│         │    (31 Components)                 │                     │
+│         │    (30 Components)                 │                     │
 │         │  - Input, Select, DateTime, etc.   │                     │
 │         └────────────────┬───────────────────┘                     │
 │                          │                                          │
@@ -60,17 +60,18 @@
 │                       Consumer Layer                                 │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
-│  ┌───────────────┐   ┌───────────────┐   ┌───────────────┐        │
-│  │   Workspace   │   │  External     │   │  AI Assistant │        │
-│  │   Apps        │   │  Projects     │   │  (Claude)     │        │
-│  ├───────────────┤   ├───────────────┤   ├───────────────┤        │
-│  │ main-nextjs   │   │ Via CLI:      │   │ Via MCP:      │        │
-│  │ daas-platform │   │ - Copy files  │   │ - Discover    │        │
-│  │               │   │ - Own code    │   │ - Generate    │        │
-│  │ Via workspace:│   │ - Customize   │   │ - Assist      │        │
-│  │ - Fast HMR    │   │               │   │               │        │
-│  │ - Type safe   │   │               │   │               │        │
-│  └───────────────┘   └───────────────┘   └───────────────┘        │
+│       ┌─────────────────────────┐   ┌───────────────────────┐      │
+│       │   Projects (CLI)        │   │   AI Assistant        │      │
+│       ├─────────────────────────┤   ├───────────────────────┤      │
+│       │ your-nextjs-app         │   │ Via MCP:              │      │
+│       │ your-react-project      │   │ - Discover            │      │
+│       │ any-frontend-app        │   │ - Generate            │      │
+│       │                         │   │ - Assist              │      │
+│       │ Via CLI (Copy & Own):   │   │                       │      │
+│       │ - Copy source files     │   │ Via VS Code Copilot:  │      │
+│       │ - Transform imports     │   │ - Read components     │      │
+│       │ - Full customization    │   │ - Generate code       │      │
+│       └─────────────────────────┘   └───────────────────────┘      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -81,8 +82,8 @@
 
 ```
 ┌──────────────┐
-│   Claude     │
-│   Desktop    │
+│  VS Code     │
+│  Copilot     │
 └──────┬───────┘
        │
        │ Request components
@@ -104,7 +105,7 @@
        │ and source code
        ▼
 ┌──────────────────────┐
-│   Claude generates   │
+│   Copilot generates  │
 │   code using         │
 │   Microbuild         │
 └──────────────────────┘
@@ -145,37 +146,32 @@
 └──────────────────────┘
 ```
 
-### Flow 3: Monorepo Development (Workspace)
+### Flow 3: Project Integration (Copy & Own)
 
 ```
 ┌──────────────────┐
 │   Developer      │
-│   $ pnpm dev     │
+│   $ npx          │
+│   @microbuild/cli│
+│   add input      │
 └──────┬───────────┘
        │
-       │ Start dev server
+       │ CLI copies files
        ▼
 ┌──────────────────────┐
-│   main-nextjs/       │
-│   import { Input }   │
-│   from '@microbuild/ │
-│   ui-interfaces'     │
+│   your-project/      │
+│   src/components/ui/ │
+│   └── input.tsx      │
 └──────┬───────────────┘
        │
-       │ workspace: protocol
+       │ Local imports
+       │ @/components/ui/input
        ▼
 ┌──────────────────────┐
-│   packages/          │
-│   ui-interfaces/     │
-│   src/input/         │
-└──────────────────────┘
-       │
-       │ Fast HMR
-       │ Type checking
-       ▼
-┌──────────────────────┐
-│   Browser            │
-│   (rendered app)     │
+│   Your Application   │
+│   import { Input }   │
+│   from '@/components │
+│   /ui/input'         │
 └──────────────────────┘
 ```
 
@@ -194,7 +190,7 @@ registry.ts
 │   │   └── components: [
 │   │       { name: 'Input', category: 'input', ... },
 │   │       { name: 'SelectDropdown', category: 'selection', ... },
-│   │       ...31 components
+│   │       ...30 components
 │   │   ]
 │   └── @microbuild/ui-collections
 │       └── components: [
@@ -284,19 +280,19 @@ Source Code Changes
 ### Example: AI Code Generation via MCP
 
 ```
-1. User Prompt to Claude
+1. User Prompt to Copilot
    "Generate a form with Input and SelectDropdown"
 
-2. Claude MCP Request
+2. Copilot MCP Request
    ├── Tool: list_components
    └── Response: [{ name: 'Input', ... }, { name: 'SelectDropdown', ... }]
 
-3. Claude MCP Request
+3. Copilot MCP Request
    ├── Tool: get_usage_example
    ├── Args: { component: 'Input' }
    └── Response: <example code>
 
-4. Claude Generates
+4. Copilot Generates
    import { Input, SelectDropdown } from '@microbuild/ui-interfaces';
    
    function MyForm() {
@@ -316,47 +312,53 @@ Source Code Changes
 
 ## Deployment Scenarios
 
-### Scenario 1: Internal Team (Current)
+### Scenario 1: Project Setup (Copy & Own)
 
 ```
 ┌──────────────────────────────────┐
-│  Monorepo (Private Git Repo)    │
-│  ├── packages/                   │
-│  ├── main-nextjs/                │
-│  └── daas-platform/              │
+│  Microbuild (packages/)          │
+│  ├── registry.json               │
+│  ├── cli/                        │
+│  ├── types/                      │
+│  ├── services/                   │
+│  ├── hooks/                      │
+│  └── ui-interfaces/              │
 └────────────────┬─────────────────┘
                  │
-                 │ workspace: protocol
-                 │ Fast development
+                 │ $ npx @microbuild/cli add
+                 │ Copies source files
                  ▼
          ┌───────────────┐
-         │  Team Members │
-         │  pnpm install │
+         │  Your Project │
+         │  (Next.js,    │
+         │   React, etc.)│
+         │  Own the code │
          └───────────────┘
 ```
 
-### Scenario 2: External Projects
+### Scenario 2: New Project Bootstrap
 
 ```
 ┌──────────────────────────────────┐
-│  Microbuild Repo (Private)       │
-│  └── packages/cli/               │
+│  New Next.js Project             │
+│  $ npx create-next-app@latest    │
 └────────────────┬─────────────────┘
                  │
-                 │ Build & distribute
-                 │ npx or global install
+                 │ Initialize Microbuild
+                 │ $ npx @microbuild/cli init
                  ▼
          ┌───────────────┐
-         │  External Dev │
-         │  $ microbuild │
-         │    add input  │
+         │  Add components│
+         │  $ npx         │
+         │  @microbuild/  │
+         │  cli add input │
          └───────┬───────┘
                  │
-                 │ Copies files
+                 │ Copies to src/
                  ▼
          ┌───────────────┐
-         │  Their Project│
-         │  Own the code │
+         │  Ready to use │
+         │  Full control │
          └───────────────┘
 ```
 
@@ -372,8 +374,8 @@ Source Code Changes
                  │ (stdio)
                  ▼
          ┌───────────────┐
-         │ Claude Desktop│
-         │ AI Assistant  │
+         │ VS Code      │
+         │ Copilot      │
          └───────┬───────┘
                  │
                  │ Helps developer

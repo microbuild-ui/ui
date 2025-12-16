@@ -97,6 +97,3 @@ export type { ListM2AProps } from './list-m2a';
 // export { RichTextMarkdown } from './rich-text-markdown';
 // export { Map } from './map';
 // Note: Rich text editors and Map require additional dependencies (tiptap, editorjs, maplibre)
-
-// Note: Demo components are kept in the app (main-nextjs/app/components/interfaces/*/Demo.tsx)
-// They import from this package and are app-specific for testing purposes

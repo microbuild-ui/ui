@@ -1,88 +1,127 @@
-# Microbuild Distribution Guide
+# Distribution
 
-This guide explains how to distribute and use Microbuild packages without publishing to npm.
+Microbuild is a code distribution system. It defines a schema for components and a CLI to distribute them.
 
-## Distribution Methods
+- **Schema**: A flat-file structure (`registry.json`) that defines the components, their dependencies, and properties
+- **CLI**: A command-line tool to distribute and install components with cross-framework support
 
-### 1. Model Context Protocol (MCP) Server - For AI Agents
+You can use the schema to distribute your components to other projects or have AI generate new components based on existing schema.
 
-The MCP server exposes Microbuild components to AI assistants like Claude Desktop.
+## Quick Start
 
-**Setup:**
+```bash
+# 1. Initialize in your project
+npx @microbuild/cli init
+
+# 2. Add components
+npx @microbuild/cli add input select-dropdown datetime
+
+# 3. Use in your code
+import { Input } from '@/components/ui/input'
+```
+
+## How It Works
+
+### 1. CLI Tool
+
+The CLI copies component source code directly into your project with imports transformed to local paths.
+
+```bash
+# Initialize in your project
+npx @microbuild/cli init
+
+# Add components
+npx @microbuild/cli add input select-dropdown datetime
+
+# List available components
+npx @microbuild/cli list
+
+# Add by category
+npx @microbuild/cli add --category selection
+
+# Preview changes before adding
+npx @microbuild/cli diff input
+```
+
+### 2. Project Structure
+
+When you add components, they're copied to your project:
+
+```
+your-project/
+├── src/
+│   ├── components/
+│   │   └── ui/                      # UI components
+│   │       ├── input.tsx
+│   │       ├── select-dropdown.tsx
+│   │       └── datetime.tsx
+│   └── lib/
+│       └── microbuild/              # Lib modules (auto-resolved)
+│           ├── utils.ts
+│           ├── types/
+│           ├── services/
+│           └── hooks/
+└── microbuild.json                  # Configuration
+```
+
+### 3. Import Transformation
+
+```tsx
+// Original (in source)
+import { useRelationM2M } from '@microbuild/hooks';
+import type { M2MItem } from '@microbuild/types';
+
+// Transformed (in your project)
+import { useRelationM2M } from '@/lib/microbuild/hooks';
+import type { M2MItem } from '@/lib/microbuild/types';
+```
+
+## AI-Ready
+
+The design of Microbuild makes it easy for AI tools to work with your code. Its open code and consistent API allow AI models to read, understand, and generate new components.
+
+### MCP Server
+
+The MCP (Model Context Protocol) server exposes Microbuild components to AI assistants like VS Code Copilot.
 
 ```bash
 # Build the MCP server
 cd packages/mcp-server
 pnpm install
 pnpm build
-
-# Configure Claude Desktop
-# Edit: ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
-# Edit: %APPDATA%/Claude/claude_desktop_config.json (Windows)
 ```
+
+**Configure VS Code:**
+
+Add to your VS Code `settings.json` (User or Workspace):
 
 ```json
 {
-  "mcpServers": {
-    "microbuild": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
-      ]
+  "mcp": {
+    "servers": {
+      "microbuild": {
+        "command": "node",
+        "args": [
+          "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
+        ]
+      }
     }
   }
 }
 ```
 
-**Usage with Claude:**
+**Usage with Copilot:**
+
 - "List all Microbuild components"
 - "Show me how to use the Input component"
 - "Generate a CollectionForm for products"
-- "Create a form with Input, SelectDropdown, and DateTime"
+- "Get the install command for input and datetime"
 
-### 2. CLI Tool - For Developers
+## Alternative Distribution Methods
 
-The CLI tool copies component source code directly into projects (like shadcn/ui).
+### Workspace Protocol (Monorepo)
 
-**Installation:**
-
-```bash
-# Build the CLI
-cd packages/cli
-pnpm install
-pnpm build
-
-# Install globally (optional)
-pnpm install -g .
-
-# Or use via pnpm from workspace root
-pnpm cli init
-```
-
-**Usage:**
-
-```bash
-# Initialize in your project
-cd your-nextjs-app
-microbuild init
-
-# Add components
-microbuild add input select-dropdown datetime
-
-# List available components
-microbuild list
-
-# Add by category
-microbuild add --category selection
-```
-
-### 3. Private Git Repository
-
-Use Git URLs in package.json for workspace dependencies.
-
-**For monorepo (current setup):**
-
-Your `main-nextjs` and `nextjs-supabase-daas` projects already use workspace protocol:
+For projects within the same monorepo:
 
 ```json
 {
@@ -96,275 +135,106 @@ Your `main-nextjs` and `nextjs-supabase-daas` projects already use workspace pro
 }
 ```
 
-**For external projects:**
+### Git Dependencies
+
+For external projects without publishing:
 
 ```json
 {
   "dependencies": {
-    "@microbuild/types": "git+ssh://git@github.com/yourorg/microbuild.git#workspace=packages/types",
-    "@microbuild/services": "git+ssh://git@github.com/yourorg/microbuild.git#workspace=packages/services"
+    "@microbuild/types": "github:yourorg/microbuild#packages/types"
   }
 }
 ```
 
-### 4. GitHub Packages (Private npm Registry)
+### GitHub Packages (Private Registry)
 
-Publish to GitHub's private registry while keeping code private.
-
-**Setup:**
+Publish to GitHub's private npm registry:
 
 ```bash
-# Create .npmrc in workspace root
+# Create .npmrc
 echo "@microbuild:registry=https://npm.pkg.github.com" > .npmrc
 echo "//npm.pkg.github.com/:_authToken=\${GITHUB_TOKEN}" >> .npmrc
 
-# Add publishConfig to each package's package.json
-```
-
-```json
-{
-  "name": "@microbuild/types",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
-  }
-}
-```
-
-**Publish:**
-
-```bash
-# Set GitHub token
-export GITHUB_TOKEN=your_token_here
-
-# Publish packages
+# Publish
 pnpm --filter @microbuild/types publish
-pnpm --filter @microbuild/services publish
-# ... etc
 ```
 
-**Install in projects:**
+## Comparison
+
+| Method | Use Case | Best For |
+|--------|----------|----------|
+| **CLI** | Copy components as source | Teams that customize |
+| **MCP Server** | AI-assisted development | VS Code Copilot users |
+| **Workspace** | Monorepo development | Internal teams |
+| **Git/npm** | Traditional package install | External distribution |
+
+## Development
+
+### Building
 
 ```bash
-# Configure .npmrc in consuming project
-echo "@microbuild:registry=https://npm.pkg.github.com" > .npmrc
-echo "//npm.pkg.github.com/:_authToken=\${GITHUB_TOKEN}" >> .npmrc
-
-# Install packages
-pnpm add @microbuild/types @microbuild/services
-```
-
-## Comparison Matrix
-
-| Method | Use Case | Pros | Cons | Best For |
-|--------|----------|------|------|----------|
-| **MCP Server** | AI agents | - Works with Claude/AI<br>- No setup for users<br>- Always up-to-date | - Requires MCP support | AI-assisted development |
-| **CLI Tool** | Developers | - Full source control<br>- No version lock<br>- Easy customization | - Manual updates<br>- No semantic versioning | Teams that customize |
-| **Workspace** | Monorepo | - Fast dev experience<br>- Single source of truth<br>- Type safety | - All projects in one repo | Internal teams |
-| **Git URLs** | External projects | - Private code<br>- Version via tags<br>- No npm needed | - Slower installs<br>- Requires build step | Small teams |
-| **GitHub Packages** | Enterprise | - Full npm compat<br>- Fast installs<br>- Semantic versioning | - Requires GitHub auth<br>- "Publishing" step | Large organizations |
-
-## Recommended Setup
-
-### For Internal Development (Current)
-
-**Keep using the monorepo setup:**
-
-```
-microbuild/
-├── packages/           # Shared packages
-├── main-nextjs/       # App 1
-└── nextjs-supabase-daas/  # App 2
-```
-
-**Benefits:**
-- Fast development with `workspace:*` protocol
-- Single pnpm install
-- Shared dependencies
-- Type safety across projects
-
-### For AI-Assisted Development
-
-**Add MCP Server:**
-
-1. Build MCP server: `pnpm build:mcp`
-2. Configure Claude Desktop with absolute path
-3. Ask Claude to help build features using Microbuild
-
-### For External Projects
-
-**Use CLI tool:**
-
-```bash
-# In external Next.js project
-npx @microbuild/cli init
-npx @microbuild/cli add collection-form input datetime
-
-# Components copied to your project
-# Full control, no version dependencies
-```
-
-**Or use Git dependencies:**
-
-```json
-{
-  "dependencies": {
-    "@microbuild/types": "github:yourorg/microbuild#packages/types",
-    "@microbuild/ui-interfaces": "github:yourorg/microbuild#packages/ui-interfaces"
-  }
-}
-```
-
-## Development Workflow
-
-### Building Packages
-
-```bash
-# Build all packages
-pnpm build:packages
-
-# Build specific package
-pnpm --filter @microbuild/types build
+# Build CLI
+pnpm build:cli
 
 # Build MCP server
 pnpm build:mcp
 
-# Build CLI
-pnpm build:cli
+# Build all packages
+pnpm build:packages
 ```
 
 ### Testing the CLI
 
 ```bash
-# Build and test locally
-pnpm cli init
-pnpm cli list
-pnpm cli add input
+# Initialize and add components
+npx @microbuild/cli init
+npx @microbuild/cli add input
+npx @microbuild/cli list
 ```
 
 ### Testing the MCP Server
 
 ```bash
-# Start in dev mode
-pnpm mcp:dev
+# Build and configure VS Code
+pnpm build:mcp
 
-# Test with Claude Desktop (restart Claude after config changes)
+# Reload VS Code after config changes
 ```
-
-### Publishing Updates
-
-**For GitHub Packages:**
-
-```bash
-# 1. Update version in package.json
-# 2. Commit changes
-# 3. Tag release
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push --tags
-
-# 4. Publish
-pnpm --filter @microbuild/types publish
-```
-
-**For Git-based installs:**
-
-```bash
-# Just push to GitHub
-git push
-
-# Users update with:
-pnpm update @microbuild/types
-```
-
-## Security Considerations
-
-### Private Repository Access
-
-- Use SSH keys for Git URLs: `git+ssh://git@github.com/...`
-- Use GitHub tokens for HTTPS: `git+https://${GITHUB_TOKEN}@github.com/...`
-- Store tokens in `.npmrc` (add to `.gitignore`)
-
-### GitHub Packages Access
-
-- Create GitHub Personal Access Token with `read:packages` scope
-- Store in environment variable: `GITHUB_TOKEN`
-- Add `.npmrc` to `.gitignore`
-
-### MCP Server Security
-
-- MCP server runs locally (no network exposure)
-- Only accessible by configured AI clients
-- Source code remains on your machine
 
 ## Updating Components
 
-### In Monorepo
+Re-add a component with the overwrite flag:
 
 ```bash
-# Make changes to packages
-cd packages/ui-interfaces/src/input
-# ... edit ...
-
-# Apps automatically pick up changes
-pnpm dev  # in main-nextjs or nextjs-supabase-daas
+npx @microbuild/cli add input --overwrite
 ```
 
-### Via CLI (External Projects)
-
-```bash
-# Re-add component with overwrite flag
-microbuild add input --overwrite
-
-# Or manually edit the copied component
-```
-
-### Via Git Dependencies
-
-```bash
-# Pull latest changes
-pnpm update @microbuild/types
-pnpm update @microbuild/ui-interfaces
-```
+Or manually edit the copied component in your project. Since you own the code, you can modify it however you need.
 
 ## Troubleshooting
 
-### MCP Server Not Showing in Claude
+### MCP Server Not Showing in VS Code
 
-1. Check Claude Desktop config path
+1. Check VS Code settings.json config
 2. Verify absolute path to `index.js`
 3. Ensure MCP server is built: `pnpm build:mcp`
-4. Restart Claude Desktop
-5. Check logs: `~/Library/Logs/Claude/mcp*.log`
+4. Reload VS Code window
+5. Check Output panel for MCP errors
 
 ### CLI Component Not Found
 
-1. Check component name: `microbuild list`
+1. Check component name: `npx @microbuild/cli list`
 2. Verify registry is up to date
-3. Check workspace root path in CLI code
-
-### Git Dependencies Not Installing
-
-1. Verify Git credentials (SSH keys or tokens)
-2. Check repository access permissions
-3. Ensure package has `prepare` script for building
 
 ### Type Errors After Install
 
 1. Install peer dependencies: `pnpm add @mantine/core react`
-2. Check tsconfig path aliases
+2. Check tsconfig path aliases match `microbuild.json`
 3. Restart TypeScript server in VS Code
-
-## Next Steps
-
-1. ✅ **MCP Server** - Set up Claude Desktop integration
-2. ✅ **CLI Tool** - Build and test locally
-3. 🔄 **Documentation Site** - Create public docs (optional)
-4. 🔄 **GitHub Packages** - Set up private registry (optional)
-5. 🔄 **CI/CD** - Automate builds and publishing (optional)
 
 ## Resources
 
 - [Model Context Protocol Documentation](https://modelcontextprotocol.io)
 - [pnpm Workspace Guide](https://pnpm.io/workspaces)
-- [GitHub Packages Documentation](https://docs.github.com/packages)
 - [shadcn/ui (inspiration)](https://ui.shadcn.com)

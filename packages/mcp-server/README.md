@@ -1,22 +1,32 @@
 # @microbuild/mcp-server
 
-Model Context Protocol (MCP) server for Microbuild components. Enables AI agents like Claude to discover, understand, and generate code using Microbuild packages.
+Model Context Protocol (MCP) server for Microbuild components. Enables AI agents like VS Code Copilot to discover, understand, and generate code using the **Copy & Own** distribution model.
 
 ## What is MCP?
 
 The [Model Context Protocol](https://modelcontextprotocol.io) is an open standard that enables AI assistants to securely access external data sources and tools. This MCP server exposes the Microbuild component library to AI agents.
 
+## Copy & Own Model
+
+Microbuild uses the **Copy & Own** distribution model (similar to shadcn/ui):
+
+- ✅ Components are copied as source code to your project
+- ✅ Full customization - components become your application code
+- ✅ No external package dependencies for component code
+- ✅ No breaking changes from upstream updates
+- ✅ Works offline after installation
+
 ## Features
 
-- 📦 **Component Discovery** - List all available Microbuild packages and components
+- 📦 **Component Discovery** - List all available Microbuild components
 - 📖 **Source Code Access** - Read component source code and documentation
 - 🛠️ **Code Generation** - Generate components, forms, and interfaces
-- 🔍 **Type Definitions** - Access TypeScript types and interfaces
-- 📚 **Usage Examples** - Get real-world usage examples
+- 🔧 **CLI Integration** - Get CLI commands to install components
+- 📚 **Usage Examples** - Get real-world usage examples with local imports
 
 ## Installation
 
-### For Claude Desktop
+### For VS Code Copilot
 
 1. Install the MCP server:
 
@@ -26,25 +36,24 @@ pnpm install
 pnpm build
 ```
 
-2. Add to your Claude Desktop config:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
+2. Add to your VS Code `settings.json`:
 
 ```json
 {
-  "mcpServers": {
-    "microbuild": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
-      ]
+  "mcp": {
+    "servers": {
+      "microbuild": {
+        "command": "node",
+        "args": [
+          "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
+        ]
+      }
     }
   }
 }
 ```
 
-3. Restart Claude Desktop
+3. Reload VS Code window
 
 ### For Other AI Agents
 
@@ -96,14 +105,53 @@ List all available components with descriptions and categories.
 
 ### `get_component`
 
-Get the source code and documentation for a specific component.
+Get detailed information and source code for a specific component.
 
 ```json
 {
-  "name": "Input",
-  "package": "@microbuild/ui-interfaces"
+  "name": "Input"
 }
 ```
+
+### `get_install_command`
+
+Get the CLI command to install components. Essential for AI agents to help users add components.
+
+```json
+{
+  "components": ["input", "select-dropdown", "datetime"]
+}
+```
+
+Or install by category:
+
+```json
+{
+  "category": "selection"
+}
+```
+
+### `get_copy_own_info`
+
+Get detailed information about the Copy & Own distribution model.
+
+### `copy_component`
+
+Get complete source code and file structure to manually copy a component into your project (shadcn-style). Returns the full implementation code, target paths, and required dependencies.
+
+```json
+{
+  "name": "datetime",
+  "includeLib": true
+}
+```
+
+Returns:
+- Full component source code
+- Target file paths
+- Required lib modules (types, services, hooks)
+- Peer dependencies to install
+- Copy instructions
 
 ### `generate_form`
 
@@ -134,24 +182,26 @@ Generate a field interface component.
 
 ### `get_usage_example`
 
-Get real-world usage examples for a component.
+Get real-world usage examples for a component (with local imports).
 
 ```json
 {
-  "component": "SelectDropdown",
-  "scenario": "form"
+  "component": "SelectDropdown"
 }
 ```
 
-## Usage with Claude
+## Usage with Copilot
 
-Once configured, you can ask Claude:
+Once configured, you can ask Copilot:
 
-- "Show me how to use the Input component from Microbuild"
-- "Generate a CollectionForm for a products collection"
-- "List all available Microbuild components"
-- "Create a form with Input, SelectDropdown, and DateTime"
-- "Show me examples of using the M2M relation hook"
+- "How do I install Microbuild components?" (uses `get_copy_own_info`)
+- "Add the Input and SelectDropdown components to my project" (uses `get_install_command`)
+- "Show me how to use the Input component" (uses `get_usage_example`)
+- "Generate a form for a products collection" (uses `generate_form`)
+- "List all available selection components" (uses `list_components`)
+- "Show me the source code for CollectionForm" (uses `get_component`)
+
+The AI agent will provide CLI commands that you can run to install components.
 
 ## Development
 
@@ -170,34 +220,39 @@ pnpm typecheck
 
 ```
 ┌─────────────────────────────────────────┐
-│         AI Agent (Claude, etc.)         │
+│      AI Agent (VS Code Copilot, etc.)   │
 └────────────────┬────────────────────────┘
                  │ MCP Protocol
 ┌────────────────▼────────────────────────┐
 │       @microbuild/mcp-server            │
 │  ┌──────────────────────────────────┐   │
 │  │  Resource Handlers               │   │
-│  │  - List packages                 │   │
+│  │  - List components               │   │
 │  │  - Read component source         │   │
 │  │  - Get documentation             │   │
 │  └──────────────────────────────────┘   │
 │  ┌──────────────────────────────────┐   │
 │  │  Tool Handlers                   │   │
+│  │  - get_install_command           │   │
+│  │  - get_copy_own_info             │   │
 │  │  - generate_form                 │   │
 │  │  - generate_interface            │   │
 │  │  - get_usage_example             │   │
 │  └──────────────────────────────────┘   │
 │  ┌──────────────────────────────────┐   │
-│  │  Component Registry              │   │
-│  │  - Metadata                      │   │
-│  │  - Categories                    │   │
+│  │  Component Registry (JSON)       │   │
+│  │  - Metadata & Categories         │   │
 │  │  - Dependencies                  │   │
+│  │  - File mappings                 │   │
 │  └──────────────────────────────────┘   │
 └─────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────┐
-│      Microbuild Packages (Source)       │
-│  - types, services, hooks, ui-*         │
+│         Microbuild CLI                  │
+│  npx @microbuild/cli add <components>   │
+│  - Copies source to user project        │
+│  - Transforms imports                   │
+│  - Resolves dependencies                │
 └─────────────────────────────────────────┘
 ```
 

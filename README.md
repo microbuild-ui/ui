@@ -1,6 +1,6 @@
 # Microbuild Workspace
 
-A pnpm workspace containing shared components and multiple Next.js applications.
+A pnpm workspace containing reusable components distributed via Copy & Own model.
 
 ## 🏗️ Structure
 
@@ -8,16 +8,15 @@ A pnpm workspace containing shared components and multiple Next.js applications.
 Microbuild/
 ├── pnpm-workspace.yaml     # Workspace configuration
 ├── package.json            # Root scripts
-├── packages/
-│   ├── ui-interfaces/      # Field interface components (@microbuild/ui-interfaces)
-│   ├── ui-collections/     # Collection Form & List (@microbuild/ui-collections)
-│   ├── types/              # Shared TypeScript types (@microbuild/types)
-│   ├── services/           # Shared service classes (@microbuild/services)
-│   ├── hooks/              # Shared React hooks (@microbuild/hooks)
-│   ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp-server)
-│   └── cli/                # CLI tool for developers (@microbuild/cli)
-├── main-nextjs/            # Main Next.js CMS (template project)
-└── nextjs-supabase-daas/   # DaaS Platform
+└── packages/               # Component library (source of truth)
+    ├── registry.json       # Component registry schema
+    ├── cli/                # CLI tool for developers (@microbuild/cli)
+    ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp-server)
+    ├── ui-interfaces/      # Field interface components
+    ├── ui-collections/     # Collection Form & List
+    ├── types/              # Shared TypeScript types
+    ├── services/           # Shared service classes
+    └── hooks/              # Shared React hooks
 ```
 
 ## 🚀 Quick Start
@@ -37,22 +36,11 @@ pnpm install
 
 # Build all packages
 pnpm build
-
-# Or build individual projects
-pnpm --filter main-nextjs build
-pnpm --filter nextjs-supabase-daas build
 ```
 
 ### Development
 
 ```bash
-# Run all projects in dev mode (parallel)
-pnpm dev
-
-# Run specific project
-pnpm --filter main-nextjs dev
-pnpm --filter nextjs-supabase-daas dev
-
 # Run Storybook for UI component development
 pnpm --filter @microbuild/ui-interfaces storybook
 
@@ -107,6 +95,8 @@ React hooks for managing Directus relationships.
 - `useRelationM2M` / `useRelationM2MItems` - Many-to-Many relationships
 - `useRelationM2O` / `useRelationM2OItem` - Many-to-One relationships  
 - `useRelationO2M` / `useRelationO2MItems` - One-to-Many relationships
+- `useRelationM2A` / `useRelationM2AItems` - Many-to-Any (polymorphic) relationships
+- `useFiles` - File upload and management
 
 **Usage:**
 ```tsx
@@ -140,43 +130,44 @@ Directus-compatible field interface components built with Mantine v8.
 | `SelectDropdown` | Dropdown select with search |
 | `SelectRadio` | Radio button selection |
 | `SelectMultipleCheckbox` | Checkbox group with "other" option |
-| `SelectIcon` | Icon picker with categorized Material icons |
+| `SelectIcon` | Icon picker with categorized Tabler icons |
 | `Tags` | Tag input with presets and custom tags |
 | `AutocompleteAPI` | External API-backed autocomplete |
 | `CollectionItemDropdown` | Collection item selector dropdown |
 
-**Display Components:**
+**Layout Components:**
 | Component | Description |
-|-----------|-------------|
-| `Color` | Color picker with RGB/HSL support, presets, opacity |
+|-----------|-----------|
 | `Divider` | Horizontal/vertical divider with title support |
 | `Notice` | Alert/notice component (info, success, warning, danger) |
 | `Slider` | Range slider with numeric type support |
 | `GroupDetail` | Collapsible form section |
 
-**Rich Text Components:**
+**Rich Text Components:** *(require additional dependencies)*
 | Component | Description |
-|-----------|-------------|
-| `InputBlockEditor` | Block-based content editor |
-| `RichTextHtml` | WYSIWYG HTML editor with TipTap |
+|-----------|-----------|
+| `RichTextHtml` | WYSIWYG HTML editor (requires @tiptap packages) |
 | `RichTextMarkdown` | Markdown editor with live preview |
 
-**File & Media Components:**
+**Media Components:**
 | Component | Description |
-|-----------|-------------|
-| `FileInterface` | Single file upload (requires `onUpload` prop) |
-| `FileImage` | Image file picker with preview |
-| `Files` | Multiple file upload interface |
+|-----------|-----------|
+| `FileInterface` | Single file upload wrapper (requires `onUpload` prop) |
+| `FileImage` | Image file picker with preview and focal point |
+| `Files` | Multiple file upload interface with drag & drop |
 | `Upload` | Drag-and-drop file upload zone |
-| `Map` | Interactive map picker (coordinates/geometry) |
+| `Color` | Color picker with RGB/HSL support, presets, opacity |
 
-**Relational Components (render-prop based):**
+**Relational Components:**
 | Component | Description |
-|-----------|-------------|
-| `ListM2MInterface` | Many-to-Many list (requires render props) |
-| `ListM2OInterface` | Many-to-One selector (requires render props) |
-| `ListO2MInterface` | One-to-Many list (requires render props) |
-| `ListM2AInterface` | Many-to-Any polymorphic list (requires render props) |
+|-----------|-----------|
+| `ListM2M` | Many-to-Many list with hooks integration |
+| `ListM2O` | Many-to-One selector with hooks integration |
+| `ListO2M` | One-to-Many list with hooks integration |
+| `ListM2A` | Many-to-Any polymorphic list with hooks integration |
+| `ListM2MInterface` | Many-to-Many (render-prop variant) |
+| `ListM2OInterface` | Many-to-One (render-prop variant) |
+| `ListO2MInterface` | One-to-Many (render-prop variant) |
 
 **Usage:**
 ```tsx
@@ -231,24 +222,25 @@ Microbuild includes two powerful distribution tools:
 
 ### MCP Server - For AI Agents
 
-Expose Microbuild components to AI assistants like Claude Desktop.
+Expose Microbuild components to AI assistants like VS Code Copilot.
 
 ```bash
 # Build and configure
 pnpm build:mcp
 
-# Add to Claude Desktop config:
-# ~/Library/Application Support/Claude/claude_desktop_config.json
+# Add to VS Code settings.json:
 {
-  "mcpServers": {
-    "microbuild": {
-      "command": "node",
-      "args": ["/path/to/microbuild/packages/mcp-server/dist/index.js"]
+  "mcp": {
+    "servers": {
+      "microbuild": {
+        "command": "node",
+        "args": ["/path/to/microbuild/packages/mcp-server/dist/index.js"]
+      }
     }
   }
 }
 
-# Use with Claude:
+# Use with Copilot:
 # "Show me how to use the Input component from Microbuild"
 # "Generate a CollectionForm for products"
 ```
@@ -265,10 +257,8 @@ pnpm build:cli
 npx @microbuild/cli init
 npx @microbuild/cli add input select-dropdown
 npx @microbuild/cli list
-
-# Or install globally
-pnpm install -g ./packages/cli
-microbuild add collection-form
+npx @microbuild/cli add --category selection
+npx @microbuild/cli add --all
 ```
 
 **Benefits:**
@@ -294,23 +284,7 @@ See [DISTRIBUTION.md](./DISTRIBUTION.md) for complete setup guide.
 | `pnpm clean` | Remove node_modules and build artifacts |
 | `pnpm storybook` | Run Storybook for component development |
 
-## 📋 Project-Specific Commands
-
-### main-nextjs
-```bash
-pnpm --filter main-nextjs dev      # Start dev server
-pnpm --filter main-nextjs build    # Production build
-pnpm --filter main-nextjs test     # Run Playwright tests
-```
-
-### nextjs-supabase-daas
-```bash
-pnpm --filter nextjs-supabase-daas dev      # Start dev server
-pnpm --filter nextjs-supabase-daas build    # Production build
-pnpm --filter nextjs-supabase-daas test     # Run Playwright tests
-```
-
-### ui-interfaces (Storybook)
+## 📋 Storybook
 ```bash
 # Run Storybook for component development
 pnpm --filter @microbuild/ui-interfaces storybook
@@ -324,29 +298,7 @@ Storybook runs at http://localhost:6006 and provides:
 - Props documentation with controls
 - Visual testing for all interface components
 
-## 🔗 Local Development Setup
-
-For contributors who want to work on both projects:
-
-1. **Clone the workspace** (or create it):
-   ```bash
-   mkdir Microbuild && cd Microbuild
-   ```
-
-2. **Clone both repositories**:
-   ```bash
-   git clone <main-nextjs-repo-url> main-nextjs
-   git clone <nextjs-supabase-daas-repo-url> nextjs-supabase-daas
-   ```
-
-3. **Copy workspace files** (pnpm-workspace.yaml, package.json, packages/)
-
-4. **Install dependencies**:
-   ```bash
-   pnpm install
-   ```
-
-## 📝 Adding New Shared Components
+##  Adding New Shared Components
 
 1. Add component to `packages/ui-interfaces/src/<component-name>/`
 2. Export from `packages/ui-interfaces/src/index.ts`
@@ -361,10 +313,10 @@ For contributors who want to work on both projects:
 
 ## 📚 Documentation
 
-- [main-nextjs README](./main-nextjs/README.md)
-- [nextjs-supabase-daas README](./nextjs-supabase-daas/README.md)
-- [ui-interfaces API](./packages/ui-interfaces/README.md)
-- [ui-collections API](./packages/ui-collections/README.md)
+- [Packages Overview](./packages/README.md)
+- [Quick Start](./QUICKSTART.md)
+- [Distribution Guide](./DISTRIBUTION.md)
+- [Architecture](./ARCHITECTURE.md)
 
 ## 🎯 Architecture (Directus-Inspired)
 
@@ -379,7 +331,8 @@ This workspace follows patterns from [Directus](https://directus.io/):
 | `v-form` component | `@microbuild/ui-collections` | Dynamic form/list components |
 
 **Key Principles:**
-1. **Separation of concerns** - Types, services, hooks, and UI in separate packages
-2. **Workspace protocol** - Use `workspace:*` for internal dependencies
-3. **Peer dependencies** - React/Mantine as peer deps in shared packages
-4. **API abstraction** - Services abstract API calls for portability
+1. **Copy & Own** - Components are copied to projects as source files
+2. **Separation of concerns** - Types, services, hooks, and UI in separate packages
+3. **Internal workspace** - Packages use `workspace:*` for cross-package dependencies
+4. **Peer dependencies** - React/Mantine as peer deps in shared packages
+5. **API abstraction** - Services abstract API calls for portability

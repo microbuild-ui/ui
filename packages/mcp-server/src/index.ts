@@ -22,22 +22,30 @@ import {
   getComponent,
   getComponentsByCategory,
   getCategories,
+  getRegistry,
   type ComponentMetadata,
 } from './registry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Get the workspace root (3 levels up from dist)
-const WORKSPACE_ROOT = join(__dirname, '../../..');
+// Get the packages root (mcp-server/dist -> packages)
+const PACKAGES_ROOT = join(__dirname, '../..');
 
 /**
  * Read file content safely
+ * Handles both direct file paths (e.g., ui-interfaces/src/datetime/DateTime.tsx)
+ * and directory paths (tries index.tsx, index.ts variants)
  */
 function readSourceFile(relativePath: string): string | null {
-  const fullPath = join(WORKSPACE_ROOT, relativePath);
+  const fullPath = join(PACKAGES_ROOT, relativePath);
   
-  // Try different file extensions
+  // First, try the exact path (for explicit file paths like DateTime.tsx)
+  if (existsSync(fullPath)) {
+    return readFileSync(fullPath, 'utf-8');
+  }
+  
+  // If path doesn't exist as-is, try as directory with index files
   const extensions = ['index.tsx', 'index.ts', 'index.jsx', 'index.js'];
   
   for (const ext of extensions) {
@@ -47,20 +55,17 @@ function readSourceFile(relativePath: string): string | null {
     }
   }
   
-  // Try direct path
-  if (existsSync(fullPath)) {
-    return readFileSync(fullPath, 'utf-8');
-  }
-  
   return null;
 }
 
 /**
  * Generate component usage example
+ * Uses Copy & Own style - components are imported from local project paths
  */
 function generateUsageExample(component: ComponentMetadata): string {
   const examples: Record<string, string> = {
-    Input: `import { Input } from '@microbuild/ui-interfaces';
+    Input: `// Copy & Own: Run 'npx @microbuild/cli add input' first
+import { Input } from '@/components/ui/input';
 
 function MyForm() {
   const [value, setValue] = useState('');
@@ -75,7 +80,8 @@ function MyForm() {
     />
   );
 }`,
-    SelectDropdown: `import { SelectDropdown } from '@microbuild/ui-interfaces';
+    SelectDropdown: `// Copy & Own: Run 'npx @microbuild/cli add select-dropdown' first
+import { SelectDropdown } from '@/components/ui/select-dropdown';
 
 function StatusSelect() {
   const [status, setStatus] = useState('draft');
@@ -93,7 +99,8 @@ function StatusSelect() {
     />
   );
 }`,
-    DateTime: `import { DateTime } from '@microbuild/ui-interfaces';
+    DateTime: `// Copy & Own: Run 'npx @microbuild/cli add datetime' first
+import { DateTime } from '@/components/ui/datetime';
 
 function EventForm() {
   const [date, setDate] = useState<string | null>(null);
@@ -108,7 +115,8 @@ function EventForm() {
     />
   );
 }`,
-    Toggle: `import { Toggle } from '@microbuild/ui-interfaces';
+    Toggle: `// Copy & Own: Run 'npx @microbuild/cli add toggle' first
+import { Toggle } from '@/components/ui/toggle';
 
 function FeatureToggle() {
   const [enabled, setEnabled] = useState(false);
@@ -124,7 +132,8 @@ function FeatureToggle() {
     />
   );
 }`,
-    CollectionForm: `import { CollectionForm } from '@microbuild/ui-collections';
+    CollectionForm: `// Copy & Own: Run 'npx @microbuild/cli add collection-form' first
+import { CollectionForm } from '@/components/ui/collection-form';
 
 function ProductEditor({ productId }: { productId?: string }) {
   return (
@@ -137,7 +146,8 @@ function ProductEditor({ productId }: { productId?: string }) {
     />
   );
 }`,
-    CollectionList: `import { CollectionList } from '@microbuild/ui-collections';
+    CollectionList: `// Copy & Own: Run 'npx @microbuild/cli add collection-list' first
+import { CollectionList } from '@/components/ui/collection-list';
 
 function ProductList() {
   return (
@@ -152,14 +162,17 @@ function ProductList() {
 }`,
   };
 
-  return examples[component.name] || `import { ${component.name} } from '${component.package}';
+  return examples[component.name] || examples[component.title] || `// Copy & Own model: This component is copied to your project
+// Import from your local components directory after running:
+// npx @microbuild/cli add ${component.name}
 
-// Usage example for ${component.name}
+import { ${component.title} } from '@/components/ui/${component.name}';
+
 function Example() {
   const [value, setValue] = useState(null);
 
   return (
-    <${component.name}
+    <${component.title}
       field="fieldName"
       value={value}
       onChange={setValue}
@@ -204,8 +217,8 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
   for (const component of getAllComponents()) {
     resources.push({
       uri: `microbuild://components/${component.name}`,
-      name: component.name,
-      description: `${component.description} (${component.package})`,
+      name: component.title,
+      description: `${component.description} (${component.category})`,
       mimeType: 'text/plain',
     });
   }
@@ -248,7 +261,9 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
       throw new Error(`Component not found: ${componentName}`);
     }
 
-    const source = readSourceFile(component.path);
+    // Get source from first file in files array
+    const sourcePath = component.files[0]?.source;
+    const source = sourcePath ? readSourceFile(sourcePath) : null;
 
     if (!source) {
       throw new Error(`Source file not found for component: ${componentName}`);
@@ -370,6 +385,55 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           properties: {},
         },
       },
+      {
+        name: 'get_install_command',
+        description: 'Get the CLI command to install components using Copy & Own model. Returns the exact command to run.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            components: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'List of component names to install (e.g., ["input", "select-dropdown", "datetime"])',
+            },
+            category: {
+              type: 'string',
+              description: 'Install all components from a category instead',
+              enum: ['input', 'selection', 'datetime', 'boolean', 'media', 'relational', 'layout', 'rich-text', 'collection'],
+            },
+            all: {
+              type: 'boolean',
+              description: 'Install all available components',
+            },
+          },
+        },
+      },
+      {
+        name: 'get_copy_own_info',
+        description: 'Get information about the Copy & Own distribution model and how to use it',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+        },
+      },
+      {
+        name: 'copy_component',
+        description: 'Get complete source code and file structure to manually copy a component into your project (shadcn-style). Returns the full implementation code, target paths, and required dependencies.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              description: 'Component name (e.g., "datetime", "input", "select-dropdown")',
+            },
+            includeLib: {
+              type: 'boolean',
+              description: 'Also include required lib modules (types, services, hooks) if the component depends on them',
+            },
+          },
+          required: ['name'],
+        },
+      },
     ],
   };
 });
@@ -408,7 +472,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Component not found: ${componentName}`);
       }
 
-      const source = readSourceFile(component.path);
+      // Get source from all files in files array (for components with multiple files)
+      const sources: Record<string, string> = {};
+      for (const file of component.files) {
+        const content = readSourceFile(file.source);
+        if (content) {
+          sources[file.target] = content;
+        }
+      }
+
+      // Primary source is the first file
+      const primarySource = component.files[0]?.source;
+      const source = primarySource ? readSourceFile(primarySource) : null;
 
       return {
         content: [
@@ -418,6 +493,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
               {
                 ...component,
                 source: source || 'Source code not available',
+                allSources: sources,
+                installCommand: `npx @microbuild/cli add ${component.name}`,
+                copyOwn: {
+                  description: 'Copy this component to your project using the CLI or manually copy the source code below.',
+                  targetPath: component.files[0]?.target || `components/ui/${component.name}.tsx`,
+                  peerDependencies: component.dependencies,
+                },
               },
               null,
               2
@@ -453,7 +535,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case 'generate_form': {
       const { collection, fields, mode } = args as any;
       
-      const code = `import { CollectionForm } from '@microbuild/ui-collections';
+      const code = `// Copy & Own: Run 'npx @microbuild/cli add collection-form' first
+import { CollectionForm } from '@/components/ui/collection-form';
 
 function ${collection.charAt(0).toUpperCase() + collection.slice(1)}Form() {
   return (
@@ -498,7 +581,8 @@ function ${collection.charAt(0).toUpperCase() + collection.slice(1)}Form() {
         .map(([key, value]) => `${key}={${JSON.stringify(value)}}`)
         .join('\n      ');
 
-      const code = `import { ${componentName} } from '@microbuild/ui-interfaces';
+      const code = `// Copy & Own: Run 'npx @microbuild/cli add ${type}' first
+import { ${componentName} } from '@/components/ui/${type}';
 import { useState } from 'react';
 
 function Example() {
@@ -530,6 +614,245 @@ function Example() {
           {
             type: 'text',
             text: JSON.stringify(PACKAGES, null, 2),
+          },
+        ],
+      };
+    }
+
+    case 'get_install_command': {
+      const { components, category, all } = args as any;
+      
+      let command = 'npx @microbuild/cli add';
+      let explanation = '';
+      
+      if (all) {
+        command += ' --all';
+        explanation = 'This will install all Microbuild components to your project.';
+      } else if (category) {
+        command += ` --category ${category}`;
+        explanation = `This will install all components from the ${category} category.`;
+      } else if (components && components.length > 0) {
+        command += ` ${components.join(' ')}`;
+        explanation = `This will install: ${components.join(', ')}.`;
+      } else {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Please specify components, a category, or use --all flag.\n\nExamples:\n- npx @microbuild/cli add input select-dropdown\n- npx @microbuild/cli add --category selection\n- npx @microbuild/cli add --all',
+            },
+          ],
+        };
+      }
+
+      const result = `## Copy & Own Installation
+
+**Command:**
+\`\`\`bash
+${command}
+\`\`\`
+
+${explanation}
+
+**What happens:**
+1. Components are copied to your project (default: @/components/ui/)
+2. Internal dependencies (types, services, hooks) are copied to @/lib/microbuild/
+3. Imports are transformed to use local paths
+4. Dependencies are tracked in microbuild.json
+
+**First time setup:**
+If you haven't initialized yet, run:
+\`\`\`bash
+npx @microbuild/cli init
+\`\`\`
+
+**Benefits of Copy & Own:**
+✅ No external package dependencies for component code
+✅ Full customization - components become your application code
+✅ No breaking changes from upstream updates
+✅ Bundle only what you use
+✅ Works offline after installation`;
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: result,
+          },
+        ],
+      };
+    }
+
+    case 'get_copy_own_info': {
+      const info = `## Microbuild Copy & Own Distribution Model
+
+Microbuild uses the **Copy & Own** model (like shadcn/ui) instead of traditional npm packages.
+
+### How it works:
+1. **Initialize:** Run \`npx @microbuild/cli init\` in your project
+2. **Add components:** Run \`npx @microbuild/cli add input select-dropdown\`
+3. **Customize:** Components are copied as source code - modify freely!
+
+### Project Structure After Installation:
+\`\`\`
+your-project/
+├── components/
+│   └── ui/
+│       ├── input.tsx          # Copied component
+│       ├── select-dropdown.tsx
+│       └── collection-form.tsx
+├── lib/
+│   └── microbuild/
+│       ├── types/            # Type definitions
+│       ├── services/         # API services
+│       └── hooks/            # React hooks
+└── microbuild.json           # Tracks installed components
+\`\`\`
+
+### CLI Commands:
+- \`npx @microbuild/cli init\` - Initialize project
+- \`npx @microbuild/cli list\` - List available components
+- \`npx @microbuild/cli add <components>\` - Install components
+- \`npx @microbuild/cli add --category <name>\` - Install by category
+- \`npx @microbuild/cli diff <component>\` - Preview before install
+
+### Benefits:
+✅ **No external dependencies** - Components are part of your codebase
+✅ **Full customization** - Modify components to fit your needs
+✅ **No breaking changes** - You control when to update
+✅ **Tree-shaking friendly** - Only bundle what you use
+✅ **Works offline** - No network required after installation
+
+### Categories:
+- \`input\` - Text inputs, textareas, code editors
+- \`selection\` - Dropdowns, checkboxes, radio buttons
+- \`datetime\` - Date and time pickers
+- \`boolean\` - Toggles and checkboxes
+- \`media\` - File uploads, image pickers
+- \`relational\` - M2M, M2O, O2M relationship interfaces
+- \`layout\` - Dividers, notices, accordions
+- \`rich-text\` - HTML and Markdown editors
+- \`collection\` - CollectionForm, CollectionList`;
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: info,
+          },
+        ],
+      };
+    }
+
+    case 'copy_component': {
+      const componentName = (args as any)?.name;
+      const includeLib = (args as any)?.includeLib ?? true;
+      
+      if (!componentName) {
+        throw new Error('Component name is required');
+      }
+
+      const component = getComponent(componentName);
+      if (!component) {
+        throw new Error(`Component not found: ${componentName}`);
+      }
+
+      // Collect all files for this component
+      const files: Array<{ path: string; content: string }> = [];
+      
+      for (const file of component.files) {
+        const content = readSourceFile(file.source);
+        if (content) {
+          files.push({
+            path: file.target,
+            content: content,
+          });
+        }
+      }
+
+      // If includeLib and component has internal dependencies, include those too
+      const libFiles: Array<{ path: string; content: string; module: string }> = [];
+      
+      if (includeLib && component.internalDependencies?.length > 0) {
+        const registry = getRegistry();
+        
+        for (const dep of component.internalDependencies) {
+          const libModule = registry.lib[dep];
+          if (libModule) {
+            if (libModule.files) {
+              for (const file of libModule.files) {
+                const content = readSourceFile(file.source);
+                if (content) {
+                  libFiles.push({
+                    path: file.target,
+                    content: content,
+                    module: dep,
+                  });
+                }
+              }
+            } else if (libModule.path && libModule.target) {
+              const content = readSourceFile(libModule.path);
+              if (content) {
+                libFiles.push({
+                  path: libModule.target,
+                  content: content,
+                  module: dep,
+                });
+              }
+            }
+          }
+        }
+      }
+
+      const result = {
+        component: component.name,
+        title: component.title,
+        description: component.description,
+        
+        // Primary component file
+        files: files,
+        
+        // Required lib modules (if any)
+        libFiles: libFiles.length > 0 ? libFiles : undefined,
+        
+        // Dependencies to install via npm/pnpm
+        peerDependencies: component.dependencies,
+        
+        // Install command alternative
+        cliCommand: `npx @microbuild/cli add ${component.name}`,
+        
+        // Instructions
+        instructions: `## Copy & Own: ${component.title}
+
+### Option 1: Use CLI (Recommended)
+\`\`\`bash
+npx @microbuild/cli add ${component.name}
+\`\`\`
+
+### Option 2: Manual Copy
+1. Copy the component file(s) to your project:
+${files.map(f => `   - \`${f.path}\``).join('\n')}
+${libFiles.length > 0 ? `
+2. Copy required lib modules:
+${libFiles.map(f => `   - \`${f.path}\` (${f.module})`).join('\n')}` : ''}
+
+${component.dependencies.length > 0 ? `3. Install peer dependencies:
+\`\`\`bash
+pnpm add ${component.dependencies.join(' ')}
+\`\`\`` : ''}
+
+### Usage
+\`\`\`tsx
+import { ${component.title} } from '@/components/ui/${component.name}';
+\`\`\`
+`,
+      };
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2),
           },
         ],
       };

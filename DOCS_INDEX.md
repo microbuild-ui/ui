@@ -24,7 +24,7 @@ Complete guide to Microbuild packages and distribution tools.
 - [Usage Examples](packages/README.md#quick-start) - Code examples
 
 ### For AI Development
-- [MCP Server Setup](QUICKSTART.md#-setup-mcp-server-for-claude-desktop) - Claude Desktop integration
+- [MCP Server Setup](QUICKSTART.md#-setup-mcp-server-for-vs-code-copilot) - VS Code Copilot integration
 - [MCP Documentation](packages/mcp-server/README.md) - MCP server details
 - [Available Tools](packages/mcp-server/README.md#available-tools) - AI tools reference
 
@@ -112,19 +112,19 @@ Complete guide to Microbuild packages and distribution tools.
 - [CollectionForm](packages/README.md#microbuildui-collections) - Dynamic form
 - [CollectionList](packages/README.md#microbuildui-collections) - Dynamic list/table
 
-[See all 31 components →](packages/README.md#microbuildui-interfaces)
+[See all 30 components →](packages/README.md#microbuildui-interfaces)
 
 ## 🔍 How-To Guides
 
 ### Setup Guides
-1. [Set up MCP Server for Claude](QUICKSTART.md#-setup-mcp-server-for-claude-desktop)
+1. [Set up MCP Server for VS Code](QUICKSTART.md#-setup-mcp-server-for-vs-code-copilot)
 2. [Set up CLI Tool](QUICKSTART.md#-setup-cli-tool-for-development)
 3. [Initialize a New Project](packages/cli/README.md#initialize-microbuild-in-your-project)
 4. [Configure Path Aliases](packages/cli/README.md#configuration)
 
 ### Usage Guides
 1. [Add Components to Project](packages/cli/README.md#add-components)
-2. [Use with Claude Desktop](packages/mcp-server/README.md#usage-with-claude)
+2. [Use with VS Code Copilot](packages/mcp-server/README.md#usage-with-copilot)
 3. [Build Custom Forms](packages/README.md#5-use-dynamic-collection-components)
 4. [Manage Relations](packages/README.md#3-use-relation-hooks)
 
@@ -156,8 +156,8 @@ Complete guide to Microbuild packages and distribution tools.
 
 ### For AI-Assisted Development
 1. Read [MCP Server README](packages/mcp-server/README.md)
-2. Set up [Claude Desktop](QUICKSTART.md#-setup-mcp-server-for-claude-desktop)
-3. Ask Claude to help build features
+2. Set up [VS Code Copilot](QUICKSTART.md#-setup-mcp-server-for-vs-code-copilot)
+3. Ask Copilot to help build features
 4. Iterate with AI assistance
 
 ### For Teams
@@ -182,7 +182,7 @@ Microbuild Architecture
 ┌───────────▼─────────────────────────┐
 │      Component Layer                │
 │  ┌───────────────────────────────┐  │
-│  │  ui-interfaces (31 components)│  │
+│  │  ui-interfaces (30 components)│  │
 │  │  ui-collections (2 components)│  │
 │  └───────────────────────────────┘  │
 └─────────────────────────────────────┘
@@ -208,7 +208,7 @@ Microbuild Architecture
 ### Inspiration
 - [shadcn/ui](https://ui.shadcn.com) - CLI-based component distribution
 - [Directus](https://directus.io) - Headless CMS
-- [Claude Desktop](https://claude.ai/desktop) - AI assistant
+- [VS Code Copilot](https://code.visualstudio.com/docs/copilot/overview) - AI assistant
 
 ## 🤝 Contributing
 
@@ -251,7 +251,7 @@ Microbuild Architecture
 - ✨ Initial release
 - ✅ MCP server for AI agents
 - ✅ CLI tool for developers
-- ✅ Component registry (31 components)
+- ✅ Component registry (30 components)
 - ✅ Complete documentation
 - ✅ Multiple distribution methods
 
