@@ -1,4 +1,4 @@
-# Microbuild Distribution Architecture
+# Microbuild UI Packages Distribution Architecture
 
 ## System Overview
 

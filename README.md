@@ -1,11 +1,11 @@
-# Microbuild Workspace
+# Microbuild UI Packages
 
 A pnpm workspace containing reusable components distributed via Copy & Own model.
 
 ## 🏗️ Structure
 
 ```
-Microbuild/
+microbuild-ui-packages/
 ├── pnpm-workspace.yaml     # Workspace configuration
 ├── package.json            # Root scripts
 └── packages/               # Component library (source of truth)

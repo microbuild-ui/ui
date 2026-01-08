@@ -1,6 +1,6 @@
 # Distribution
 
-Microbuild is a code distribution system. It defines a schema for components and a CLI to distribute them.
+Microbuild UI Packages is a code distribution system. It defines a schema for components and a CLI to distribute them.
 
 - **Schema**: A flat-file structure (`registry.json`) that defines the components, their dependencies, and properties
 - **CLI**: A command-line tool to distribute and install components with cross-framework support

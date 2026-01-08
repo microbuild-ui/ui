@@ -1,6 +1,6 @@
-# Microbuild Documentation Index
+# Microbuild UI Packages Documentation Index
 
-Complete guide to Microbuild packages and distribution tools.
+Complete guide to Microbuild UI Packages and distribution tools.
 
 ## 📚 Documentation Overview
 

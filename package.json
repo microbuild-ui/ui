@@ -1,8 +1,8 @@
 {
-  "name": "microbuild-workspace",
+  "name": "microbuild-ui-packages",
   "version": "0.1.0",
   "private": true,
-  "description": "Microbuild monorepo workspace - shared components between Next.js projects",
+  "description": "Shared components between Next.js projects",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",

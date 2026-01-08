@@ -1,6 +1,6 @@
 # Quick Start: Using MCP Server & CLI
 
-This guide will help you set up and use the Microbuild distribution tools.
+This guide will help you set up and use the Microbuild UI Packages distribution tools.
 
 ## 🤖 Setup MCP Server for VS Code Copilot
 

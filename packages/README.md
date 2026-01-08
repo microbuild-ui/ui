@@ -1,6 +1,6 @@
-# Microbuild
+# Microbuild UI Packages
 
-Microbuild is a set of beautifully-designed, accessible components and a code distribution platform for building Directus-compatible content management applications. Works with React 18/19, Mantine v8, and AI models. **Open Source. Open Code.**
+Microbuild UI Packages is a set of beautifully-designed, accessible components and a code distribution platform for building Directus-compatible content management applications. Works with React 18/19, Mantine v8, and AI models. **Open Source. Open Code.**
 
 This is not a component library. It is how you build your component library.
 
