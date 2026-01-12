@@ -199,6 +199,10 @@ Microbuild Architecture
 
 ## 📖 External Resources
 
+### Related Projects
+- [microbuild-copilot](https://github.com/your-org/microbuild-copilot) - RAD platform boilerplate with agents, prompts, and templates
+- [nextjs-supabase-daas](https://github.com/your-org/nextjs-supabase-daas) - DaaS backend server
+
 ### Related Documentation
 - [Directus Documentation](https://docs.directus.io) - Backend API reference
 - [Mantine Documentation](https://mantine.dev) - UI component library
@@ -221,8 +225,8 @@ Microbuild Architecture
 
 ### Adding New Components
 1. Create component in `packages/ui-interfaces/src/`
-2. Add to registry: `packages/mcp-server/src/registry.ts`
-3. Update CLI lists: `packages/cli/src/commands/`
+2. Add to registry: `packages/registry.json`
+3. Export from `packages/ui-interfaces/src/index.ts`
 4. Rebuild: `pnpm build:mcp && pnpm build:cli`
 5. Test with CLI and MCP
 
@@ -247,13 +251,14 @@ Microbuild Architecture
 
 ## 📝 Changelog
 
-### Version 1.0.0 (December 14, 2025)
+### Version 1.0.0 (January 2026)
 - ✨ Initial release
 - ✅ MCP server for AI agents
 - ✅ CLI tool for developers
-- ✅ Component registry (30 components)
+- ✅ Component registry (32+ components)
 - ✅ Complete documentation
 - ✅ Multiple distribution methods
+- ✅ Integration with microbuild-copilot RAD platform
 
 ---
 

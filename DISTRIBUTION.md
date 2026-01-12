@@ -93,7 +93,7 @@ pnpm build
 
 **Configure VS Code:**
 
-Add to your VS Code `settings.json` (User or Workspace):
+Add to your VS Code `settings.json` or `.vscode/mcp.json`:
 
 ```json
 {
@@ -102,7 +102,7 @@ Add to your VS Code `settings.json` (User or Workspace):
       "microbuild": {
         "command": "node",
         "args": [
-          "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
+          "/absolute/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"
         ]
       }
     }

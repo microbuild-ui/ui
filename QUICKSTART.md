@@ -7,7 +7,7 @@ This guide will help you set up and use the Microbuild UI Packages distribution 
 ### Step 1: Build the MCP Server
 
 ```bash
-cd /path/to/microbuild
+cd /path/to/microbuild-ui-packages
 pnpm build:mcp
 ```
 
@@ -27,7 +27,7 @@ pnpm build:mcp
       "microbuild": {
         "command": "node",
         "args": [
-          "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
+          "/absolute/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"
         ]
       }
     }
@@ -35,7 +35,7 @@ pnpm build:mcp
 }
 ```
 
-**Important:** Replace `/absolute/path/to/microbuild` with the actual absolute path to your Microbuild directory.
+**Important:** Replace `/absolute/path/to/microbuild-ui-packages` with the actual absolute path to your Microbuild directory.
 
 ### Step 3: Reload VS Code
 
@@ -55,11 +55,11 @@ Ask Copilot:
 ### Option 1: Use from Workspace (Development)
 
 ```bash
-cd /path/to/microbuild
+cd /path/to/microbuild-ui-packages
 pnpm build:cli
 
 # Create an alias for convenience
-alias microbuild='node /path/to/microbuild/packages/cli/dist/index.js'
+alias microbuild='node /path/to/microbuild-ui-packages/packages/cli/dist/index.js'
 
 # Or use the pnpm script
 pnpm cli list
@@ -69,7 +69,7 @@ pnpm cli init
 ### Option 2: Install Globally (Recommended)
 
 ```bash
-cd /path/to/microbuild/packages/cli
+cd /path/to/microbuild-ui-packages/packages/cli
 pnpm build
 pnpm install -g .
 
@@ -172,7 +172,7 @@ microbuild list --json
    npm init -y
    
    # Initialize Microbuild
-   node /path/to/microbuild/packages/cli/dist/index.js init --yes
+   node /path/to/microbuild-ui-packages/packages/cli/dist/index.js init --yes
    
    # Check generated files
    ls -la

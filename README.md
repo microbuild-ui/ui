@@ -148,6 +148,8 @@ Directus-compatible field interface components built with Mantine v8.
 |-----------|-----------|
 | `RichTextHtml` | WYSIWYG HTML editor (requires @tiptap packages) |
 | `RichTextMarkdown` | Markdown editor with live preview |
+| `InputBlockEditor` | Block-based editor (Notion-style) |
+| `InputCode` | Monospace code editor with syntax highlighting |
 
 **Media Components:**
 | Component | Description |
@@ -157,6 +159,7 @@ Directus-compatible field interface components built with Mantine v8.
 | `Files` | Multiple file upload interface with drag & drop |
 | `Upload` | Drag-and-drop file upload zone |
 | `Color` | Color picker with RGB/HSL support, presets, opacity |
+| `Map` | Interactive map picker for coordinates |
 
 **Relational Components:**
 | Component | Description |
@@ -228,14 +231,12 @@ Expose Microbuild components to AI assistants like VS Code Copilot.
 # Build and configure
 pnpm build:mcp
 
-# Add to VS Code settings.json:
+# Add to VS Code settings.json or .vscode/mcp.json:
 {
-  "mcp": {
-    "servers": {
-      "microbuild": {
-        "command": "node",
-        "args": ["/path/to/microbuild/packages/mcp-server/dist/index.js"]
-      }
+  "servers": {
+    "microbuild": {
+      "command": "node",
+      "args": ["/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"]
     }
   }
 }
@@ -317,6 +318,29 @@ Storybook runs at http://localhost:6006 and provides:
 - [Quick Start](./QUICKSTART.md)
 - [Distribution Guide](./DISTRIBUTION.md)
 - [Architecture](./ARCHITECTURE.md)
+
+## 🚀 RAD Platform Integration
+
+Microbuild integrates with the **microbuild-copilot** RAD (Rapid Application Development) platform for AI-assisted development.
+
+### Setup with microbuild-copilot
+
+```bash
+# Clone the RAD platform boilerplate
+git clone https://github.com/your-org/microbuild-copilot.git my-new-app
+cd my-new-app
+
+# The .vscode/mcp.json is pre-configured for Microbuild MCP server
+# Just update the path to your microbuild-ui-packages installation
+```
+
+### What microbuild-copilot provides:
+- **Custom Agents**: `@architect`, `@planner`, `@scaffold`, `@implement`, `@reviewer`, `@tester`, `@database`
+- **Prompt Templates**: `/create-project`, `/create-feature`, `/add-microbuild`, etc.
+- **Project Templates**: minimal, standard, enterprise
+- **VS Code Configuration**: MCP servers, settings, launch configs
+
+See [microbuild-copilot](https://github.com/your-org/microbuild-copilot) for full documentation.
 
 ## 🎯 Architecture (Directus-Inspired)
 

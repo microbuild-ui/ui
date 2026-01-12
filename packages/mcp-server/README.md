@@ -36,7 +36,7 @@ pnpm install
 pnpm build
 ```
 
-2. Add to your VS Code `settings.json`:
+2. Add to your VS Code `settings.json` or `.vscode/mcp.json`:
 
 ```json
 {
@@ -45,7 +45,7 @@ pnpm build
       "microbuild": {
         "command": "node",
         "args": [
-          "/absolute/path/to/microbuild/packages/mcp-server/dist/index.js"
+          "/absolute/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"
         ]
       }
     }
@@ -65,7 +65,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 
 const transport = new StdioClientTransport({
   command: "node",
-  args: ["/path/to/microbuild/packages/mcp-server/dist/index.js"],
+  args: ["/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"],
 });
 
 const client = new Client({
