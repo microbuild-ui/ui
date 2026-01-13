@@ -28,8 +28,8 @@ export { SelectDropdown } from './select-dropdown';
 export type { SelectDropdownProps, SelectOption } from './select-dropdown';
 export { SelectRadio } from './select-radio';
 export type { SelectRadioProps } from './select-radio';
-export { SelectMultipleCheckbox } from './select-multiple-checkbox';
-export type { SelectMultipleCheckboxProps, Option } from './select-multiple-checkbox';
+export { SelectMultipleCheckbox, SelectMultipleCheckboxTree, SelectMultipleDropdown } from './select-multiple-checkbox';
+export type { SelectMultipleCheckboxProps, Option, SelectMultipleCheckboxTreeProps, TreeChoice, SelectMultipleDropdownProps, DropdownChoice } from './select-multiple-checkbox';
 export { SelectIcon } from './select-icon';
 export type { SelectIconProps } from './select-icon';
 
@@ -95,5 +95,9 @@ export type { ListM2AProps } from './list-m2a';
 // export { InputBlockEditor } from './input-block-editor';
 // export { RichTextHTML } from './rich-text-html';
 // export { RichTextMarkdown } from './rich-text-markdown';
-// export { Map } from './map';
+
+// Map - requires maplibre-gl and @mapbox/mapbox-gl-draw peer dependencies
+// export { Map, MapWithRealMap } from './map';
+// export type { MapProps, MapWithRealMapProps, GeometryType, GeometryFormat, BasemapSource, DefaultView } from './map';
 // Note: Rich text editors and Map require additional dependencies (tiptap, editorjs, maplibre)
+

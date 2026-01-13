@@ -16,7 +16,8 @@ microbuild-ui-packages/
     ├── ui-collections/     # Collection Form & List
     ├── types/              # Shared TypeScript types
     ├── services/           # Shared service classes
-    └── hooks/              # Shared React hooks
+    ├── hooks/              # Shared React hooks
+    └── utils/              # Utility functions (field mapper, etc.)
 ```
 
 ## 🚀 Quick Start
@@ -75,6 +76,7 @@ Service classes for CRUD operations on Directus collections.
 - `ItemsService` - Generic CRUD for any collection
 - `FieldsService` - Read field definitions
 - `CollectionsService` - Read collection metadata
+- `PermissionsService` - Field-level permissions
 
 **Usage:**
 ```tsx
@@ -97,6 +99,11 @@ React hooks for managing Directus relationships.
 - `useRelationO2M` / `useRelationO2MItems` - One-to-Many relationships
 - `useRelationM2A` / `useRelationM2AItems` - Many-to-Any (polymorphic) relationships
 - `useFiles` - File upload and management
+- `useSelection` - Item selection management
+- `usePreset` - Collection presets (filters, search, layout)
+- `useEditsGuard` / `useHasEdits` - Unsaved changes navigation guard
+- `useClipboard` - Clipboard operations with notifications
+- `useLocalStorage` - Persistent localStorage state
 
 **Usage:**
 ```tsx
@@ -108,6 +115,28 @@ function ProductTags({ productId }: { productId: string }) {
   
   // Manage M2M relationships...
 }
+```
+
+### @microbuild/utils
+
+Utility functions for field interface mapping and validation.
+
+**Key Functions:**
+- `getFieldInterface` - Map field types to UI interface components
+- `isFieldReadOnly` - Determine read-only status based on context
+- `getFieldValidation` - Extract validation rules from field schema
+- `formatFieldValue` - Format values for display
+- `isPresentationField` - Check for presentation-only fields
+
+**Usage:**
+```tsx
+import { getFieldInterface, isFieldReadOnly } from '@microbuild/utils';
+
+const interfaceConfig = getFieldInterface(field);
+// Returns: { type: 'input', props: { type: 'string' } }
+
+const readOnly = isFieldReadOnly(field, 'edit');
+// Returns: true for auto-increment PKs, UUID PKs, etc.
 ```
 
 ### @microbuild/ui-interfaces
@@ -130,6 +159,8 @@ Directus-compatible field interface components built with Mantine v8.
 | `SelectDropdown` | Dropdown select with search |
 | `SelectRadio` | Radio button selection |
 | `SelectMultipleCheckbox` | Checkbox group with "other" option |
+| `SelectMultipleCheckboxTree` | Tree-based hierarchical multi-select |
+| `SelectMultipleDropdown` | Dropdown-based multi-select with search |
 | `SelectIcon` | Icon picker with categorized Tabler icons |
 | `Tags` | Tag input with presets and custom tags |
 | `AutocompleteAPI` | External API-backed autocomplete |
@@ -159,7 +190,8 @@ Directus-compatible field interface components built with Mantine v8.
 | `Files` | Multiple file upload interface with drag & drop |
 | `Upload` | Drag-and-drop file upload zone |
 | `Color` | Color picker with RGB/HSL support, presets, opacity |
-| `Map` | Interactive map picker for coordinates |
+| `Map` | Interactive map placeholder for coordinates |
+| `MapWithRealMap` | Full MapLibre GL JS map with drawing tools |
 
 **Relational Components:**
 | Component | Description |

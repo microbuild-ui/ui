@@ -116,6 +116,49 @@ Options:
   -h, --help       display help for command
 ```
 
+## status
+
+Use the `status` command to view all installed Microbuild components and their origins.
+
+```bash
+npx @microbuild/cli status
+```
+
+### Options
+
+```
+Usage: microbuild status [options]
+
+show installed Microbuild components and their origins
+
+Options:
+  --json           output as JSON
+  -c, --cwd <cwd>  the working directory (defaults to current directory)
+  -h, --help       display help for command
+```
+
+### Example Output
+
+```
+📦 Microbuild Status
+
+Config file: microbuild.json
+Lib modules: types, hooks, services
+Components:  input, select-dropdown, list-m2m
+
+Installed Files:
+
+  @microbuild/ui-interfaces/input
+    └─ src/components/ui/input.tsx
+       v1.0.0 (2026-01-12)
+
+  @microbuild/lib/hooks
+    └─ src/lib/microbuild/hooks/useRelationM2M.ts
+       v1.0.0 (2026-01-12)
+
+Total: 15 files from Microbuild
+```
+
 ## microbuild.json
 
 The `microbuild.json` file holds configuration for your project. We use it to understand how your project is set up and how to generate components customized for your project.

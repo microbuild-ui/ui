@@ -17,6 +17,7 @@ import { init } from './commands/init.js';
 import { add } from './commands/add.js';
 import { list } from './commands/list.js';
 import { diff } from './commands/diff.js';
+import { status } from './commands/status.js';
 
 const program = new Command();
 
@@ -56,5 +57,12 @@ program
   .argument('<component>', 'Component name')
   .option('--cwd <path>', 'Project directory', process.cwd())
   .action(diff);
+
+program
+  .command('status')
+  .description('Show installed Microbuild components and their origins')
+  .option('--json', 'Output as JSON')
+  .option('--cwd <path>', 'Project directory', process.cwd())
+  .action(status);
 
 program.parse();

@@ -43,8 +43,9 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | Package | Description | Documentation |
 |---------|-------------|---------------|
 | @microbuild/types | TypeScript types | [README](packages/types/README.md) |
-| @microbuild/services | CRUD services | [README](packages/services/README.md) |
-| @microbuild/hooks | React hooks | [README](packages/hooks/README.md) |
+| @microbuild/services | CRUD & permissions services | [README](packages/services/README.md) |
+| @microbuild/hooks | React hooks (relations, UI state) | [README](packages/hooks/README.md) |
+| @microbuild/utils | Field interface mapper & utilities | [README](packages/utils/README.md) |
 | @microbuild/ui-interfaces | Field components | [README](packages/ui-interfaces/README.md) |
 | @microbuild/ui-collections | Collection components | [README](packages/ui-collections/README.md) |
 | @microbuild/mcp-server | MCP server | [README](packages/mcp-server/README.md) |
@@ -78,6 +79,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | List components | `microbuild list` | [packages/cli/README.md](packages/cli/README.md#list) |
 | Add component | `microbuild add input` | [packages/cli/README.md](packages/cli/README.md#add) |
 | Initialize project | `microbuild init` | [packages/cli/README.md](packages/cli/README.md#init) |
+| Check status | `microbuild status` | [packages/cli/README.md](packages/cli/README.md#status) |
 
 ## 🎨 Component Categories
 

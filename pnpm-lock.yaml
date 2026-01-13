@@ -306,6 +306,22 @@ importers:
         specifier: ^6.0.5
         version: 6.4.1(@types/node@22.19.2)(jiti@2.6.1)(lightningcss@1.30.2)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
+  packages/utils:
+    dependencies:
+      '@microbuild/types':
+        specifier: workspace:*
+        version: link:../types
+      react:
+        specifier: '>=18.0.0'
+        version: 19.2.0
+    devDependencies:
+      tsup:
+        specifier: ^8.0.1
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
 packages:
 
   '@adobe/css-tools@4.4.4':

@@ -6,3 +6,6 @@ export type {
     BasemapSource, 
     DefaultView 
 } from './Map';
+
+export { MapWithRealMap } from './MapWithRealMap';
+export type { MapWithRealMapProps } from './MapWithRealMap';

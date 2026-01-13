@@ -128,6 +128,21 @@ microbuild list --category input
 microbuild list --json
 ```
 
+### Check Installed Components
+
+```bash
+# View installed components and their origins
+microbuild status
+
+# JSON output for scripting
+microbuild status --json
+```
+
+The status command shows:
+- Which components are installed
+- Their versions and installation dates
+- Origin tracking for updates
+
 ## 🧪 Testing the Setup
 
 ### Test MCP Server

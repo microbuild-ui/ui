@@ -205,3 +205,74 @@ export function removeUseClient(content: string): string {
     .replace(/^["']use client["'];\s*\n*/m, '')
     .trim();
 }
+
+/**
+ * Generate origin header comment for copied files
+ */
+export function generateOriginHeader(
+  componentName: string,
+  sourcePackage: string,
+  version: string = '1.0.0'
+): string {
+  const timestamp = new Date().toISOString().split('T')[0];
+  return `/**
+ * @microbuild-origin ${sourcePackage}/${componentName}
+ * @microbuild-version ${version}
+ * @microbuild-date ${timestamp}
+ * 
+ * This file was copied from Microbuild UI Packages.
+ * To update, run: npx @microbuild/cli add ${componentName} --overwrite
+ * 
+ * Docs: https://microbuild.dev/components/${componentName}
+ */
+
+`;
+}
+
+/**
+ * Add origin header to file content
+ */
+export function addOriginHeader(
+  content: string,
+  componentName: string,
+  sourcePackage: string,
+  version: string = '1.0.0'
+): string {
+  const header = generateOriginHeader(componentName, sourcePackage, version);
+  
+  // If file has "use client", insert header after it
+  const useClientMatch = content.match(/^(["']use client["'];?\s*\n)/);
+  if (useClientMatch) {
+    return useClientMatch[1] + header + content.slice(useClientMatch[0].length);
+  }
+  
+  return header + content;
+}
+
+/**
+ * Check if file has microbuild origin header
+ */
+export function hasMicrobuildOrigin(content: string): boolean {
+  return content.includes('@microbuild-origin');
+}
+
+/**
+ * Extract origin info from file
+ */
+export function extractOriginInfo(content: string): {
+  origin?: string;
+  version?: string;
+  date?: string;
+} | null {
+  const originMatch = content.match(/@microbuild-origin\s+([^\n*]+)/);
+  const versionMatch = content.match(/@microbuild-version\s+([^\n*]+)/);
+  const dateMatch = content.match(/@microbuild-date\s+([^\n*]+)/);
+  
+  if (!originMatch) return null;
+  
+  return {
+    origin: originMatch[1].trim(),
+    version: versionMatch?.[1].trim(),
+    date: dateMatch?.[1].trim(),
+  };
+}

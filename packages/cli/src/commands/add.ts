@@ -20,7 +20,8 @@ import {
   transformImports, 
   toKebabCase, 
   extractMicrobuildDependencies,
-  hasMicrobuildImports 
+  hasMicrobuildImports,
+  addOriginHeader
 } from './transformer.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -122,6 +123,7 @@ async function copyLibModule(
     if (fs.existsSync(sourcePath)) {
       let content = await fs.readFile(sourcePath, 'utf-8');
       content = transformImports(content, config);
+      content = addOriginHeader(content, moduleName, '@microbuild/lib', registry.version);
       await fs.ensureDir(path.dirname(targetPath));
       await fs.writeFile(targetPath, content);
     }
@@ -139,6 +141,9 @@ async function copyLibModule(
       if (fs.existsSync(sourcePath)) {
         let content = await fs.readFile(sourcePath, 'utf-8');
         content = transformImports(content, config);
+        // Extract filename for origin tracking
+        const fileName = path.basename(file.source, path.extname(file.source));
+        content = addOriginHeader(content, `${moduleName}/${fileName}`, '@microbuild/lib', registry.version);
         await fs.ensureDir(path.dirname(targetPath));
         await fs.writeFile(targetPath, content);
       } else {
@@ -217,6 +222,9 @@ async function copyComponent(
     // Read and transform
     let content = await fs.readFile(sourcePath, 'utf-8');
     content = transformImports(content, config);
+    
+    // Add origin header for maintainability
+    content = addOriginHeader(content, component.name, '@microbuild/ui-interfaces', registry.version);
 
     // Ensure directory exists
     await fs.ensureDir(path.dirname(targetPath));

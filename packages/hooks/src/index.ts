@@ -26,6 +26,41 @@ export {
     type DirectusFile 
 } from './useFiles';
 
+// Selection & Preset hooks
+export { 
+    useSelection, 
+    type UseSelectionOptions, 
+    type UseSelectionReturn 
+} from './useSelection';
+export { 
+    usePreset, 
+    type UsePresetOptions, 
+    type UsePresetReturn,
+    type Filter,
+    type Query
+} from './usePreset';
+
+// Navigation guard hooks (Directus-style)
+export { 
+    useEditsGuard, 
+    useHasEdits,
+    type UseEditsGuardOptions, 
+    type UseEditsGuardReturn 
+} from './useEditsGuard';
+
+// Clipboard and Storage hooks (Directus-style)
+export {
+    useClipboard,
+    type UseClipboardOptions,
+    type UseClipboardReturn
+} from './useClipboard';
+export {
+    useLocalStorage,
+    type LocalStorageValue,
+    type UseLocalStorageOptions,
+    type UseLocalStorageReturn
+} from './useLocalStorage';
+
 // API helpers
 export { api, directusAPI, createDirectusAPI, type DirectusAPIConfig, type QueryParams } from './api';
 

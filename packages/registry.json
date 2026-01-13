@@ -228,6 +228,34 @@
       "internalDependencies": []
     },
     {
+      "name": "select-multiple-checkbox-tree",
+      "title": "SelectMultipleCheckboxTree",
+      "description": "Tree-based multi-select checkbox with hierarchical choices",
+      "category": "selection",
+      "files": [
+        {
+          "source": "ui-interfaces/src/select-multiple-checkbox/SelectMultipleCheckboxTree.tsx",
+          "target": "components/ui/select-multiple-checkbox-tree.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": []
+    },
+    {
+      "name": "select-multiple-dropdown",
+      "title": "SelectMultipleDropdown",
+      "description": "Dropdown-based multi-select with search support",
+      "category": "selection",
+      "files": [
+        {
+          "source": "ui-interfaces/src/select-multiple-checkbox/SelectMultipleDropdown.tsx",
+          "target": "components/ui/select-multiple-dropdown.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
+    },
+    {
       "name": "select-icon",
       "title": "SelectIcon",
       "description": "Icon picker with categorized Tabler icons",
@@ -554,6 +582,34 @@
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
       "internalDependencies": ["types", "services"]
+    },
+    {
+      "name": "map",
+      "title": "Map",
+      "description": "Placeholder map component for geometry input (no map library)",
+      "category": "input",
+      "files": [
+        {
+          "source": "ui-interfaces/src/map/Map.tsx",
+          "target": "components/ui/map.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
+    },
+    {
+      "name": "map-with-real-map",
+      "title": "MapWithRealMap",
+      "description": "Full-featured map with MapLibre GL JS and drawing tools",
+      "category": "input",
+      "files": [
+        {
+          "source": "ui-interfaces/src/map/MapWithRealMap.tsx",
+          "target": "components/ui/map-with-real-map.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react", "maplibre-gl", "@mapbox/mapbox-gl-draw"],
+      "internalDependencies": []
     }
   ],
 

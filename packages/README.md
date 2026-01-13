@@ -49,8 +49,9 @@ import { Input } from '@/components/ui/input'
 |---------|-------------|
 | [@microbuild/cli](./cli) | CLI tool for copying components to projects |
 | [@microbuild/types](./types) | TypeScript type definitions for collections, fields, files, and relations |
-| [@microbuild/services](./services) | CRUD service classes for items, fields, and collections |
-| [@microbuild/hooks](./hooks) | React hooks for managing relational data (M2M, M2O, O2M, M2A) |
+| [@microbuild/services](./services) | CRUD service classes for items, fields, collections, and permissions |
+| [@microbuild/hooks](./hooks) | React hooks for managing relational data and UI state |
+| [@microbuild/utils](./utils) | Utility functions (field interface mapper, validation helpers) |
 | [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (inputs, selects, file uploads, etc.) |
 | [@microbuild/ui-collections](./ui-collections) | Dynamic collection components (CollectionForm, CollectionList) |
 | [@microbuild/mcp-server](./mcp-server) | Model Context Protocol server for AI agents (VS Code Copilot) |
@@ -303,19 +304,32 @@ Service classes for API interactions:
 - `ItemsService` - CRUD operations for collection items
 - `FieldsService` - Fetch and manage field definitions
 - `CollectionsService` - Fetch and manage collection metadata
+- `PermissionsService` - Field-level permissions checking
 - `apiRequest` - Low-level API request utility
 
 ### @microbuild/hooks
 
 React hooks for data management:
 
+**Relation Hooks:**
 - `useRelationM2M` - Many-to-Many relationships
 - `useRelationM2MItems` - M2M item queries
 - `useRelationM2O` - Many-to-One relationships
 - `useRelationO2M` - One-to-Many relationships
 - `useRelationM2A` - Many-to-Any relationships
 - `useFiles` - File uploads and management
-- `api` / `directusAPI` - API helpers
+
+**Selection & State Hooks:**
+- `useSelection` - Item selection management with toggle, select all, clear
+- `usePreset` - Collection presets (filters, search, layout options)
+
+**Navigation & Storage Hooks:**
+- `useEditsGuard` / `useHasEdits` - Unsaved changes navigation protection
+- `useClipboard` - Clipboard copy/paste with notifications
+- `useLocalStorage` - Persistent localStorage state
+
+**API Helpers:**
+- `api` / `directusAPI` - API request utilities
 
 ### @microbuild/ui-interfaces
 
@@ -331,6 +345,8 @@ Field interface components (Mantine v8):
 - `SelectDropdown` - Dropdown select
 - `SelectRadio` - Radio button group
 - `SelectMultipleCheckbox` - Checkbox group
+- `SelectMultipleCheckboxTree` - Tree-based hierarchical multi-select
+- `SelectMultipleDropdown` - Dropdown-based multi-select with search
 - `SelectIcon` - Icon picker
 - `AutocompleteAPI` - API-powered autocomplete
 - `CollectionItemDropdown` - Collection item selector
@@ -346,6 +362,8 @@ Field interface components (Mantine v8):
 - `FileInterface` - Single file upload
 - `Upload` - Multi-file upload
 - `Color` - Color picker
+- `Map` - Map placeholder for coordinates
+- `MapWithRealMap` - Full MapLibre GL JS map with drawing tools
 
 **Relational:**
 - `ListM2M` - Many-to-Many interface
@@ -358,6 +376,17 @@ Field interface components (Mantine v8):
 - `Notice` - Alert/notice display
 - `GroupDetail` - Collapsible group
 - `Slider` - Range slider
+
+### @microbuild/utils
+
+Utility functions for field handling:
+
+- `getFieldInterface` - Map field types to interface components
+- `isFieldReadOnly` - Determine read-only status based on context
+- `getFieldValidation` - Extract validation rules from schema
+- `getFieldDefault` - Get default values for fields
+- `formatFieldValue` - Format values for display
+- `isPresentationField` - Check for presentation-only fields
 
 ### @microbuild/ui-collections
 
