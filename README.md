@@ -204,10 +204,15 @@ Directus-compatible field interface components built with Mantine v8.
 | `ListM2OInterface` | Many-to-One (render-prop variant) |
 | `ListO2MInterface` | One-to-Many (render-prop variant) |
 
+**Workflow Components:**
+| Component | Description |
+|-----------|-------------|
+| `WorkflowButton` | Workflow state button with transitions, policy-based commands, and revision comparison |
+
 **Usage:**
 ```tsx
 import { 
-  Boolean, DateTime, SelectDropdown, Color, Notice, Tags 
+  Boolean, DateTime, SelectDropdown, Color, Notice, Tags, WorkflowButton 
 } from '@microbuild/ui-interfaces';
 
 // Basic components
@@ -215,6 +220,15 @@ import {
 <Color value={color} onChange={setColor} label="Brand Color" opacity />
 <Notice type="success" title="Saved">Your changes have been saved.</Notice>
 <Tags value={tags} onChange={setTags} presets={['React', 'Vue', 'Angular']} />
+
+// Workflow state management
+<WorkflowButton
+  itemId="article-123"
+  collection="articles"
+  canCompare={true}
+  onChange={(value) => console.log('New state:', value)}
+  onTransition={() => console.log('Transition complete')}
+/>
 ```
 
 ### @microbuild/ui-collections

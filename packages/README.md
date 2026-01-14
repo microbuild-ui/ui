@@ -371,6 +371,12 @@ Field interface components (Mantine v8):
 - `ListO2M` - One-to-Many interface
 - `ListM2A` - Many-to-Any interface
 
+**Workflow:**
+- `WorkflowButton` - State transitions with policy-based commands and revision comparison
+- `useWorkflow` - Hook for workflow state management
+- `CompareDrawer` - Revision comparison drawer
+- `RevisionsDrawerUpdates` - Field-by-field diff display
+
 **Layout:**
 - `Divider` - Section divider
 - `Notice` - Alert/notice display
@@ -451,6 +457,27 @@ Storybook stories are included for most interface components:
 - ListM2M, ListM2O, ListO2M
 - GroupDetail, Map
 - And more...
+
+### Testing
+
+The `@microbuild/ui-interfaces` package includes Jest tests for component functionality.
+
+```bash
+# Navigate to ui-interfaces package
+cd ui-interfaces
+
+# Run tests
+pnpm test
+
+# Run tests with coverage
+pnpm test --coverage
+```
+
+Test files are located in `src/__tests__/` and cover:
+- WorkflowButton and useWorkflow hook
+- CompareDrawer and RevisionChangeLine
+- RevisionsDrawerUpdates
+- AutocompleteAPI
 
 ## Directus Compatibility
 

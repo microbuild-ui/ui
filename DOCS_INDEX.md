@@ -110,11 +110,14 @@ Complete guide to Microbuild UI Packages and distribution tools.
 - [ListO2M](packages/README.md#microbuildui-interfaces) - One-to-Many
 - [ListM2A](packages/README.md#microbuildui-interfaces) - Many-to-Any
 
+### Workflow Components
+- [WorkflowButton](packages/README.md#microbuildui-interfaces) - State transitions with policy-based commands
+
 ### Collection Components
 - [CollectionForm](packages/README.md#microbuildui-collections) - Dynamic form
 - [CollectionList](packages/README.md#microbuildui-collections) - Dynamic list/table
 
-[See all 30 components →](packages/README.md#microbuildui-interfaces)
+[See all 33 components →](packages/README.md#microbuildui-interfaces)
 
 ## 🔍 How-To Guides
 
@@ -184,7 +187,7 @@ Microbuild Architecture
 ┌───────────▼─────────────────────────┐
 │      Component Layer                │
 │  ┌───────────────────────────────┐  │
-│  │  ui-interfaces (30 components)│  │
+│  │  ui-interfaces (33 components)│  │
 │  │  ui-collections (2 components)│  │
 │  └───────────────────────────────┘  │
 └─────────────────────────────────────┘
@@ -257,10 +260,12 @@ Microbuild Architecture
 - ✨ Initial release
 - ✅ MCP server for AI agents
 - ✅ CLI tool for developers
-- ✅ Component registry (32+ components)
+- ✅ Component registry (35+ components)
 - ✅ Complete documentation
 - ✅ Multiple distribution methods
 - ✅ Integration with microbuild-copilot RAD platform
+- ✅ WorkflowButton with revision comparison
+- ✅ Jest testing setup for ui-interfaces
 
 ---
 

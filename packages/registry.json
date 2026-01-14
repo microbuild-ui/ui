@@ -610,6 +610,44 @@
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react", "maplibre-gl", "@mapbox/mapbox-gl-draw"],
       "internalDependencies": []
+    },
+    {
+      "name": "workflow-button",
+      "title": "WorkflowButton",
+      "description": "Workflow state button with transitions and revision comparison",
+      "category": "workflow",
+      "files": [
+        {
+          "source": "ui-interfaces/src/workflow-button/WorkflowButton.tsx",
+          "target": "components/ui/workflow-button/workflow-button.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/workflow-button/useWorkflow.ts",
+          "target": "components/ui/workflow-button/use-workflow.ts"
+        },
+        {
+          "source": "ui-interfaces/src/workflow-button/types.ts",
+          "target": "components/ui/workflow-button/types.ts"
+        },
+        {
+          "source": "ui-interfaces/src/workflow-button/CompareDrawer.tsx",
+          "target": "components/ui/workflow-button/compare-drawer.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/workflow-button/RevisionsDrawerUpdates.tsx",
+          "target": "components/ui/workflow-button/revisions-drawer-updates.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/workflow-button/RevisionChangeLine.tsx",
+          "target": "components/ui/workflow-button/revision-change-line.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/workflow-button/index.ts",
+          "target": "components/ui/workflow-button/index.ts"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     }
   ],
 
@@ -658,6 +696,11 @@
       "name": "collection",
       "title": "Collection",
       "description": "Dynamic collection components"
+    },
+    {
+      "name": "workflow",
+      "title": "Workflow",
+      "description": "Workflow state and transition components"
     }
   ]
 }
