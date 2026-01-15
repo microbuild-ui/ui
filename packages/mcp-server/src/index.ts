@@ -64,7 +64,8 @@ function readSourceFile(relativePath: string): string | null {
  */
 function generateUsageExample(component: ComponentMetadata): string {
   const examples: Record<string, string> = {
-    Input: `// Copy & Own: Run 'npx @microbuild/cli add input' first
+    Input: `// Copy & Own: Component must be added via CLI from local microbuild-ui-packages
+// cd /path/to/microbuild-ui-packages && pnpm cli add input --project /path/to/your-project
 import { Input } from '@/components/ui/input';
 
 function MyForm() {
@@ -80,7 +81,7 @@ function MyForm() {
     />
   );
 }`,
-    SelectDropdown: `// Copy & Own: Run 'npx @microbuild/cli add select-dropdown' first
+    SelectDropdown: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add select-dropdown --project /path/to/your-project
 import { SelectDropdown } from '@/components/ui/select-dropdown';
 
 function StatusSelect() {
@@ -99,7 +100,7 @@ function StatusSelect() {
     />
   );
 }`,
-    DateTime: `// Copy & Own: Run 'npx @microbuild/cli add datetime' first
+    DateTime: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add datetime --project /path/to/your-project
 import { DateTime } from '@/components/ui/datetime';
 
 function EventForm() {
@@ -115,7 +116,7 @@ function EventForm() {
     />
   );
 }`,
-    Toggle: `// Copy & Own: Run 'npx @microbuild/cli add toggle' first
+    Toggle: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add toggle --project /path/to/your-project
 import { Toggle } from '@/components/ui/toggle';
 
 function FeatureToggle() {
@@ -132,7 +133,7 @@ function FeatureToggle() {
     />
   );
 }`,
-    CollectionForm: `// Copy & Own: Run 'npx @microbuild/cli add collection-form' first
+    CollectionForm: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add collection-form --project /path/to/your-project
 import { CollectionForm } from '@/components/ui/collection-form';
 
 function ProductEditor({ productId }: { productId?: string }) {
@@ -146,7 +147,7 @@ function ProductEditor({ productId }: { productId?: string }) {
     />
   );
 }`,
-    CollectionList: `// Copy & Own: Run 'npx @microbuild/cli add collection-list' first
+    CollectionList: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add collection-list --project /path/to/your-project
 import { CollectionList } from '@/components/ui/collection-list';
 
 function ProductList() {
@@ -163,8 +164,8 @@ function ProductList() {
   };
 
   return examples[component.name] || examples[component.title] || `// Copy & Own model: This component is copied to your project
-// Import from your local components directory after running:
-// npx @microbuild/cli add ${component.name}
+// Import from your local components directory after running from microbuild-ui-packages:
+// cd /path/to/microbuild-ui-packages && pnpm cli add ${component.name} --project /path/to/your-project
 
 import { ${component.title} } from '@/components/ui/${component.name}';
 
@@ -494,9 +495,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 ...component,
                 source: source || 'Source code not available',
                 allSources: sources,
-                installCommand: `npx @microbuild/cli add ${component.name}`,
+                installCommand: `cd /path/to/microbuild-ui-packages && pnpm cli add ${component.name} --project /path/to/your-project`,
+                installNote: '⚠️ @microbuild/cli is NOT on npm. You must use the CLI from a local clone of microbuild-ui-packages.',
                 copyOwn: {
-                  description: 'Copy this component to your project using the CLI or manually copy the source code below.',
+                  description: 'Copy this component to your project using the CLI from microbuild-ui-packages, or manually copy the source code below.',
                   targetPath: component.files[0]?.target || `components/ui/${component.name}.tsx`,
                   peerDependencies: component.dependencies,
                 },
@@ -535,7 +537,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case 'generate_form': {
       const { collection, fields, mode } = args as any;
       
-      const code = `// Copy & Own: Run 'npx @microbuild/cli add collection-form' first
+      const code = `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add collection-form --project /path/to/your-project
 import { CollectionForm } from '@/components/ui/collection-form';
 
 function ${collection.charAt(0).toUpperCase() + collection.slice(1)}Form() {
@@ -581,7 +583,7 @@ function ${collection.charAt(0).toUpperCase() + collection.slice(1)}Form() {
         .map(([key, value]) => `${key}={${JSON.stringify(value)}}`)
         .join('\n      ');
 
-      const code = `// Copy & Own: Run 'npx @microbuild/cli add ${type}' first
+      const code = `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add ${type} --project /path/to/your-project
 import { ${componentName} } from '@/components/ui/${type}';
 import { useState } from 'react';
 
@@ -622,24 +624,34 @@ function Example() {
     case 'get_install_command': {
       const { components, category, all } = args as any;
       
-      let command = 'npx @microbuild/cli add';
+      // NOTE: @microbuild/cli is NOT published to npm. Must use local CLI from cloned repo
+      let command = 'cd /path/to/microbuild-ui-packages && pnpm cli add';
       let explanation = '';
       
       if (all) {
-        command += ' --all';
+        command += ' --all --project /path/to/your-project';
         explanation = 'This will install all Microbuild components to your project.';
       } else if (category) {
-        command += ` --category ${category}`;
+        command += ` --category ${category} --project /path/to/your-project`;
         explanation = `This will install all components from the ${category} category.`;
       } else if (components && components.length > 0) {
-        command += ` ${components.join(' ')}`;
+        command += ` ${components.join(' ')} --project /path/to/your-project`;
         explanation = `This will install: ${components.join(', ')}.`;
       } else {
         return {
           content: [
             {
               type: 'text',
-              text: 'Please specify components, a category, or use --all flag.\n\nExamples:\n- npx @microbuild/cli add input select-dropdown\n- npx @microbuild/cli add --category selection\n- npx @microbuild/cli add --all',
+              text: `⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm. You must use the CLI from a local clone.
+
+**Prerequisites:**
+1. Clone microbuild-ui-packages: \`git clone <repo-url> microbuild-ui-packages\`
+2. Install & build: \`cd microbuild-ui-packages && pnpm install && pnpm build\`
+
+**Examples (run from microbuild-ui-packages directory):**
+- \`pnpm cli add input select-dropdown --project /path/to/your-project\`
+- \`pnpm cli add --category selection --project /path/to/your-project\`
+- \`pnpm cli add --all --project /path/to/your-project\``,
             },
           ],
         };
@@ -647,7 +659,15 @@ function Example() {
 
       const result = `## Copy & Own Installation
 
-**Command:**
+⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm.
+You must use the CLI from a local clone of microbuild-ui-packages.
+
+**Prerequisites:**
+1. Clone the repo: \`git clone <repo-url> microbuild-ui-packages\`
+2. Install deps: \`cd microbuild-ui-packages && pnpm install\`
+3. Build CLI: \`pnpm build:cli\`
+
+**Command (from microbuild-ui-packages directory):**
 \`\`\`bash
 ${command}
 \`\`\`
@@ -660,10 +680,9 @@ ${explanation}
 3. Imports are transformed to use local paths
 4. Dependencies are tracked in microbuild.json
 
-**First time setup:**
-If you haven't initialized yet, run:
+**First time setup (from microbuild-ui-packages directory):**
 \`\`\`bash
-npx @microbuild/cli init
+pnpm cli init --project /path/to/your-project
 \`\`\`
 
 **Benefits of Copy & Own:**
@@ -688,9 +707,17 @@ npx @microbuild/cli init
 
 Microbuild uses the **Copy & Own** model (like shadcn/ui) instead of traditional npm packages.
 
-### How it works:
-1. **Initialize:** Run \`npx @microbuild/cli init\` in your project
-2. **Add components:** Run \`npx @microbuild/cli add input select-dropdown\`
+⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm.
+You must clone microbuild-ui-packages locally and use the CLI from there.
+
+### Prerequisites:
+1. Clone: \`git clone <repo-url> microbuild-ui-packages\`
+2. Install: \`cd microbuild-ui-packages && pnpm install\`
+3. Build: \`pnpm build\`
+
+### How it works (all commands from microbuild-ui-packages directory):
+1. **Initialize:** \`pnpm cli init --project /path/to/your-project\`
+2. **Add components:** \`pnpm cli add input select-dropdown --project /path/to/your-project\`
 3. **Customize:** Components are copied as source code - modify freely!
 
 ### Project Structure After Installation:
@@ -709,12 +736,13 @@ your-project/
 └── microbuild.json           # Tracks installed components
 \`\`\`
 
-### CLI Commands:
-- \`npx @microbuild/cli init\` - Initialize project
-- \`npx @microbuild/cli list\` - List available components
-- \`npx @microbuild/cli add <components>\` - Install components
-- \`npx @microbuild/cli add --category <name>\` - Install by category
-- \`npx @microbuild/cli diff <component>\` - Preview before install
+### CLI Commands (from microbuild-ui-packages directory):
+- \`pnpm cli init --project <path>\` - Initialize project
+- \`pnpm cli list\` - List available components
+- \`pnpm cli add <components> --project <path>\` - Install components
+- \`pnpm cli add --category <name> --project <path>\` - Install by category
+- \`pnpm cli diff <component> --project <path>\` - Preview before install
+- \`pnpm cli status --project <path>\` - Check installed components
 
 ### Benefits:
 ✅ **No external dependencies** - Components are part of your codebase
@@ -818,15 +846,25 @@ your-project/
         // Dependencies to install via npm/pnpm
         peerDependencies: component.dependencies,
         
-        // Install command alternative
-        cliCommand: `npx @microbuild/cli add ${component.name}`,
+        // Install command (must use local CLI, not npx)
+        cliCommand: `cd /path/to/microbuild-ui-packages && pnpm cli add ${component.name} --project /path/to/your-project`,
+        cliNote: '⚠️ @microbuild/cli is NOT on npm. You must use the CLI from a local clone of microbuild-ui-packages.',
         
         // Instructions
         instructions: `## Copy & Own: ${component.title}
 
+⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm.
+You must use the CLI from a local clone of microbuild-ui-packages.
+
 ### Option 1: Use CLI (Recommended)
+
+**Prerequisites:**
+1. Clone microbuild-ui-packages: \`git clone <repo-url>\`
+2. Install & build: \`cd microbuild-ui-packages && pnpm install && pnpm build\`
+
+**Add component (from microbuild-ui-packages directory):**
 \`\`\`bash
-npx @microbuild/cli add ${component.name}
+pnpm cli add ${component.name} --project /path/to/your-project
 \`\`\`
 
 ### Option 2: Manual Copy

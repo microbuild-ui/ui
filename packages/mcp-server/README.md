@@ -16,6 +16,9 @@ Microbuild uses the **Copy & Own** distribution model (similar to shadcn/ui):
 - ✅ No breaking changes from upstream updates
 - ✅ Works offline after installation
 
+⚠️ **IMPORTANT:** `@microbuild/cli` is **NOT published to npm**.
+You must clone `microbuild-ui-packages` locally and use the CLI from there.
+
 ## Features
 
 - 📦 **Component Discovery** - List all available Microbuild components
@@ -203,6 +206,8 @@ Once configured, you can ask Copilot:
 
 The AI agent will provide CLI commands that you can run to install components.
 
+⚠️ **Note:** The CLI commands use local paths, not npx. You must run them from the microbuild-ui-packages directory.
+
 ## Development
 
 ```bash
@@ -248,11 +253,13 @@ pnpm typecheck
 └─────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────┐
-│         Microbuild CLI                  │
-│  npx @microbuild/cli add <components>   │
+│         Microbuild CLI (LOCAL)          │
+│  cd microbuild-ui-packages              │
+│  pnpm cli add <components> --project .. │
 │  - Copies source to user project        │
 │  - Transforms imports                   │
 │  - Resolves dependencies                │
+│  ⚠️ NOT on npm - use from local clone   │
 └─────────────────────────────────────────┘
 ```
 
