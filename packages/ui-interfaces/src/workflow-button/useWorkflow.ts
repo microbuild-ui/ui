@@ -42,6 +42,15 @@ const defaultApiClient = {
 };
 
 /**
+ * Check if an item ID represents a new item (not yet saved)
+ */
+function isNewItem(itemId?: string | number | null): boolean {
+  if (!itemId) return true;
+  if (itemId === '+' || itemId === 'new') return true;
+  return false;
+}
+
+/**
  * useWorkflow Hook
  *
  * A React hook for managing workflow state transitions.
@@ -88,26 +97,47 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Fetch user policies
+  // Fetch user policies - supports both /api/users/me and /api/auth/user endpoints
   const fetchUserPolicies = useCallback(async (): Promise<{ policy: string }[]> => {
     try {
-      const response = await apiClient.get('/api/users/me');
-      const data = response.data.data as { policies?: string[] };
-      const policyIds = data.policies || [];
+      // Try /api/auth/user first (main-nextjs format)
+      let policyIds: string[] = [];
+      
+      try {
+        const response = await apiClient.get('/api/auth/user');
+        // Handle { user: { ... } } format from main-nextjs
+        const userData = (response.data as { user?: { policies?: string[] } })?.user;
+        policyIds = userData?.policies || [];
+      } catch {
+        // Fall back to /api/users/me (Directus format)
+        try {
+          const response = await apiClient.get('/api/users/me');
+          const data = response.data.data as { policies?: string[] };
+          policyIds = data.policies || [];
+        } catch {
+          // Neither endpoint available, return empty
+          return [];
+        }
+      }
 
       if (policyIds.length === 0) {
         return [];
       }
 
-      const policiesResponse = await apiClient.get('/api/access', {
-        params: {
-          filter: {
-            id: { _in: policyIds },
+      // Try to fetch from /api/access if available
+      try {
+        const policiesResponse = await apiClient.get('/api/access', {
+          params: {
+            filter: {
+              id: { _in: policyIds },
+            },
           },
-        },
-      });
-
-      return policiesResponse.data.data as { policy: string }[];
+        });
+        return policiesResponse.data.data as { policy: string }[];
+      } catch {
+        // /api/access not available, return policy IDs as-is
+        return policyIds.map(id => ({ policy: id }));
+      }
     } catch (error) {
       console.error('Error fetching user policies:', error);
       return [];
@@ -117,7 +147,8 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
   // Fetch workflow instance
   const fetchWorkflowInstance = useCallback(
     async (versionKey?: string, translationId?: string) => {
-      if (!itemId || !collection) {
+      // Skip for new items ('+' is Directus convention for new records)
+      if (isNewItem(itemId) || !collection) {
         setWorkflowInstance(null);
         setWorkflowInstanceId(null);
         setCommands([]);
@@ -147,7 +178,7 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
           params: {
             filter: JSON.stringify(filter),
             fields:
-              'id,archived,collection,current_state,date_created,date_updated,item_id,revision_id,team,terminated,unpublished,user_created,user_updated,version_key,workflow.*',
+              'id,collection,current_state,date_created,date_updated,item_id,revision_id,terminated,version_key,workflow',
           },
         });
 
@@ -155,8 +186,31 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
         const instance = instances?.[0];
 
         if (instance) {
-          // Check if workflow_json exists and is valid
-          if (!instance.workflow?.workflow_json) {
+          // Fetch workflow definition separately since nested relations may not work
+          const workflowId =
+            typeof instance.workflow === 'string' || typeof instance.workflow === 'number'
+              ? instance.workflow
+              : instance.workflow?.id;
+
+          if (!workflowId) {
+            setErrorMessage('Workflow ID is missing');
+            setWorkflowInstance(null);
+            setWorkflowInstanceId(null);
+            setCommands([]);
+            setLoading(false);
+            return;
+          }
+
+          // Check if workflow is already an object with workflow_json (nested relation worked)
+          let workflowDef = instance.workflow;
+          
+          if (typeof workflowDef === 'string' || typeof workflowDef === 'number' || !workflowDef.workflow_json) {
+            // Fetch the workflow definition separately
+            const workflowResponse = await apiClient.get(`/api/items/xtr_wf_definition/${workflowId}`);
+            workflowDef = workflowResponse.data.data as WorkflowInstance['workflow'];
+          }
+
+          if (!workflowDef?.workflow_json) {
             setErrorMessage('Workflow configuration is missing');
             setWorkflowInstance(null);
             setWorkflowInstanceId(null);
@@ -165,10 +219,13 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
             return;
           }
 
+          // Attach workflow definition to instance
+          instance.workflow = workflowDef;
+
           const workflowJson =
-            typeof instance.workflow.workflow_json === 'string'
-              ? JSON.parse(instance.workflow.workflow_json)
-              : instance.workflow.workflow_json;
+            typeof workflowDef.workflow_json === 'string'
+              ? JSON.parse(workflowDef.workflow_json)
+              : workflowDef.workflow_json;
 
           // Fetch user policies
           const policies = await fetchUserPolicies();
@@ -178,15 +235,35 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
           setWorkflowInstanceId(instance.id);
           setWorkflowInstance(instance);
 
-          // Get commands for the current state
-          const workflowCommands: WorkflowCommand[] =
-            workflowJson.states.find(
-              (state: WorkflowState) => state.name === instance.current_state
-            )?.commands || [];
+          // Get commands/transitions for the current state
+          // Support both formats:
+          // 1. Array format: states[].commands (Microbuild/Directus default)
+          // 2. Object format: states[stateName].transitions (DaaS format)
+          let workflowCommands: WorkflowCommand[] = [];
+
+          if (Array.isArray(workflowJson.states)) {
+            // Array format with commands
+            workflowCommands =
+              workflowJson.states.find(
+                (state: WorkflowState) => state.name === instance.current_state
+              )?.commands || [];
+          } else if (typeof workflowJson.states === 'object') {
+            // Object format with transitions (DaaS format)
+            const currentStateConfig = workflowJson.states[instance.current_state];
+            if (currentStateConfig?.transitions) {
+              workflowCommands = currentStateConfig.transitions.map(
+                (t: { name: string; to: string; policies?: string[] }) => ({
+                  name: t.name,
+                  next_state: t.to,
+                  policies: t.policies || [],
+                })
+              );
+            }
+          }
 
           // Filter commands based on user policies
           const filteredCommands = workflowCommands.filter((command) => {
-            if (command.policies.length === 0) return true;
+            if (!command.policies || command.policies.length === 0) return true;
             return command.policies?.some((policyId) => policyIds.includes(policyId));
           });
 
@@ -250,7 +327,8 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
 
   // Auto-fetch workflow instance when dependencies change
   useEffect(() => {
-    if (itemId && collection) {
+    // Skip for new items
+    if (!isNewItem(itemId) && collection) {
       fetchWorkflowInstance();
     }
   }, [itemId, collection, initialVersionKey, fetchWorkflowInstance]);
