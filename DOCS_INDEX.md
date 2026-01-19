@@ -44,7 +44,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 |---------|-------------|---------------|
 | @microbuild/types | TypeScript types | [README](packages/types/README.md) |
 | @microbuild/services | CRUD & permissions services | [README](packages/services/README.md) |
-| @microbuild/hooks | React hooks (relations, UI state) | [README](packages/hooks/README.md) |
+| @microbuild/hooks | React hooks (relations, UI state, versioning, workflow) | [README](packages/hooks/README.md) |
 | @microbuild/utils | Field interface mapper & utilities | [README](packages/utils/README.md) |
 | @microbuild/ui-interfaces | Field components | [README](packages/ui-interfaces/README.md) |
 | @microbuild/ui-collections | Collection components | [README](packages/ui-collections/README.md) |

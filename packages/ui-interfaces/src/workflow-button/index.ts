@@ -1,9 +1,6 @@
-export { default } from './WorkflowButton';
-export { WorkflowButton } from './WorkflowButton';
-export { useWorkflow } from './useWorkflow';
-export { CompareDrawer } from './CompareDrawer';
-export { RevisionsDrawerUpdates } from './RevisionsDrawerUpdates';
-export { RevisionChangeLine } from './RevisionChangeLine';
+export { default } from './workflow-button';
+export { WorkflowButton } from './workflow-button';
+export { useWorkflow } from './use-workflow';
 export type {
   WorkflowButtonProps,
   UseWorkflowOptions,
@@ -14,7 +11,4 @@ export type {
   WorkflowAction,
   WorkflowDefinition,
   CommandOption,
-  Revision,
-  FieldChange,
-  Change,
 } from './types';

@@ -61,6 +61,27 @@ export {
     type UseLocalStorageReturn
 } from './useLocalStorage';
 
+// Versioning hooks (DaaS workflow + content versioning)
+export {
+    useVersions,
+    type ContentVersion,
+    type UseVersionsOptions,
+    type UseVersionsReturn
+} from './useVersions';
+export {
+    useWorkflowAssignment,
+    type WorkflowAssignment,
+    type UseWorkflowAssignmentReturn
+} from './useWorkflowAssignment';
+export {
+    useWorkflowVersioning,
+    type WorkflowState,
+    type WorkflowInstance,
+    type UseWorkflowVersioningOptions,
+    type UseWorkflowVersioningProps,
+    type UseWorkflowVersioningReturn
+} from './useWorkflowVersioning';
+
 // API helpers
 export { api, directusAPI, createDirectusAPI, type DirectusAPIConfig, type QueryParams } from './api';
 

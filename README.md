@@ -104,6 +104,9 @@ React hooks for managing Directus relationships.
 - `useEditsGuard` / `useHasEdits` - Unsaved changes navigation guard
 - `useClipboard` - Clipboard operations with notifications
 - `useLocalStorage` - Persistent localStorage state
+- `useVersions` - Content version management (create, save, delete versions)
+- `useWorkflowAssignment` - Check if collection has workflow assignment
+- `useWorkflowVersioning` - Workflow + versioning integration (edit modes, state tracking)
 
 **Usage:**
 ```tsx

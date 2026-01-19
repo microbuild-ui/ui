@@ -102,7 +102,7 @@ export type { ListM2AProps } from './list-m2a';
 // Note: Rich text editors and Map require additional dependencies (tiptap, editorjs, maplibre)
 
 // Workflow Button - workflow state transition interface
-export { WorkflowButton, useWorkflow, CompareDrawer, RevisionsDrawerUpdates, RevisionChangeLine } from './workflow-button';
+export { WorkflowButton, useWorkflow } from './workflow-button';
 export type {
   WorkflowButtonProps,
   UseWorkflowOptions,
@@ -113,8 +113,5 @@ export type {
   WorkflowAction,
   WorkflowDefinition,
   CommandOption,
-  Revision,
-  FieldChange,
-  Change,
 } from './workflow-button';
 

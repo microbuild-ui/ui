@@ -100,68 +100,7 @@ export interface WorkflowInstance {
     id: number;
     name: string;
     workflow_json: string;
-    compare_rollback_state?: string;
   };
-}
-
-/**
- * Revision data for comparison
- */
-export interface Revision {
-  /** Revision ID */
-  id: number;
-  /** Full data snapshot at this revision */
-  data: Record<string, unknown> | null;
-  /** Delta (changes) from previous revision */
-  delta: Record<string, unknown> | null;
-  /** Collection name */
-  collection: string | string[];
-  /** Item ID */
-  item: string | number | string[];
-  /** Activity metadata */
-  activity: {
-    action: string;
-    ip: string;
-    user_agent: string;
-    origin: string;
-    timestamp: string;
-    user:
-      | string
-      | {
-          id: string;
-          email: string;
-          first_name: string;
-          last_name: string;
-        };
-  };
-}
-
-/**
- * Field change information for revision comparison
- */
-export interface FieldChange {
-  /** Field name */
-  name: string;
-  /** Whether the field was updated (concealed values) */
-  updated?: boolean;
-  /** Array of changes (diff parts) */
-  changes: Change[];
-}
-
-/**
- * Individual change part from diff
- */
-export interface Change {
-  /** Whether this part was added */
-  added?: boolean;
-  /** Whether this part was removed */
-  removed?: boolean;
-  /** Whether the value was updated (for concealed fields) */
-  updated?: boolean;
-  /** Number of items affected */
-  count?: number;
-  /** The actual value */
-  value: unknown;
 }
 
 /**
@@ -180,8 +119,6 @@ export interface WorkflowButtonProps {
   choices?: CommandOption[];
   /** Icon to display */
   icon?: string;
-  /** Enable revision comparison feature */
-  canCompare?: boolean;
   /** Always show the button (even without workflow) */
   alwaysVisible?: boolean;
   /** Item ID */

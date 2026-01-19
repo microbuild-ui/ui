@@ -328,6 +328,11 @@ React hooks for data management:
 - `useClipboard` - Clipboard copy/paste with notifications
 - `useLocalStorage` - Persistent localStorage state
 
+**Versioning & Workflow Hooks:**
+- `useVersions` - Content version management (create, save, delete versions)
+- `useWorkflowAssignment` - Check if collection has workflow assignment enabled
+- `useWorkflowVersioning` - Workflow + versioning integration (edit modes, state tracking)
+
 **API Helpers:**
 - `api` / `directusAPI` - API request utilities
 
@@ -372,10 +377,8 @@ Field interface components (Mantine v8):
 - `ListM2A` - Many-to-Any interface
 
 **Workflow:**
-- `WorkflowButton` - State transitions with policy-based commands and revision comparison
+- `WorkflowButton` - State transitions with policy-based commands
 - `useWorkflow` - Hook for workflow state management
-- `CompareDrawer` - Revision comparison drawer
-- `RevisionsDrawerUpdates` - Field-by-field diff display
 
 **Layout:**
 - `Divider` - Section divider
@@ -474,10 +477,7 @@ pnpm test --coverage
 ```
 
 Test files are located in `src/__tests__/` and cover:
-- WorkflowButton and useWorkflow hook
-- CompareDrawer and RevisionChangeLine
-- RevisionsDrawerUpdates
-- AutocompleteAPI
+- AutocompleteAPI component
 
 ## Directus Compatibility
 

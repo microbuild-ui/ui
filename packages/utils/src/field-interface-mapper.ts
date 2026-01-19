@@ -37,7 +37,8 @@ export type InterfaceType =
   | 'file'
   | 'file-image'
   | 'files'
-  | 'collection-item-dropdown';
+  | 'collection-item-dropdown'
+  | 'workflow-button';
 
 export interface InterfaceConfig {
   /** Interface component type */
@@ -409,6 +410,24 @@ function getExplicitInterface(
           searchable: options?.searchable !== false,
           allowNone: options?.allowNone !== false,
           placeholder: options?.placeholder as string,
+          ...options,
+        },
+      };
+
+    // Workflow Button (workflow state transitions)
+    // Support all xtremax workflow interface IDs
+    case 'workflow-button':
+    case 'xtr-interface-workflow':
+    case 'xtr-interface-workflow-old':
+    case 'xtremax-workflow-button':
+    case 'xtremax-workflow-button-v2':
+    case 'xtremax-workflow-button-scheduled':
+      return {
+        type: 'workflow-button',
+        props: {
+          placeholder: options?.placeholder as string,
+          alwaysVisible: options?.alwaysVisible !== false,
+          workflowField: (options?.workflowField as string) || 'status',
           ...options,
         },
       };
