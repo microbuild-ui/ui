@@ -11,13 +11,14 @@
     "build:cli": "pnpm --filter @microbuild/cli build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
-    "clean": "pnpm -r exec rm -rf node_modules .next dist",
+    "clean": "pnpm -r exec rimraf node_modules .next dist",
     "install:all": "pnpm install",
     "storybook": "pnpm --filter @microbuild/ui-interfaces storybook",
     "cli": "pnpm --filter @microbuild/cli build && node packages/cli/dist/index.js",
     "mcp:dev": "pnpm --filter @microbuild/mcp-server dev"
   },
   "devDependencies": {
+    "rimraf": "^5.0.5",
     "typescript": "^5.9.3"
   },
   "engines": {

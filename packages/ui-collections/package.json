@@ -20,7 +20,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --external react --external @mantine/core --external @mantine/dates --external @mantine/hooks --external @tabler/icons-react",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,4 +1,10 @@
 import { defineConfig } from 'tsup';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// Read registry.json at build time to embed it
+const registryPath = join(__dirname, '../registry.json');
+const registryContent = readFileSync(registryPath, 'utf-8');
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -7,4 +13,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   shims: true,
+  noExternal: ['@modelcontextprotocol/sdk'],  // Bundle this dependency
+  define: {
+    'EMBEDDED_REGISTRY': JSON.stringify(registryContent),
+  },
 });

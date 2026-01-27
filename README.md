@@ -367,6 +367,7 @@ Storybook runs at http://localhost:6006 and provides:
 - [Quick Start](./QUICKSTART.md)
 - [Distribution Guide](./DISTRIBUTION.md)
 - [Architecture](./ARCHITECTURE.md)
+- [Windows Guide](./WINDOWS.md)
 
 ## 🚀 RAD Platform Integration
 

@@ -1,19 +1,12 @@
 /**
  * Component Registry
  * 
- * Loads component metadata from the shared registry.json file.
+ * Loads component metadata from the embedded registry (bundled at build time).
  * Used by the MCP server to expose components to AI agents.
  */
 
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Get packages root (mcp-server/dist -> packages)
-const PACKAGES_ROOT = join(__dirname, '../..');
+// Declare the embedded registry (injected at build time via tsup define)
+declare const EMBEDDED_REGISTRY: string;
 
 export interface ComponentMetadata {
   name: string;
@@ -65,12 +58,10 @@ export interface Registry {
 }
 
 /**
- * Load registry from JSON file
+ * Load registry from embedded JSON (bundled at build time)
  */
 function loadRegistry(): Registry {
-  const registryPath = join(PACKAGES_ROOT, 'registry.json');
-  const content = readFileSync(registryPath, 'utf-8');
-  return JSON.parse(content) as Registry;
+  return JSON.parse(EMBEDDED_REGISTRY) as Registry;
 }
 
 // Load registry once
