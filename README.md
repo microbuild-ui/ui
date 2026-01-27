@@ -2,12 +2,27 @@
 
 A pnpm workspace containing reusable components distributed via Copy & Own model.
 
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [QUICKSTART.md](QUICKSTART.md) | Setup guide for MCP Server & CLI |
+| [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md) | Complete documentation index |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture diagrams |
+| [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods guide |
+| [docs/WINDOWS.md](docs/WINDOWS.md) | Windows development guide |
+
 ## 🏗️ Structure
 
 ```
 microbuild-ui-packages/
 ├── pnpm-workspace.yaml     # Workspace configuration
 ├── package.json            # Root scripts
+├── docs/                   # Documentation
+│   ├── DOCS_INDEX.md       # Documentation index
+│   ├── ARCHITECTURE.md     # System architecture
+│   ├── DISTRIBUTION.md     # Distribution guide
+│   └── WINDOWS.md          # Windows setup
 └── packages/               # Component library (source of truth)
     ├── registry.json       # Component registry schema
     ├── cli/                # CLI tool for developers (@microbuild/cli)
@@ -317,7 +332,7 @@ npx @microbuild/cli add --all
 - ✅ Developers get full control over copied code
 - ✅ No npm publishing required
 
-See [DISTRIBUTION.md](./DISTRIBUTION.md) for complete setup guide.
+See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 
 ## 🔧 Workspace Commands
 
@@ -361,15 +376,7 @@ Storybook runs at http://localhost:6006 and provides:
 - Use `workspace:*` protocol for internal packages
 - Peer dependencies for Mantine, React in shared packages
 
-## 📚 Documentation
-
-- [Packages Overview](./packages/README.md)
-- [Quick Start](./QUICKSTART.md)
-- [Distribution Guide](./DISTRIBUTION.md)
-- [Architecture](./ARCHITECTURE.md)
-- [Windows Guide](./WINDOWS.md)
-
-## 🚀 RAD Platform Integration
+##  RAD Platform Integration
 
 Microbuild integrates with the **microbuild-copilot** RAD (Rapid Application Development) platform for AI-assisted development.
 

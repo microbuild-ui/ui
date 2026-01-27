@@ -141,7 +141,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input",
+        "name": "Input",
+        "icon": "IconForms",
+        "types": ["string", "text", "integer", "bigInteger", "float", "decimal"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 1,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "textarea",
@@ -155,7 +167,18 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-multiline",
+        "name": "Textarea",
+        "icon": "IconAlignLeft",
+        "types": ["string", "text"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 2,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "input-code",
@@ -169,7 +192,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-code",
+        "name": "Code",
+        "icon": "IconCode",
+        "types": ["string", "text", "json"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 3,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "tags",
@@ -183,7 +217,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-tags",
+        "name": "Tags",
+        "icon": "IconTags",
+        "types": ["json", "csv"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 4,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "select-dropdown",
@@ -197,7 +242,19 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "select-dropdown",
+        "name": "Dropdown",
+        "icon": "IconSelector",
+        "types": ["string", "integer", "bigInteger", "float", "decimal"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 1,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "select-radio",
@@ -211,7 +268,18 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "select-radio",
+        "name": "Radio Buttons",
+        "icon": "IconCircleDot",
+        "types": ["string", "integer"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 2,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "select-multiple-checkbox",
@@ -225,7 +293,18 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "select-multiple-checkbox",
+        "name": "Checkboxes",
+        "icon": "IconSquareCheck",
+        "types": ["json", "csv"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 3,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "select-multiple-checkbox-tree",
@@ -239,7 +318,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "select-multiple-checkbox-tree",
+        "name": "Checkboxes Tree",
+        "icon": "IconListTree",
+        "types": ["json", "csv"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 4,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "select-multiple-dropdown",
@@ -253,7 +343,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "select-multiple-dropdown",
+        "name": "Multiple Dropdown",
+        "icon": "IconSquaresFilled",
+        "types": ["json", "csv"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 5,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "select-icon",
@@ -267,7 +368,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "select-icon",
+        "name": "Icon",
+        "icon": "IconIcons",
+        "types": ["string"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 6,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "autocomplete-api",
@@ -281,7 +393,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-autocomplete-api",
+        "name": "Autocomplete API",
+        "icon": "IconPlugConnected",
+        "types": ["string"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 7,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "collection-item-dropdown",
@@ -295,7 +418,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks"],
-      "internalDependencies": ["types", "services"]
+      "internalDependencies": ["types", "services"],
+      "interface": {
+        "id": "collection-item-dropdown",
+        "name": "Collection Item",
+        "icon": "IconDatabase",
+        "types": ["string", "integer", "uuid"],
+        "localTypes": ["m2o"],
+        "group": "relational",
+        "order": 1,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "datetime",
@@ -309,7 +443,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/dates", "dayjs"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "datetime",
+        "name": "DateTime",
+        "icon": "IconCalendar",
+        "types": ["dateTime", "date", "time", "timestamp"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 5,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "boolean",
@@ -323,7 +469,19 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "boolean",
+        "name": "Checkbox",
+        "icon": "IconCheckbox",
+        "types": ["boolean"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 6,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "toggle",
@@ -337,7 +495,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "toggle",
+        "name": "Toggle",
+        "icon": "IconToggleRight",
+        "types": ["boolean"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 7,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "file",
@@ -351,7 +520,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": ["types"]
+      "internalDependencies": ["types"],
+      "interface": {
+        "id": "file",
+        "name": "File",
+        "icon": "IconFile",
+        "types": ["uuid"],
+        "localTypes": ["file"],
+        "group": "relational",
+        "order": 5,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "file-image",
@@ -365,7 +546,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": ["types"]
+      "internalDependencies": ["types"],
+      "interface": {
+        "id": "file-image",
+        "name": "Image",
+        "icon": "IconPhoto",
+        "types": ["uuid"],
+        "localTypes": ["file"],
+        "group": "relational",
+        "order": 6,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "files",
@@ -379,7 +571,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": ["types", "hooks"]
+      "internalDependencies": ["types", "hooks"],
+      "interface": {
+        "id": "files",
+        "name": "Files",
+        "icon": "IconFiles",
+        "types": ["alias"],
+        "localTypes": ["files"],
+        "group": "relational",
+        "order": 7,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "upload",
@@ -393,7 +596,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/dropzone"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "upload",
+        "name": "Upload",
+        "icon": "IconUpload",
+        "types": ["uuid"],
+        "localTypes": ["file"],
+        "group": "relational",
+        "order": 8,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "color",
@@ -407,7 +621,18 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "select-color",
+        "name": "Color",
+        "icon": "IconPalette",
+        "types": ["string"],
+        "localTypes": ["standard"],
+        "group": "selection",
+        "order": 8,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "list-m2m",
@@ -426,7 +651,19 @@
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
       "internalDependencies": ["types", "hooks", "services"],
-      "registryDependencies": ["collection-form", "collection-list"]
+      "registryDependencies": ["collection-form", "collection-list"],
+      "interface": {
+        "id": "list-m2m",
+        "name": "Many to Many",
+        "icon": "IconArrowsRightLeft",
+        "types": ["alias"],
+        "localTypes": ["m2m"],
+        "group": "relational",
+        "order": 2,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "list-m2o",
@@ -440,7 +677,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
-      "internalDependencies": ["types", "hooks", "services"]
+      "internalDependencies": ["types", "hooks", "services"],
+      "interface": {
+        "id": "list-m2o",
+        "name": "Many to One",
+        "icon": "IconArrowRight",
+        "types": ["string", "integer", "bigInteger", "uuid"],
+        "localTypes": ["m2o"],
+        "group": "relational",
+        "order": 3,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "list-o2m",
@@ -454,7 +703,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
-      "internalDependencies": ["types", "hooks", "services"]
+      "internalDependencies": ["types", "hooks", "services"],
+      "interface": {
+        "id": "list-o2m",
+        "name": "One to Many",
+        "icon": "IconArrowsRight",
+        "types": ["alias"],
+        "localTypes": ["o2m"],
+        "group": "relational",
+        "order": 4,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "list-m2a",
@@ -468,7 +729,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
-      "internalDependencies": ["types", "hooks", "services"]
+      "internalDependencies": ["types", "hooks", "services"],
+      "interface": {
+        "id": "list-m2a",
+        "name": "Many to Any",
+        "icon": "IconArrowsSplit",
+        "types": ["alias"],
+        "localTypes": ["m2a"],
+        "group": "relational",
+        "order": 5,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "divider",
@@ -482,7 +754,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "presentation-divider",
+        "name": "Divider",
+        "icon": "IconMinus",
+        "types": ["alias"],
+        "localTypes": ["presentation"],
+        "group": "presentation",
+        "order": 1,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "notice",
@@ -496,7 +779,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "presentation-notice",
+        "name": "Notice",
+        "icon": "IconAlertCircle",
+        "types": ["alias"],
+        "localTypes": ["presentation"],
+        "group": "presentation",
+        "order": 2,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "group-detail",
@@ -510,7 +804,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "group-detail",
+        "name": "Detail Group",
+        "icon": "IconBoxModel2",
+        "types": ["alias"],
+        "localTypes": ["group"],
+        "group": "group",
+        "order": 1,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "slider",
@@ -524,7 +830,18 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "slider",
+        "name": "Slider",
+        "icon": "IconSlideshow",
+        "types": ["integer", "bigInteger", "float", "decimal"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 8,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "rich-text-html",
@@ -538,7 +855,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-rich-text-html",
+        "name": "WYSIWYG",
+        "icon": "IconTextCaption",
+        "types": ["text"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 9,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "rich-text-markdown",
@@ -552,7 +881,18 @@
         }
       ],
       "dependencies": ["@mantine/core"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-rich-text-md",
+        "name": "Markdown",
+        "icon": "IconMarkdown",
+        "types": ["text"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 10,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "collection-form",
@@ -595,7 +935,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-map",
+        "name": "Map",
+        "icon": "IconMap",
+        "types": ["geometry", "json", "text"],
+        "localTypes": ["geometry"],
+        "group": "standard",
+        "order": 11,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "map-with-real-map",
@@ -609,7 +960,18 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react", "maplibre-gl", "@mapbox/mapbox-gl-draw"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-map-gl",
+        "name": "Map (MapLibre)",
+        "icon": "IconMapPin",
+        "types": ["geometry", "json", "text"],
+        "localTypes": ["geometry"],
+        "group": "standard",
+        "order": 12,
+        "supported": true,
+        "hasOptions": true
+      }
     },
     {
       "name": "workflow-button",
@@ -647,7 +1009,19 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": []
+      "internalDependencies": [],
+      "interface": {
+        "id": "workflow-button",
+        "name": "Workflow Button",
+        "icon": "IconGitBranch",
+        "types": ["string", "uuid"],
+        "localTypes": ["workflow"],
+        "group": "workflow",
+        "order": 1,
+        "supported": true,
+        "recommended": true,
+        "hasOptions": true
+      }
     }
   ],
 

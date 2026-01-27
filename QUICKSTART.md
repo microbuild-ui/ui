@@ -273,7 +273,8 @@ pnpm cli list
 
 ## 📖 Additional Resources
 
-- [DISTRIBUTION.md](./DISTRIBUTION.md) - Complete distribution guide
+- [docs/DISTRIBUTION.md](./docs/DISTRIBUTION.md) - Complete distribution guide
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System architecture diagrams
 - [packages/mcp-server/README.md](./packages/mcp-server/README.md) - MCP server docs
 - [packages/cli/README.md](./packages/cli/README.md) - CLI documentation
 - [Model Context Protocol](https://modelcontextprotocol.io) - Official MCP docs

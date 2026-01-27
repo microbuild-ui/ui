@@ -20,3 +20,44 @@ export {
   type InterfaceConfig,
   type FieldReadOnlyOptions,
 } from './field-interface-mapper';
+
+// Interface Types
+export type {
+  FieldType,
+  LocalType,
+  InterfaceGroup,
+  InterfaceProps,
+  InterfaceOption,
+  InterfaceOptionMeta,
+  InterfaceDefinition,
+  InterfaceMetadata,
+  InterfaceRegistrationInput,
+  InterfaceGroupDefinition,
+} from './interface-types';
+
+// Interface Registry
+export {
+  InterfaceRegistry,
+  interfaceRegistry,
+  getInterfaceRegistry,
+} from './interface-registry';
+
+// Define Interface Helper
+export {
+  defineInterface,
+  defineInterfaces,
+  createInterfaceOption,
+  createOptionGroup,
+  InterfaceOptions,
+  type DefineInterfaceConfig,
+} from './define-interface';
+
+// Load Interfaces from Registry
+export {
+  loadInterfacesFromRegistry,
+  extractInterfaceFromComponent,
+  getInterfacesForApi,
+  type RegistryComponent,
+  type RegistryComponentInterface,
+  type RegistryJson,
+} from './load-interfaces';
