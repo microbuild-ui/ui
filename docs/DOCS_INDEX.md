@@ -10,6 +10,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | [QUICKSTART.md](../QUICKSTART.md) | Setup guide for MCP & CLI | New users |
 | [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide | DevOps/Teams |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
+| [TESTING.md](TESTING.md) | Playwright E2E testing guide | Developers |
 
 ## 🎯 Quick Navigation
 
@@ -48,6 +49,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | @microbuild/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
 | @microbuild/ui-interfaces | Field components | [README](../packages/ui-interfaces/README.md) |
 | @microbuild/ui-collections | Collection components | [README](../packages/ui-collections/README.md) |
+| @microbuild/ui-form | VForm - Directus-inspired dynamic form | [README](../packages/ui-form/README.md) |
 | @microbuild/mcp-server | MCP server | [README](../packages/mcp-server/README.md) |
 | @microbuild/cli | CLI tool | [README](../packages/cli/README.md) |
 
@@ -62,6 +64,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | Build MCP server | `pnpm build:mcp` | [QUICKSTART.md](../QUICKSTART.md#step-1-build-the-mcp-server) |
 | Build CLI tool | `pnpm build:cli` | [QUICKSTART.md](../QUICKSTART.md#option-1-use-from-workspace-development) |
 | Run Storybook | `pnpm storybook` | [packages/README.md](../packages/README.md#storybook) |
+| Install Playwright | `pnpm exec playwright install chromium` | [TESTING.md](TESTING.md#prerequisites) |
 
 ### Development Tasks
 
@@ -71,6 +74,8 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | MCP dev mode | `pnpm mcp:dev` | [QUICKSTART.md](../QUICKSTART.md#-development-workflow) |
 | Run CLI locally | `pnpm cli list` | [QUICKSTART.md](../QUICKSTART.md#test-cli) |
 | Type check | `pnpm -r typecheck` | [packages/README.md](../packages/README.md#scripts) |
+| Run E2E tests | `pnpm test:e2e` | [TESTING.md](TESTING.md#running-tests) |
+| Run E2E tests (UI) | `pnpm test:e2e:ui` | [TESTING.md](TESTING.md#running-tests) |
 
 ### Distribution Tasks
 
@@ -117,7 +122,10 @@ Complete guide to Microbuild UI Packages and distribution tools.
 - [CollectionForm](../packages/README.md#microbuildui-collections) - Dynamic form
 - [CollectionList](../packages/README.md#microbuildui-collections) - Dynamic list/table
 
-[See all 33 components →](../packages/README.md#microbuildui-interfaces)
+### Form Components
+- [VForm](../packages/ui-form/README.md) - Directus-inspired dynamic form with field metadata
+
+[See all 33+ components →](../packages/README.md#microbuildui-interfaces)
 
 ## 🔍 How-To Guides
 
@@ -144,6 +152,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 2. [CLI Issues](../QUICKSTART.md#cli-issues)
 3. [Build Problems](../QUICKSTART.md#-troubleshooting)
 4. [Type Errors](DISTRIBUTION.md#type-errors-after-install)
+5. [E2E Test Issues](TESTING.md#troubleshooting)
 
 ## 🎓 Learning Path
 
@@ -187,8 +196,9 @@ Microbuild Architecture
 ┌───────────▼─────────────────────────┐
 │      Component Layer                │
 │  ┌───────────────────────────────┐  │
-│  │  ui-interfaces (33 components)│  │
-│  │  ui-collections (2 components)│  │
+│  │  ui-interfaces (40+ components)│ │
+│  │  ui-form (VForm dynamic form) │  │
+│  │  ui-collections (Form & List) │  │
 │  └───────────────────────────────┘  │
 └─────────────────────────────────────┘
             │
@@ -197,6 +207,13 @@ Microbuild Architecture
 │  ┌────────┐ ┌──────────┐ ┌───────┐ │
 │  │ hooks  │ │ services │ │ types │ │
 │  └────────┘ └──────────┘ └───────┘ │
+└─────────────────────────────────────┘
+            │
+┌───────────▼─────────────────────────┐
+│      Testing Layer                  │
+│  ┌────────────────────────────────┐ │
+│  │ Playwright E2E (Storybook+DaaS)│ │
+│  └────────────────────────────────┘ │
 └─────────────────────────────────────┘
 ```
 
@@ -255,6 +272,13 @@ Microbuild Architecture
 - Check existing documentation first
 
 ## 📝 Changelog
+
+### Version 1.1.0 (January 2026)
+- ✨ New `@microbuild/ui-form` package with VForm component (Directus-inspired)
+- ✅ Playwright E2E testing infrastructure
+- ✅ Authentication setup for tests
+- ✅ 19 comprehensive VForm tests
+- ✅ TESTING.md documentation
 
 ### Version 1.0.0 (January 2026)
 - ✨ Initial release

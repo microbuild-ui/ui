@@ -1,0 +1,52 @@
+/**
+ * VForm Styles
+ * Based on Directus v-form styles
+ */
+
+.v-form {
+  width: 100%;
+}
+
+/* Form Grid Layout */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--mantine-spacing-md, 16px);
+  width: 100%;
+}
+
+/* Field Width Classes */
+.form-field.field-width-full,
+.form-field.field-width-fill {
+  grid-column: 1 / -1;
+}
+
+.form-field.field-width-half,
+.form-field.field-width-half-left,
+.form-field.field-width-half-right {
+  grid-column: span 1;
+}
+
+/* Single Column on Small Screens */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field.field-width-half,
+  .form-field.field-width-half-left,
+  .form-field.field-width-half-right {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Field States */
+.form-field[data-edited="true"] {
+  /* Optionally add visual indicator for edited fields */
+}
+
+/* System Divider */
+.form-field[data-field="$system_divider"] {
+  grid-column: 1 / -1;
+  margin: var(--mantine-spacing-md, 16px) 0;
+}

@@ -48,6 +48,14 @@
 │                          │                                          │
 │                          ▼                                          │
 │         ┌────────────────────────────────────┐                     │
+│         │    ui-form/                        │                     │
+│         │  - VForm (Directus-inspired)       │                     │
+│         │  - FormField, FormFieldLabel       │                     │
+│         │  - Field processing utilities      │                     │
+│         └────────────────┬───────────────────┘                     │
+│                          │                                          │
+│                          ▼                                          │
+│         ┌────────────────────────────────────┐                     │
 │         │    ui-collections/                 │                     │
 │         │  - CollectionForm                  │                     │
 │         │  - CollectionList                  │                     │
@@ -72,6 +80,25 @@
 │       │ - Transform imports     │   │ - Read components     │      │
 │       │ - Full customization    │   │ - Generate code       │      │
 │       └─────────────────────────┘   └───────────────────────┘      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                       Testing Layer                                  │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│       ┌─────────────────────────────────────────────────────┐      │
+│       │   Playwright E2E Tests                              │      │
+│       ├─────────────────────────────────────────────────────┤      │
+│       │ tests/                                              │      │
+│       │   ├── auth.setup.ts    (Authentication setup)       │      │
+│       │   └── ui-form/                                      │      │
+│       │       └── vform.spec.ts  (19 tests)                 │      │
+│       │                                                     │      │
+│       │ Runs against: nextjs-supabase-daas (DaaS app)       │      │
+│       │ Auth state: playwright/.auth/admin.json             │      │
+│       └─────────────────────────────────────────────────────┘      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -191,6 +218,12 @@ registry.ts
 │   │       { name: 'Input', category: 'input', ... },
 │   │       { name: 'SelectDropdown', category: 'selection', ... },
 │   │       ...30 components
+│   │   ]
+│   ├── @microbuild/ui-form
+│   │   └── components: [
+│   │       { name: 'VForm', ... },
+│   │       { name: 'FormField', ... },
+│   │       { name: 'FormFieldLabel', ... }
 │   │   ]
 │   └── @microbuild/ui-collections
 │       └── components: [
@@ -422,3 +455,129 @@ Source Code Changes
 - `┌─┐` Boxes represent systems/components
 - `│ ▼` Arrows show data/control flow
 - `├──┤` Represents dependencies/relationships
+
+## Testing Architecture
+
+### Playwright E2E Test Flow
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                        Test Execution Flow                            │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  ┌──────────────────┐                                                 │
+│  │ $ pnpm test:e2e  │                                                 │
+│  └────────┬─────────┘                                                 │
+│           │                                                            │
+│           │ 1. Run setup project                                       │
+│           ▼                                                            │
+│  ┌──────────────────┐      ┌──────────────────────────┐              │
+│  │ auth.setup.ts    │ ───► │ DaaS App                 │              │
+│  │ (Authenticate)   │      │ http://localhost:3000    │              │
+│  └────────┬─────────┘      │ /auth/login              │              │
+│           │                └──────────────────────────┘              │
+│           │ 2. Save auth state                                        │
+│           ▼                                                            │
+│  ┌──────────────────────────┐                                        │
+│  │ playwright/.auth/        │                                        │
+│  │   └── admin.json         │                                        │
+│  │   (Stored credentials)   │                                        │
+│  └────────┬─────────────────┘                                        │
+│           │                                                            │
+│           │ 3. Run test files with stored auth                        │
+│           ▼                                                            │
+│  ┌──────────────────────────┐      ┌──────────────────────────┐     │
+│  │ tests/ui-form/           │      │ DaaS App                 │     │
+│  │   └── vform.spec.ts      │ ───► │ /users, /users/new       │     │
+│  │   (19 tests)             │      │ /users/{id}              │     │
+│  └────────┬─────────────────┘      └──────────────────────────┘     │
+│           │                                                            │
+│           │ 4. Generate reports                                        │
+│           ▼                                                            │
+│  ┌──────────────────────────┐                                        │
+│  │ playwright-report/       │                                        │
+│  │ test-results/            │                                        │
+│  │   (Screenshots, traces)  │                                        │
+│  └──────────────────────────┘                                        │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### Test Data Management
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    Test Data Lifecycle                                │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  test.beforeEach                                                       │
+│  ┌─────────────────────────┐                                         │
+│  │ createTestUser(page)    │                                         │
+│  │ ├── Navigate to /users  │                                         │
+│  │ ├── page.evaluate()     │ ──► POST /api/users                     │
+│  │ └── Return user ID      │     (Creates in Supabase)               │
+│  └─────────────────────────┘                                         │
+│                                                                        │
+│  test                                                                  │
+│  ┌─────────────────────────┐                                         │
+│  │ Use testUserId          │                                         │
+│  │ Navigate to /users/{id} │                                         │
+│  │ Interact with form      │                                         │
+│  │ Assert behaviors        │                                         │
+│  └─────────────────────────┘                                         │
+│                                                                        │
+│  test.afterEach                                                        │
+│  ┌─────────────────────────┐                                         │
+│  │ deleteTestUser(page)    │                                         │
+│  │ └── page.evaluate()     │ ──► DELETE /api/users/{id}              │
+│  │     (Cleanup)           │     (Removes from Supabase)             │
+│  └─────────────────────────┘                                         │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### VForm Component Integration
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│              VForm Integration with DaaS                              │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  ┌─────────────────────┐                                             │
+│  │ @microbuild/ui-form │                                             │
+│  │ ┌─────────────────┐ │                                             │
+│  │ │ VForm.tsx       │ │                                             │
+│  │ │ FormField.tsx   │ │                                             │
+│  │ │ utilities/      │ │                                             │
+│  │ └─────────────────┘ │                                             │
+│  └──────────┬──────────┘                                             │
+│             │                                                          │
+│             │ Pattern reused by                                        │
+│             ▼                                                          │
+│  ┌─────────────────────────────────────┐                             │
+│  │ nextjs-supabase-daas               │                             │
+│  │ ┌─────────────────────────────────┐│                             │
+│  │ │ DynamicForm.tsx                 ││                             │
+│  │ │ (data-testid="dynamic-form")    ││                             │
+│  │ ├─────────────────────────────────┤│                             │
+│  │ │ - Loads fields from /api/fields ││                             │
+│  │ │ - Tracks edits (Directus pattern)│                             │
+│  │ │ - Shows dirty indicator         ││                             │
+│  │ │ - Renders FormField components  ││                             │
+│  │ └─────────────────────────────────┘│                             │
+│  └─────────────────────────────────────┘                             │
+│             │                                                          │
+│             │ Tested by                                                │
+│             ▼                                                          │
+│  ┌─────────────────────────────────────┐                             │
+│  │ tests/ui-form/vform.spec.ts        │                             │
+│  │ ├── Field Rendering (4 tests)      │                             │
+│  │ ├── Field Types (4 tests)          │                             │
+│  │ ├── State Management (2 tests)     │                             │
+│  │ ├── Create Mode (4 tests)          │                             │
+│  │ ├── Validation (2 tests)           │                             │
+│  │ └── Layout (2 tests)               │                             │
+│  └─────────────────────────────────────┘                             │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```

@@ -1,0 +1,82 @@
+import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
+
+/**
+ * Playwright Configuration for microbuild-ui-packages
+ * 
+ * Supports two testing modes:
+ * 1. DaaS E2E Tests - Against the hosted DaaS instance (requires auth)
+ * 2. Storybook Component Tests - Against local Storybook (no auth needed)
+ * 
+ * @see https://playwright.dev/docs/test-configuration
+ */
+
+// URLs from environment
+const DAAS_URL = process.env.NEXT_PUBLIC_MICROBUILD_DAAS_URL || 'http://localhost:3000';
+const STORYBOOK_URL = process.env.STORYBOOK_URL || 'http://localhost:6006';
+
+export default defineConfig({
+  testDir: './tests',
+  /* Run tests in files in parallel */
+  fullyParallel: true,
+  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  forbidOnly: !!process.env.CI,
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
+  /* Opt out of parallel tests on CI. */
+  workers: process.env.CI ? 1 : undefined,
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  reporter: 'html',
+  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  use: {
+    /* Base URL - uses remote DaaS instance from .env.local */
+    baseURL: DAAS_URL,
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+
+  /* Configure projects for major browsers */
+  projects: [
+    // Setup project - runs once before DaaS tests (authentication)
+    { 
+      name: 'setup', 
+      testMatch: /.*\.setup\.ts/ 
+    },
+    
+    // DaaS E2E Tests - requires authentication
+    {
+      name: 'chromium',
+      use: { 
+        ...devices['Desktop Chrome'],
+      },
+      dependencies: ['setup'],
+      testIgnore: /.*storybook.*\.spec\.ts/,  // Exclude Storybook tests
+    },
+
+    // Storybook Component Tests - no auth needed
+    {
+      name: 'storybook',
+      use: { 
+        ...devices['Desktop Chrome'],
+        baseURL: STORYBOOK_URL,
+      },
+      testMatch: /.*storybook.*\.spec\.ts/,
+      // No setup dependency - Storybook tests don't need auth
+    },
+  ],
+
+  /* 
+   * Web server configuration for Storybook tests
+   * Automatically starts Storybook when running storybook project
+   */
+  webServer: {
+    command: 'cd packages/ui-form && pnpm storybook --ci',
+    url: STORYBOOK_URL,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000, // 2 minutes to start Storybook
+  },
+});

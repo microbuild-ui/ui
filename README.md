@@ -10,6 +10,7 @@ A pnpm workspace containing reusable components distributed via Copy & Own model
 | [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md) | Complete documentation index |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture diagrams |
 | [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods guide |
+| [docs/TESTING.md](docs/TESTING.md) | Playwright E2E testing guide |
 | [docs/WINDOWS.md](docs/WINDOWS.md) | Windows development guide |
 
 ## 🏗️ Structure
@@ -23,11 +24,18 @@ microbuild-ui-packages/
 │   ├── ARCHITECTURE.md     # System architecture
 │   ├── DISTRIBUTION.md     # Distribution guide
 │   └── WINDOWS.md          # Windows setup
+├── tests/                  # Playwright E2E tests
+│   ├── auth.setup.ts       # Authentication setup
+│   └── ui-form/            # VForm component tests
 └── packages/               # Component library (source of truth)
     ├── registry.json       # Component registry schema
     ├── cli/                # CLI tool for developers (@microbuild/cli)
     ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp-server)
     ├── ui-interfaces/      # Field interface components
+    ├── ui-form/            # VForm dynamic form component (NEW: with Storybook)
+    │   ├── src/            # VForm component and utilities
+    │   ├── VForm.stories.tsx        # Storybook stories with mocked data
+    │   └── VForm.daas.stories.tsx   # DaaS playground for testing with real API
     ├── ui-collections/     # Collection Form & List
     ├── types/              # Shared TypeScript types
     ├── services/           # Shared service classes
@@ -249,6 +257,71 @@ import {
 />
 ```
 
+### @microbuild/ui-form
+
+Dynamic form component system inspired by Directus v-form, with comprehensive Storybook documentation.
+
+**Components:**
+| Component | Description |
+|-----------|-------------|
+| `VForm` | Main dynamic form component that renders fields based on collection schema |
+| `FormField` | Individual field wrapper with label, validation, and interface rendering |
+| `FormFieldLabel` | Label component with required indicator and tooltip |
+| `FormFieldInterface` | Dynamic interface component loader |
+
+**Features:**
+- 🎯 Dynamic field rendering based on schema
+- 📝 40+ interface types (input, textarea, boolean, datetime, select, etc.)
+- ✅ Validation error display with field-level messages
+- 📱 Responsive grid layout (full, half, fill widths)
+- 🔄 Change tracking and dirty state management
+- 📊 Field groups and hierarchical organization
+- 🎭 Create vs Edit mode with proper state handling
+- 🔒 Read-only and disabled field support
+
+**Storybook Stories:**
+- **Basic Stories** (`VForm.stories.tsx`) - Mocked data examples covering all interface types, layouts, validation, and states
+- **DaaS Playground** (`VForm.daas.stories.tsx`) - Connect to a real DaaS instance and test with actual collection schemas
+
+**Usage:**
+```tsx
+import { VForm } from '@microbuild/ui-form';
+
+function MyForm() {
+  const [values, setValues] = useState({});
+
+  return (
+    <VForm
+      collection="articles"
+      modelValue={values}
+      onUpdate={setValues}
+      validationErrors={errors}
+      primaryKey="+"  // '+' for create mode
+    />
+  );
+}
+
+// Or with explicit fields
+<VForm
+  fields={myFields}
+  modelValue={values}
+  onUpdate={setValues}
+  primaryKey="existing-id"
+/>
+```
+
+**Testing:**
+```bash
+# Run Storybook for VForm development
+pnpm storybook:form
+
+# Run isolated component tests
+pnpm test:storybook
+
+# Run DaaS integration tests
+pnpm test:e2e
+```
+
 ### @microbuild/ui-collections
 
 Dynamic collection components for forms and lists.
@@ -347,12 +420,18 @@ See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 | `pnpm cli` | Run CLI tool locally |
 | `pnpm lint` | Lint all projects |
 | `pnpm clean` | Remove node_modules and build artifacts |
-| `pnpm storybook` | Run Storybook for component development |
+| `pnpm storybook` | Run Storybook for ui-interfaces |
+| `pnpm storybook:form` | Run Storybook for ui-form (VForm) |
+| `pnpm test:e2e` | Run Playwright E2E tests against DaaS |
+| `pnpm test:storybook` | Run Playwright tests against Storybook |
 
 ## 📋 Storybook
 ```bash
-# Run Storybook for component development
-pnpm --filter @microbuild/ui-interfaces storybook
+# Run Storybook for ui-interfaces component development
+pnpm storybook
+
+# Run Storybook for VForm development
+pnpm storybook:form
 
 # Build static Storybook
 pnpm --filter @microbuild/ui-interfaces build-storybook
@@ -362,6 +441,54 @@ Storybook runs at http://localhost:6006 and provides:
 - Interactive component playground
 - Props documentation with controls
 - Visual testing for all interface components
+
+## 🧪 Testing
+
+Microbuild uses a **two-tier testing strategy** for comprehensive validation:
+
+### Tier 1: Storybook Tests (Isolated Component Testing)
+```bash
+# Start VForm Storybook and run Playwright tests
+pnpm storybook:form          # Start Storybook on port 6006
+pnpm test:storybook          # Run Playwright against Storybook
+```
+
+**Advantages:**
+- ✅ **No Authentication Required** - Test components with mocked data
+- ✅ **Fast Feedback** - Isolated component testing without backend dependencies
+- ✅ **All Interface Types** - Test any field configuration without database setup
+- ✅ **DaaS Playground** - Connect to real DaaS API and test with actual schemas
+
+**Test Files:**
+- `tests/ui-form/vform-storybook.spec.ts` - Tests against Storybook stories
+- `packages/ui-form/src/VForm.stories.tsx` - Basic stories with mocked data
+- `packages/ui-form/src/VForm.daas.stories.tsx` - DaaS playground for real API testing
+
+### Tier 2: DaaS E2E Tests (Full Integration Testing)
+```bash
+# Run against hosted DaaS (requires auth)
+pnpm test:e2e                # Run all E2E tests
+pnpm test:e2e:ui             # Interactive Playwright UI
+```
+
+**Advantages:**
+- ✅ **Real API** - Actual Supabase backend integration
+- ✅ **Authentication** - Test with real users and roles
+- ✅ **Permissions** - Verify field-level access control
+- ✅ **Full Workflow** - End-to-end form submission and validation
+
+**Test Files:**
+- `tests/ui-form/vform-daas.spec.ts` - Integration tests with DaaS app
+- `tests/ui-form/vform.spec.ts` - Complete E2E workflow tests
+- `tests/auth.setup.ts` - Authentication setup for admin user
+- `tests/helpers/seed-test-data.ts` - Test data seeding utilities
+
+**Playwright Configuration:**
+- `playwright.config.ts` - Dual-mode setup (Storybook + DaaS)
+- Auto-starts Storybook for component tests
+- Uses admin authentication for DaaS E2E tests
+
+See [docs/TESTING.md](docs/TESTING.md) for complete testing guide and best practices.
 
 ##  Adding New Shared Components
 
@@ -409,7 +536,8 @@ This workspace follows patterns from [Directus](https://directus.io/):
 | `@directus/composables` | `@microbuild/hooks` | Reusable React hooks |
 | `@directus/utils` | `@microbuild/services` | Utility services |
 | Vue interfaces | `@microbuild/ui-interfaces` | Field interface components |
-| `v-form` component | `@microbuild/ui-collections` | Dynamic form/list components |
+| `v-form` component | `@microbuild/ui-form` | Dynamic form component (VForm) |
+| Collection views | `@microbuild/ui-collections` | Dynamic form/list components |
 
 **Key Principles:**
 1. **Copy & Own** - Components are copied to projects as source files

@@ -225,6 +225,71 @@ pnpm cli list
    pnpm build:mcp && pnpm build:cli
    ```
 
+## 🧪 Testing
+
+Microbuild uses Playwright for E2E testing with a two-tier strategy.
+
+### Storybook Component Tests (Recommended for development)
+
+```bash
+# Terminal 1: Start VForm Storybook
+pnpm storybook:form
+
+# Terminal 2: Run Playwright tests
+pnpm test:storybook
+```
+
+Storybook tests:
+- ✅ **Isolated** - No authentication required
+- ✅ **Fast** - Test components with mocked data
+- ✅ **All interface types** - Test any field configuration
+- ✅ **DaaS Playground** - Connect to real DaaS and test live schemas
+
+**DaaS Playground Usage:**
+1. Open Storybook: `pnpm storybook:form`
+2. Navigate to "Forms/VForm DaaS Playground"
+3. Enter your DaaS URL and static token
+4. Load any collection and test VForm with real fields
+5. Perfect for testing custom collections without writing code
+
+### DaaS E2E Tests (Full integration testing)
+
+```bash
+# Prerequisites:
+# 1. Configure .env.local with DaaS credentials
+# 2. Install Playwright browsers
+pnpm exec playwright install chromium
+
+# Run E2E tests against DaaS
+pnpm test:e2e
+
+# Interactive UI mode
+pnpm test:e2e:ui
+
+# Test specific suite
+pnpm test:e2e tests/ui-form/vform.spec.ts
+```
+
+DaaS tests:
+- ✅ **Real API** - Actual Supabase backend
+- ✅ **Authentication** - Test with real users/roles
+- ✅ **Permissions** - Verify field-level access
+- ✅ **Data Seeding** - Automated test data creation/cleanup
+
+**Test Organization:**
+```
+tests/
+├── auth.setup.ts               # Auth setup (runs once)
+├── helpers/
+│   └── seed-test-data.ts       # Test data seeding utilities
+└── ui-form/
+    ├── vform-storybook.spec.ts # Storybook component tests
+    ├── vform-daas.spec.ts      # DaaS integration tests
+    └── vform.spec.ts           # Full E2E workflow tests
+```
+
+See [docs/TESTING.md](./docs/TESTING.md) for complete testing guide and best practices.
+
 ## 🐛 Troubleshooting
 
 ### MCP Server Issues
@@ -275,6 +340,8 @@ pnpm cli list
 
 - [docs/DISTRIBUTION.md](./docs/DISTRIBUTION.md) - Complete distribution guide
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System architecture diagrams
+- [docs/TESTING.md](./docs/TESTING.md) - Playwright E2E testing guide
 - [packages/mcp-server/README.md](./packages/mcp-server/README.md) - MCP server docs
 - [packages/cli/README.md](./packages/cli/README.md) - CLI documentation
+- [packages/ui-form/README.md](./packages/ui-form/README.md) - VForm component docs
 - [Model Context Protocol](https://modelcontextprotocol.io) - Official MCP docs
