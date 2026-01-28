@@ -114,10 +114,10 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
       'list-m2m': 'ListM2MInterface',
       'list-m2a': 'ListM2A',
       
-      // File interfaces
-      'file': 'FileInterface',
-      'file-image': 'FileInterface',
-      'files': 'FileInterface',
+      // File interfaces - use the real DaaS-integrated components
+      'file': 'File',
+      'file-image': 'FileImage',
+      'files': 'Files',
       
       // Collection
       'collection-item-dropdown': 'CollectionItemDropdown',
@@ -191,6 +191,9 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
     // Spread interface-specific props from InterfaceConfig (includes meta.options)
     ...interfaceConfig.props,
   };
+
+  // Note: File interfaces (File, FileImage, Files) now use @microbuild/hooks useFiles
+  // directly and don't need an external upload handler passed in
 
   // Render interface component
   return (

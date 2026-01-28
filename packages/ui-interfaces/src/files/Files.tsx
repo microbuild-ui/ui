@@ -2,8 +2,29 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Button, Group, Stack, Text, Paper, Badge, Tooltip, Pagination, Menu, ActionIcon, Modal, TextInput, Loader } from '@mantine/core';
 import { IconTrash, IconDownload, IconExternalLink, IconFolder, IconDotsVertical, IconPhoto, IconUpload, IconFolderOpen } from '@tabler/icons-react';
 import { type FileUpload } from '../upload';
-import { directusAPI } from '@microbuild/hooks';
+import { directusAPI, type DirectusFile } from '@microbuild/hooks';
 import { useFiles } from '@microbuild/hooks';
+
+/**
+ * Convert DirectusFile to FileUpload type (adds fallback for nullable fields)
+ */
+function toFileUpload(file: DirectusFile): FileUpload {
+  return {
+    id: file.id,
+    filename_download: file.filename_download,
+    filename_disk: file.filename_disk || file.filename_download,
+    type: file.type || 'application/octet-stream',
+    filesize: file.filesize,
+    width: file.width ?? undefined,
+    height: file.height ?? undefined,
+    title: file.title ?? undefined,
+    description: file.description ?? undefined,
+    folder: file.folder ?? undefined,
+    uploaded_on: file.uploaded_on || new Date().toISOString(),
+    uploaded_by: file.uploaded_by || 'unknown',
+    modified_on: file.modified_on,
+  };
+}
 
 export interface FilesProps {
   value?: Array<string | FileUpload> | null;
@@ -116,15 +137,13 @@ export const Files: React.FC<FilesProps> = ({
       setLoading(true);
       try {
         // Fetch junction table records for this item
-        const response = await directusAPI.getItems(jc.junctionCollection, {
+        const junctionData = await directusAPI.getItems<Record<string, unknown>>(jc.junctionCollection, {
           filter: { [jc.junctionFieldCurrent]: { _eq: primaryKey } },
-          sort: 'sort',
+          sort: ['sort'],
           limit: 100,
         });
-
-        const junctionData = response?.data || [];
         
-        if (junctionData.length === 0) {
+        if (!junctionData || junctionData.length === 0) {
           setFiles([]);
           setJunctionLoaded(true);
           return;
@@ -147,7 +166,7 @@ export const Files: React.FC<FilesProps> = ({
           try {
             const file = await directusAPI.getFile(fileId);
             if (file) {
-              hydratedFiles.push(file);
+              hydratedFiles.push(toFileUpload(file));
               hydratedIdsRef.current.add(fileId);
             }
           } catch (err) {
@@ -233,7 +252,7 @@ export const Files: React.FC<FilesProps> = ({
             try {
               const file = await directusAPI.getFile(fileId);
               if (!cancelled) {
-                results.push(file);
+                results.push(toFileUpload(file));
                 hydratedIdsRef.current.add(fileId);
               }
             } catch (err) {
@@ -247,7 +266,7 @@ export const Files: React.FC<FilesProps> = ({
                 filesize: 0,
                 uploaded_on: new Date().toISOString(),
                 uploaded_by: 'system',
-              } as FileUpload);
+              });
             }
           }
         }
@@ -347,7 +366,7 @@ export const Files: React.FC<FilesProps> = ({
       // Remove junction records for removed files
       for (const file of toRemove) {
         // Find and delete the junction record
-        const response = await directusAPI.getItems(jc.junctionCollection, {
+        const junctionRecords = await directusAPI.getItems<{ id?: string | number }>(jc.junctionCollection, {
           filter: {
             [jc.junctionFieldCurrent]: { _eq: primaryKey },
             [jc.junctionFieldRelated]: { _eq: file.id },
@@ -355,7 +374,6 @@ export const Files: React.FC<FilesProps> = ({
           limit: 1,
         });
         
-        const junctionRecords = response?.data || [];
         for (const record of junctionRecords) {
           if (record.id) {
             await directusAPI.deleteItem(jc.junctionCollection, record.id);

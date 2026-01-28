@@ -1,5 +1,3 @@
-export { FileInterface, default } from './FileInterface';
-export type { FileInterfaceProps, FileUploadHandler } from './FileInterface';
-// Note: File component requires app-specific API - use FileInterface wrapper or import directly
-// export { File } from './File';
-// export type { FileProps } from './File';
+// Export the full File component that integrates with DaaS Files API
+export { File, File as FileInterface, default } from './File';
+export type { FileProps, FileProps as FileInterfaceProps } from './File';

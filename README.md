@@ -211,10 +211,10 @@ Directus-compatible field interface components built with Mantine v8.
 **Media Components:**
 | Component | Description |
 |-----------|-----------|
-| `FileInterface` | Single file upload wrapper (requires `onUpload` prop) |
-| `FileImage` | Image file picker with preview and focal point |
-| `Files` | Multiple file upload interface with drag & drop |
-| `Upload` | Drag-and-drop file upload zone |
+| `File` | Single file with DaaS Files API integration |
+| `FileImage` | Image file picker with preview, lightbox, and crop |
+| `Files` | Multiple files interface (M2M relationship with junction table support) |
+| `Upload` | Low-level drag-and-drop file upload zone |
 | `Color` | Color picker with RGB/HSL support, presets, opacity |
 | `Map` | Interactive map placeholder for coordinates |
 | `MapWithRealMap` | Full MapLibre GL JS map with drawing tools |

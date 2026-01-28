@@ -124,34 +124,69 @@ function PageBlocks({ pageId }: { pageId: string }) {
 
 ### useFiles
 
-Manage file uploads and file selection.
+Manage file uploads and file selection with DaaS/Directus Files API integration.
 
 ```typescript
-import { useFiles } from '@microbuild/hooks';
+import { useFiles, type DirectusFile } from '@microbuild/hooks';
 
 function ImageUploader() {
   const { 
-    uploadFile, 
-    uploadFiles, 
-    deleteFile, 
-    uploading, 
-    progress 
+    uploadFiles,
+    fetchFiles,
+    importFromUrl,
   } = useFiles();
 
-  const handleUpload = async (file: File) => {
-    const uploadedFile = await uploadFile(file, {
+  const handleUpload = async (files: File[]) => {
+    const uploadedFiles = await uploadFiles(files, {
       folder: 'product-images',
-      title: file.name,
     });
-    console.log('Uploaded:', uploadedFile.id);
+    console.log('Uploaded:', uploadedFiles.map(f => f.id));
+  };
+
+  const handleBrowseLibrary = async () => {
+    const { files, total } = await fetchFiles({
+      page: 1,
+      limit: 20,
+      search: 'product',
+    });
+    return files;
+  };
+
+  const handleImportUrl = async (url: string) => {
+    const file = await importFromUrl(url, { folder: 'imports' });
+    return file;
   };
 
   return (
-    <Dropzone onDrop={(files) => uploadFiles(files)}>
-      {uploading && <Progress value={progress} />}
+    <Dropzone onDrop={handleUpload}>
+      Drop files here
     </Dropzone>
   );
 }
+```
+
+### DirectusFile Type
+
+The `DirectusFile` interface matches the Directus API response:
+
+```typescript
+import { type DirectusFile } from '@microbuild/hooks';
+
+// DirectusFile fields:
+// - id: string
+// - storage: string
+// - filename_disk: string | null
+// - filename_download: string
+// - title: string | null
+// - description: string | null
+// - type: string | null (MIME type)
+// - filesize: number
+// - width: number | null (for images)
+// - height: number | null (for images)
+// - uploaded_on: string | null
+// - uploaded_by: string | null
+// - modified_on: string
+// - folder: string | null
 ```
 
 ## Selection & Preset Hooks

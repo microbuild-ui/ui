@@ -16,8 +16,29 @@ import {
 import { IconZoomIn, IconDownload, IconPencil, IconPhoto, IconX, IconInfoCircle, IconAdjustments, IconPhotoOff } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Upload, type UploadProps, type FileUpload } from '../upload';
-import { api, directusAPI } from '@microbuild/hooks';
+import { directusAPI, type DirectusFile } from '@microbuild/hooks';
 import { useFiles } from '@microbuild/hooks';
+
+/**
+ * Convert DirectusFile to FileUpload type (adds fallback for nullable fields)
+ */
+function toFileUpload(file: DirectusFile): FileUpload {
+  return {
+    id: file.id,
+    filename_download: file.filename_download,
+    filename_disk: file.filename_disk || file.filename_download,
+    type: file.type || 'application/octet-stream',
+    filesize: file.filesize,
+    width: file.width ?? undefined,
+    height: file.height ?? undefined,
+    title: file.title ?? undefined,
+    description: file.description ?? undefined,
+    folder: file.folder ?? undefined,
+    uploaded_on: file.uploaded_on || new Date().toISOString(),
+    uploaded_by: file.uploaded_by || 'unknown',
+    modified_on: file.modified_on,
+  };
+}
 
 export interface FileImageProps extends Omit<UploadProps, 'onInput' | 'multiple' | 'accept'> {
   value?: string | FileUpload | null;
@@ -59,9 +80,9 @@ function VImageBase64({
       return;
     }
     try {
-      const response = await api.get(src, { responseType: 'arraybuffer' });
+      const response = await directusAPI.get(src, { responseType: 'arraybuffer' });
       const contentType = response.headers['content-type'] || 'image/*';
-      const bytes = new Uint8Array(response.data);
+      const bytes = new Uint8Array(response.data as ArrayBuffer);
       // guard: 5MB
       if (bytes.length > 5 * 1024 * 1024) {
         setError('Image too large to preview');
@@ -184,7 +205,7 @@ export const FileImage: React.FC<FileImageProps> = ({
           if (!mounted) {
             return;
           }
-          setImage(file);
+          setImage(toFileUpload(file));
           setEditTitle(file.title || '');
           setEditDescription(file.description || '');
         }
@@ -286,11 +307,13 @@ export const FileImage: React.FC<FileImageProps> = ({
       return;
     }
     try {
-      const response = await api.get(`/assets/${image.id}`, {
+      const response = await directusAPI.get(`/assets/${image.id}`, {
         responseType: 'blob',
-        params: { download: true },
+        params: { download: 'true' },
       });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
+      const blob = response.data instanceof Blob 
+        ? response.data 
+        : new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -310,11 +333,11 @@ export const FileImage: React.FC<FileImageProps> = ({
       return;
     }
     try {
-      const updated = await directusAPI.updateItem('directus_files', image.id, {
+      const updated = await directusAPI.updateFile(image.id, {
         title: editTitle,
         description: editDescription,
       });
-      setImage({ ...(image as any), ...updated });
+      setImage({ ...image, ...toFileUpload(updated) });
       setEditOpen(false);
       notifications.show({ title: 'Saved', message: 'Image details updated', color: 'green' });
     } catch (e) {
@@ -395,9 +418,9 @@ export const FileImage: React.FC<FileImageProps> = ({
       const blob: Blob = await new Promise((resolve) => outputCanvas.toBlob((b) => resolve(b as Blob), 'image/png'));
       const file = new File([blob], `edited_${image.filename_download || image.id}.png`, { type: 'image/png' });
 
-      const uploader = onUploadFiles || (async (files: File[], opts: any) => {
+      const uploader = onUploadFiles || (async (files: File[], opts: { folder?: string; preset?: string }) => {
         const result = await directusAPI.uploadFiles(files, opts);
-        return result.data;
+        return result.map(toFileUpload);
       });
       const uploaded = await uploader([file], { folder, preset });
       const uploadedFile = Array.isArray(uploaded) ? uploaded[0] : uploaded;

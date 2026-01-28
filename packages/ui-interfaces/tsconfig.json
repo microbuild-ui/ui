@@ -29,9 +29,6 @@
     "**/*.stories.tsx",
     "src/__tests__/**",
     "src/**/Demo*.tsx",
-    "src/group-detail/GroupDetailFormDemo.tsx",
-    "src/file/File.tsx",
-    "src/file-image/FileImage.tsx",
-    "src/files/Files.tsx"
+    "src/group-detail/GroupDetailFormDemo.tsx"
   ]
 }

@@ -25,8 +25,29 @@ import {
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Upload, type FileUpload } from '../upload';
-import { api, directusAPI } from '@microbuild/hooks';
+import { directusAPI, type DirectusFile } from '@microbuild/hooks';
 import { useFiles } from '@microbuild/hooks';
+
+/**
+ * Convert DirectusFile to FileUpload type (adds fallback for nullable fields)
+ */
+function toFileUpload(file: DirectusFile): FileUpload {
+  return {
+    id: file.id,
+    filename_download: file.filename_download,
+    filename_disk: file.filename_disk || file.filename_download,
+    type: file.type || 'application/octet-stream',
+    filesize: file.filesize,
+    width: file.width ?? undefined,
+    height: file.height ?? undefined,
+    title: file.title ?? undefined,
+    description: file.description ?? undefined,
+    folder: file.folder ?? undefined,
+    uploaded_on: file.uploaded_on || new Date().toISOString(),
+    uploaded_by: file.uploaded_by || 'unknown',
+    modified_on: file.modified_on,
+  };
+}
 
 /**
  * SGDS-compliant styles for file components matching Directus file.vue interface
@@ -159,7 +180,7 @@ export const File: React.FC<FileProps> = ({
   // Fetch file data when value changes
   useEffect(() => {
     let mounted = true;
-    const fetchFile = async () => {
+    const fetchFileData = async () => {
       if (!fileId) {
         setFile(null);
         return;
@@ -174,7 +195,7 @@ export const File: React.FC<FileProps> = ({
         } else {
           const fetchedFile = await directusAPI.getFile(fileId);
           if (!mounted) return;
-          setFile(fetchedFile);
+          setFile(toFileUpload(fetchedFile));
           setEditTitle(fetchedFile.title || '');
           setEditDescription(fetchedFile.description || '');
         }
@@ -189,7 +210,7 @@ export const File: React.FC<FileProps> = ({
         }
       }
     };
-    fetchFile();
+    fetchFileData();
     return () => {
       mounted = false;
     };
@@ -253,11 +274,13 @@ export const File: React.FC<FileProps> = ({
   const handleDownload = useCallback(async () => {
     if (!file) return;
     try {
-      const response = await api.get(`/assets/${file.id}`, {
+      const response = await directusAPI.get(`/assets/${file.id}`, {
         responseType: 'blob',
-        params: { download: true },
+        params: { download: 'true' },
       });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
+      const blob = response.data instanceof Blob 
+        ? response.data 
+        : new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -278,7 +301,7 @@ export const File: React.FC<FileProps> = ({
         title: editTitle,
         description: editDescription,
       });
-      setFile({ ...file, ...updated });
+      setFile({ ...file, ...toFileUpload(updated) });
       setEditDrawerActive(false);
       notifications.show({ title: 'Saved', message: 'File details updated', color: 'green' });
     } catch {

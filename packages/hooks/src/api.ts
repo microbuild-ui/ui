@@ -18,18 +18,24 @@ export interface QueryParams {
   sort?: string[];
 }
 
+/**
+ * Directus file representation - matches the actual Directus API response
+ */
 export interface DirectusFile {
   id: string;
+  storage: string;
+  filename_disk: string | null;
   filename_download: string;
-  filename_disk: string;
-  title?: string;
-  type: string;
+  title: string | null;
+  description?: string | null;
+  type: string | null;
   filesize: number;
-  width?: number;
-  height?: number;
-  uploaded_on: string;
-  uploaded_by?: string;
+  width?: number | null;
+  height?: number | null;
+  uploaded_on: string | null;
+  uploaded_by: string | null;
   modified_on?: string;
+  folder: string | null;
 }
 
 /**
@@ -43,6 +49,34 @@ class DirectusAPI {
   constructor(config: DirectusAPIConfig = {}) {
     this.baseUrl = config.baseUrl || '/api';
     this.token = config.token || null;
+  }
+
+  /**
+   * Generic GET request with options (for downloading files/assets)
+   */
+  async get(path: string, options?: { responseType?: 'arraybuffer' | 'blob'; params?: Record<string, unknown> }): Promise<{ data: ArrayBuffer | Blob; headers: Record<string, string> }> {
+    const url = new URL(`${this.baseUrl}${path}`, window.location.origin);
+    if (options?.params) {
+      Object.entries(options.params).forEach(([key, value]) => {
+        url.searchParams.set(key, String(value));
+      });
+    }
+    const headers: HeadersInit = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    const response = await fetch(url.toString(), { headers });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.status}`);
+    }
+    const responseHeaders: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      responseHeaders[key] = value;
+    });
+    if (options?.responseType === 'blob') {
+      return { data: await response.blob(), headers: responseHeaders };
+    }
+    return { data: await response.arrayBuffer(), headers: responseHeaders };
   }
 
   private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -131,6 +165,16 @@ class DirectusAPI {
    */
   async getFile(id: string): Promise<DirectusFile> {
     return this.request<DirectusFile>(`/files/${id}`);
+  }
+
+  /**
+   * Update a file's metadata
+   */
+  async updateFile(id: string, data: Partial<DirectusFile>): Promise<DirectusFile> {
+    return this.request<DirectusFile>(`/files/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
   }
 
   /**

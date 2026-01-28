@@ -2,6 +2,22 @@
 
 Dynamic form component system for building Directus-compatible forms.
 
+## Exports
+
+```typescript
+// Components
+import { VForm, FormField, FormFieldLabel, FormFieldInterface } from '@microbuild/ui-form';
+
+// Types
+import type { 
+  VFormProps, 
+  FormFieldProps, 
+  FormFieldInterfaceProps,
+  FormField as FormFieldType,
+  ValidationError 
+} from '@microbuild/ui-form';
+```
+
 ## Features
 
 - 🎯 **VForm Component** - Main dynamic form component that renders fields based on collection schema

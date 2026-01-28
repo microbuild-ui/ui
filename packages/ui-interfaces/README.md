@@ -273,23 +273,44 @@ import { Color } from '@microbuild/ui-interfaces';
 
 ### File Components
 
-```tsx
-import { FileInterface, Upload } from '@microbuild/ui-interfaces';
+File interfaces integrate with DaaS Files API via `@microbuild/hooks`. They handle uploads, library selection, and file metadata automatically.
 
-// Single file (requires onUpload handler)
-<FileInterface
+```tsx
+import { File, FileImage, Files, Upload } from '@microbuild/ui-interfaces';
+
+// Single file with full DaaS integration
+<File
   field="document"
   value={fileId}
   onChange={setFileId}
-  onUpload={handleUpload}
+  folder="documents"
 />
 
-// Drag-and-drop upload zone
-<Upload
+// Image file with preview, crop, and lightbox
+<FileImage
+  field="cover_image"
+  value={imageId}
+  onChange={setImageId}
+  crop
+  folder="images"
+/>
+
+// Multiple files (M2M relationship)
+<Files
   field="attachments"
-  onUpload={handleUpload}
+  value={fileIds}
+  onChange={setFileIds}
+  collection="articles"
+  primaryKey={articleId}
+  limit={10}
+/>
+
+// Drag-and-drop upload zone (low-level component)
+<Upload
+  onInput={handleInput}
   accept={['image/*', 'application/pdf']}
   multiple
+  fromLibrary
 />
 ```
 

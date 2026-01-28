@@ -103,10 +103,10 @@ Complete guide to Microbuild UI Packages and distribution tools.
 - [CollectionItemDropdown](../packages/README.md#microbuildui-interfaces) - Item selector
 
 ### Media Components
-- [FileInterface](../packages/README.md#microbuildui-interfaces) - Single file upload
-- [FileImage](../packages/README.md#microbuildui-interfaces) - Image picker
-- [Files](../packages/README.md#microbuildui-interfaces) - Multi-file upload
-- [Upload](../packages/README.md#microbuildui-interfaces) - Drag-drop upload
+- [File](../packages/README.md#microbuildui-interfaces) - Single file with DaaS integration
+- [FileImage](../packages/README.md#microbuildui-interfaces) - Image picker with preview, crop, and lightbox
+- [Files](../packages/README.md#microbuildui-interfaces) - Multi-file upload (M2M relationship)
+- [Upload](../packages/README.md#microbuildui-interfaces) - Low-level drag-drop upload zone
 - [Color](../packages/README.md#microbuildui-interfaces) - Color picker
 
 ### Relational Components

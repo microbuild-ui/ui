@@ -61,15 +61,13 @@ export type { NoticeProps, NoticeType } from './notice';
 export { GroupDetail } from './group-detail';
 export type { GroupDetailProps } from './group-detail';
 
-// File interfaces (placeholders - require app-specific implementation)
-export { FileInterface } from './file';
-export type { FileInterfaceProps, FileUploadHandler } from './file';
-export { FileInterface as FileImageInterface } from './file';
-export { FileInterface as FilesInterface } from './file';
-// Note: Full File, FileImage, Files components require app-specific API - use FileInterface wrapper
-// export { File } from './file';
-// export { FileImage } from './file-image';
-// export { Files } from './files';
+// File interfaces - integrate with DaaS Files API via @microbuild/hooks
+export { File, FileInterface } from './file';
+export type { FileProps, FileInterfaceProps } from './file';
+export { FileImage, FileImageInterface } from './file-image';
+export type { FileImageProps, FileImageInterfaceProps } from './file-image';
+export { Files, FilesInterface } from './files';
+export type { FilesProps, FilesInterfaceProps } from './files';
 export { Upload } from './upload';
 export type { UploadProps, FileUpload } from './upload';
 
