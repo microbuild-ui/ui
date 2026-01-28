@@ -66,7 +66,9 @@ const displayValue = formatFieldValue(value, field);
 | `file` | Single file upload |
 | `file-image` | Image file with preview |
 | `files` | Multiple file upload |
+| `map` | Geometry/map input |
 | `collection-item-dropdown` | Collection item selector |
+| `workflow-button` | Workflow state transitions |
 
 ### Read-Only Detection
 

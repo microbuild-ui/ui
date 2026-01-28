@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { VForm } from './VForm';
-import type { Field } from '@microbuild/types';
+import type { Field, FieldMeta, FieldSchema } from '@microbuild/types';
 import type { FieldValues } from './types';
+import './VForm.stories.css';
 
 /**
  * VForm - Dynamic Form Component
@@ -63,11 +64,17 @@ type Story = StoryObj<typeof VForm>;
 // Mock Field Data for Stories
 // ============================================================================
 
+// Type-safe field options for createField helper
+interface CreateFieldOptions {
+  meta?: Partial<FieldMeta>;
+  schema?: Partial<FieldSchema>;
+}
+
 const createField = (
   field: string,
   type: string,
   interfaceType: string,
-  options: Partial<Field> = {}
+  options: CreateFieldOptions = {}
 ): Field => ({
   field,
   type,
@@ -77,6 +84,7 @@ const createField = (
     table: 'test_collection',
     data_type: type,
     is_nullable: true,
+    is_unique: false,
     is_primary_key: false,
     has_auto_increment: false,
     ...options.schema,
@@ -271,9 +279,9 @@ const VFormWrapper: React.FC<VFormWrapperProps> = ({
       />
       
       {/* Debug panel showing current values */}
-      <div style={{ marginTop: '2rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
+      <div className="vform-stories-debug-panel">
         <strong>Current Form Values:</strong>
-        <pre style={{ fontSize: '12px', overflow: 'auto' }}>
+        <pre className="vform-stories-debug-pre">
           {JSON.stringify(values, null, 2)}
         </pre>
       </div>

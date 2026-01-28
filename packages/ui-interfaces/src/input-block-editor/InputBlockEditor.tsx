@@ -21,6 +21,7 @@ import Delimiter from '@editorjs/delimiter';
 import Table from '@editorjs/table';
 import Underline from '@editorjs/underline';
 import InlineCode from '@editorjs/inline-code';
+import './InputBlockEditor.css';
 
 export interface InputBlockEditorProps {
   /** Current value as EditorJS OutputData or null */
@@ -229,7 +230,7 @@ export function InputBlockEditor({
       {label && (
         <Text size="sm" fw={500} mb={4}>
           {label}
-          {required && <span style={{ color: 'var(--mantine-color-red-6)' }}> *</span>}
+          {required && <span className="input-block-editor-required"> *</span>}
         </Text>
       )}
       {description && (
@@ -251,8 +252,7 @@ export function InputBlockEditor({
       >
         <div 
           ref={holderRef} 
-          className="editor-js-holder"
-          style={{ minHeight: 100 }}
+          className="editor-js-holder input-block-editor-holder"
         />
       </Paper>
       {error && (

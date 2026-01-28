@@ -2,13 +2,16 @@
  * FormFieldInterface Component
  * Dynamically renders the appropriate interface component for a field
  * Based on Directus form-field-interface component
+ * 
+ * Uses @microbuild/utils for field interface mapping and
+ * @microbuild/ui-interfaces for interface components.
  */
 
 import React, { useMemo } from 'react';
 import { Alert, Skeleton, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import type { FormField } from '../types';
-import { getFieldInterface } from '../utils';
+import { getFieldInterface, type InterfaceConfig } from '@microbuild/utils';
 
 // Import interface components
 import * as Interfaces from '@microbuild/ui-interfaces';
@@ -51,25 +54,97 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
   autofocus = false,
   primaryKey,
 }) => {
-  // Get interface component name
-  const interfaceId = useMemo(() => {
+  // Get interface configuration from @microbuild/utils
+  // Returns InterfaceConfig with type and props
+  const interfaceConfig: InterfaceConfig = useMemo(() => {
     return getFieldInterface(field);
   }, [field]);
 
-  // Get interface component
+  // Get interface component by type
   const InterfaceComponent = useMemo(() => {
-    // Map interface ID to component
-    // Convert kebab-case to PascalCase (e.g., 'input-code' -> 'InputCode')
-    const componentName = interfaceId
-      .split('-')
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join('');
+    const interfaceType = interfaceConfig.type;
+    
+    // Map interface types to component names
+    // This handles special cases like relational interfaces and acronyms
+    const interfaceComponentMap: Record<string, string> = {
+      // Text inputs
+      'input': 'Input',
+      'input-code': 'InputCode',
+      'input-multiline': 'Textarea',
+      'input-autocomplete-api': 'AutocompleteAPI',
+      'input-block-editor': 'InputBlockEditor',
+      'input-rich-text-html': 'RichTextHTML',
+      'input-rich-text-md': 'RichTextMarkdown',
+      'textarea': 'Textarea',
+      
+      // Boolean
+      'boolean': 'Boolean',
+      'toggle': 'Toggle',
+      
+      // Date / Time
+      'datetime': 'DateTime',
+      
+      // Selection
+      'select-dropdown': 'SelectDropdown',
+      'select-radio': 'SelectRadio',
+      'select-icon': 'SelectIcon',
+      'select-color': 'Color',
+      
+      // Multiple selection
+      'select-multiple-checkbox': 'SelectMultipleCheckbox',
+      'select-multiple-dropdown': 'SelectMultipleDropdown',
+      'select-multiple-checkbox-tree': 'SelectMultipleCheckboxTree',
+      
+      // Other inputs
+      'slider': 'Slider',
+      'tags': 'Tags',
+      'number': 'Input', // Use Input with type="number"
+      'uuid': 'Input',
+      
+      // Presentation / Layout
+      'presentation-divider': 'Divider',
+      'presentation-notice': 'Notice',
+      'group-detail': 'GroupDetail',
+      
+      // Relational interfaces - use Interface suffix components
+      // These are placeholder components that need render props for full functionality
+      'list-m2o': 'ListM2OInterface',
+      'select-dropdown-m2o': 'ListM2OInterface',
+      'list-o2m': 'ListO2MInterface',
+      'list-m2m': 'ListM2MInterface',
+      'list-m2a': 'ListM2A',
+      
+      // File interfaces
+      'file': 'FileInterface',
+      'file-image': 'FileInterface',
+      'files': 'FileInterface',
+      
+      // Collection
+      'collection-item-dropdown': 'CollectionItemDropdown',
+      
+      // Map / Geometry
+      'map': 'Map',
+      
+      // Workflow
+      'workflow-button': 'WorkflowButton',
+    };
+    
+    // Look up component name from map, fallback to PascalCase conversion
+    let componentName = interfaceComponentMap[interfaceType];
+    
+    if (!componentName) {
+      // Fallback: Convert kebab-case to PascalCase
+      componentName = interfaceType
+        .split('-')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('');
+    }
 
     // Get component from interfaces package
     const component = (Interfaces as any)[componentName];
     
     return component;
-  }, [interfaceId]);
+  }, [interfaceConfig.type]);
 
   // Show loading skeleton
   if (loading && !field.hideLoader) {
@@ -81,7 +156,7 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
     return (
       <Alert icon={<IconAlertCircle size={16} />} color="yellow">
         <Text size="sm">
-          Interface component not found: <Text component="span" fw={600}>{interfaceId}</Text>
+          Interface component not found: <Text component="span" fw={600}>{interfaceConfig.type}</Text>
         </Text>
         <Text size="xs" c="dimmed" mt="xs">
           Field: {field.field} (Type: {field.type})
@@ -90,10 +165,8 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
     );
   }
 
-  // Get interface options from field meta
-  const interfaceOptions = field.meta?.options || {};
-
   // Build props for interface component
+  // Merge interfaceConfig.props (from @microbuild/utils) with runtime props
   const interfaceProps: any = {
     value,
     onChange,
@@ -103,7 +176,6 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
     error,
     autofocus,
     // Note: label is NOT passed here because FormField already renders FormFieldLabel
-    placeholder: interfaceOptions.placeholder,
     
     // Field metadata
     collection: field.collection,
@@ -116,8 +188,8 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
     nullable: field.schema?.is_nullable,
     defaultValue: field.schema?.default_value,
     
-    // Spread interface-specific options
-    ...interfaceOptions,
+    // Spread interface-specific props from InterfaceConfig (includes meta.options)
+    ...interfaceConfig.props,
   };
 
   // Render interface component

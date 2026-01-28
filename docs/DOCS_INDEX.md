@@ -118,6 +118,15 @@ Complete guide to Microbuild UI Packages and distribution tools.
 ### Workflow Components
 - [WorkflowButton](../packages/README.md#microbuildui-interfaces) - State transitions with policy-based commands
 
+### Rich Text Components
+- [InputBlockEditor](../packages/README.md#microbuildui-interfaces) - Block-based editor (EditorJS)
+- [RichTextHTML](../packages/README.md#microbuildui-interfaces) - WYSIWYG HTML editor (TipTap)
+- [RichTextMarkdown](../packages/README.md#microbuildui-interfaces) - Markdown editor with preview
+
+### Map / Geometry Components
+- [Map](../packages/README.md#microbuildui-interfaces) - Geometry input with map preview
+- [MapWithRealMap](../packages/README.md#microbuildui-interfaces) - Full MapLibre implementation
+
 ### Collection Components
 - [CollectionForm](../packages/README.md#microbuildui-collections) - Dynamic form
 - [CollectionList](../packages/README.md#microbuildui-collections) - Dynamic list/table
@@ -125,7 +134,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 ### Form Components
 - [VForm](../packages/ui-form/README.md) - Directus-inspired dynamic form with field metadata
 
-[See all 33+ components →](../packages/README.md#microbuildui-interfaces)
+[See all 40+ components →](../packages/README.md#microbuildui-interfaces)
 
 ## 🔍 How-To Guides
 

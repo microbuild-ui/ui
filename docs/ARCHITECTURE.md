@@ -42,8 +42,10 @@
 │                          ▼                                          │
 │         ┌────────────────────────────────────┐                     │
 │         │    ui-interfaces/                  │                     │
-│         │    (33 Components)                 │                     │
+│         │    (40+ Components)                │                     │
 │         │  - Input, Select, DateTime, etc.   │                     │
+│         │  - Rich Text (Block, HTML, MD)     │                     │
+│         │  - Map/Geometry input              │                     │
 │         └────────────────┬───────────────────┘                     │
 │                          │                                          │
 │                          ▼                                          │

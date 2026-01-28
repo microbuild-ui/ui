@@ -55,5 +55,10 @@
     "directus",
     "dynamic-form",
     "collection-form"
-  ]
+  ],
+  "dependencies": {
+    "@mantine/tiptap": "^8.3.10",
+    "@tiptap/react": "^3.13.0",
+    "@tiptap/starter-kit": "^3.13.0"
+  }
 }

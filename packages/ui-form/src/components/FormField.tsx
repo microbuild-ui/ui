@@ -2,6 +2,8 @@
  * FormField Component
  * Renders a single field with label, interface component, and validation
  * Based on Directus form-field component
+ * 
+ * Uses @microbuild/utils for field readonly detection.
  */
 
 import React, { useMemo } from 'react';
@@ -10,6 +12,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import type { FormField as TFormField, ValidationError } from '../types';
 import { FormFieldInterface } from './FormFieldInterface';
 import { FormFieldLabel } from './FormFieldLabel';
+import { isFieldReadOnly } from '@microbuild/utils';
 
 export interface FormFieldProps {
   /** Field definition */
@@ -58,24 +61,19 @@ export const FormField: React.FC<FormFieldProps> = ({
   hideLabel = false,
   className,
 }) => {
-  // Determine if field is disabled
+  // Determine form context (create vs edit)
+  const context = useMemo(() => {
+    return primaryKey === '+' || !primaryKey ? 'create' : 'edit';
+  }, [primaryKey]);
+
+  // Determine if field is disabled using @microbuild/utils isFieldReadOnly
   const isDisabled = useMemo(() => {
     if (disabled) return true;
-    if (field.meta?.readonly) return true;
-    // Note: is_generated not in FieldSchema type, so we skip this check
-
-    // Primary keys with auto-increment or UUID are readonly in edit mode
-    if (
-      field.schema?.is_primary_key &&
-      primaryKey &&
-      primaryKey !== '+' &&
-      (field.schema?.has_auto_increment || field.meta?.special?.includes('uuid'))
-    ) {
-      return true;
-    }
-
-    return false;
-  }, [disabled, field, primaryKey]);
+    
+    // Use the comprehensive isFieldReadOnly from @microbuild/utils
+    // This handles: auto-increment, UUID PKs, meta.readonly, generated defaults, etc.
+    return isFieldReadOnly(field, { context, primaryKey });
+  }, [disabled, field, context, primaryKey]);
 
   // Determine if field is required
   const isRequired = useMemo(() => {

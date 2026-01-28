@@ -19,6 +19,7 @@ import html from 'highlight.js/lib/languages/xml';
 import json from 'highlight.js/lib/languages/json';
 import { ActionIcon, Group, Button, Paper, Text } from '@mantine/core';
 import { IconEye, IconEdit, IconPhoto, IconTable, IconHeading } from '@tabler/icons-react';
+import './RichTextMarkdown.css';
 
 // Create lowlight instance for code highlighting
 const lowlight = createLowlight();
@@ -109,10 +110,10 @@ export function RichTextMarkdown({
       }),
       Color,
       TextStyle,
-      // Only include CodeBlockLowlight in non-test environments
-      ...(process.env.NODE_ENV !== 'test' ? [CodeBlockLowlight.configure({
+      // Include CodeBlockLowlight for syntax highlighting
+      CodeBlockLowlight.configure({
         lowlight,
-      })] : []),
+      }),
       Placeholder.configure({
         placeholder,
       }),
@@ -219,27 +220,14 @@ export function RichTextMarkdown({
   // Don't render until editor is ready
   if (!editor) {
     return (
-      <div style={{ position: 'relative' }}>
+      <div className="rich-text-markdown-wrapper">
         {label && (
-          <div style={{ 
-            fontSize: '14px', 
-            fontWeight: 500, 
-            marginBottom: '8px',
-            color: error ? 'var(--mantine-color-error)' : undefined
-          }}>
+          <div className={`rich-text-markdown-label ${error ? 'rich-text-markdown-label--error' : ''}`}>
             {label}
             {required && <Text component="span" data-required="true"> *</Text>}
           </div>
         )}
-        <div style={{ 
-          minHeight: '120px', 
-          border: '1px solid var(--mantine-color-gray-4)',
-          borderRadius: 'var(--mantine-radius-xs)', // SGDS border-radius-sm
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'var(--mantine-color-gray-0)'
-        }}>
+        <div className="rich-text-markdown-loading">
           Loading editor...
         </div>
       </div>
@@ -247,14 +235,9 @@ export function RichTextMarkdown({
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="rich-text-markdown-wrapper">
       {label && (
-        <div style={{ 
-          fontSize: '14px', 
-          fontWeight: 500, 
-          marginBottom: '8px',
-          color: error ? 'var(--mantine-color-error)' : undefined
-        }}>
+        <div className={`rich-text-markdown-label ${error ? 'rich-text-markdown-label--error' : ''}`}>
           {label}
           {required && <Text component="span" data-required="true"> *</Text>}
         </div>
@@ -383,7 +366,7 @@ export function RichTextMarkdown({
           )}
 
           {/* Spacer */}
-          <div style={{ flex: 1 }} />
+          <div className="rich-text-markdown-spacer" />
 
           {/* View Mode Toggle */}
           <Group gap={0}>
@@ -409,7 +392,7 @@ export function RichTextMarkdown({
         </RichTextEditor.Toolbar>
 
         {/* Editor Content */}
-        <div style={{ position: 'relative' }}>
+        <div className="rich-text-markdown-content-wrapper">
           <RichTextEditor.Content 
             style={{ 
               display: viewMode === 'editor' ? 'block' : 'none',
@@ -439,16 +422,11 @@ export function RichTextMarkdown({
         {/* Character Count */}
         {softLength && remaining !== null && (
           <div
-            style={{
-              position: 'absolute',
-              bottom: '8px',
-              right: '12px',
-              fontSize: '12px',
-              color: percRemaining < 10 ? 'var(--mantine-color-orange-6)' : 
-                     percRemaining < 5 ? 'var(--mantine-color-red-6)' : 
-                     'var(--mantine-color-gray-6)',
-              pointerEvents: 'none',
-            }}
+            className={`rich-text-markdown-char-count ${
+              percRemaining < 5 ? 'rich-text-markdown-char-count--danger' : 
+              percRemaining < 10 ? 'rich-text-markdown-char-count--warning' : 
+              'rich-text-markdown-char-count--normal'
+            }`}
           >
             {remaining}
           </div>
@@ -456,33 +434,14 @@ export function RichTextMarkdown({
       </RichTextEditor>
       
       {error && (
-        <div
-          style={{
-            fontSize: '12px',
-            color: 'var(--mantine-color-error)',
-            marginTop: '4px',
-          }}
-        >
+        <div className="rich-text-markdown-error-message">
           {error}
         </div>
       )}
 
       {/* Table Dialog - Simple implementation */}
       {tableDialog.open && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1000,
-            backgroundColor: 'white',
-            padding: '16px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            border: '1px solid var(--mantine-color-gray-3)',
-          }}
-        >
+        <div className="rich-text-markdown-dialog">
           <Text size="sm" mb="md">Create Table</Text>
           <Group mb="md">
             <div>
@@ -490,9 +449,10 @@ export function RichTextMarkdown({
               <input
                 type="number"
                 min="1"
+                aria-label="Number of rows"
                 value={tableDialog.rows}
                 onChange={(e) => setTableDialog(prev => ({ ...prev, rows: parseInt(e.target.value, 10) || 1 }))}
-                style={{ width: '60px', padding: '4px', borderRadius: '4px', border: '1px solid var(--mantine-color-gray-4)' }}
+                className="rich-text-markdown-number-input"
               />
             </div>
             <div>
@@ -500,9 +460,10 @@ export function RichTextMarkdown({
               <input
                 type="number"
                 min="1"
+                aria-label="Number of columns"
                 value={tableDialog.columns}
                 onChange={(e) => setTableDialog(prev => ({ ...prev, columns: parseInt(e.target.value, 10) || 1 }))}
-                style={{ width: '60px', padding: '4px', borderRadius: '4px', border: '1px solid var(--mantine-color-gray-4)' }}
+                className="rich-text-markdown-number-input"
               />
             </div>
           </Group>
@@ -532,15 +493,8 @@ export function RichTextMarkdown({
         <div
           role="button"
           tabIndex={0}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 999,
-          }}
+          aria-label="Close dialog"
+          className="rich-text-markdown-backdrop"
           onClick={() => {
             setTableDialog(prev => ({ ...prev, open: false }));
             setImageDialog(false);
@@ -556,31 +510,19 @@ export function RichTextMarkdown({
 
       {/* Image Dialog - Simple implementation */}
       {imageDialog && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 1000,
-            backgroundColor: 'white',
-            padding: '16px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            border: '1px solid var(--mantine-color-gray-3)',
-          }}
-        >
+        <div className="rich-text-markdown-dialog">
           <Text size="sm" mb="md">Insert Image</Text>
           <input
             type="file"
             accept="image/*"
+            aria-label="Select image file"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) {
                 handleImageUpload(file);
               }
             }}
-            style={{ marginBottom: '12px' }}
+            className="rich-text-markdown-file-input"
           />
           <Group>
             <Button

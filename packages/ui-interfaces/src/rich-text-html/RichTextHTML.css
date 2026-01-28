@@ -1,0 +1,57 @@
+.rich-text-html-wrapper {
+  position: relative;
+}
+
+.rich-text-html-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.rich-text-html-label--error {
+  color: var(--mantine-color-error);
+}
+
+.rich-text-html-required {
+  color: var(--mantine-color-error);
+}
+
+.rich-text-html-loading {
+  min-height: 120px;
+  border: 1px solid var(--mantine-color-gray-4);
+  border-radius: var(--mantine-radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--mantine-color-gray-0);
+}
+
+.rich-text-html-editor--error {
+  border: 1px solid var(--mantine-color-error);
+}
+
+.rich-text-html-char-count {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.rich-text-html-char-count--normal {
+  color: var(--mantine-color-gray-6);
+}
+
+.rich-text-html-char-count--near-limit {
+  color: var(--mantine-color-orange-6);
+}
+
+.rich-text-html-char-count--over-limit {
+  color: var(--mantine-color-red-6);
+}
+
+.rich-text-html-error-message {
+  font-size: 12px;
+  color: var(--mantine-color-error);
+  margin-top: 4px;
+}

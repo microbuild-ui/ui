@@ -1,0 +1,11 @@
+.vform-stories-debug-panel {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.vform-stories-debug-pre {
+  font-size: 12px;
+  overflow: auto;
+}

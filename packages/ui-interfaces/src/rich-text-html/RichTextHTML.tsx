@@ -9,6 +9,7 @@ import SubScript from '@tiptap/extension-subscript';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
+import './RichTextHTML.css';
 
 export interface RichTextHTMLProps {
   /** Current value of the editor */
@@ -121,27 +122,14 @@ export function RichTextHTML({
   // Don't render until editor is ready
   if (!editor) {
     return (
-      <div style={{ position: 'relative' }}>
+      <div className="rich-text-html-wrapper">
         {label && (
-          <div style={{ 
-            fontSize: '14px', 
-            fontWeight: 500, 
-            marginBottom: '8px',
-            color: error ? 'var(--mantine-color-error)' : undefined
-          }}>
+          <div className={`rich-text-html-label ${error ? 'rich-text-html-label--error' : ''}`}>
             {label}
-            {required && <span style={{ color: 'var(--mantine-color-error)' }}> *</span>}
+            {required && <span className="rich-text-html-required"> *</span>}
           </div>
         )}
-        <div style={{ 
-          minHeight: '120px', 
-          border: '1px solid var(--mantine-color-gray-4)',
-          borderRadius: 'var(--mantine-radius-xs)', // SGDS border-radius-sm
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'var(--mantine-color-gray-0)'
-        }}>
+        <div className="rich-text-html-loading">
           Loading editor...
         </div>
       </div>
@@ -149,24 +137,17 @@ export function RichTextHTML({
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="rich-text-html-wrapper">
       {label && (
-        <div style={{ 
-          fontSize: '14px', 
-          fontWeight: 500, 
-          marginBottom: '8px',
-          color: error ? 'var(--mantine-color-error)' : undefined
-        }}>
+        <div className={`rich-text-html-label ${error ? 'rich-text-html-label--error' : ''}`}>
           {label}
-          {required && <span style={{ color: 'var(--mantine-color-error)' }}> *</span>}
+          {required && <span className="rich-text-html-required"> *</span>}
         </div>
       )}
       
       <RichTextEditor 
         editor={editor}
-        style={{
-          border: error ? '1px solid var(--mantine-color-error)' : undefined,
-        }}
+        className={error ? 'rich-text-html-editor--error' : undefined}
       >
         {!minimal && (
           <RichTextEditor.Toolbar>
@@ -234,16 +215,11 @@ export function RichTextHTML({
         
         {softLength && (
           <div
-            style={{
-              position: 'absolute',
-              bottom: '8px',
-              right: '12px',
-              fontSize: '12px',
-              color: isOverLimit ? 'var(--mantine-color-red-6)' : 
-                     isNearLimit ? 'var(--mantine-color-orange-6)' : 
-                     'var(--mantine-color-gray-6)',
-              pointerEvents: 'none',
-            }}
+            className={`rich-text-html-char-count ${
+              isOverLimit ? 'rich-text-html-char-count--over-limit' : 
+              isNearLimit ? 'rich-text-html-char-count--near-limit' : 
+              'rich-text-html-char-count--normal'
+            }`}
           >
             {softLength - characterCount}
           </div>
@@ -251,13 +227,7 @@ export function RichTextHTML({
       </RichTextEditor>
       
       {error && (
-        <div
-          style={{
-            fontSize: '12px',
-            color: 'var(--mantine-color-error)',
-            marginTop: '4px',
-          }}
-        >
+        <div className="rich-text-html-error-message">
           {error}
         </div>
       )}

@@ -10,7 +10,7 @@ A collection of packages for building Directus-compatible content management app
 | [@microbuild/services](./services) | CRUD service classes | [README](./services/README.md) |
 | [@microbuild/hooks](./hooks) | React hooks for relations & UI state | [README](./hooks/README.md) |
 | [@microbuild/utils](./utils) | Field interface mapper & utilities | [README](./utils/README.md) |
-| [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (35+) | [README](./ui-interfaces/README.md) |
+| [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (40+) | [README](./ui-interfaces/README.md) |
 | [@microbuild/ui-collections](./ui-collections) | CollectionForm & CollectionList | [README](./ui-collections/README.md) |
 | [@microbuild/cli](./cli) | CLI for copying components | [README](./cli/README.md) |
 | [@microbuild/mcp-server](./mcp-server) | MCP server for AI agents | [README](./mcp-server/README.md) |

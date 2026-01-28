@@ -334,6 +334,62 @@ import { ListM2M, ListM2O, ListO2M, ListM2A } from '@microbuild/ui-interfaces';
 />
 ```
 
+### Rich Text Editors
+
+```tsx
+import { InputBlockEditor, RichTextHTML, RichTextMarkdown } from '@microbuild/ui-interfaces';
+
+// Block-based editor (EditorJS style)
+<InputBlockEditor
+  field="content"
+  value={blocks}
+  onChange={setBlocks}
+  tools={['header', 'paragraph', 'nestedlist', 'code', 'quote']}
+  placeholder="Start writing..."
+/>
+
+// WYSIWYG HTML editor
+<RichTextHTML
+  field="body"
+  value={html}
+  onChange={setHtml}
+  toolbar={['bold', 'italic', 'h1', 'h2', 'bullist', 'link']}
+  softLength={2000}
+/>
+
+// Markdown editor with preview
+<RichTextMarkdown
+  field="description"
+  value={markdown}
+  onChange={setMarkdown}
+  editorFont="monospace"
+/>
+```
+
+### Map / Geometry
+
+```tsx
+import { Map, MapWithRealMap } from '@microbuild/ui-interfaces';
+
+// Geometry input with map
+<Map
+  field="location"
+  value={geojson}
+  onChange={setGeojson}
+  geometryType="Point"
+  geometryFormat="geojson"
+/>
+
+// Full MapLibre implementation
+<MapWithRealMap
+  field="area"
+  value={polygon}
+  onChange={setPolygon}
+  geometryType="Polygon"
+  defaultView={{ center: [103.8, 1.35], zoom: 11 }}
+/>
+```
+
 ### Workflow Button
 
 ```tsx
@@ -415,6 +471,21 @@ import { WorkflowButton } from '@microbuild/ui-interfaces';
 | Component | Description | Key Props |
 |-----------|-------------|-----------|
 | `WorkflowButton` | Workflow state | `itemId`, `collection`, `canCompare` |
+
+### Rich Text Components
+
+| Component | Description | Key Props |
+|-----------|-------------|-----------|
+| `InputBlockEditor` | Block-based editor (EditorJS) | `tools`, `placeholder`, `font` |
+| `RichTextHTML` | WYSIWYG HTML editor (TipTap) | `toolbar`, `softLength`, `minimal` |
+| `RichTextMarkdown` | Markdown editor with preview | `toolbar`, `softLength`, `editorFont` |
+
+### Map Components
+
+| Component | Description | Key Props |
+|-----------|-------------|-----------|
+| `Map` | Geometry input with map | `geometryType`, `geometryFormat`, `basemap` |
+| `MapWithRealMap` | Full MapLibre implementation | `defaultView`, `basemap` |
 
 ## Common Props
 

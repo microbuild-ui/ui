@@ -1,5 +1,8 @@
 /**
- * Utility exports
+ * Utility exports for VForm
+ * 
+ * VForm-specific utilities that don't exist in @microbuild/utils.
+ * For field interface mapping and readonly checks, use @microbuild/utils directly.
  */
 
 export { getDefaultValuesFromFields } from './get-default-values';
@@ -13,8 +16,14 @@ export {
   updateFieldWidths, 
   getFieldWidthClass 
 } from './update-field-widths';
+
+// Re-export commonly used utilities from @microbuild/utils for convenience
 export { 
-  getDefaultInterfaceForType, 
-  hasExplicitInterface, 
-  getFieldInterface 
-} from './get-default-interface';
+  getFieldInterface,
+  getFieldDefault,
+  isFieldReadOnly,
+  getFieldValidation,
+  isPresentationField,
+  type InterfaceConfig,
+  type InterfaceType,
+} from '@microbuild/utils';

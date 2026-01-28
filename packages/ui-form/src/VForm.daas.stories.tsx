@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { TextInput, Button, Stack, Alert, Code, Group, Text, Paper, Badge, Divider } from '@mantine/core';
 import { IconPlugConnected, IconPlugConnectedX, IconRefresh, IconCloudDownload } from '@tabler/icons-react';
 import { VForm } from './VForm';

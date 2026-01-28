@@ -37,6 +37,7 @@ export type InterfaceType =
   | 'file'
   | 'file-image'
   | 'files'
+  | 'map'
   | 'collection-item-dropdown'
   | 'workflow-button';
 
@@ -410,6 +411,19 @@ function getExplicitInterface(
           searchable: options?.searchable !== false,
           allowNone: options?.allowNone !== false,
           placeholder: options?.placeholder as string,
+          ...options,
+        },
+      };
+
+    // Map / Geometry interface
+    case 'map':
+      return {
+        type: 'map',
+        props: {
+          geometryType: (options?.geometryType as string) || 'Point',
+          geometryFormat: (options?.geometryFormat as string) || 'geojson',
+          defaultView: options?.defaultView as Record<string, unknown>,
+          basemap: options?.basemap as string,
           ...options,
         },
       };

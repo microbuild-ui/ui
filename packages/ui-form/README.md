@@ -132,10 +132,25 @@ VForm
 
 ## Related Packages
 
-- `@microbuild/ui-interfaces` - Individual interface components
+- `@microbuild/ui-interfaces` - Individual interface components (40+ interfaces)
 - `@microbuild/services` - API services for data fetching
 - `@microbuild/types` - TypeScript type definitions
-- `@microbuild/utils` - Utility functions
+- `@microbuild/utils` - Shared utilities for field interface mapping, readonly detection, and validation
+
+## Utility Integration
+
+VForm uses `@microbuild/utils` for core functionality:
+
+```tsx
+import { 
+  getFieldInterface,   // Maps field types to interface components
+  isFieldReadOnly,     // Detects readonly fields (auto-increment, UUID PKs, etc.)
+  getFieldDefault,     // Gets safe default values (filters DB-generated defaults)
+  isPresentationField  // Identifies dividers, notices, etc.
+} from '@microbuild/utils';
+```
+
+These utilities are also re-exported from `@microbuild/ui-form` for convenience.
 
 ## License
 

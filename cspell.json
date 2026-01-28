@@ -1,0 +1,27 @@
+{
+  "version": "0.2",
+  "ignorePaths": [
+    "node_modules",
+    "pnpm-lock.yaml",
+    "dist",
+    "build",
+    "coverage",
+    "playwright-report",
+    "test-results"
+  ],
+  "words": [
+    "Microbuild",
+    "microbuild",
+    "Directus",
+    "directus",
+    "daas",
+    "vform",
+    "Supabase",
+    "Tabler",
+    "autodocs",
+    "Mantine",
+    "pnpm",
+    "tsup",
+    "vitest"
+  ]
+}

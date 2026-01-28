@@ -1,0 +1,7 @@
+.input-block-editor-required {
+  color: var(--mantine-color-red-6);
+}
+
+.input-block-editor-holder {
+  min-height: 100px;
+}

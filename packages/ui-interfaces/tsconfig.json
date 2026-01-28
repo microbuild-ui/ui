@@ -16,12 +16,12 @@
     "declaration": true,
     "declarationMap": true,
     "composite": true,
-    "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "exclude": [
     "node_modules", 
     "**/*.test.tsx",
@@ -32,10 +32,6 @@
     "src/group-detail/GroupDetailFormDemo.tsx",
     "src/file/File.tsx",
     "src/file-image/FileImage.tsx",
-    "src/files/Files.tsx",
-    "src/input-block-editor/**",
-    "src/rich-text-html/**",
-    "src/rich-text-markdown/**",
-    "src/map/**"
+    "src/files/Files.tsx"
   ]
 }

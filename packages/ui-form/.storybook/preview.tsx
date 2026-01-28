@@ -1,12 +1,18 @@
 import React from 'react';
-import type { Preview } from '@storybook/react-vite';
+import type { Preview } from '@storybook/react';
 import { MantineProvider, createTheme } from '@mantine/core';
 
 // Import Mantine CSS
 import '@mantine/core/styles.css';
 
+// Import Mantine TipTap CSS for rich text editors
+import '@mantine/tiptap/styles.css';
+
 // Import VForm CSS
 import '../src/VForm.css';
+
+// Import preview styles
+import './preview.css';
 
 // Create a default theme
 const theme = createTheme({
@@ -66,9 +72,9 @@ const preview: Preview = {
     layout: 'padded',
   },
   decorators: [
-    (Story) => (
+    (Story: React.ComponentType) => (
       <MantineProvider theme={theme} defaultColorScheme="light">
-        <div style={{ padding: '1rem', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="storybook-wrapper">
           <Story />
         </div>
       </MantineProvider>

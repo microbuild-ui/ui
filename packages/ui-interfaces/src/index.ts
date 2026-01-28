@@ -91,15 +91,17 @@ export type { ListO2MProps } from './list-o2m';
 export { ListM2A } from './list-m2a';
 export type { ListM2AProps } from './list-m2a';
 
-// Rich text editors - require @mantine/tiptap and @editorjs packages
-// export { InputBlockEditor } from './input-block-editor';
-// export { RichTextHTML } from './rich-text-html';
-// export { RichTextMarkdown } from './rich-text-markdown';
+// Rich text editors
+export { InputBlockEditor } from './input-block-editor';
+export type { InputBlockEditorProps } from './input-block-editor';
+export { RichTextHTML } from './rich-text-html';
+export type { RichTextHTMLProps } from './rich-text-html';
+export { RichTextMarkdown } from './rich-text-markdown';
+export type { RichTextMarkdownProps } from './rich-text-markdown';
 
-// Map - requires maplibre-gl and @mapbox/mapbox-gl-draw peer dependencies
-// export { Map, MapWithRealMap } from './map';
-// export type { MapProps, MapWithRealMapProps, GeometryType, GeometryFormat, BasemapSource, DefaultView } from './map';
-// Note: Rich text editors and Map require additional dependencies (tiptap, editorjs, maplibre)
+// Map interface
+export { Map, MapWithRealMap } from './map';
+export type { MapProps, MapWithRealMapProps, GeometryType, GeometryFormat, BasemapSource, DefaultView } from './map';
 
 // Workflow Button - workflow state transition interface
 export { WorkflowButton, useWorkflow } from './workflow-button';

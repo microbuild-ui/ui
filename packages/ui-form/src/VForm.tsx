@@ -2,6 +2,12 @@
  * VForm Component
  * Dynamic form that renders fields based on collection schema
  * Based on Directus v-form component
+ * 
+ * Integrates with:
+ * - @microbuild/types for Field types
+ * - @microbuild/services for FieldsService API calls
+ * - @microbuild/utils for field interface mapping and utilities
+ * - @microbuild/ui-interfaces (via FormFieldInterface) for interface components
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -10,6 +16,7 @@ import { Stack, Box, Alert, Text, Skeleton } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import type { Field } from '@microbuild/types';
 import { FieldsService } from '@microbuild/services';
+// isPresentationField is available from @microbuild/utils if needed for filtering
 import type { ValidationError, FieldValues } from './types';
 import { FormField } from './components/FormField';
 import {
@@ -135,9 +142,15 @@ export const VForm: React.FC<VFormProps> = ({
     return processed;
   }, [fields, group, excludeFields]);
 
-  // Get visible fields
+  // Get visible fields (excluding hidden and presentation-only fields)
   const visibleFields = useMemo(() => {
-    return formFields.filter(isFieldVisible);
+    return formFields.filter((f) => {
+      // Filter out hidden fields
+      if (!isFieldVisible(f)) return false;
+      // Presentation fields (dividers, notices) are kept for layout
+      // They will be rendered but won't store data
+      return true;
+    });
   }, [formFields]);
 
   // Merge initial values with current values
