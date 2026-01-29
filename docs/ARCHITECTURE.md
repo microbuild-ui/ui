@@ -34,9 +34,11 @@
 │                                                                      │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                │
 │  │   types/    │  │  services/  │  │   hooks/    │                │
-│  │   (Base)    │  │   (CRUD)    │  │ (Relations) │                │
+│  │   (Base)    │  │(CRUD+DaaS)  │  │ (Relations) │                │
 │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘                │
 │         │                │                 │                        │
+│         │          DaaSProvider            │                        │
+│         │          apiRequest              │                        │
 │         └────────────────┼─────────────────┘                        │
 │                          │                                          │
 │                          ▼                                          │
@@ -45,7 +47,7 @@
 │         │    (40+ Components)                │                     │
 │         │  - Input, Select, DateTime, etc.   │                     │
 │         │  - Rich Text (Block, HTML, MD)     │                     │
-│         │  - Map/Geometry input              │                     │
+│         │  - Relational (M2O, O2M, M2M, M2A) │                     │
 │         └────────────────┬───────────────────┘                     │
 │                          │                                          │
 │                          ▼                                          │
@@ -91,15 +93,17 @@
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │       ┌─────────────────────────────────────────────────────┐      │
-│       │   Playwright E2E Tests                              │      │
+│       │   Playwright E2E Tests (Two-Tier Strategy)          │      │
 │       ├─────────────────────────────────────────────────────┤      │
 │       │ tests/                                              │      │
 │       │   ├── auth.setup.ts    (Authentication setup)       │      │
 │       │   └── ui-form/                                      │      │
-│       │       └── vform.spec.ts  (19 tests)                 │      │
+│       │       ├── vform-storybook.spec.ts (Storybook tests) │      │
+│       │       ├── vform-daas.spec.ts (DaaS integration)     │      │
+│       │       └── vform.spec.ts (Full E2E workflow)         │      │
 │       │                                                     │      │
-│       │ Runs against: nextjs-supabase-daas (DaaS app)       │      │
-│       │ Auth state: playwright/.auth/admin.json             │      │
+│       │ Tier 1: Storybook (isolated, no auth, with proxy)   │      │
+│       │ Tier 2: DaaS E2E (real API, auth, permissions)      │      │
 │       └─────────────────────────────────────────────────────┘      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘

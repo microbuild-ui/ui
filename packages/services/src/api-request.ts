@@ -2,20 +2,36 @@
  * API Request Helper
  * 
  * Makes requests to local API routes (server-side proxy to DaaS backend)
+ * or directly to DaaS when configured via DaaSProvider/setGlobalDaaSConfig.
  */
 
+import { buildApiUrl, getApiHeaders, type DaaSConfig } from './daas-context';
+
+export interface ApiRequestOptions extends RequestInit {
+  /** Optional DaaS config override */
+  daasConfig?: DaaSConfig | null;
+}
+
 /**
- * Make request to local API route
+ * Make request to local API route or direct to DaaS
  */
 export async function apiRequest<T = unknown>(
   path: string,
-  options: RequestInit = {}
+  options: ApiRequestOptions = {}
 ): Promise<T> {
-  const response = await fetch(path, {
-    ...options,
+  const { daasConfig, ...fetchOptions } = options;
+  
+  // Build URL (handles proxy vs direct mode)
+  const url = buildApiUrl(path, daasConfig);
+  
+  // Get headers (includes auth token in direct mode)
+  const headers = getApiHeaders(daasConfig);
+  
+  const response = await fetch(url, {
+    ...fetchOptions,
     headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
+      ...headers,
+      ...fetchOptions.headers,
     },
   });
 

@@ -1,28 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { notifications } from '@mantine/notifications';
-
-/**
- * Make API request helper
- */
-async function apiRequest<T = unknown>(
-    path: string,
-    options: RequestInit = {}
-): Promise<T> {
-    const response = await fetch(path, {
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        },
-    });
-
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`API error: ${response.status} - ${error}`);
-    }
-
-    return response.json();
-}
+import { apiRequest } from '@microbuild/services';
 
 interface CollectionMeta {
     display_template?: string;
@@ -204,15 +182,24 @@ export function useRelationM2A(collection: string, field: string) {
                 if (!junction) {
                     const options = currentField.meta?.options as Record<string, unknown> | undefined;
 
-                    if (options?.junction_collection && options?.allowed_collections) {
-                        console.log('M2A: Using field options fallback for', collection, field, options);
+                    // Support both camelCase (allowedCollections) and snake_case (allowed_collections)
+                    const allowedCollectionNames = (
+                        options?.allowedCollections || 
+                        options?.allowed_collections
+                    ) as string[] | undefined;
+                    
+                    // Junction collection can be explicit or inferred from convention: {collection}_{field} or {collection}_m2a
+                    const junctionCollection = (
+                        options?.junction_collection ||
+                        options?.junctionCollection ||
+                        `${collection}_m2a`  // Default convention for M2A junction tables
+                    ) as string;
 
-                        const junctionCollection = options.junction_collection as string;
-                        const allowedCollectionNames = options.allowed_collections as string[];
-                        const collectionFieldName = (options.collection_field as string) || 'collection';
-                        const junctionFieldName = (options.junction_field as string) || 'item';
-                        const reverseJunctionFieldName = (options.reverse_junction_field as string) || `${collection}_id`;
-                        const sortFieldName = (options.sort_field as string) || undefined;
+                    if (allowedCollectionNames && allowedCollectionNames.length > 0) {
+                        const collectionFieldName = (options?.collection_field as string) || (options?.collectionField as string) || 'collection';
+                        const junctionFieldName = (options?.junction_field as string) || (options?.junctionField as string) || 'item';
+                        const reverseJunctionFieldName = (options?.reverse_junction_field as string) || (options?.reverseJunctionField as string) || `${collection}_id`;
+                        const sortFieldName = (options?.sort_field as string) || (options?.sortField as string) || undefined;
 
                         // Build allowed collections info
                         const allowedCollections: CollectionInfo[] = allowedCollectionNames
@@ -264,7 +251,6 @@ export function useRelationM2A(collection: string, field: string) {
                             },
                         };
 
-                        console.log('M2A RelationInfo from options:', info);
                         setRelationInfo(info);
                         setLoading(false);
                         return;
@@ -355,7 +341,6 @@ export function useRelationM2A(collection: string, field: string) {
                     },
                 };
 
-                console.log('M2A RelationInfo loaded:', info);
                 setRelationInfo(info);
             } catch (err) {
                 const errorMessage = err instanceof Error ? err.message : 'Failed to load relationship configuration';
@@ -484,15 +469,10 @@ export function useRelationM2AItems(
                 queryParams.set('search', params.search);
             }
 
-            const response = await fetch(
+            const data = await apiRequest<{ data: M2AItem[]; meta?: { total_count?: number; filter_count?: number } }>(
                 `/api/items/${relationInfo.junctionCollection.collection}?${queryParams}`
             );
 
-            if (!response.ok) {
-                throw new Error(`Failed to load items: ${response.status}`);
-            }
-
-            const data = await response.json();
             setItems(data.data || []);
             setTotalCount(data.meta?.total_count || data.meta?.filter_count || data.data?.length || 0);
         } catch (err) {
@@ -531,17 +511,14 @@ export function useRelationM2AItems(
                 junctionData[relationInfo.sortField] = currentMaxSort + 1;
             }
 
-            const response = await fetch(`/api/items/${relationInfo.junctionCollection.collection}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(junctionData),
-            });
+            const result = await apiRequest<{ data: M2AItem }>(
+                `/api/items/${relationInfo.junctionCollection.collection}`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify(junctionData),
+                }
+            );
 
-            if (!response.ok) {
-                throw new Error(`Failed to create junction item: ${response.status}`);
-            }
-
-            const result = await response.json();
             return result.data as M2AItem;
         } catch (err) {
             console.error('Error creating M2A junction item:', err);
@@ -554,14 +531,10 @@ export function useRelationM2AItems(
         if (!relationInfo) return;
 
         try {
-            const response = await fetch(
+            await apiRequest(
                 `/api/items/${relationInfo.junctionCollection.collection}/${item.id}`,
                 { method: 'DELETE' }
             );
-
-            if (!response.ok) {
-                throw new Error(`Failed to remove junction item: ${response.status}`);
-            }
 
             // Update local state
             setItems(prev => prev.filter(i => i.id !== item.id));
@@ -598,9 +571,8 @@ export function useRelationM2AItems(
             // Update sort order for each item
             await Promise.all(
                 reorderedItems.map((item, index) =>
-                    fetch(`/api/items/${relationInfo.junctionCollection.collection}/${item.id}`, {
+                    apiRequest(`/api/items/${relationInfo.junctionCollection.collection}/${item.id}`, {
                         method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ [relationInfo.sortField!]: index + 1 }),
                     })
                 )

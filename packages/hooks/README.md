@@ -14,6 +14,14 @@ pnpm add @microbuild/hooks
 - `@microbuild/services` workspace:*
 - `react` ^18.0.0 || ^19.0.0
 
+## API Request Handling
+
+All hooks use the centralized `apiRequest` from `@microbuild/services`, which automatically:
+- Uses local `/api/*` routes in Next.js apps (proxy mode)
+- Makes direct API calls with Bearer token in Storybook/testing (direct mode via `DaaSProvider`)
+
+This means hooks work seamlessly in both environments without code changes.
+
 ## Relation Hooks
 
 ### useRelationM2M / useRelationM2MItems

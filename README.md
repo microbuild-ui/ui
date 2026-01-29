@@ -93,13 +93,23 @@ import { getFileCategory, formatFileSize, getAssetUrl } from '@microbuild/types'
 
 ### @microbuild/services
 
-Service classes for CRUD operations on Directus collections.
+Service classes for CRUD operations on Directus collections, plus DaaS API configuration.
 
 **Available Services:**
 - `ItemsService` - Generic CRUD for any collection
 - `FieldsService` - Read field definitions
 - `CollectionsService` - Read collection metadata
 - `PermissionsService` - Field-level permissions
+
+**API Request Utilities:**
+- `apiRequest` - Make API requests (supports both proxy and direct DaaS modes)
+- `buildApiUrl` - Build URL for API requests respecting DaaS configuration
+- `getApiHeaders` - Get headers with auth token when in direct mode
+
+**DaaS Context (for Storybook/Testing):**
+- `DaaSProvider` - React provider for direct DaaS API access
+- `useDaaSContext` - Hook to access DaaS configuration
+- `setGlobalDaaSConfig` - Set global config for non-React contexts
 
 **Usage:**
 ```tsx
@@ -110,6 +120,16 @@ const items = await itemsService.readByQuery({ filter: { status: { _eq: 'publish
 
 const fieldsService = new FieldsService();
 const fields = await fieldsService.readAll('products');
+```
+
+**Direct DaaS Mode (Storybook/Testing):**
+```tsx
+import { DaaSProvider } from '@microbuild/services';
+
+// Wrap components to enable direct DaaS API access
+<DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'your-token' }}>
+  <VForm collection="articles" />
+</DaaSProvider>
 ```
 
 ### @microbuild/hooks

@@ -108,6 +108,12 @@ importers:
       '@types/node':
         specifier: ^22
         version: 22.19.2
+      '@types/react':
+        specifier: ^19
+        version: 19.2.7
+      react:
+        specifier: ^19
+        version: 19.2.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -230,6 +236,9 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.9.3
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.1(@types/node@22.19.2)(jiti@2.6.1)(lightningcss@1.30.2)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
   packages/ui-interfaces:
     dependencies:

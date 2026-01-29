@@ -86,7 +86,7 @@ export interface ListM2MProps {
 }
 
 export const ListM2M: React.FC<ListM2MProps> = ({
-    value: _value = [],
+    value: _valueProp,
     onChange: _onChange,
     collection,
     field,
@@ -110,6 +110,9 @@ export const ListM2M: React.FC<ListM2MProps> = ({
     required = false,
     readOnly: _readOnly = false,
 }) => {
+    // Ensure value is always an array (protect against null)
+    const _value = _valueProp ?? [];
+    
     // Use the custom hooks for M2M relationship management
     const { relationInfo, loading: relationLoading, error: relationError } = useRelationM2M(collection, field);
     
@@ -345,9 +348,16 @@ export const ListM2M: React.FC<ListM2MProps> = ({
     // Show relation error
     if (relationError) {
         return (
-            <Alert icon={<IconAlertCircle size={16} />} title="Configuration Error" color="red">
-                {relationError}
-            </Alert>
+            <Stack gap="xs">
+                {label && <Text size="sm" fw={500}>{label}</Text>}
+                <Alert icon={<IconAlertCircle size={16} />} title="Configuration Error" color="red">
+                    <Text size="sm">{relationError}</Text>
+                    <Text size="xs" c="dimmed" mt="xs">
+                        Note: In Storybook, relational interfaces require API proxy routes. 
+                        This component works fully in a Next.js app with DaaS integration.
+                    </Text>
+                </Alert>
+            </Stack>
         );
     }
 

@@ -44,8 +44,8 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | Package | Description | Documentation |
 |---------|-------------|---------------|
 | @microbuild/types | TypeScript types | [README](../packages/types/README.md) |
-| @microbuild/services | CRUD & permissions services | [README](../packages/services/README.md) |
-| @microbuild/hooks | React hooks (relations, UI state, versioning, workflow) | [README](../packages/hooks/README.md) |
+| @microbuild/services | CRUD services, DaaSProvider, apiRequest | [README](../packages/services/README.md) |
+| @microbuild/hooks | React hooks (relations, files, versioning, workflow) | [README](../packages/hooks/README.md) |
 | @microbuild/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
 | @microbuild/ui-interfaces | Field components | [README](../packages/ui-interfaces/README.md) |
 | @microbuild/ui-collections | Collection components | [README](../packages/ui-collections/README.md) |
@@ -64,6 +64,8 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | Build MCP server | `pnpm build:mcp` | [QUICKSTART.md](../QUICKSTART.md#step-1-build-the-mcp-server) |
 | Build CLI tool | `pnpm build:cli` | [QUICKSTART.md](../QUICKSTART.md#option-1-use-from-workspace-development) |
 | Run Storybook | `pnpm storybook` | [packages/README.md](../packages/README.md#storybook) |
+| Run VForm Storybook | `pnpm storybook:form` | [TESTING.md](TESTING.md#storybook-stories) |
+| Run VForm with DaaS proxy | See [TESTING.md](TESTING.md#proxy-mode-recommended---no-cors-issues) | [TESTING.md](TESTING.md) |
 | Install Playwright | `pnpm exec playwright install chromium` | [TESTING.md](TESTING.md#prerequisites) |
 
 ### Development Tasks

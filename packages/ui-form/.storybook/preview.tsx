@@ -24,38 +24,47 @@ const theme = createTheme({
 /**
  * Mock the services for Storybook
  * This allows VForm to work without a real API (for local stories)
- * DaaS stories bypass this by making direct fetch calls with full URLs
+ * 
+ * NOTE: When DaaS proxy is enabled (STORYBOOK_DAAS_URL is set), we skip mocking
+ * to allow real API calls through the Vite proxy.
  */
 if (typeof window !== 'undefined') {
-  // Mock fetch for Storybook environment (only for relative URLs)
-  const originalFetch = window.fetch;
-  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === 'string' ? input : input.toString();
-    
-    // Allow external URLs (DaaS, etc.) to pass through
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+  // Check if DaaS proxy mode is enabled - if so, don't mock API calls
+  const isDaaSProxyEnabled = !!(import.meta.env?.STORYBOOK_DAAS_URL);
+  
+  if (!isDaaSProxyEnabled) {
+    // Mock fetch for Storybook environment (only for relative URLs)
+    const originalFetch = window.fetch;
+    window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      
+      // Allow external URLs (DaaS, etc.) to pass through
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return originalFetch(input, init);
+      }
+      
+      // Mock local /api/fields/ routes - return empty array (use fields prop instead)
+      if (url.includes('/api/fields/')) {
+        return new Response(JSON.stringify({ data: [] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      
+      // Mock local /api/items/ routes
+      if (url.includes('/api/items/')) {
+        return new Response(JSON.stringify({ data: [] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      
+      // Pass through all other requests
       return originalFetch(input, init);
-    }
-    
-    // Mock local /api/fields/ routes - return empty array (use fields prop instead)
-    if (url.includes('/api/fields/')) {
-      return new Response(JSON.stringify({ data: [] }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    
-    // Mock local /api/items/ routes
-    if (url.includes('/api/items/')) {
-      return new Response(JSON.stringify({ data: [] }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    
-    // Pass through all other requests
-    return originalFetch(input, init);
-  };
+    };
+  } else {
+    console.log('[Storybook] DaaS proxy enabled - API mocking disabled');
+  }
 }
 
 const preview: Preview = {

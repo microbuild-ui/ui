@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FieldsService, ItemsService } from '@microbuild/services';
+import { FieldsService, ItemsService, apiRequest } from '@microbuild/services';
 import type { Field } from '@microbuild/types';
 
 /**
@@ -106,30 +106,36 @@ export function useRelationO2M(collection: string, field: string) {
         // If not found in options, try fetching from directus_relations
         if (!relatedCollectionName || !reverseFieldName) {
           try {
-            const relationsResponse = await fetch(`/api/relations`);
-            if (relationsResponse.ok) {
-              const relationsData = await relationsResponse.json();
-              
-              const o2mRelation = relationsData.data?.find(
-                (r: { meta?: { one_collection: string; one_field: string; many_collection: string; many_field: string } }) => 
-                  r.meta?.one_collection === collection && r.meta?.one_field === field
+            interface RelationData {
+              collection?: string;
+              related_collection?: string | null;
+              field?: string;
+              meta?: {
+                one_collection?: string;
+                one_field?: string;
+                many_collection?: string;
+                many_field?: string;
+              };
+            }
+            const relationsData = await apiRequest<{ data: RelationData[] }>(`/api/relations`);
+            
+            const o2mRelation = relationsData.data?.find(
+              (r) => r.meta?.one_collection === collection && r.meta?.one_field === field
+            );
+            
+            if (o2mRelation) {
+              relatedCollectionName = relatedCollectionName || o2mRelation.meta?.many_collection || null;
+              reverseFieldName = reverseFieldName || o2mRelation.meta?.many_field || null;
+            }
+            
+            // Auto-discover FK field if needed
+            if (relatedCollectionName && !reverseFieldName) {
+              const m2oRelation = relationsData.data?.find(
+                (r) => r.collection === relatedCollectionName && r.related_collection === collection
               );
               
-              if (o2mRelation) {
-                relatedCollectionName = relatedCollectionName || o2mRelation.meta?.many_collection;
-                reverseFieldName = reverseFieldName || o2mRelation.meta?.many_field;
-              }
-              
-              // Auto-discover FK field if needed
-              if (relatedCollectionName && !reverseFieldName) {
-                const m2oRelation = relationsData.data?.find(
-                  (r: { collection: string; related_collection: string | null; field: string }) => 
-                    r.collection === relatedCollectionName && r.related_collection === collection
-                );
-                
-                if (m2oRelation) {
-                  reverseFieldName = m2oRelation.field;
-                }
+              if (m2oRelation) {
+                reverseFieldName = m2oRelation.field || null;
               }
             }
           } catch {
@@ -283,19 +289,16 @@ export function useRelationO2MItems(
         query.sort = relationInfo.sortField;
       }
 
-      const response = await fetch(
-        `/api/items/${relationInfo.relatedCollection.collection}?${new URLSearchParams(
-          Object.entries(query)
-            .filter(([, v]) => v !== undefined && v !== null)
-            .map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)])
-        )}`
+      const queryString = new URLSearchParams(
+        Object.entries(query)
+          .filter(([, v]) => v !== undefined && v !== null)
+          .map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)])
+      ).toString();
+
+      const data = await apiRequest<{ data: O2MItem[]; meta?: { total_count?: number; filter_count?: number } }>(
+        `/api/items/${relationInfo.relatedCollection.collection}?${queryString}`
       );
 
-      if (!response.ok) {
-        throw new Error(`Failed to load items: ${response.status}`);
-      }
-
-      const data = await response.json();
       setItems(data.data || []);
       setTotalCount(data.meta?.total_count || data.meta?.filter_count || data.data?.length || 0);
     } catch (err) {

@@ -19,8 +19,13 @@
   "dependencies": {
     "@microbuild/types": "workspace:*"
   },
+  "peerDependencies": {
+    "react": "^18 || ^19"
+  },
   "devDependencies": {
     "@types/node": "^22",
+    "@types/react": "^19",
+    "react": "^19",
     "typescript": "^5.9.3"
   }
 }

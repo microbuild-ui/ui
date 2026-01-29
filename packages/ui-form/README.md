@@ -149,9 +149,37 @@ VForm
 ## Related Packages
 
 - `@microbuild/ui-interfaces` - Individual interface components (40+ interfaces)
-- `@microbuild/services` - API services for data fetching
+- `@microbuild/services` - API services for data fetching and DaaSProvider
 - `@microbuild/types` - TypeScript type definitions
 - `@microbuild/utils` - Shared utilities for field interface mapping, readonly detection, and validation
+- `@microbuild/hooks` - Relation hooks used by relational interfaces
+
+## Storybook Development
+
+VForm has comprehensive Storybook documentation with DaaS integration.
+
+### Running Storybook
+
+```bash
+# Basic Storybook (mocked data)
+pnpm storybook:form
+
+# With DaaS proxy (recommended for relational interfaces)
+STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
+STORYBOOK_DAAS_TOKEN=your-token \
+pnpm storybook:form
+```
+
+### DaaS Playground
+
+The "VForm DaaS Playground" story allows testing VForm with real collection schemas:
+
+1. Start Storybook with DaaS proxy (see above)
+2. Navigate to "Forms/VForm DaaS Playground" → "Playground"
+3. Select a collection from the dropdown
+4. Test VForm with real fields including relational interfaces (M2O, O2M, M2M, M2A)
+
+When DaaS proxy is enabled, the Vite server forwards `/api/*` requests to DaaS, avoiding CORS issues.
 
 ## Utility Integration
 

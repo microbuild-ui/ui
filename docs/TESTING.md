@@ -45,13 +45,35 @@ The VForm component has extensive test coverage across both tiers:
 - Connect to real DaaS instance with your credentials
 - Fetch actual collection schemas from live API
 - Test with real data and field configurations
-- No code required - just enter DaaS URL and static token
+- Test relational interfaces (M2O, O2M, M2M, M2A) with actual relations
 - Perfect for testing custom collections and edge cases
-- Saves credentials in localStorage for convenience
+- Two modes: **Proxy Mode** (recommended) and **Direct Mode**
 
-**How to Use DaaS Playground:**
+**Proxy Mode (Recommended - No CORS Issues):**
+
+Start Storybook with DaaS environment variables to enable a Vite proxy:
+
 ```bash
-# 1. Start VForm Storybook
+# Set environment variables and start Storybook
+STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
+STORYBOOK_DAAS_TOKEN=your-static-token \
+pnpm storybook:form
+
+# Navigate to "Forms/VForm DaaS Playground" → "Playground" story
+# The proxy is automatically enabled - no CORS issues!
+# Select a collection from the dropdown and test
+```
+
+This mode forwards all `/api/*` requests through Vite's development server proxy,
+completely avoiding CORS restrictions. All relational interfaces work correctly.
+
+**Direct Mode (Manual Entry - CORS Warning):**
+
+If you don't use environment variables, you can enter DaaS credentials manually.
+Note: This may encounter CORS issues as the browser makes direct requests to DaaS.
+
+```bash
+# 1. Start VForm Storybook (without env vars)
 pnpm storybook:form
 
 # 2. Navigate to "Forms/VForm DaaS Playground" story
@@ -67,7 +89,7 @@ pnpm storybook:form
 #    - Enter DaaS URL: https://xxx.microbuild-daas.xtremax.com
 #    - Enter static token
 #    - Click Connect
-#    - Enter collection name (e.g., "test_vform_articles")
+#    - Enter collection name (e.g., "interface_showcase")
 #    - Click Load Fields
 #    - Test VForm with real fields!
 ```

@@ -245,12 +245,28 @@ Storybook tests:
 - ✅ **All interface types** - Test any field configuration
 - ✅ **DaaS Playground** - Connect to real DaaS and test live schemas
 
+**DaaS Playground with Proxy Mode (Recommended):**
+
+Start Storybook with DaaS environment variables to enable API proxying (no CORS issues):
+
+```bash
+# Create .env.local file in packages/ui-form/
+STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com
+STORYBOOK_DAAS_TOKEN=your-static-token
+
+# Or pass env vars directly
+STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
+STORYBOOK_DAAS_TOKEN=your-token \
+pnpm storybook:form
+```
+
+This enables a Vite proxy that forwards `/api/*` requests to DaaS, allowing all relational interfaces (M2O, O2M, M2M, M2A) to work correctly.
+
 **DaaS Playground Usage:**
-1. Open Storybook: `pnpm storybook:form`
-2. Navigate to "Forms/VForm DaaS Playground"
-3. Enter your DaaS URL and static token
-4. Load any collection and test VForm with real fields
-5. Perfect for testing custom collections without writing code
+1. Start Storybook with proxy config (see above)
+2. Navigate to "Forms/VForm DaaS Playground" → "Playground" story
+3. Select a collection from the dropdown
+4. Test VForm with real fields including relational interfaces
 
 ### DaaS E2E Tests (Full integration testing)
 

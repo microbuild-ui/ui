@@ -146,28 +146,63 @@ const readableFields = await permissionsService.getFieldPermissions('products', 
 
 ## API Request
 
-Low-level API request function used by all services.
+Low-level API request function used by all services. Supports both proxy mode (Next.js) and direct DaaS mode (Storybook/testing).
 
 ```typescript
 import { apiRequest } from '@microbuild/services';
 
 // GET request
-const data = await apiRequest<Product[]>('/items/products');
+const data = await apiRequest<Product[]>('/api/items/products');
 
 // POST request
-const created = await apiRequest<Product>('/items/products', {
+const created = await apiRequest<Product>('/api/items/products', {
   method: 'POST',
-  body: { title: 'New Product' },
+  body: JSON.stringify({ title: 'New Product' }),
 });
 
 // With query parameters
-const filtered = await apiRequest<Product[]>('/items/products', {
-  params: {
-    filter: { status: { _eq: 'published' } },
-    limit: 10,
-  },
+const filtered = await apiRequest<{ data: Product[] }>('/api/items/products?limit=10');
+```
+
+## DaaS Context Provider
+
+For environments without Next.js API routes (like Storybook), use `DaaSProvider` to enable direct DaaS API access.
+
+```typescript
+import { DaaSProvider, setGlobalDaaSConfig } from '@microbuild/services';
+
+// React context approach (recommended)
+<DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'your-token' }}>
+  <VForm collection="articles" />
+</DaaSProvider>
+
+// Global config for non-React contexts
+setGlobalDaaSConfig({ 
+  url: 'https://xxx.microbuild-daas.xtremax.com', 
+  token: 'your-token' 
 });
 ```
+
+### DaaS Configuration Exports
+
+| Export | Description |
+|--------|-------------|
+| `DaaSProvider` | React provider for direct DaaS API access |
+| `useDaaSContext` | Hook to access DaaS configuration |
+| `useIsDirectDaaSMode` | Hook to check if direct mode is enabled |
+| `setGlobalDaaSConfig` | Set global config for non-React contexts |
+| `getGlobalDaaSConfig` | Get current global config |
+| `buildApiUrl` | Build URL respecting DaaS config |
+| `getApiHeaders` | Get headers with auth token |
+
+### Proxy Mode vs Direct Mode
+
+| Mode | Use Case | How it works |
+|------|----------|--------------|
+| **Proxy Mode** | Next.js apps | Requests go to `/api/*` routes, server proxies to DaaS |
+| **Direct Mode** | Storybook, tests | Requests go directly to DaaS URL with Bearer token |
+
+The `apiRequest` function automatically handles both modes based on the DaaS configuration.
 
 ## API Reference
 

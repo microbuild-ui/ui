@@ -106,13 +106,9 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
       'presentation-notice': 'Notice',
       'group-detail': 'GroupDetail',
       
-      // Relational interfaces - use Interface suffix components
-      // These are placeholder components that need render props for full functionality
-      'list-m2o': 'ListM2OInterface',
-      'select-dropdown-m2o': 'ListM2OInterface',
-      'list-o2m': 'ListO2MInterface',
-      'list-m2m': 'ListM2MInterface',
-      'list-m2a': 'ListM2A',
+      // Note: Relational interfaces (list-m2o, list-o2m, list-m2m, list-m2a)
+      // are mapped separately in relationalFullComponentMap below
+      // to use full implementations with hooks integration
       
       // File interfaces - use the real DaaS-integrated components
       'file': 'File',
@@ -129,8 +125,19 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
       'workflow-button': 'WorkflowButton',
     };
     
-    // Look up component name from map, fallback to PascalCase conversion
-    let componentName = interfaceComponentMap[interfaceType];
+    // For relational interfaces, prefer the full implementation (ListM2M, ListM2O, ListO2M)
+    // over the placeholder *Interface components that require render props.
+    // The full implementations use @microbuild/hooks and @microbuild/ui-collections internally.
+    const relationalFullComponentMap: Record<string, string> = {
+      'list-m2o': 'ListM2O',
+      'select-dropdown-m2o': 'ListM2O',
+      'list-o2m': 'ListO2M',
+      'list-m2m': 'ListM2M',
+      'list-m2a': 'ListM2A',
+    };
+    
+    // Check if this is a relational interface - use full component
+    let componentName = relationalFullComponentMap[interfaceType] || interfaceComponentMap[interfaceType];
     
     if (!componentName) {
       // Fallback: Convert kebab-case to PascalCase

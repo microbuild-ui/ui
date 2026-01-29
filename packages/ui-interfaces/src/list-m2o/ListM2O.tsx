@@ -237,9 +237,16 @@ export const ListM2O: React.FC<ListM2OProps> = ({
     // Show relation error
     if (relationError) {
         return (
-            <Alert icon={<IconAlertCircle size={16} />} title="Configuration Error" color="red">
-                {relationError}
-            </Alert>
+            <Stack gap="xs">
+                {label && <Text size="sm" fw={500}>{label}</Text>}
+                <Alert icon={<IconAlertCircle size={16} />} title="Configuration Error" color="red">
+                    <Text size="sm">{relationError}</Text>
+                    <Text size="xs" c="dimmed" mt="xs">
+                        Note: In Storybook, relational interfaces require API proxy routes. 
+                        This component works fully in a Next.js app with DaaS integration.
+                    </Text>
+                </Alert>
+            </Stack>
         );
     }
 

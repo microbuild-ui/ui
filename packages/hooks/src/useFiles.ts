@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { buildApiUrl, getApiHeaders, apiRequest } from '@microbuild/services';
 
 /**
  * File upload options
@@ -116,8 +117,15 @@ export function useFiles() {
           formData.append('storage', options.storage);
         }
         
-        const response = await fetch('/api/files', {
+        // Build URL and headers using DaaS configuration
+        const url = buildApiUrl('/api/files');
+        const baseHeaders = getApiHeaders();
+        // Remove Content-Type as FormData sets its own boundary
+        const { 'Content-Type': _contentType, ...headers } = baseHeaders;
+        
+        const response = await fetch(url, {
           method: 'POST',
+          headers,
           body: formData,
         });
         
@@ -187,18 +195,13 @@ export function useFiles() {
         queryParams.set('filter', JSON.stringify(filter));
       }
       
-      const response = await fetch(`/api/files?${queryParams.toString()}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ errors: [{ message: 'Failed to fetch files' }] }));
-        throw new Error(errorData.errors?.[0]?.message || 'Failed to fetch files');
-      }
-      
-      const { data, meta } = await response.json();
+      const result = await apiRequest<{ data: DirectusFile[]; meta?: { total_count?: number } }>(
+        `/api/files?${queryParams.toString()}`
+      );
       
       return {
-        files: (data || []).map(toFileUpload),
-        total: meta?.total_count || data?.length || 0,
+        files: (result.data || []).map(toFileUpload),
+        total: result.meta?.total_count || result.data?.length || 0,
       };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch files';
@@ -220,11 +223,8 @@ export function useFiles() {
     setError(null);
     
     try {
-      const response = await fetch('/api/files/import', {
+      const result = await apiRequest<{ data: DirectusFile }>('/api/files/import', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           url,
           data: {
@@ -235,13 +235,7 @@ export function useFiles() {
         }),
       });
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ errors: [{ message: 'Import failed' }] }));
-        throw new Error(errorData.errors?.[0]?.message || 'Failed to import file');
-      }
-      
-      const { data } = await response.json();
-      return toFileUpload(data);
+      return toFileUpload(result.data);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to import file';
       setError(message);
@@ -259,15 +253,8 @@ export function useFiles() {
     setError(null);
     
     try {
-      const response = await fetch(`/api/files/${id}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ errors: [{ message: 'File not found' }] }));
-        throw new Error(errorData.errors?.[0]?.message || 'File not found');
-      }
-      
-      const { data } = await response.json();
-      return toFileUpload(data);
+      const result = await apiRequest<{ data: DirectusFile }>(`/api/files/${id}`);
+      return toFileUpload(result.data);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch file';
       setError(message);
@@ -288,21 +275,12 @@ export function useFiles() {
     setError(null);
     
     try {
-      const response = await fetch(`/api/files/${id}`, {
+      const result = await apiRequest<{ data: DirectusFile }>(`/api/files/${id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(data),
       });
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ errors: [{ message: 'Update failed' }] }));
-        throw new Error(errorData.errors?.[0]?.message || 'Failed to update file');
-      }
-      
-      const { data: updatedFile } = await response.json();
-      return toFileUpload(updatedFile);
+      return toFileUpload(result.data);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to update file';
       setError(message);
@@ -320,14 +298,9 @@ export function useFiles() {
     setError(null);
     
     try {
-      const response = await fetch(`/api/files/${id}`, {
+      await apiRequest(`/api/files/${id}`, {
         method: 'DELETE',
       });
-      
-      if (!response.ok && response.status !== 204) {
-        const errorData = await response.json().catch(() => ({ errors: [{ message: 'Delete failed' }] }));
-        throw new Error(errorData.errors?.[0]?.message || 'Failed to delete file');
-      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete file';
       setError(message);
@@ -345,18 +318,10 @@ export function useFiles() {
     setError(null);
     
     try {
-      const response = await fetch('/api/files', {
+      await apiRequest('/api/files', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ keys: ids }),
       });
-      
-      if (!response.ok && response.status !== 204) {
-        const errorData = await response.json().catch(() => ({ errors: [{ message: 'Delete failed' }] }));
-        throw new Error(errorData.errors?.[0]?.message || 'Failed to delete files');
-      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete files';
       setError(message);

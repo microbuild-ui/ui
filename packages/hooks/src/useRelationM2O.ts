@@ -90,16 +90,12 @@ export function useRelationM2O(collection: string, field: string) {
         // If still not found, try fetching from directus_relations
         if (!relatedCollectionName) {
           try {
-            const relationsResponse = await fetch(`/api/relations?collection=${collection}&field=${field}`);
-            if (relationsResponse.ok) {
-              const relationsData = await relationsResponse.json();
-              const relation = relationsData.data?.find(
-                (r: { many_collection: string; many_field: string }) => 
-                  r.many_collection === collection && r.many_field === field
-              );
-              if (relation?.one_collection) {
-                relatedCollectionName = relation.one_collection;
-              }
+            const relationsData = await apiRequest<{ data: { many_collection: string; many_field: string; one_collection?: string }[] }>(`/api/relations?collection=${collection}&field=${field}`);
+            const relation = relationsData.data?.find(
+              (r) => r.many_collection === collection && r.many_field === field
+            );
+            if (relation?.one_collection) {
+              relatedCollectionName = relation.one_collection;
             }
           } catch {
             // Ignore relation fetch errors

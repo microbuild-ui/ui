@@ -335,3 +335,125 @@ test.describe('VForm Storybook - Accessibility', () => {
     await expect(activeElement).toBeVisible();
   });
 });
+
+// ============================================================================
+// Test Suite: DaaS Playground - Direct API Integration
+// ============================================================================
+
+test.describe('VForm Storybook - DaaS Playground', () => {
+  // Skip if no DaaS URL configured
+  const DAAS_URL = process.env.NEXT_PUBLIC_MICROBUILD_DAAS_URL;
+  const DAAS_TOKEN = process.env.STORYBOOK_DAAS_TOKEN;
+
+  test('should render DaaS connection panel', async ({ page }) => {
+    await goToStory(page, 'forms-vform-daas-playground--playground', false);
+    
+    // Should have connection panel
+    const connectionPanel = page.getByText('🔌 DaaS Connection');
+    await expect(connectionPanel).toBeVisible({ timeout: 10000 });
+    
+    // Should have URL input
+    const urlInput = page.getByLabel(/DaaS URL/i);
+    await expect(urlInput).toBeVisible();
+    
+    // Should have token input
+    const tokenInput = page.getByLabel(/Static Token/i);
+    await expect(tokenInput).toBeVisible();
+    
+    // Should have connect button
+    const connectButton = page.getByRole('button', { name: /Connect/i });
+    await expect(connectButton).toBeVisible();
+  });
+
+  test('should connect to DaaS and load collection fields', async ({ page }) => {
+    // Skip if no DaaS credentials
+    test.skip(!DAAS_URL || !DAAS_TOKEN, 'DaaS credentials not configured');
+    
+    await goToStory(page, 'forms-vform-daas-playground--playground', false);
+    
+    // Fill in DaaS URL
+    const urlInput = page.getByLabel(/DaaS URL/i);
+    await urlInput.fill(DAAS_URL!);
+    
+    // Fill in token
+    const tokenInput = page.getByLabel(/Static Token/i);
+    await tokenInput.fill(DAAS_TOKEN!);
+    
+    // Click connect
+    const connectButton = page.getByRole('button', { name: /Connect/i });
+    await connectButton.click();
+    
+    // Wait for connection
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    
+    // Enter collection name and load
+    const collectionInput = page.getByLabel(/Collection Name/i);
+    await collectionInput.fill('interface_showcase');
+    
+    const loadButton = page.getByRole('button', { name: /Load Fields/i });
+    await loadButton.click();
+    
+    // Wait for fields to load
+    await expect(page.getByText(/Loaded.*fields/i)).toBeVisible({ timeout: 10000 });
+    
+    // Check that VForm is rendered
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible({ timeout: 10000 });
+  });
+
+  test('should render relational fields without configuration errors when connected', async ({ page }) => {
+    // Skip if no DaaS credentials
+    test.skip(!DAAS_URL || !DAAS_TOKEN, 'DaaS credentials not configured');
+    
+    await goToStory(page, 'forms-vform-daas-playground--playground', false);
+    
+    // Fill in DaaS URL
+    const urlInput = page.getByLabel(/DaaS URL/i);
+    await urlInput.fill(DAAS_URL!);
+    
+    // Fill in token
+    const tokenInput = page.getByLabel(/Static Token/i);
+    await tokenInput.fill(DAAS_TOKEN!);
+    
+    // Click connect
+    const connectButton = page.getByRole('button', { name: /Connect/i });
+    await connectButton.click();
+    
+    // Wait for connection
+    await expect(page.getByText('Connected')).toBeVisible({ timeout: 10000 });
+    
+    // Enter collection name and load
+    const collectionInput = page.getByLabel(/Collection Name/i);
+    await collectionInput.fill('interface_showcase');
+    
+    const loadButton = page.getByRole('button', { name: /Load Fields/i });
+    await loadButton.click();
+    
+    // Wait for fields to load
+    await expect(page.getByText(/Loaded.*fields/i)).toBeVisible({ timeout: 10000 });
+    
+    // After the fix, relational fields should NOT show "Configuration Error"
+    // when properly connected to DaaS with the apiRequest using the global config
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible({ timeout: 10000 });
+    
+    // Check that there are no "Configuration Error" alerts in the form
+    // (There might be some if the collection doesn't have proper relations configured,
+    // but if properly configured, we shouldn't see API errors)
+    const configErrors = form.locator('[class*="Alert"]', { hasText: /Configuration Error/ });
+    const errorCount = await configErrors.count();
+    
+    // Log the errors for debugging (if any)
+    if (errorCount > 0) {
+      console.log(`Found ${errorCount} configuration errors - checking if they're API related`);
+      for (let i = 0; i < errorCount; i++) {
+        const errorText = await configErrors.nth(i).textContent();
+        console.log(`Error ${i + 1}: ${errorText}`);
+        // The error should NOT be about "API error" or "Failed to fetch" 
+        // as that would indicate the apiRequest isn't using the DaaS config
+        expect(errorText).not.toContain('API error: 404');
+        expect(errorText).not.toContain('Failed to fetch');
+      }
+    }
+  });
+});

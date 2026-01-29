@@ -105,7 +105,7 @@ export interface ListO2MProps {
  * Displays items from a related collection that have a foreign key pointing to this item.
  */
 export const ListO2M: React.FC<ListO2MProps> = ({
-    value = [],
+    value: valueProp,
     onChange,
     collection,
     field,
@@ -133,6 +133,9 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     mockItems,
     mockRelationInfo,
 }) => {
+    // Ensure value is always an array (protect against null)
+    const value = valueProp ?? [];
+    
     // Determine if we're in demo/mock mode
     const isDemoMode = mockItems !== undefined;
 
@@ -396,9 +399,16 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     // Show relation error (only in non-demo mode)
     if (!isDemoMode && relationError) {
         return (
-            <Alert icon={<IconAlertCircle size={16} />} title="Configuration Error" color="red" data-testid="o2m-error">
-                {relationError}
-            </Alert>
+            <Stack gap="xs">
+                {label && <Text size="sm" fw={500}>{label}</Text>}
+                <Alert icon={<IconAlertCircle size={16} />} title="Configuration Error" color="red" data-testid="o2m-error">
+                    <Text size="sm">{relationError}</Text>
+                    <Text size="xs" c="dimmed" mt="xs">
+                        Note: In Storybook, relational interfaces require API proxy routes. 
+                        This component works fully in a Next.js app with DaaS integration.
+                    </Text>
+                </Alert>
+            </Stack>
         );
     }
 
