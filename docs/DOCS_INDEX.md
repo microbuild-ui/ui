@@ -130,11 +130,11 @@ Complete guide to Microbuild UI Packages and distribution tools.
 - [MapWithRealMap](../packages/README.md#microbuildui-interfaces) - Full MapLibre implementation
 
 ### Collection Components
-- [CollectionForm](../packages/README.md#microbuildui-collections) - Dynamic form
+- [CollectionForm](../packages/README.md#microbuildui-collections) - CRUD wrapper using VForm
 - [CollectionList](../packages/README.md#microbuildui-collections) - Dynamic list/table
 
 ### Form Components
-- [VForm](../packages/ui-form/README.md) - Directus-inspired dynamic form with field metadata
+- [VForm](../packages/ui-form/README.md) - Dynamic form that renders all 40+ interface types
 
 [See all 40+ components →](../packages/README.md#microbuildui-interfaces)
 

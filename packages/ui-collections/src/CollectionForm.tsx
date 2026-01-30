@@ -1,8 +1,12 @@
 /**
  * CollectionForm Component
  * 
- * A dynamic form that fetches field definitions and renders appropriate inputs.
- * Used by ListO2M and ListM2M for creating/editing related items.
+ * A CRUD wrapper around VForm that handles data fetching and persistence.
+ * Uses VForm for the actual form rendering with all @microbuild/ui-interfaces components.
+ * 
+ * Architecture:
+ * - CollectionForm = Data layer (fetch fields, load/save items, CRUD operations)
+ * - VForm = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
  * 
  * @package @microbuild/ui-collections
  */
@@ -13,21 +17,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
     Paper,
     Stack,
-    TextInput,
-    Textarea,
-    NumberInput,
-    Switch,
-    Select,
     Button,
     Group,
     Text,
     Alert,
     LoadingOverlay,
 } from '@mantine/core';
-import { DateTimePicker, DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
 import { IconAlertCircle, IconCheck, IconX } from '@tabler/icons-react';
 import { FieldsService, ItemsService } from '@microbuild/services';
+import { VForm } from '@microbuild/ui-form';
 import type { Field } from '@microbuild/types';
 
 export interface CollectionFormProps {
@@ -141,13 +139,17 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
         loadData();
     }, [collection, id, mode, defaultValues, excludeFields, includeFields]);
 
-    // Update form field
-    const handleFieldChange = useCallback((fieldName: string, value: unknown) => {
+    // Update form field - used by VForm's onUpdate callback
+    const handleFormUpdate = useCallback((values: Record<string, unknown>) => {
         setFormData(prev => ({
             ...prev,
-            [fieldName]: value,
+            ...values,
         }));
+        setSuccess(false); // Clear success message when user edits
     }, []);
+
+    // Compute primary key for VForm context
+    const primaryKey = mode === 'create' ? '+' : id;
 
     // Submit form
     const handleSubmit = async (e: React.FormEvent) => {
@@ -184,127 +186,6 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
         }
     };
 
-    // Render field input based on type
-    const renderField = (field: Field) => {
-        const value = formData[field.field];
-        const isReadOnly = READ_ONLY_FIELDS.includes(field.field) || field.meta?.readonly;
-        const isRequired = field.meta?.required || false;
-        const label = field.meta?.note || field.field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        const interfaceType = field.meta?.interface || '';
-
-        // Determine the input type based on field type and interface
-        const fieldType = field.type?.toLowerCase() || 'string';
-
-        // Boolean fields
-        if (fieldType === 'boolean' || interfaceType === 'boolean' || interfaceType === 'toggle') {
-            return (
-                <Switch
-                    key={field.field}
-                    label={label}
-                    checked={Boolean(value)}
-                    onChange={(e) => handleFieldChange(field.field, e.currentTarget.checked)}
-                    disabled={isReadOnly}
-                    data-testid={`form-field-${field.field}`}
-                />
-            );
-        }
-
-        // Number fields
-        if (fieldType === 'integer' || fieldType === 'biginteger' || fieldType === 'float' || fieldType === 'decimal') {
-            return (
-                <NumberInput
-                    key={field.field}
-                    label={label}
-                    value={value as number | undefined}
-                    onChange={(val) => handleFieldChange(field.field, val)}
-                    required={isRequired}
-                    disabled={isReadOnly}
-                    data-testid={`form-field-${field.field}`}
-                />
-            );
-        }
-
-        // Date/DateTime fields - Mantine 8 uses string values (YYYY-MM-DD HH:mm:ss)
-        if (fieldType === 'timestamp' || fieldType === 'datetime') {
-            // Convert ISO string to Mantine 8 format
-            const dateValue = value ? dayjs(value as string).format('YYYY-MM-DD HH:mm:ss') : null;
-            return (
-                <DateTimePicker
-                    key={field.field}
-                    label={label}
-                    value={dateValue}
-                    onChange={(dateStr) => handleFieldChange(field.field, dateStr ? dayjs(dateStr).toISOString() : null)}
-                    required={isRequired}
-                    disabled={isReadOnly}
-                    data-testid={`form-field-${field.field}`}
-                />
-            );
-        }
-
-        if (fieldType === 'date') {
-            // Convert ISO string to Mantine 8 format (YYYY-MM-DD)
-            const dateValue = value ? dayjs(value as string).format('YYYY-MM-DD') : null;
-            return (
-                <DatePickerInput
-                    key={field.field}
-                    label={label}
-                    value={dateValue}
-                    onChange={(dateStr) => handleFieldChange(field.field, dateStr)}
-                    required={isRequired}
-                    disabled={isReadOnly}
-                    data-testid={`form-field-${field.field}`}
-                />
-            );
-        }
-
-        // Textarea for text/json
-        if (fieldType === 'text' || fieldType === 'json' || interfaceType === 'input-multiline') {
-            return (
-                <Textarea
-                    key={field.field}
-                    label={label}
-                    value={String(value || '')}
-                    onChange={(e) => handleFieldChange(field.field, e.currentTarget.value)}
-                    required={isRequired}
-                    disabled={isReadOnly}
-                    minRows={3}
-                    data-testid={`form-field-${field.field}`}
-                />
-            );
-        }
-
-        // Select dropdown for fields with options
-        if (interfaceType === 'select-dropdown' && field.meta?.options?.choices) {
-            const choices = field.meta.options.choices as Array<{ text: string; value: string }>;
-            return (
-                <Select
-                    key={field.field}
-                    label={label}
-                    value={value as string | undefined}
-                    onChange={(val) => handleFieldChange(field.field, val)}
-                    data={choices.map(c => ({ label: c.text, value: c.value }))}
-                    required={isRequired}
-                    disabled={isReadOnly}
-                    clearable
-                    data-testid={`form-field-${field.field}`}
-                />
-            );
-        }
-
-        // Default: TextInput
-        return (
-            <TextInput
-                key={field.field}
-                label={label}
-                value={String(value || '')}
-                onChange={(e) => handleFieldChange(field.field, e.currentTarget.value)}
-                required={isRequired}
-                disabled={isReadOnly}
-                data-testid={`form-field-${field.field}`}
-            />
-        );
-    };
-
     if (loading) {
         return (
             <Paper p="md" pos="relative" mih={200}>
@@ -334,7 +215,17 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
                             No editable fields found for {collection}
                         </Text>
                     ) : (
-                        fields.map(renderField)
+                        <VForm
+                            collection={collection}
+                            fields={fields}
+                            modelValue={formData}
+                            initialValues={defaultValues}
+                            onUpdate={handleFormUpdate}
+                            primaryKey={primaryKey}
+                            disabled={saving}
+                            loading={saving}
+                            showNoVisibleFields={false}
+                        />
                     )}
 
                     <Group justify="flex-end" mt="md">
@@ -343,6 +234,7 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
                                 variant="subtle"
                                 onClick={onCancel}
                                 leftSection={<IconX size={16} />}
+                                disabled={saving}
                                 data-testid="form-cancel-btn"
                             >
                                 Cancel

@@ -68,6 +68,9 @@ Options:
 npx @microbuild/cli add input
 npx @microbuild/cli add input select-dropdown datetime
 
+# Add collection-form (includes VForm + all 32 interface components)
+npx @microbuild/cli add collection-form
+
 # Add all components from a category
 npx @microbuild/cli add --category selection
 
@@ -271,7 +274,7 @@ import type { M2MItem } from '@/lib/microbuild/types';
 
 | Category | Components |
 |----------|------------|
-| `input` | Input, Textarea, InputCode, Tags |
+| `input` | Input, Textarea, InputCode, InputBlockEditor, Tags |
 | `selection` | SelectDropdown, SelectRadio, SelectMultipleCheckbox, SelectIcon, AutocompleteAPI, CollectionItemDropdown |
 | `datetime` | DateTime |
 | `boolean` | Boolean, Toggle |
@@ -279,7 +282,16 @@ import type { M2MItem } from '@/lib/microbuild/types';
 | `relational` | ListM2M, ListM2O, ListO2M, ListM2A |
 | `layout` | Divider, Notice, GroupDetail, Slider |
 | `rich-text` | RichTextHtml, RichTextMarkdown |
-| `collection` | CollectionForm, CollectionList |
+| `collection` | VForm, CollectionForm, CollectionList |
+
+### VForm and CollectionForm
+
+When you add `collection-form`, it automatically includes:
+- **VForm** - Dynamic form component that renders any field type
+- **32 interface components** - All field types (input, select, datetime, M2M, M2O, etc.)
+- **Lib modules** - types, services, hooks, and field-interface-mapper utilities
+
+This is because `collection-form` has `registryDependencies: ["vform"]` and VForm has dependencies on all interface components.
 
 ## Peer Dependencies
 

@@ -26,6 +26,62 @@ export {
   type DirectusFile 
 } from './useFiles';
 
+// Selection & Preset hooks
+export { 
+  useSelection, 
+  type UseSelectionOptions, 
+  type UseSelectionReturn 
+} from './useSelection';
+export { 
+  usePreset, 
+  type UsePresetOptions, 
+  type UsePresetReturn,
+  type Filter,
+  type Query
+} from './usePreset';
+
+// Navigation guard hooks (Directus-style)
+export { 
+  useEditsGuard, 
+  useHasEdits,
+  type UseEditsGuardOptions, 
+  type UseEditsGuardReturn 
+} from './useEditsGuard';
+
+// Clipboard and Storage hooks (Directus-style)
+export {
+  useClipboard,
+  type UseClipboardOptions,
+  type UseClipboardReturn
+} from './useClipboard';
+export {
+  useLocalStorage,
+  type LocalStorageValue,
+  type UseLocalStorageOptions,
+  type UseLocalStorageReturn
+} from './useLocalStorage';
+
+// Versioning hooks (DaaS workflow + content versioning)
+export {
+  useVersions,
+  type ContentVersion,
+  type UseVersionsOptions,
+  type UseVersionsReturn
+} from './useVersions';
+export {
+  useWorkflowAssignment,
+  type WorkflowAssignment,
+  type UseWorkflowAssignmentReturn
+} from './useWorkflowAssignment';
+export {
+  useWorkflowVersioning,
+  type WorkflowState,
+  type WorkflowInstance,
+  type UseWorkflowVersioningOptions,
+  type UseWorkflowVersioningProps,
+  type UseWorkflowVersioningReturn
+} from './useWorkflowVersioning';
+
 // API helpers
 export { api, directusAPI, createDirectusAPI, type DirectusAPIConfig, type QueryParams } from './api';
 

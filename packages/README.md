@@ -7,10 +7,11 @@ A collection of packages for building Directus-compatible content management app
 | Package | Description | Documentation |
 |---------|-------------|---------------|
 | [@microbuild/types](./types) | TypeScript type definitions | [README](./types/README.md) |
-| [@microbuild/services](./services) | CRUD service classes | [README](./services/README.md) |
-| [@microbuild/hooks](./hooks) | React hooks for relations & UI state | [README](./hooks/README.md) |
+| [@microbuild/services](./services) | CRUD service classes + DaaS context | [README](./services/README.md) |
+| [@microbuild/hooks](./hooks) | React hooks for relations, selection, presets, workflows | [README](./hooks/README.md) |
 | [@microbuild/utils](./utils) | Field interface mapper & utilities | [README](./utils/README.md) |
 | [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (40+) | [README](./ui-interfaces/README.md) |
+| [@microbuild/ui-form](./ui-form) | VForm dynamic form component | [README](./ui-form/README.md) |
 | [@microbuild/ui-collections](./ui-collections) | CollectionForm & CollectionList | [README](./ui-collections/README.md) |
 | [@microbuild/cli](./cli) | CLI for copying components | [README](./cli/README.md) |
 | [@microbuild/mcp-server](./mcp-server) | MCP server for AI agents | [README](./mcp-server/README.md) |
@@ -20,15 +21,24 @@ A collection of packages for building Directus-compatible content management app
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Your Application                         │
-├─────────────────────────────┬───────────────────────────────┤
-│  ui-collections             │   ui-interfaces               │
-│  (CollectionForm, List)     │   (Field Components)          │
-├─────────────────────────────┴───────────────────────────────┤
-│                         hooks                               │
-│        (useRelationM2M, useRelationM2O, useFiles, etc.)     │
 ├─────────────────────────────────────────────────────────────┤
-│                        services                             │
-│        (ItemsService, FieldsService, CollectionsService)    │
+│  ui-collections                                             │
+│  (CollectionForm, CollectionList)                           │
+│          ↓ uses                                             │
+├─────────────────────────────────────────────────────────────┤
+│  ui-form                                                    │
+│  (VForm - dynamic form rendering)                           │
+│          ↓ renders                                          │
+├─────────────────────────────────────────────────────────────┤
+│  ui-interfaces                                              │
+│  (40+ Field Components: Input, Select, DateTime, M2M, etc.) │
+├─────────────────────────────────────────────────────────────┤
+│                         hooks                               │
+│  (useRelationM2M, useSelection, usePreset, useVersions...)  │
+├─────────────────────────────────────────────────────────────┤
+│                     services + utils                        │
+│  (ItemsService, FieldsService, DaaSProvider,                │
+│   getFieldInterface, field-interface-mapper)                │
 ├─────────────────────────────────────────────────────────────┤
 │                         types                               │
 │        (TypeScript definitions for all entities)            │

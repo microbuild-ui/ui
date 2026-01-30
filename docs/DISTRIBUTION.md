@@ -54,10 +54,15 @@ your-project/
 │   │   └── ui/                      # UI components
 │   │       ├── input.tsx
 │   │       ├── select-dropdown.tsx
-│   │       └── datetime.tsx
+│   │       ├── datetime.tsx
+│   │       └── vform/               # VForm component (when using collection-form)
+│   │           ├── VForm.tsx
+│   │           ├── components/
+│   │           └── utils/
 │   └── lib/
 │       └── microbuild/              # Lib modules (auto-resolved)
 │           ├── utils.ts
+│           ├── field-interface-mapper.ts
 │           ├── types/
 │           ├── services/
 │           └── hooks/

@@ -30,9 +30,30 @@
   "lib": {
     "utils": {
       "name": "utils",
-      "description": "Utility functions (cn, formatFileSize, etc.)",
-      "path": "cli/templates/lib/utils.ts",
-      "target": "lib/microbuild/utils.ts"
+      "description": "Utility functions (cn, formatFileSize, field interface mapper, etc.)",
+      "files": [
+        {
+          "source": "cli/templates/lib/utils.ts",
+          "target": "lib/microbuild/utils.ts"
+        },
+        {
+          "source": "utils/src/field-interface-mapper.ts",
+          "target": "lib/microbuild/field-interface-mapper.ts"
+        },
+        {
+          "source": "utils/src/interface-types.ts",
+          "target": "lib/microbuild/interface-types.ts"
+        },
+        {
+          "source": "utils/src/define-interface.ts",
+          "target": "lib/microbuild/define-interface.ts"
+        },
+        {
+          "source": "cli/templates/lib/utils-index.ts",
+          "target": "lib/microbuild/utils/index.ts"
+        }
+      ],
+      "internalDependencies": ["types"]
     },
     "types": {
       "name": "types",
@@ -58,7 +79,7 @@
     },
     "services": {
       "name": "services",
-      "description": "CRUD service classes for items, fields, and collections",
+      "description": "CRUD service classes for items, fields, collections, and permissions",
       "files": [
         {
           "source": "services/src/api-request.ts",
@@ -77,6 +98,14 @@
           "target": "lib/microbuild/services/collections.ts"
         },
         {
+          "source": "services/src/permissions.ts",
+          "target": "lib/microbuild/services/permissions.ts"
+        },
+        {
+          "source": "services/src/daas-context.tsx",
+          "target": "lib/microbuild/services/daas-context.tsx"
+        },
+        {
           "source": "cli/templates/lib/services/index.ts",
           "target": "lib/microbuild/services/index.ts"
         }
@@ -85,7 +114,7 @@
     },
     "hooks": {
       "name": "hooks",
-      "description": "React hooks for managing relational data (M2M, M2O, O2M, M2A)",
+      "description": "React hooks for managing relational data, selection, presets, and workflows",
       "files": [
         {
           "source": "hooks/src/api.ts",
@@ -118,6 +147,38 @@
         {
           "source": "hooks/src/useRelationM2A.ts",
           "target": "lib/microbuild/hooks/useRelationM2A.ts"
+        },
+        {
+          "source": "hooks/src/useSelection.ts",
+          "target": "lib/microbuild/hooks/useSelection.ts"
+        },
+        {
+          "source": "hooks/src/usePreset.ts",
+          "target": "lib/microbuild/hooks/usePreset.ts"
+        },
+        {
+          "source": "hooks/src/useEditsGuard.ts",
+          "target": "lib/microbuild/hooks/useEditsGuard.ts"
+        },
+        {
+          "source": "hooks/src/useClipboard.ts",
+          "target": "lib/microbuild/hooks/useClipboard.ts"
+        },
+        {
+          "source": "hooks/src/useLocalStorage.ts",
+          "target": "lib/microbuild/hooks/useLocalStorage.ts"
+        },
+        {
+          "source": "hooks/src/useVersions.ts",
+          "target": "lib/microbuild/hooks/useVersions.ts"
+        },
+        {
+          "source": "hooks/src/useWorkflowAssignment.ts",
+          "target": "lib/microbuild/hooks/useWorkflowAssignment.ts"
+        },
+        {
+          "source": "hooks/src/useWorkflowVersioning.ts",
+          "target": "lib/microbuild/hooks/useWorkflowVersioning.ts"
         },
         {
           "source": "cli/templates/lib/hooks/index.ts",
@@ -201,6 +262,31 @@
         "localTypes": ["standard"],
         "group": "standard",
         "order": 3,
+        "supported": true,
+        "hasOptions": true
+      }
+    },
+    {
+      "name": "input-block-editor",
+      "title": "InputBlockEditor",
+      "description": "Block-based content editor using EditorJS",
+      "category": "input",
+      "files": [
+        {
+          "source": "ui-interfaces/src/input-block-editor/InputBlockEditor.tsx",
+          "target": "components/ui/input-block-editor.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@editorjs/editorjs", "@editorjs/header", "@editorjs/nested-list", "@editorjs/paragraph", "@editorjs/code", "@editorjs/quote", "@editorjs/checklist", "@editorjs/delimiter", "@editorjs/table", "@editorjs/underline", "@editorjs/inline-code"],
+      "internalDependencies": [],
+      "interface": {
+        "id": "input-block-editor",
+        "name": "Block Editor",
+        "icon": "IconLayoutGrid",
+        "types": ["json", "text"],
+        "localTypes": ["standard"],
+        "group": "standard",
+        "order": 13,
         "supported": true,
         "hasOptions": true
       }
@@ -515,7 +601,7 @@
       "category": "media",
       "files": [
         {
-          "source": "ui-interfaces/src/file/FileInterface.tsx",
+          "source": "ui-interfaces/src/file/File.tsx",
           "target": "components/ui/file.tsx"
         }
       ],
@@ -895,9 +981,79 @@
       }
     },
     {
+      "name": "vform",
+      "title": "VForm",
+      "description": "Dynamic form component that renders all 40+ interface types based on field schema (Directus v-form equivalent)",
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-form/src/VForm.tsx",
+          "target": "components/ui/vform/VForm.tsx"
+        },
+        {
+          "source": "ui-form/src/VForm.css",
+          "target": "components/ui/vform/VForm.css"
+        },
+        {
+          "source": "ui-form/src/types.ts",
+          "target": "components/ui/vform/types.ts"
+        },
+        {
+          "source": "ui-form/src/components/FormField.tsx",
+          "target": "components/ui/vform/components/FormField.tsx"
+        },
+        {
+          "source": "ui-form/src/components/FormFieldLabel.tsx",
+          "target": "components/ui/vform/components/FormFieldLabel.tsx"
+        },
+        {
+          "source": "ui-form/src/components/FormFieldInterface.tsx",
+          "target": "components/ui/vform/components/FormFieldInterface.tsx"
+        },
+        {
+          "source": "ui-form/src/components/index.ts",
+          "target": "components/ui/vform/components/index.ts"
+        },
+        {
+          "source": "ui-form/src/utils/get-default-values.ts",
+          "target": "components/ui/vform/utils/get-default-values.ts"
+        },
+        {
+          "source": "ui-form/src/utils/get-form-fields.ts",
+          "target": "components/ui/vform/utils/get-form-fields.ts"
+        },
+        {
+          "source": "ui-form/src/utils/update-field-widths.ts",
+          "target": "components/ui/vform/utils/update-field-widths.ts"
+        },
+        {
+          "source": "ui-form/src/utils/index.ts",
+          "target": "components/ui/vform/utils/index.ts"
+        },
+        {
+          "source": "cli/templates/lib/vform/index.ts",
+          "target": "components/ui/vform/index.ts"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": ["types", "services", "hooks", "utils"],
+      "registryDependencies": [
+        "input", "textarea", "input-code", "input-block-editor",
+        "boolean", "toggle", "datetime",
+        "select-dropdown", "select-radio", "select-icon", "color", "tags", "slider",
+        "select-multiple-checkbox", "select-multiple-dropdown", "select-multiple-checkbox-tree",
+        "autocomplete-api", "collection-item-dropdown",
+        "file", "file-image", "files",
+        "list-m2m", "list-m2o", "list-o2m", "list-m2a",
+        "divider", "notice", "group-detail",
+        "rich-text-html", "rich-text-markdown",
+        "map", "workflow-button"
+      ]
+    },
+    {
       "name": "collection-form",
       "title": "CollectionForm",
-      "description": "Dynamic form that auto-renders fields based on collection schema",
+      "description": "CRUD form wrapper with data fetching - uses VForm for rendering all interface types",
       "category": "collection",
       "files": [
         {
@@ -907,7 +1063,7 @@
       ],
       "dependencies": ["@mantine/core", "@mantine/notifications"],
       "internalDependencies": ["types", "services"],
-      "registryDependencies": ["input", "textarea", "select-dropdown", "datetime", "toggle", "boolean"]
+      "registryDependencies": ["vform"]
     },
     {
       "name": "collection-list",
@@ -980,28 +1136,16 @@
       "category": "workflow",
       "files": [
         {
-          "source": "ui-interfaces/src/workflow-button/WorkflowButton.tsx",
+          "source": "ui-interfaces/src/workflow-button/workflow-button.tsx",
           "target": "components/ui/workflow-button/workflow-button.tsx"
         },
         {
-          "source": "ui-interfaces/src/workflow-button/useWorkflow.ts",
+          "source": "ui-interfaces/src/workflow-button/use-workflow.ts",
           "target": "components/ui/workflow-button/use-workflow.ts"
         },
         {
           "source": "ui-interfaces/src/workflow-button/types.ts",
           "target": "components/ui/workflow-button/types.ts"
-        },
-        {
-          "source": "ui-interfaces/src/workflow-button/CompareDrawer.tsx",
-          "target": "components/ui/workflow-button/compare-drawer.tsx"
-        },
-        {
-          "source": "ui-interfaces/src/workflow-button/RevisionsDrawerUpdates.tsx",
-          "target": "components/ui/workflow-button/revisions-drawer-updates.tsx"
-        },
-        {
-          "source": "ui-interfaces/src/workflow-button/RevisionChangeLine.tsx",
-          "target": "components/ui/workflow-button/revision-change-line.tsx"
         },
         {
           "source": "ui-interfaces/src/workflow-button/index.ts",

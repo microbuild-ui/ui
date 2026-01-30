@@ -134,19 +134,25 @@ import { DaaSProvider } from '@microbuild/services';
 
 ### @microbuild/hooks
 
-React hooks for managing Directus relationships.
+React hooks for managing Directus relationships, selection, presets, and workflows.
 
-**Available Hooks:**
+**Relation Hooks:**
 - `useRelationM2M` / `useRelationM2MItems` - Many-to-Many relationships
 - `useRelationM2O` / `useRelationM2OItem` - Many-to-One relationships  
 - `useRelationO2M` / `useRelationO2MItems` - One-to-Many relationships
 - `useRelationM2A` / `useRelationM2AItems` - Many-to-Any (polymorphic) relationships
 - `useFiles` - File upload and management
+
+**Selection & Preset Hooks:**
 - `useSelection` - Item selection management
 - `usePreset` - Collection presets (filters, search, layout)
+
+**Navigation & State Hooks:**
 - `useEditsGuard` / `useHasEdits` - Unsaved changes navigation guard
 - `useClipboard` - Clipboard operations with notifications
 - `useLocalStorage` - Persistent localStorage state
+
+**Workflow & Versioning Hooks:**
 - `useVersions` - Content version management (create, save, delete versions)
 - `useWorkflowAssignment` - Check if collection has workflow assignment
 - `useWorkflowVersioning` - Workflow + versioning integration (edit modes, state tracking)
@@ -165,14 +171,14 @@ function ProductTags({ productId }: { productId: string }) {
 
 ### @microbuild/utils
 
-Utility functions for field interface mapping and validation.
+Utility functions for field interface mapping and validation. The field interface mapper is the core logic that VForm uses to determine which UI component to render for each field type.
 
 **Key Functions:**
-- `getFieldInterface` - Map field types to UI interface components
+- `getFieldInterface` - Map field types to UI interface components (40+ types)
 - `isFieldReadOnly` - Determine read-only status based on context
 - `getFieldValidation` - Extract validation rules from field schema
 - `formatFieldValue` - Format values for display
-- `isPresentationField` - Check for presentation-only fields
+- `isPresentationField` - Check for presentation-only fields (divider, notice)
 
 **Usage:**
 ```tsx
@@ -180,10 +186,15 @@ import { getFieldInterface, isFieldReadOnly } from '@microbuild/utils';
 
 const interfaceConfig = getFieldInterface(field);
 // Returns: { type: 'input', props: { type: 'string' } }
+// or: { type: 'select-dropdown', props: { choices: [...] } }
+// or: { type: 'list-m2m', props: { relationInfo: {...} } }
 
 const readOnly = isFieldReadOnly(field, 'edit');
 // Returns: true for auto-increment PKs, UUID PKs, etc.
 ```
+
+**CLI Installation:**
+When you add components via CLI, the field-interface-mapper is automatically included in `lib/microbuild/` allowing VForm and CollectionForm to correctly render all 40+ interface types.
 
 ### @microbuild/ui-interfaces
 
@@ -349,8 +360,14 @@ Dynamic collection components for forms and lists.
 **Components:**
 | Component | Description |
 |-----------|-------------|
-| `CollectionForm` | Dynamic form that auto-renders fields based on collection schema |
+| `CollectionForm` | CRUD form wrapper with data fetching - uses VForm for rendering all 40+ interface types |
 | `CollectionList` | Dynamic table with pagination, search, selection, bulk actions |
+
+**Architecture:**
+- **CollectionForm** = Data layer (fetch fields, load/save items, CRUD operations)
+- **VForm** = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
+
+When you install `collection-form` via CLI, VForm and all 32 dependent interface components are automatically included.
 
 **Usage:**
 ```tsx

@@ -1,6 +1,25 @@
 # @microbuild/ui-collections
 
-Dynamic collection components for Microbuild projects. Provides `CollectionForm` and `CollectionList` components that automatically fetch field definitions and render appropriate UI.
+Dynamic collection components for Microbuild projects. `CollectionForm` provides CRUD operations with data fetching, using `VForm` from `@microbuild/ui-form` for rendering all 40+ interface types. `CollectionList` displays collection items with pagination, search, and bulk actions.
+
+## Architecture
+
+```
+CollectionForm (Data Layer)
+    │
+    ├── Fetches field definitions
+    ├── Loads/saves item data
+    ├── Handles CRUD operations
+    │
+    └──▶ VForm (Presentation Layer)
+            │
+            └──▶ ui-interfaces (40+ components)
+                    ├── Input, Textarea, InputCode
+                    ├── SelectDropdown, Tags, Color
+                    ├── DateTime, Boolean, Toggle
+                    ├── ListM2M, ListM2O, ListO2M
+                    └── RichText, File, Map...
+```
 
 ## Installation
 
@@ -17,6 +36,7 @@ This package requires the following peer dependencies:
 - `@mantine/hooks` ^8.0.0
 - `@microbuild/services` workspace:*
 - `@microbuild/types` workspace:*
+- `@microbuild/ui-form` workspace:*
 - `@tabler/icons-react` ^3.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-dom` ^18.0.0 || ^19.0.0
@@ -129,16 +149,17 @@ interface BulkAction {
 ### CollectionForm Features
 
 - **Auto-field Detection**: Automatically fetches field definitions from the API
-- **Smart Field Rendering**: Renders appropriate inputs based on field type:
-  - Text fields → TextInput
-  - Number fields → NumberInput
-  - Boolean fields → Switch
-  - Date/DateTime fields → DatePicker/DateTimePicker
-  - Text/JSON fields → Textarea
-  - Select dropdown → Select with options
+- **VForm Integration**: Uses VForm for rendering, supporting all 40+ interface types:
+  - Text fields → Input, Textarea, InputCode, RichText
+  - Selection fields → SelectDropdown, SelectRadio, Tags, Color
+  - Boolean fields → Toggle, Boolean
+  - Date/DateTime fields → DateTime picker
+  - Relational fields → ListM2M, ListM2O, ListO2M, ListM2A
+  - Media fields → File, FileImage, Files, Upload
+  - Layout fields → Divider, Notice, GroupDetail
 - **System Field Handling**: Auto-excludes system fields (id, user_created, etc.)
 - **Edit Mode**: Load existing item data when editing
-- **Validation**: Built-in required field validation
+- **Validation**: Built-in required field validation with error display
 - **Loading States**: Shows loading overlay while fetching data
 - **Error Handling**: Displays error messages on failure
 

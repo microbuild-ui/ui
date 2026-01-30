@@ -108,12 +108,20 @@ microbuild add input
 # Add multiple components
 microbuild add input select-dropdown datetime
 
+# Add collection-form (includes VForm + all 32 interface components)
+microbuild add collection-form
+
 # Add all components from a category
 microbuild add --category selection
 
 # Interactive selection
 microbuild add
 ```
+
+**Note:** When you add `collection-form`, it automatically includes:
+- **VForm** - Dynamic form component that renders any field type
+- **32 interface components** - All field types (input, select, datetime, M2M, M2O, etc.)
+- **Lib modules** - types, services, hooks, and field-interface-mapper utilities
 
 ### List Available Components
 

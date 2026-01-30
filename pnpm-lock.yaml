@@ -141,6 +141,9 @@ importers:
       '@microbuild/types':
         specifier: workspace:*
         version: link:../types
+      '@microbuild/ui-form':
+        specifier: workspace:*
+        version: link:../ui-form
       '@tabler/icons-react':
         specifier: ^3.0.0
         version: 3.35.0(react@19.2.0)
