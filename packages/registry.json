@@ -607,6 +607,7 @@
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
       "internalDependencies": ["types"],
+      "registryDependencies": ["upload"],
       "interface": {
         "id": "file",
         "name": "File",
@@ -633,6 +634,7 @@
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
       "internalDependencies": ["types"],
+      "registryDependencies": ["upload"],
       "interface": {
         "id": "file-image",
         "name": "Image",
@@ -1043,7 +1045,7 @@
         "select-dropdown", "select-radio", "select-icon", "color", "tags", "slider",
         "select-multiple-checkbox", "select-multiple-dropdown", "select-multiple-checkbox-tree",
         "autocomplete-api", "collection-item-dropdown",
-        "file", "file-image", "files",
+        "file", "file-image", "files", "upload",
         "list-m2m", "list-m2o", "list-o2m", "list-m2a",
         "divider", "notice", "group-detail",
         "rich-text-html", "rich-text-markdown",
