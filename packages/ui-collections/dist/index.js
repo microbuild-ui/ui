@@ -3,21 +3,15 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Paper,
   Stack,
-  TextInput,
-  Textarea,
-  NumberInput,
-  Switch,
-  Select,
   Button,
   Group,
   Text,
   Alert,
   LoadingOverlay
 } from "@mantine/core";
-import { DateTimePicker, DatePickerInput } from "@mantine/dates";
-import dayjs from "dayjs";
 import { IconAlertCircle, IconCheck, IconX } from "@tabler/icons-react";
 import { FieldsService, ItemsService } from "@microbuild/services";
+import { VForm } from "@microbuild/ui-form";
 import { jsx, jsxs } from "react/jsx-runtime";
 var SYSTEM_FIELDS = [
   "id",
@@ -89,12 +83,14 @@ var CollectionForm = ({
     };
     loadData();
   }, [collection, id, mode, defaultValues, excludeFields, includeFields]);
-  const handleFieldChange = useCallback((fieldName, value) => {
+  const handleFormUpdate = useCallback((values) => {
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: value
+      ...values
     }));
+    setSuccess(false);
   }, []);
+  const primaryKey = mode === "create" ? "+" : id;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -124,115 +120,6 @@ var CollectionForm = ({
       setSaving(false);
     }
   };
-  const renderField = (field) => {
-    const value = formData[field.field];
-    const isReadOnly = READ_ONLY_FIELDS.includes(field.field) || field.meta?.readonly;
-    const isRequired = field.meta?.required || false;
-    const label = field.meta?.note || field.field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-    const interfaceType = field.meta?.interface || "";
-    const fieldType = field.type?.toLowerCase() || "string";
-    if (fieldType === "boolean" || interfaceType === "boolean" || interfaceType === "toggle") {
-      return /* @__PURE__ */ jsx(
-        Switch,
-        {
-          label,
-          checked: Boolean(value),
-          onChange: (e) => handleFieldChange(field.field, e.currentTarget.checked),
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "integer" || fieldType === "biginteger" || fieldType === "float" || fieldType === "decimal") {
-      return /* @__PURE__ */ jsx(
-        NumberInput,
-        {
-          label,
-          value,
-          onChange: (val) => handleFieldChange(field.field, val),
-          required: isRequired,
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "timestamp" || fieldType === "datetime") {
-      const dateValue = value ? dayjs(value).format("YYYY-MM-DD HH:mm:ss") : null;
-      return /* @__PURE__ */ jsx(
-        DateTimePicker,
-        {
-          label,
-          value: dateValue,
-          onChange: (dateStr) => handleFieldChange(field.field, dateStr ? dayjs(dateStr).toISOString() : null),
-          required: isRequired,
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "date") {
-      const dateValue = value ? dayjs(value).format("YYYY-MM-DD") : null;
-      return /* @__PURE__ */ jsx(
-        DatePickerInput,
-        {
-          label,
-          value: dateValue,
-          onChange: (dateStr) => handleFieldChange(field.field, dateStr),
-          required: isRequired,
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "text" || fieldType === "json" || interfaceType === "input-multiline") {
-      return /* @__PURE__ */ jsx(
-        Textarea,
-        {
-          label,
-          value: String(value || ""),
-          onChange: (e) => handleFieldChange(field.field, e.currentTarget.value),
-          required: isRequired,
-          disabled: isReadOnly,
-          minRows: 3,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (interfaceType === "select-dropdown" && field.meta?.options?.choices) {
-      const choices = field.meta.options.choices;
-      return /* @__PURE__ */ jsx(
-        Select,
-        {
-          label,
-          value,
-          onChange: (val) => handleFieldChange(field.field, val),
-          data: choices.map((c) => ({ label: c.text, value: c.value })),
-          required: isRequired,
-          disabled: isReadOnly,
-          clearable: true,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    return /* @__PURE__ */ jsx(
-      TextInput,
-      {
-        label,
-        value: String(value || ""),
-        onChange: (e) => handleFieldChange(field.field, e.currentTarget.value),
-        required: isRequired,
-        disabled: isReadOnly,
-        "data-testid": `form-field-${field.field}`
-      },
-      field.field
-    );
-  };
   if (loading) {
     return /* @__PURE__ */ jsx(Paper, { p: "md", pos: "relative", mih: 200, children: /* @__PURE__ */ jsx(LoadingOverlay, { visible: true }) });
   }
@@ -243,7 +130,20 @@ var CollectionForm = ({
       fields.length === 0 ? /* @__PURE__ */ jsxs(Text, { c: "dimmed", ta: "center", py: "xl", children: [
         "No editable fields found for ",
         collection
-      ] }) : fields.map(renderField),
+      ] }) : /* @__PURE__ */ jsx(
+        VForm,
+        {
+          collection,
+          fields,
+          modelValue: formData,
+          initialValues: defaultValues,
+          onUpdate: handleFormUpdate,
+          primaryKey,
+          disabled: saving,
+          loading: saving,
+          showNoVisibleFields: false
+        }
+      ),
       /* @__PURE__ */ jsxs(Group, { justify: "flex-end", mt: "md", children: [
         onCancel && /* @__PURE__ */ jsx(
           Button,
@@ -251,6 +151,7 @@ var CollectionForm = ({
             variant: "subtle",
             onClick: onCancel,
             leftSection: /* @__PURE__ */ jsx(IconX, { size: 16 }),
+            disabled: saving,
             "data-testid": "form-cancel-btn",
             children: "Cancel"
           }
@@ -282,9 +183,9 @@ import {
   Checkbox,
   Stack as Stack2,
   LoadingOverlay as LoadingOverlay2,
-  TextInput as TextInput2,
+  TextInput,
   Pagination,
-  Select as Select2,
+  Select,
   Alert as Alert2,
   ActionIcon
 } from "@mantine/core";
@@ -411,7 +312,7 @@ var CollectionList = ({
     /* @__PURE__ */ jsxs2(Group2, { justify: "space-between", children: [
       /* @__PURE__ */ jsxs2(Group2, { children: [
         enableSearch && /* @__PURE__ */ jsx2(
-          TextInput2,
+          TextInput,
           {
             placeholder: "Search...",
             leftSection: /* @__PURE__ */ jsx2(IconSearch, { size: 16 }),
@@ -506,7 +407,7 @@ var CollectionList = ({
       /* @__PURE__ */ jsxs2(Group2, { children: [
         /* @__PURE__ */ jsx2(Text2, { size: "sm", children: "Items per page:" }),
         /* @__PURE__ */ jsx2(
-          Select2,
+          Select,
           {
             value: String(limit),
             onChange: (value) => {

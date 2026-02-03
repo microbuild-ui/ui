@@ -1,9 +1,7 @@
 "use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -17,14 +15,6 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.ts
@@ -38,10 +28,9 @@ module.exports = __toCommonJS(index_exports);
 // src/CollectionForm.tsx
 var import_react = require("react");
 var import_core = require("@mantine/core");
-var import_dates = require("@mantine/dates");
-var import_dayjs = __toESM(require("dayjs"), 1);
 var import_icons_react = require("@tabler/icons-react");
 var import_services = require("@microbuild/services");
+var import_ui_form = require("@microbuild/ui-form");
 var import_jsx_runtime = require("react/jsx-runtime");
 var SYSTEM_FIELDS = [
   "id",
@@ -113,12 +102,14 @@ var CollectionForm = ({
     };
     loadData();
   }, [collection, id, mode, defaultValues, excludeFields, includeFields]);
-  const handleFieldChange = (0, import_react.useCallback)((fieldName, value) => {
+  const handleFormUpdate = (0, import_react.useCallback)((values) => {
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: value
+      ...values
     }));
+    setSuccess(false);
   }, []);
+  const primaryKey = mode === "create" ? "+" : id;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -148,115 +139,6 @@ var CollectionForm = ({
       setSaving(false);
     }
   };
-  const renderField = (field) => {
-    const value = formData[field.field];
-    const isReadOnly = READ_ONLY_FIELDS.includes(field.field) || field.meta?.readonly;
-    const isRequired = field.meta?.required || false;
-    const label = field.meta?.note || field.field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-    const interfaceType = field.meta?.interface || "";
-    const fieldType = field.type?.toLowerCase() || "string";
-    if (fieldType === "boolean" || interfaceType === "boolean" || interfaceType === "toggle") {
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        import_core.Switch,
-        {
-          label,
-          checked: Boolean(value),
-          onChange: (e) => handleFieldChange(field.field, e.currentTarget.checked),
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "integer" || fieldType === "biginteger" || fieldType === "float" || fieldType === "decimal") {
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        import_core.NumberInput,
-        {
-          label,
-          value,
-          onChange: (val) => handleFieldChange(field.field, val),
-          required: isRequired,
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "timestamp" || fieldType === "datetime") {
-      const dateValue = value ? (0, import_dayjs.default)(value).format("YYYY-MM-DD HH:mm:ss") : null;
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        import_dates.DateTimePicker,
-        {
-          label,
-          value: dateValue,
-          onChange: (dateStr) => handleFieldChange(field.field, dateStr ? (0, import_dayjs.default)(dateStr).toISOString() : null),
-          required: isRequired,
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "date") {
-      const dateValue = value ? (0, import_dayjs.default)(value).format("YYYY-MM-DD") : null;
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        import_dates.DatePickerInput,
-        {
-          label,
-          value: dateValue,
-          onChange: (dateStr) => handleFieldChange(field.field, dateStr),
-          required: isRequired,
-          disabled: isReadOnly,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (fieldType === "text" || fieldType === "json" || interfaceType === "input-multiline") {
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        import_core.Textarea,
-        {
-          label,
-          value: String(value || ""),
-          onChange: (e) => handleFieldChange(field.field, e.currentTarget.value),
-          required: isRequired,
-          disabled: isReadOnly,
-          minRows: 3,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    if (interfaceType === "select-dropdown" && field.meta?.options?.choices) {
-      const choices = field.meta.options.choices;
-      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-        import_core.Select,
-        {
-          label,
-          value,
-          onChange: (val) => handleFieldChange(field.field, val),
-          data: choices.map((c) => ({ label: c.text, value: c.value })),
-          required: isRequired,
-          disabled: isReadOnly,
-          clearable: true,
-          "data-testid": `form-field-${field.field}`
-        },
-        field.field
-      );
-    }
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-      import_core.TextInput,
-      {
-        label,
-        value: String(value || ""),
-        onChange: (e) => handleFieldChange(field.field, e.currentTarget.value),
-        required: isRequired,
-        disabled: isReadOnly,
-        "data-testid": `form-field-${field.field}`
-      },
-      field.field
-    );
-  };
   if (loading) {
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_core.Paper, { p: "md", pos: "relative", mih: 200, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_core.LoadingOverlay, { visible: true }) });
   }
@@ -267,7 +149,20 @@ var CollectionForm = ({
       fields.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_core.Text, { c: "dimmed", ta: "center", py: "xl", children: [
         "No editable fields found for ",
         collection
-      ] }) : fields.map(renderField),
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        import_ui_form.VForm,
+        {
+          collection,
+          fields,
+          modelValue: formData,
+          initialValues: defaultValues,
+          onUpdate: handleFormUpdate,
+          primaryKey,
+          disabled: saving,
+          loading: saving,
+          showNoVisibleFields: false
+        }
+      ),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_core.Group, { justify: "flex-end", mt: "md", children: [
         onCancel && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
           import_core.Button,
@@ -275,6 +170,7 @@ var CollectionForm = ({
             variant: "subtle",
             onClick: onCancel,
             leftSection: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_react.IconX, { size: 16 }),
+            disabled: saving,
             "data-testid": "form-cancel-btn",
             children: "Cancel"
           }

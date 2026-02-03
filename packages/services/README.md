@@ -244,3 +244,176 @@ The `apiRequest` function automatically handles both modes based on the DaaS con
 
 - [@microbuild/types](../types) - TypeScript types used by services
 - [@microbuild/hooks](../hooks) - React hooks that use these services
+
+## Auth Module (Server-Side)
+
+Server-side authentication and authorization utilities for Next.js API routes.
+
+### Setup
+
+Configure the auth module in your app initialization:
+
+```typescript
+// lib/supabase/auth-config.ts
+import { configureAuth } from '@microbuild/services/auth';
+import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
+import { cookies, headers } from 'next/headers';
+
+export function initializeAuth() {
+  configureAuth({
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    getHeaders: () => headers(),
+    getCookies: () => cookies(),
+    createServerClient,
+    createClient,
+  });
+}
+```
+
+### Authentication
+
+Supports three authentication methods:
+- Cookie-based sessions (browser)
+- JWT Bearer tokens (API clients)
+- Static tokens (programmatic access)
+
+```typescript
+import { 
+  createAuthenticatedClient,
+  getCurrentUser,
+  isAdmin,
+  getUserRole,
+  AuthenticationError 
+} from '@microbuild/services/auth';
+
+// Get authenticated Supabase client and user
+const { supabase, user } = await createAuthenticatedClient();
+
+// Get current user
+const user = await getCurrentUser();
+
+// Check admin access
+const isAdminUser = await isAdmin();
+
+// Get user's role
+const roleId = await getUserRole();
+```
+
+### Permission Enforcement
+
+```typescript
+import { 
+  enforcePermission,
+  getAccessibleFields,
+  validateFieldsAccess,
+  filterResponseFields,
+  getPermissionFilters,
+  applyFilterToQuery,
+  PermissionError 
+} from '@microbuild/services/auth';
+
+// Enforce permission (throws if denied)
+const { user, isAdmin } = await enforcePermission({
+  collection: 'articles',
+  action: 'read',
+});
+
+// Get allowed fields for user
+const fields = await getAccessibleFields('articles', 'read');
+// Returns: ['id', 'title', 'content'] or ['*'] for all
+
+// Validate write fields before update
+const { allowed, forbiddenFields } = await validateFieldsAccess(
+  ['title', 'admin_field'],
+  'articles',
+  'update'
+);
+
+// Filter response data by permissions
+const filtered = await filterResponseFields(data, 'articles', 'read');
+
+// Get item-level permission filters
+const filter = await getPermissionFilters('articles', 'read');
+if (filter) {
+  query = applyFilterToQuery(query, filter);
+}
+```
+
+### API Route Example
+
+```typescript
+// app/api/items/[collection]/route.ts
+import { initializeAuth } from '@/lib/supabase/auth-config';
+import {
+  createAuthenticatedClient,
+  enforcePermission,
+  filterResponseFields,
+  getPermissionFilters,
+  applyFilterToQuery,
+  AuthenticationError,
+  PermissionError,
+} from '@microbuild/services/auth';
+
+initializeAuth();
+
+export async function GET(request, { params }) {
+  try {
+    const { collection } = await params;
+    
+    // 1. Enforce permission
+    const { isAdmin } = await enforcePermission({ collection, action: 'read' });
+    
+    // 2. Build query
+    const { supabase } = await createAuthenticatedClient();
+    let query = supabase.from(collection).select('*');
+    
+    // 3. Apply permission filters
+    if (!isAdmin) {
+      const filter = await getPermissionFilters(collection, 'read');
+      if (filter) query = applyFilterToQuery(query, filter);
+    }
+    
+    const { data } = await query;
+    
+    // 4. Filter response fields
+    const result = isAdmin ? data : await filterResponseFields(data, collection, 'read');
+    
+    return NextResponse.json({ data: result });
+  } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+    if (error instanceof PermissionError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+    throw error;
+  }
+}
+```
+
+### Auth API Reference
+
+| Export | Description |
+|--------|-------------|
+| `configureAuth(config)` | Initialize auth module with Supabase config |
+| `createAuthenticatedClient()` | Get authenticated Supabase client + user |
+| `getCurrentUser()` | Get current authenticated user |
+| `isAdmin()` | Check if user has admin access |
+| `getUserRole()` | Get user's role ID |
+| `getUserProfile()` | Get full user profile |
+| `getAccountability()` | Get accountability info for audit logging |
+| `enforcePermission(check)` | Enforce permission or throw error |
+| `getAccessibleFields(collection, action)` | Get allowed fields for action |
+| `validateFieldsAccess(fields, collection, action)` | Validate write field access |
+| `filterFields(data, allowedFields)` | Filter object fields |
+| `filterFieldsArray(data[], allowedFields)` | Filter array of objects |
+| `filterResponseFields(data, collection, action)` | Auto-filter by permissions |
+| `getPermissionFilters(collection, action)` | Get item-level filters |
+| `applyFilterToQuery(query, filter)` | Apply filter to Supabase query |
+| `resolveFilterDynamicValues(filter, userId, roleId)` | Resolve $CURRENT_USER, etc. |
+| `AuthenticationError` | Error class for auth failures |
+| `PermissionError` | Error class for permission failures |
+

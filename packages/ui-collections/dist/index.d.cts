@@ -4,8 +4,12 @@ import { AnyItem } from '@microbuild/types';
 /**
  * CollectionForm Component
  *
- * A dynamic form that fetches field definitions and renders appropriate inputs.
- * Used by ListO2M and ListM2M for creating/editing related items.
+ * A CRUD wrapper around VForm that handles data fetching and persistence.
+ * Uses VForm for the actual form rendering with all @microbuild/ui-interfaces components.
+ *
+ * Architecture:
+ * - CollectionForm = Data layer (fetch fields, load/save items, CRUD operations)
+ * - VForm = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
  *
  * @package @microbuild/ui-collections
  */

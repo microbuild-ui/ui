@@ -10,6 +10,10 @@
     "./items": "./src/items.ts",
     "./fields": "./src/fields.ts",
     "./collections": "./src/collections.ts",
+    "./auth": "./src/auth/index.ts",
+    "./auth/session": "./src/auth/session.ts",
+    "./auth/enforcer": "./src/auth/enforcer.ts",
+    "./auth/filter-to-query": "./src/auth/filter-to-query.ts",
     "./package.json": "./package.json"
   },
   "sideEffects": false,
@@ -20,9 +24,11 @@
     "@microbuild/types": "workspace:*"
   },
   "peerDependencies": {
+    "@supabase/supabase-js": "^2",
     "react": "^18 || ^19"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2",
     "@types/node": "^22",
     "@types/react": "^19",
     "react": "^19",
