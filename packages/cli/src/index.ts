@@ -18,6 +18,8 @@ import { add } from './commands/add.js';
 import { list } from './commands/list.js';
 import { diff } from './commands/diff.js';
 import { status } from './commands/status.js';
+import { info } from './commands/info.js';
+import { tree } from './commands/tree.js';
 
 const program = new Command();
 
@@ -64,5 +66,20 @@ program
   .option('--json', 'Output as JSON')
   .option('--cwd <path>', 'Project directory', process.cwd())
   .action(status);
+
+program
+  .command('info')
+  .description('Show detailed information about a component (sources, dependencies, interface)')
+  .argument('<component>', 'Component name')
+  .option('--json', 'Output as JSON')
+  .action(info);
+
+program
+  .command('tree')
+  .description('Display dependency tree for a component')
+  .argument('<component>', 'Component name')
+  .option('--json', 'Output as JSON')
+  .option('-d, --depth <number>', 'Max depth to display', '2')
+  .action((component, options) => tree(component, { ...options, depth: parseInt(options.depth) }));
 
 program.parse();

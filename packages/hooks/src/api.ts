@@ -1,8 +1,8 @@
 /**
  * Directus-compatible API helpers
  * 
- * These are stub implementations that can be used in Storybook demos.
- * In production, these should be replaced with real API calls.
+ * These provide a typed interface for the DaaS API.
+ * Supports both proxy mode (Next.js apps) and direct DaaS mode (Storybook/testing).
  */
 
 export interface DirectusAPIConfig {
@@ -13,9 +13,23 @@ export interface DirectusAPIConfig {
 export interface QueryParams {
   fields?: string[];
   filter?: Record<string, unknown>;
+  search?: string;
   limit?: number;
   offset?: number;
+  page?: number;
   sort?: string[];
+  meta?: string;
+  version?: string;
+}
+
+export interface ListResponse<T> {
+  data: T[];
+  meta?: {
+    total_count?: number;
+    filter_count?: number;
+    page?: number;
+    limit?: number;
+  };
 }
 
 /**
@@ -36,6 +50,50 @@ export interface DirectusFile {
   uploaded_by: string | null;
   modified_on?: string;
   folder: string | null;
+  tags?: string[] | null;
+}
+
+/**
+ * User representation
+ */
+export interface DirectusUser {
+  id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar: string | null;
+  status: string;
+  role: string | null;
+  admin_access: boolean;
+  language: string;
+  theme: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Permission representation
+ */
+export interface DirectusPermission {
+  id: string;
+  policy: string;
+  collection: string;
+  action: 'create' | 'read' | 'update' | 'delete' | 'share';
+  fields: string[] | null;
+  permissions: Record<string, unknown> | null;
+  validation: Record<string, unknown> | null;
+  presets: Record<string, unknown> | null;
+}
+
+/**
+ * Aggregated permissions for a collection
+ */
+export interface CollectionPermissions {
+  create?: boolean;
+  read?: boolean;
+  update?: boolean;
+  delete?: boolean;
+  share?: boolean;
 }
 
 /**
@@ -49,6 +107,13 @@ class DirectusAPI {
   constructor(config: DirectusAPIConfig = {}) {
     this.baseUrl = config.baseUrl || '/api';
     this.token = config.token || null;
+  }
+
+  /**
+   * Set authorization token
+   */
+  setToken(token: string | null): void {
+    this.token = token;
   }
 
   /**
@@ -110,13 +175,44 @@ class DirectusAPI {
     const query = new URLSearchParams();
     if (params?.fields) query.set('fields', params.fields.join(','));
     if (params?.filter) query.set('filter', JSON.stringify(params.filter));
+    if (params?.search) query.set('search', params.search);
     if (params?.limit) query.set('limit', String(params.limit));
     if (params?.offset) query.set('offset', String(params.offset));
+    if (params?.page) query.set('page', String(params.page));
     if (params?.sort) query.set('sort', params.sort.join(','));
+    if (params?.meta) query.set('meta', params.meta);
 
     const queryString = query.toString();
     const path = `/items/${collection}${queryString ? `?${queryString}` : ''}`;
     return this.request<T[]>(path);
+  }
+
+  /**
+   * Get items with metadata
+   */
+  async getItemsWithMeta<T = unknown>(collection: string, params?: QueryParams): Promise<ListResponse<T>> {
+    const query = new URLSearchParams();
+    if (params?.fields) query.set('fields', params.fields.join(','));
+    if (params?.filter) query.set('filter', JSON.stringify(params.filter));
+    if (params?.search) query.set('search', params.search);
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.sort) query.set('sort', params.sort.join(','));
+    query.set('meta', params?.meta || '*');
+
+    const queryString = query.toString();
+    const path = `/items/${collection}?${queryString}`;
+    
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      headers: this.token ? { 'Authorization': `Bearer ${this.token}` } : {},
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    return response.json();
   }
 
   /**
@@ -125,6 +221,7 @@ class DirectusAPI {
   async getItem<T = unknown>(collection: string, id: string | number, params?: QueryParams): Promise<T> {
     const query = new URLSearchParams();
     if (params?.fields) query.set('fields', params.fields.join(','));
+    if (params?.version) query.set('version', params.version);
 
     const queryString = query.toString();
     const path = `/items/${collection}/${id}${queryString ? `?${queryString}` : ''}`;
@@ -152,6 +249,16 @@ class DirectusAPI {
   }
 
   /**
+   * Upsert an item (create or update)
+   */
+  async upsertItem<T = unknown>(collection: string, id: string | number, data: Record<string, unknown>): Promise<T> {
+    return this.request<T>(`/items/${collection}/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
    * Delete an item
    */
   async deleteItem(collection: string, id: string | number): Promise<void> {
@@ -161,10 +268,144 @@ class DirectusAPI {
   }
 
   /**
+   * Batch update items matching a filter
+   */
+  async batchUpdateItems<T = unknown>(
+    collection: string,
+    filter: Record<string, unknown>,
+    data: Record<string, unknown>
+  ): Promise<{ updated: number; keys: string[] }> {
+    const query = new URLSearchParams();
+    query.set('filter', JSON.stringify(filter));
+    
+    return this.request(`/items/${collection}?${query.toString()}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Batch delete items matching a filter
+   */
+  async batchDeleteItems(
+    collection: string,
+    filter: Record<string, unknown>
+  ): Promise<{ deleted: number; keys: string[] }> {
+    const query = new URLSearchParams();
+    query.set('filter', JSON.stringify(filter));
+    
+    return this.request(`/items/${collection}?${query.toString()}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ==================== Users API ====================
+
+  /**
+   * Get current user
+   */
+  async getMe(params?: QueryParams): Promise<DirectusUser> {
+    const query = new URLSearchParams();
+    if (params?.fields) query.set('fields', params.fields.join(','));
+    
+    const queryString = query.toString();
+    const path = `/users/me${queryString ? `?${queryString}` : ''}`;
+    return this.request<DirectusUser>(path);
+  }
+
+  /**
+   * Update current user
+   */
+  async updateMe(data: Partial<DirectusUser>): Promise<DirectusUser> {
+    return this.request<DirectusUser>('/users/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Get users
+   */
+  async getUsers(params?: QueryParams): Promise<DirectusUser[]> {
+    return this.getItems<DirectusUser>('directus_users', params);
+  }
+
+  /**
+   * Get user by ID
+   */
+  async getUser(id: string, params?: QueryParams): Promise<DirectusUser> {
+    return this.getItem<DirectusUser>('directus_users', id, params);
+  }
+
+  // ==================== Permissions API ====================
+
+  /**
+   * Get current user's permissions
+   */
+  async getMyPermissions(): Promise<{ data: Record<string, Record<string, unknown>>; isAdmin: boolean }> {
+    return this.request('/permissions/me');
+  }
+
+  /**
+   * Check if current user can perform action on collection
+   */
+  async checkPermission(collection: string, action: 'create' | 'read' | 'update' | 'delete'): Promise<boolean> {
+    try {
+      const { data, isAdmin } = await this.getMyPermissions();
+      if (isAdmin) return true;
+      return !!data[collection]?.[action];
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Get collection permissions for current user
+   */
+  async getCollectionPermissions(collection: string): Promise<CollectionPermissions> {
+    try {
+      const { data, isAdmin } = await this.getMyPermissions();
+      if (isAdmin) {
+        return { create: true, read: true, update: true, delete: true, share: true };
+      }
+      const perms = data[collection] || {};
+      return {
+        create: !!perms.create,
+        read: !!perms.read,
+        update: !!perms.update,
+        delete: !!perms.delete,
+        share: !!perms.share,
+      };
+    } catch {
+      return { create: false, read: false, update: false, delete: false, share: false };
+    }
+  }
+
+  // ==================== Files API ====================
+
+  /**
    * Get a file by ID
    */
   async getFile(id: string): Promise<DirectusFile> {
     return this.request<DirectusFile>(`/files/${id}`);
+  }
+
+  /**
+   * Get files with optional filtering
+   */
+  async getFiles(params?: QueryParams & { folder?: string }): Promise<DirectusFile[]> {
+    const query = new URLSearchParams();
+    if (params?.fields) query.set('fields', params.fields.join(','));
+    if (params?.filter) query.set('filter', JSON.stringify(params.filter));
+    if (params?.search) query.set('search', params.search);
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.sort) query.set('sort', params.sort.join(','));
+    if (params?.folder) query.set('folder', params.folder);
+    
+    const queryString = query.toString();
+    const path = `/files${queryString ? `?${queryString}` : ''}`;
+    return this.request<DirectusFile[]>(path);
   }
 
   /**
@@ -174,6 +415,15 @@ class DirectusAPI {
     return this.request<DirectusFile>(`/files/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Delete a file
+   */
+  async deleteFile(id: string): Promise<void> {
+    await this.request(`/files/${id}`, {
+      method: 'DELETE',
     });
   }
 
@@ -214,32 +464,209 @@ class DirectusAPI {
   }
 
   /**
-   * Check if user has permission for an action
+   * Import file from URL
    */
-  async checkPermission(collection: string, action: 'create' | 'read' | 'update' | 'delete'): Promise<boolean> {
-    try {
-      // In a real implementation, this would check against the Directus permissions
-      // For now, return true for demo purposes
-      return true;
-    } catch {
-      return false;
-    }
+  async importFromUrl(url: string, data?: Partial<DirectusFile>): Promise<DirectusFile> {
+    return this.request<DirectusFile>('/files/import', {
+      method: 'POST',
+      body: JSON.stringify({ url, data }),
+    });
   }
 
   /**
-   * Get file URL
+   * Bulk update files
    */
-  getFileUrl(id: string, transform?: { width?: number; height?: number; quality?: number }): string {
+  async bulkUpdateFiles(keys: string[], data: Partial<DirectusFile>): Promise<{ updated: number; keys: string[] }> {
+    return this.request('/files', {
+      method: 'PATCH',
+      body: JSON.stringify({ keys, data }),
+    });
+  }
+
+  /**
+   * Bulk delete files
+   */
+  async bulkDeleteFiles(keys: string[]): Promise<{ deleted: number; keys: string[] }> {
+    return this.request('/files', {
+      method: 'DELETE',
+      body: JSON.stringify({ keys }),
+    });
+  }
+
+  /**
+   * Get file URL (for displaying/downloading)
+   */
+  getFileUrl(id: string, transform?: { width?: number; height?: number; quality?: number; format?: string }): string {
     let url = `${this.baseUrl}/assets/${id}`;
     if (transform) {
       const params = new URLSearchParams();
       if (transform.width) params.set('width', String(transform.width));
       if (transform.height) params.set('height', String(transform.height));
       if (transform.quality) params.set('quality', String(transform.quality));
+      if (transform.format) params.set('format', transform.format);
       const queryString = params.toString();
       if (queryString) url += `?${queryString}`;
     }
     return url;
+  }
+
+  // ==================== Versions API ====================
+
+  /**
+   * Get versions for an item
+   */
+  async getVersions(collection: string, itemId: string): Promise<unknown[]> {
+    return this.getItems('directus_versions', {
+      filter: { collection: { _eq: collection }, item: { _eq: itemId } },
+      sort: ['-date_updated'],
+    });
+  }
+
+  /**
+   * Create a new version
+   */
+  async createVersion(data: {
+    key: string;
+    name?: string;
+    collection: string;
+    item: string;
+  }): Promise<unknown> {
+    return this.request('/versions', {
+      method: 'POST',
+      body: JSON.stringify({ ...data, delta: {} }),
+    });
+  }
+
+  /**
+   * Save changes to a version
+   */
+  async saveVersion(versionId: string, delta: Record<string, unknown>): Promise<unknown> {
+    return this.request(`/versions/${versionId}/save`, {
+      method: 'POST',
+      body: JSON.stringify(delta),
+    });
+  }
+
+  /**
+   * Promote version to main item
+   */
+  async promoteVersion(versionId: string): Promise<unknown> {
+    return this.request(`/versions/${versionId}/promote`, {
+      method: 'POST',
+    });
+  }
+
+  /**
+   * Delete a version
+   */
+  async deleteVersion(versionId: string): Promise<void> {
+    await this.request(`/versions/${versionId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ==================== Workflow API ====================
+
+  /**
+   * Execute a workflow transition
+   */
+  async executeTransition(data: {
+    instance: string;
+    command: string;
+    comment?: string;
+  }): Promise<{ data: { success: boolean; previousState: string; currentState: string } }> {
+    return this.request('/workflow/transition', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Get workflow instance for an item
+   */
+  async getWorkflowInstance(collection: string, itemId: string): Promise<unknown | null> {
+    const instances = await this.getItems('xtr_wf_instance', {
+      filter: { collection: { _eq: collection }, item_id: { _eq: itemId } },
+      limit: 1,
+    });
+    return instances[0] || null;
+  }
+
+  // ==================== Utilities API ====================
+
+  /**
+   * Generate a bcrypt hash
+   */
+  async generateHash(value: string): Promise<string> {
+    const result = await this.request<{ data: string }>('/utils/hash/generate', {
+      method: 'POST',
+      body: JSON.stringify({ string: value }),
+    });
+    return typeof result === 'string' ? result : (result as { data?: string }).data || result as unknown as string;
+  }
+
+  /**
+   * Verify a value against a hash
+   */
+  async verifyHash(value: string, hash: string): Promise<boolean> {
+    const result = await this.request<boolean | { data: boolean }>('/utils/hash/verify', {
+      method: 'POST',
+      body: JSON.stringify({ string: value, hash }),
+    });
+    return typeof result === 'boolean' ? result : (result as { data?: boolean }).data ?? false;
+  }
+
+  /**
+   * Generate a random string
+   */
+  async generateRandomString(length: number = 32): Promise<string> {
+    const result = await this.request<string | { data: string }>(`/utils/random/string?length=${length}`);
+    return typeof result === 'string' ? result : (result as { data?: string }).data || result as unknown as string;
+  }
+
+  // ==================== Collections & Schema API ====================
+
+  /**
+   * Get all collections
+   */
+  async getCollections(): Promise<unknown[]> {
+    return this.request('/collections');
+  }
+
+  /**
+   * Get collection by name
+   */
+  async getCollection(name: string): Promise<unknown> {
+    return this.request(`/collections/${name}`);
+  }
+
+  /**
+   * Get fields for a collection
+   */
+  async getFields(collection: string): Promise<unknown[]> {
+    return this.request(`/fields/${collection}`);
+  }
+
+  /**
+   * Get relations for a collection
+   */
+  async getRelations(collection?: string): Promise<unknown[]> {
+    const path = collection ? `/relations/${collection}` : '/relations';
+    return this.request(path);
+  }
+
+  /**
+   * Get available interfaces
+   */
+  async getInterfaces(params?: { grouped?: boolean; type?: string; localType?: string }): Promise<unknown> {
+    const query = new URLSearchParams();
+    if (params?.grouped) query.set('grouped', 'true');
+    if (params?.type) query.set('type', params.type);
+    if (params?.localType) query.set('localType', params.localType);
+    
+    const queryString = query.toString();
+    const path = `/interfaces${queryString ? `?${queryString}` : ''}`;
+    return this.request(path);
   }
 }
 

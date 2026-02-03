@@ -8,9 +8,29 @@ Complete guide to Microbuild UI Packages and distribution tools.
 |----------|-------------|----------|
 | [README.md](../README.md) | Workspace overview and quick start | All users |
 | [QUICKSTART.md](../QUICKSTART.md) | Setup guide for MCP & CLI | New users |
+| [CLI.md](CLI.md) | CLI commands & agent reference | AI agents & developers |
+| [COMPONENT_MAP.md](COMPONENT_MAP.md) | Quick component lookup table | AI agents & developers |
 | [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide | DevOps/Teams |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
 | [TESTING.md](TESTING.md) | Playwright E2E testing guide | Developers |
+
+## 🤖 For AI Agents
+
+These documents are optimized for AI agent consumption:
+
+| Document | Use Case |
+|----------|----------|
+| [CLI.md](CLI.md) | Complete CLI command reference, component locations, dependency trees |
+| [COMPONENT_MAP.md](COMPONENT_MAP.md) | Quick lookup table for finding component source files |
+| [registry.json](../packages/registry.json) | Master registry with all component metadata (JSON) |
+
+### Quick Agent Commands
+```bash
+microbuild list --json          # Get all components as JSON
+microbuild info <component>     # Detailed component info
+microbuild tree <component>     # Show dependency tree
+microbuild add <component>      # Add component with all dependencies
+```
 
 ## 🎯 Quick Navigation
 
@@ -21,7 +41,8 @@ Complete guide to Microbuild UI Packages and distribution tools.
 
 ### For Developers
 - [CLI Tool Guide](../packages/cli/README.md) - Use CLI to add components
-- [Component List](../packages/README.md#package-details) - All available components
+- [CLI Command Reference](CLI.md) - All CLI commands with examples
+- [Component Map](COMPONENT_MAP.md) - Find component source files
 - [Usage Examples](../packages/README.md#quick-start) - Code examples
 
 ### For AI Development

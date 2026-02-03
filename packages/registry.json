@@ -766,6 +766,7 @@
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
       "internalDependencies": ["types", "hooks", "services"],
+      "registryDependencies": ["collection-form", "collection-list"],
       "interface": {
         "id": "list-m2o",
         "name": "Many to One",
@@ -792,6 +793,7 @@
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
       "internalDependencies": ["types", "hooks", "services"],
+      "registryDependencies": ["collection-form", "collection-list"],
       "interface": {
         "id": "list-o2m",
         "name": "One to Many",
@@ -818,6 +820,7 @@
       ],
       "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
       "internalDependencies": ["types", "hooks", "services"],
+      "registryDependencies": ["collection-form", "collection-list"],
       "interface": {
         "id": "list-m2a",
         "name": "Many to Any",

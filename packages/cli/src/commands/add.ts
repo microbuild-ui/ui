@@ -81,6 +81,142 @@ async function getRegistry(): Promise<Registry> {
 }
 
 /**
+ * Common component aliases for better discovery
+ */
+const COMPONENT_ALIASES: Record<string, string> = {
+  'form': 'vform',
+  'dynamicform': 'vform',
+  'v-form': 'vform',
+  'select': 'select-dropdown',
+  'dropdown': 'select-dropdown',
+  'checkbox': 'boolean',
+  'switch': 'toggle',
+  'date': 'datetime',
+  'time': 'datetime',
+  'datepicker': 'datetime',
+  'text': 'input',
+  'textinput': 'input',
+  'textfield': 'input',
+  'image': 'file-image',
+  'imageupload': 'file-image',
+  'wysiwyg': 'rich-text-html',
+  'richtext': 'rich-text-html',
+  'markdown': 'rich-text-markdown',
+  'md': 'rich-text-markdown',
+  'm2m': 'list-m2m',
+  'm2o': 'list-m2o',
+  'o2m': 'list-o2m',
+  'm2a': 'list-m2a',
+  'manytomany': 'list-m2m',
+  'manytoone': 'list-m2o',
+  'onetomany': 'list-o2m',
+  'manytoany': 'list-m2a',
+  'relation': 'list-m2o',
+  'multiselect': 'select-multiple-dropdown',
+  'checkboxes': 'select-multiple-checkbox',
+  'radio': 'select-radio',
+  'icon': 'select-icon',
+  'colorpicker': 'color',
+  'fileupload': 'file',
+  'code': 'input-code',
+  'blockeditor': 'input-block-editor',
+  'editor': 'input-block-editor',
+};
+
+/**
+ * Find component with smart matching and suggestions
+ */
+function findComponentWithSuggestions(name: string, registry: Registry): ComponentEntry | null {
+  const normalized = name.toLowerCase().replace(/-/g, '');
+  
+  // Direct match by name
+  const directMatch = registry.components.find(
+    c => c.name.toLowerCase() === name.toLowerCase()
+  );
+  if (directMatch) return directMatch;
+  
+  // Match by title
+  const titleMatch = registry.components.find(
+    c => c.title.toLowerCase() === name.toLowerCase()
+  );
+  if (titleMatch) return titleMatch;
+  
+  // Fuzzy match (remove dashes)
+  const fuzzyMatch = registry.components.find(
+    c => c.name.toLowerCase().replace(/-/g, '') === normalized ||
+         c.title.toLowerCase().replace(/-/g, '') === normalized
+  );
+  if (fuzzyMatch) return fuzzyMatch;
+  
+  // Check aliases
+  const aliasedName = COMPONENT_ALIASES[normalized];
+  if (aliasedName) {
+    const aliasMatch = registry.components.find(c => c.name === aliasedName);
+    if (aliasMatch) {
+      console.log(chalk.yellow(`\n💡 "${name}" matched alias → using "${aliasMatch.name}"\n`));
+      return aliasMatch;
+    }
+  }
+  
+  // No match found - provide helpful suggestions
+  console.log(chalk.red(`\n✗ Component not found: ${name}\n`));
+  
+  // Find similar components
+  const suggestions = registry.components
+    .map(c => ({
+      component: c,
+      score: calculateSimilarity(normalized, c.name.replace(/-/g, '')) +
+             calculateSimilarity(normalized, c.title.toLowerCase().replace(/-/g, '')) +
+             (c.description.toLowerCase().includes(name.toLowerCase()) ? 0.3 : 0)
+    }))
+    .filter(s => s.score > 0.2)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+  
+  if (suggestions.length > 0) {
+    console.log(chalk.yellow('Did you mean one of these?\n'));
+    suggestions.forEach(s => {
+      console.log(`  ${chalk.green(s.component.name.padEnd(28))} ${chalk.dim(s.component.description)}`);
+    });
+    console.log();
+  }
+  
+  // Show category hint
+  const categoryHint = registry.categories.find(cat => 
+    name.toLowerCase().includes(cat.name.toLowerCase())
+  );
+  if (categoryHint) {
+    console.log(chalk.dim(`Try: microbuild add --category ${categoryHint.name}\n`));
+  }
+  
+  console.log(chalk.dim('Commands to help you find components:'));
+  console.log(chalk.dim('  microbuild list              List all components'));
+  console.log(chalk.dim('  microbuild list --category   Filter by category'));
+  console.log(chalk.dim('  microbuild info <name>       Get component details\n'));
+  
+  return null;
+}
+
+/**
+ * Simple similarity score (0-1)
+ */
+function calculateSimilarity(a: string, b: string): number {
+  if (a === b) return 1;
+  if (a.includes(b) || b.includes(a)) return 0.7;
+  
+  // Count matching characters
+  let matches = 0;
+  const shorter = a.length < b.length ? a : b;
+  const longer = a.length < b.length ? b : a;
+  
+  for (let i = 0; i < shorter.length; i++) {
+    if (longer.includes(shorter[i])) matches++;
+  }
+  
+  return matches / longer.length;
+}
+
+/**
  * Copy and transform a lib module (types, services, or hooks)
  */
 async function copyLibModule(
@@ -166,8 +302,14 @@ async function copyComponent(
   config: Config,
   cwd: string,
   overwrite: boolean,
-  spinner: ora.Ora
+  spinner: ora.Ora,
+  installing = new Set<string>()  // Track components being installed to prevent circular deps
 ): Promise<boolean> {
+  // Check for circular dependency
+  if (installing.has(component.name)) {
+    return true; // Already being installed in this call stack
+  }
+  
   // Check if already installed
   if (config.installedComponents.includes(component.name) && !overwrite) {
     const { shouldOverwrite } = await prompts({
@@ -183,6 +325,9 @@ async function copyComponent(
     }
   }
 
+  // Mark as being installed to prevent circular deps
+  installing.add(component.name);
+
   // Install internal dependencies first (types, services, hooks)
   for (const dep of component.internalDependencies) {
     if (!config.installedLib.includes(dep)) {
@@ -194,11 +339,11 @@ async function copyComponent(
   // Install registry dependencies (other components)
   if (component.registryDependencies) {
     for (const depName of component.registryDependencies) {
-      if (!config.installedComponents.includes(depName)) {
+      if (!config.installedComponents.includes(depName) && !installing.has(depName)) {
         const depComponent = registry.components.find(c => c.name === depName);
         if (depComponent) {
           spinner.text = `Installing component dependency: ${depComponent.title}...`;
-          await copyComponent(depComponent, registry, config, cwd, overwrite, spinner);
+          await copyComponent(depComponent, registry, config, cwd, overwrite, spinner, installing);
         }
       }
     }
@@ -282,13 +427,8 @@ export async function add(
     }
   } else if (components.length > 0) {
     for (const name of components) {
-      const component = registry.components.find(
-        c => c.name.toLowerCase() === name.toLowerCase() ||
-            c.title.toLowerCase() === name.toLowerCase()
-      );
+      const component = findComponentWithSuggestions(name, registry);
       if (!component) {
-        console.log(chalk.red(`\n✗ Component not found: ${name}\n`));
-        console.log(chalk.dim('Run "npx microbuild list" to see available components.\n'));
         process.exit(1);
       }
       componentsToAdd.push(component);
