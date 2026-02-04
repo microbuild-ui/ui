@@ -367,9 +367,9 @@ export const MapWithRealMap: React.FC<MapWithRealMapProps> = ({
       maxPitch: 0,
     });
     
-    // Disable rotation controls
-    map.current.dragRotate.disable();
-    map.current.touchZoomRotate.disableRotation();
+    // Disable rotation controls (cast to any for handler access)
+    (map.current as any).dragRotate?.disable();
+    (map.current as any).touchZoomRotate?.disableRotation();
 
     // Add controls
     if (showNavigation) {
