@@ -25,10 +25,10 @@
     "dates": ["@mantine/dates", "dayjs"],
     "dropzone": ["@mantine/dropzone"],
     "notifications": ["@mantine/notifications"],
-    "richText": ["@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link", "@tiptap/extension-color", "@tiptap/extension-text-style", "@tiptap/extension-highlight", "@tiptap/extension-placeholder", "@tiptap/extension-subscript", "@tiptap/extension-superscript", "@tiptap/extension-text-align", "@tiptap/extension-underline", "@tiptap/extension-code-block-lowlight", "@mantine/tiptap", "lowlight"],
+    "richText": ["@tiptap/react@^3", "@tiptap/starter-kit@^3", "@tiptap/extension-link@^3", "@tiptap/extension-color@^3", "@tiptap/extension-text-style@^3", "@tiptap/extension-highlight@^3", "@tiptap/extension-placeholder@^3", "@tiptap/extension-subscript@^3", "@tiptap/extension-superscript@^3", "@tiptap/extension-text-align@^3", "@tiptap/extension-underline@^3", "@tiptap/extension-code-block-lowlight@^3", "@mantine/tiptap@^8", "lowlight"],
     "blockEditor": ["@editorjs/editorjs", "@editorjs/header", "@editorjs/nested-list", "@editorjs/paragraph", "@editorjs/code", "@editorjs/quote", "@editorjs/checklist", "@editorjs/delimiter", "@editorjs/table", "@editorjs/underline", "@editorjs/inline-code", "highlight.js"],
     "maps": ["maplibre-gl", "@mapbox/mapbox-gl-draw"],
-    "supabase": ["@supabase/ssr", "@supabase/supabase-js"]
+    "supabase": ["@supabase/ssr@^0.5", "@supabase/supabase-js@^2"]
   },
 
   "lib": {

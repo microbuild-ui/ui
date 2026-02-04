@@ -21,6 +21,7 @@ import { status } from './commands/status.js';
 import { info } from './commands/info.js';
 import { tree } from './commands/tree.js';
 import { validate } from './commands/validate.js';
+import { fix } from './commands/fix.js';
 
 const program = new Command();
 
@@ -44,6 +45,7 @@ program
   .option('--with-api', 'Also add API routes and Supabase auth templates')
   .option('--category <name>', 'Add all components from a category')
   .option('-o, --overwrite', 'Overwrite existing components')
+  .option('-n, --dry-run', 'Preview changes without modifying files')
   .option('--cwd <path>', 'Project directory', process.cwd())
   .action(add);
 
@@ -90,5 +92,23 @@ program
   .option('--json', 'Output as JSON')
   .option('--cwd <path>', 'Project directory', process.cwd())
   .action(validate);
+
+program
+  .command('fix')
+  .description('Automatically fix common issues (untransformed imports, broken paths, SSR exports)')
+  .option('-n, --dry-run', 'Preview fixes without modifying files')
+  .option('-y, --yes', 'Skip confirmation prompts')
+  .option('--cwd <path>', 'Project directory', process.cwd())
+  .action(fix);
+
+program
+  .command('outdated')
+  .description('Check for component updates (compares installed versions to registry)')
+  .option('--json', 'Output as JSON')
+  .option('--cwd <path>', 'Project directory', process.cwd())
+  .action(async (options) => {
+    const { outdated } = await import('./commands/outdated.js');
+    await outdated(options);
+  });
 
 program.parse();

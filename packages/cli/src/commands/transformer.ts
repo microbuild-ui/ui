@@ -185,12 +185,22 @@ export function toPascalCase(str: string): string {
  * Normalize import paths to use consistent kebab-case file names
  * Fixes issues where imports use PascalCase but files are kebab-case
  * 
+ * EXCEPTION: VForm folder preserves PascalCase imports because its files
+ * are copied with original casing (VForm.tsx, FormField.tsx, etc.)
+ * 
  * Examples:
  *   ./InputBlockEditor → ./input-block-editor
  *   ./FileImage → ./file-image
  *   ../Upload/Upload → ./upload
+ *   
+ * Files marked with @microbuild-preserve-casing are not normalized.
  */
 export function normalizeImportPaths(content: string): string {
+  // Skip normalization for files that preserve casing
+  if (content.includes('@microbuild-preserve-casing')) {
+    return content;
+  }
+  
   // Pattern matches relative imports with PascalCase filenames
   // e.g., from './InputBlockEditor' or from '../Upload/Upload'
   const pascalCaseImportPattern = /from\s+['"](\.\.\/?|\.\/)([A-Z][a-zA-Z0-9]*(?:\/[A-Z][a-zA-Z0-9]*)?)['"]/g;

@@ -15,7 +15,7 @@ import ora, { type Ora } from 'ora';
 import prompts from 'prompts';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { type Config, loadConfig, saveConfig } from './init.js';
+import { type Config, type ComponentVersion, loadConfig, saveConfig } from './init.js';
 import { 
   transformImports, 
   transformRelativeImports,
@@ -293,6 +293,16 @@ async function copyLibModule(
 }
 
 /**
+ * Dry run info for component preview
+ */
+interface DryRunInfo {
+  component: string;
+  files: { source: string; target: string }[];
+  dependencies: string[];
+  libDependencies: string[];
+}
+
+/**
  * Copy and transform a component
  */
 async function copyComponent(
@@ -302,7 +312,9 @@ async function copyComponent(
   cwd: string,
   overwrite: boolean,
   spinner: Ora,
-  installing = new Set<string>()  // Track components being installed to prevent circular deps
+  installing = new Set<string>(),  // Track components being installed to prevent circular deps
+  dryRun = false,  // Preview mode - don't write files
+  dryRunInfo?: DryRunInfo[]  // Collect dry run info
 ): Promise<boolean> {
   // Check for circular dependency
   if (installing.has(component.name)) {
@@ -310,7 +322,7 @@ async function copyComponent(
   }
   
   // Check if already installed
-  if (config.installedComponents.includes(component.name) && !overwrite) {
+  if (config.installedComponents.includes(component.name) && !overwrite && !dryRun) {
     const { shouldOverwrite } = await prompts({
       type: 'confirm',
       name: 'shouldOverwrite',
@@ -327,11 +339,21 @@ async function copyComponent(
   // Mark as being installed to prevent circular deps
   installing.add(component.name);
 
+  // Collect dry run info
+  const info: DryRunInfo = {
+    component: component.name,
+    files: component.files.map(f => ({ source: f.source, target: f.target })),
+    dependencies: component.dependencies,
+    libDependencies: component.internalDependencies,
+  };
+
   // Install internal dependencies first (types, services, hooks)
   for (const dep of component.internalDependencies) {
     if (!config.installedLib.includes(dep)) {
       spinner.text = `Installing dependency: ${dep}...`;
-      await copyLibModule(dep, registry, config, cwd, spinner);
+      if (!dryRun) {
+        await copyLibModule(dep, registry, config, cwd, spinner);
+      }
     }
   }
 
@@ -342,10 +364,19 @@ async function copyComponent(
         const depComponent = registry.components.find(c => c.name === depName);
         if (depComponent) {
           spinner.text = `Installing component dependency: ${depComponent.title}...`;
-          await copyComponent(depComponent, registry, config, cwd, overwrite, spinner, installing);
+          await copyComponent(depComponent, registry, config, cwd, overwrite, spinner, installing, dryRun, dryRunInfo);
         }
       }
     }
+  }
+
+  // In dry run mode, just collect info and return
+  if (dryRun) {
+    if (dryRunInfo) {
+      dryRunInfo.push(info);
+    }
+    spinner.info(`Would add ${component.title}`);
+    return true;
   }
 
   // Copy component files
@@ -385,10 +416,20 @@ async function copyComponent(
     await fs.writeFile(finalPath, content);
   }
 
-  // Track installation
+  // Track installation with version info
   if (!config.installedComponents.includes(component.name)) {
     config.installedComponents.push(component.name);
   }
+  
+  // Track component version
+  if (!config.componentVersions) {
+    config.componentVersions = {};
+  }
+  config.componentVersions[component.name] = {
+    version: registry.version,
+    installedAt: new Date().toISOString(),
+    source: '@microbuild/ui-interfaces',
+  };
 
   spinner.succeed(`Added ${component.title}`);
   return true;
@@ -471,16 +512,27 @@ export async function add(
     withApi?: boolean;
     category?: string;
     overwrite?: boolean;
+    dryRun?: boolean;
     cwd: string;
   }
 ) {
-  const { cwd, all, withApi, category, overwrite = false } = options;
+  const { cwd, all, withApi, category, overwrite = false, dryRun = false } = options;
+
+  // Dry run mode header
+  if (dryRun) {
+    console.log(chalk.yellow('\n🔍 Dry Run Mode - No files will be modified\n'));
+  }
 
   // Load config
   const config = await loadConfig(cwd);
   if (!config) {
     console.log(chalk.red('\n✗ microbuild.json not found. Run "npx microbuild init" first.\n'));
     process.exit(1);
+  }
+
+  // Initialize componentVersions if not present
+  if (!config.componentVersions) {
+    config.componentVersions = {};
   }
 
   const registry = await getRegistry();
@@ -569,6 +621,43 @@ export async function add(
     return;
   }
 
+  // Dry run mode - show what would be installed
+  if (dryRun) {
+    console.log(chalk.bold(`\n🔍 Dry Run: Would add ${componentsToAdd.length} component(s)\n`));
+    
+    const dryRunInfo: DryRunInfo[] = [];
+    const spinner = ora('Analyzing...').start();
+    
+    for (const component of componentsToAdd) {
+      spinner.text = `Analyzing ${component.title}...`;
+      await copyComponent(component, registry, config, cwd, overwrite, spinner, new Set(), true, dryRunInfo);
+    }
+    
+    spinner.stop();
+    
+    // Display dry run summary
+    console.log(chalk.bold('\n📋 Files that would be created:\n'));
+    
+    for (const info of dryRunInfo) {
+      console.log(chalk.cyan(`  ${info.component}:`));
+      for (const file of info.files) {
+        console.log(chalk.dim(`    → ${file.target}`));
+      }
+    }
+    
+    // Show dependencies
+    const allDryRunDeps = new Set<string>();
+    dryRunInfo.forEach(info => info.dependencies.forEach(dep => allDryRunDeps.add(dep)));
+    
+    if (allDryRunDeps.size > 0) {
+      console.log(chalk.bold('\n📦 External dependencies needed:\n'));
+      Array.from(allDryRunDeps).forEach(dep => console.log(chalk.dim(`    ${dep}`)));
+    }
+    
+    console.log(chalk.dim('\n  Run without --dry-run to install components.\n'));
+    return;
+  }
+
   console.log(chalk.bold(`\n📦 Adding ${componentsToAdd.length} component(s)...\n`));
 
   const spinner = ora('Processing...').start();
@@ -577,11 +666,14 @@ export async function add(
   try {
     for (const component of componentsToAdd) {
       spinner.text = `Adding ${component.title}...`;
-      await copyComponent(component, registry, config, cwd, overwrite, spinner);
+      await copyComponent(component, registry, config, cwd, overwrite, spinner, new Set(), false);
       
       // Collect external dependencies
       component.dependencies.forEach(dep => allDeps.add(dep));
     }
+
+    // Update registry version
+    config.registryVersion = registry.version;
 
     // Save updated config
     await saveConfig(cwd, config);
@@ -620,8 +712,46 @@ export async function add(
     if (missingDeps.length > 0) {
       console.log(chalk.yellow('⚠ Missing dependencies:'));
       missingDeps.forEach(dep => console.log(chalk.dim(`  - ${dep}`)));
-      console.log(chalk.dim('\nInstall with:'));
-      console.log(chalk.cyan(`  pnpm add ${missingDeps.join(' ')}\n`));
+      
+      // Ask user if they want to auto-install
+      const { autoInstall } = await prompts({
+        type: 'confirm',
+        name: 'autoInstall',
+        message: 'Install missing dependencies automatically?',
+        initial: true,
+      });
+      
+      if (autoInstall) {
+        const installSpinner = ora('Installing dependencies...').start();
+        try {
+          // Detect package manager
+          const hasYarnLock = fs.existsSync(path.join(cwd, 'yarn.lock'));
+          const hasPnpmLock = fs.existsSync(path.join(cwd, 'pnpm-lock.yaml'));
+          const hasBunLock = fs.existsSync(path.join(cwd, 'bun.lockb'));
+          
+          let installCmd: string;
+          if (hasPnpmLock) {
+            installCmd = `pnpm add ${missingDeps.join(' ')}`;
+          } else if (hasYarnLock) {
+            installCmd = `yarn add ${missingDeps.join(' ')}`;
+          } else if (hasBunLock) {
+            installCmd = `bun add ${missingDeps.join(' ')}`;
+          } else {
+            installCmd = `npm install ${missingDeps.join(' ')}`;
+          }
+          
+          const { execSync } = await import('child_process');
+          execSync(installCmd, { cwd, stdio: 'pipe' });
+          installSpinner.succeed('Dependencies installed!');
+        } catch (error) {
+          installSpinner.fail('Failed to install dependencies');
+          console.log(chalk.dim('\nInstall manually with:'));
+          console.log(chalk.cyan(`  pnpm add ${missingDeps.join(' ')}\n`));
+        }
+      } else {
+        console.log(chalk.dim('\nInstall manually with:'));
+        console.log(chalk.cyan(`  pnpm add ${missingDeps.join(' ')}\n`));
+      }
     } else {
       console.log(chalk.green('✓ All external dependencies installed\n'));
     }

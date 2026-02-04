@@ -8,6 +8,7 @@
  * - Checks for missing CSS files
  * - Validates required lib modules are present
  * - Checks for React 19 / Next.js 16 compatibility issues
+ * - Runs TypeScript type checking on component files
  * - Suggests fixes for common issues
  */
 
@@ -16,6 +17,7 @@ import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
 import fg from 'fast-glob';
+import { execSync } from 'child_process';
 import { type Config, loadConfig } from './init.js';
 
 interface ValidationResult {
@@ -422,7 +424,93 @@ async function checkDuplicateExports(
     }
   }
   
+  // Check for conflicting named exports across files
+  const componentsDir = path.join(srcDir, 'components/ui');
+  const namedExports = new Map<string, { file: string; line: number }>();
+  
+  for (const [exportFile] of exports) {
+    const filePath = path.join(componentsDir, exportFile + '.tsx');
+    if (!fs.existsSync(filePath)) continue;
+    
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+    const namedExportPattern = /export\s+(?:const|function|class|type|interface|enum)\s+(\w+)/g;
+    
+    let namedMatch;
+    while ((namedMatch = namedExportPattern.exec(fileContent)) !== null) {
+      const exportName = namedMatch[1];
+      
+      if (namedExports.has(exportName)) {
+        const firstExport = namedExports.get(exportName)!;
+        warnings.push({
+          file: `components/ui/${exportFile}.tsx`,
+          message: `Conflicting export '${exportName}' also exported from '${firstExport.file}'. This will cause 'export *' conflicts in index.ts`,
+          code: 'CONFLICTING_NAMED_EXPORT',
+        });
+      } else {
+        namedExports.set(exportName, { file: exportFile, line: 0 });
+      }
+    }
+  }
+  
   return warnings;
+}
+
+/**
+ * Run TypeScript type checking on component files
+ */
+async function checkTypeScriptErrors(
+  cwd: string,
+  config: Config
+): Promise<ValidationError[]> {
+  const errors: ValidationError[] = [];
+  
+  // Check if tsconfig.json exists
+  const tsconfigPath = path.join(cwd, 'tsconfig.json');
+  if (!fs.existsSync(tsconfigPath)) {
+    return errors; // Skip if no tsconfig
+  }
+  
+  // Check if TypeScript is available
+  try {
+    const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
+    const componentsDir = path.join(srcDir, 'components/ui');
+    
+    if (!fs.existsSync(componentsDir)) {
+      return errors;
+    }
+    
+    // Run tsc with --noEmit on specific files
+    const result = execSync(
+      `npx tsc --noEmit --skipLibCheck --pretty false 2>&1 || true`,
+      { cwd, encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 }
+    );
+    
+    // Parse TypeScript output
+    // Format: filename(line,col): error TS####: message
+    const tsErrorPattern = /^(.+?)\((\d+),(\d+)\):\s+(error|warning)\s+(TS\d+):\s+(.+)$/gm;
+    let match;
+    
+    while ((match = tsErrorPattern.exec(result)) !== null) {
+      const [, file, line, , severity, tsCode, message] = match;
+      const relativePath = path.relative(cwd, file);
+      
+      // Only include errors from components/ui or lib/microbuild
+      if (relativePath.includes('components/ui') || relativePath.includes('lib/microbuild')) {
+        if (severity === 'error') {
+          errors.push({
+            file: relativePath,
+            line: parseInt(line, 10),
+            message: `${tsCode}: ${message}`,
+            code: 'TYPESCRIPT_ERROR',
+          });
+        }
+      }
+    }
+  } catch {
+    // TypeScript not available or other error - skip silently
+  }
+  
+  return errors;
 }
 
 /**
@@ -433,6 +521,14 @@ function generateSuggestions(
   warnings: ValidationWarning[]
 ): string[] {
   const suggestions: string[] = [];
+  
+  // TypeScript errors
+  const tsErrorCount = errors.filter(e => e.code === 'TYPESCRIPT_ERROR').length;
+  if (tsErrorCount > 0) {
+    suggestions.push(
+      `Fix ${tsErrorCount} TypeScript error(s) in component files`
+    );
+  }
   
   // Untransformed imports
   const untransformedCount = errors.filter(e => e.code === 'UNTRANSFORMED_IMPORT').length;
@@ -516,9 +612,8 @@ function generateSuggestions(
 export async function validate(options: {
   cwd: string;
   json?: boolean;
-  fix?: boolean;
 }) {
-  const { cwd, json = false, fix = false } = options;
+  const { cwd, json = false } = options;
   
   // Load config
   const config = await loadConfig(cwd);
@@ -539,7 +634,7 @@ export async function validate(options: {
   const spinner = json ? null : ora('Validating Microbuild installation...').start();
   
   try {
-    // Run all checks
+    // Run all checks (TypeScript check is separate as it's slower)
     const [
       untransformedErrors,
       brokenImportErrors,
@@ -560,7 +655,13 @@ export async function validate(options: {
       checkDuplicateExports(cwd, config),
     ]);
     
-    const errors = [...untransformedErrors, ...brokenImportErrors, ...libModuleErrors];
+    // Run TypeScript check (slower, run separately)
+    if (spinner) {
+      spinner.text = 'Running TypeScript check...';
+    }
+    const tsErrors = await checkTypeScriptErrors(cwd, config);
+    
+    const errors = [...untransformedErrors, ...brokenImportErrors, ...libModuleErrors, ...tsErrors];
     const warnings = [...missingCssWarnings, ...ssrWarnings, ...apiRouteWarnings, ...react19Warnings, ...duplicateExportWarnings];
     const suggestions = generateSuggestions(errors, warnings);
     

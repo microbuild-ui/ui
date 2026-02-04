@@ -78,16 +78,17 @@ export function getFormFields(fields: Field[]): FormField[] {
 
     // Add divider between system and user fields
     if (userFields.length > 0) {
+      // NOTE: Using 'system-divider' instead of '$system_divider' to avoid PostCSS variable conflicts
       const divider: FormField = {
         collection: '',
-        field: '$system_divider',
+        field: 'system-divider',
         name: 'System Divider',
         type: 'alias',
         schema: undefined,
         meta: {
           id: -1,
           collection: '',
-          field: '$system_divider',
+          field: 'system-divider',
           interface: 'presentation-divider',
           group: null,
           special: ['alias'],

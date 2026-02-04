@@ -5,6 +5,18 @@ import ora from 'ora';
 import prompts from 'prompts';
 
 /**
+ * Component version info for tracking updates
+ */
+export interface ComponentVersion {
+  /** Registry version when installed */
+  version: string;
+  /** Installation timestamp */
+  installedAt: string;
+  /** Source package (e.g., @microbuild/ui-interfaces) */
+  source: string;
+}
+
+/**
  * Microbuild Configuration File
  * 
  * Copy & Own Model:
@@ -32,6 +44,10 @@ export interface Config {
   installedLib: string[];
   /** Installed components */
   installedComponents: string[];
+  /** Component version tracking for update detection */
+  componentVersions?: Record<string, ComponentVersion>;
+  /** Registry version at last install */
+  registryVersion?: string;
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -45,6 +61,8 @@ const DEFAULT_CONFIG: Config = {
   },
   installedLib: [],
   installedComponents: [],
+  componentVersions: {},
+  registryVersion: '1.0.0',
 };
 
 export async function init(options: { yes?: boolean; cwd: string }) {
@@ -73,6 +91,7 @@ export async function init(options: { yes?: boolean; cwd: string }) {
   const packageJsonPath = path.join(cwd, 'package.json');
   let projectType = 'unknown';
   let hasSrcDir = fs.existsSync(path.join(cwd, 'src'));
+  let createdPackageJson = false;
 
   if (fs.existsSync(packageJsonPath)) {
     const packageJson = await fs.readJSON(packageJsonPath);
@@ -87,6 +106,44 @@ export async function init(options: { yes?: boolean; cwd: string }) {
     } else if (packageJson.dependencies?.['react']) {
       projectType = 'react';
     }
+  } else {
+    // Create a minimal package.json for empty projects
+    console.log(chalk.yellow('⚠ No package.json found. Creating minimal Next.js project...\n'));
+    
+    const projectName = path.basename(cwd);
+    const minimalPackageJson = {
+      name: projectName,
+      version: '0.1.0',
+      private: true,
+      scripts: {
+        dev: 'next dev --turbopack',
+        build: 'next build',
+        start: 'next start',
+        lint: 'next lint'
+      },
+      dependencies: {
+        'next': '^15.0.0',
+        'react': '^19.0.0',
+        'react-dom': '^19.0.0',
+        '@mantine/core': '^8.0.0',
+        '@mantine/hooks': '^8.0.0',
+        '@tabler/icons-react': '^3.0.0',
+        'clsx': '^2.0.0',
+        'tailwind-merge': '^2.0.0'
+      },
+      devDependencies: {
+        '@types/node': '^20',
+        '@types/react': '^19',
+        '@types/react-dom': '^19',
+        'typescript': '^5'
+      }
+    };
+    
+    await fs.writeJSON(packageJsonPath, minimalPackageJson, { spaces: 2 });
+    projectType = 'next';
+    hasSrcDir = false; // New projects use App Router without src/
+    createdPackageJson = true;
+    console.log(chalk.green('✓ Created package.json\n'));
   }
 
   console.log(chalk.dim(`Detected: ${projectType} project${hasSrcDir ? ' with src directory' : ''}\n`));
