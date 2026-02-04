@@ -198,6 +198,63 @@
         }
       ],
       "internalDependencies": ["types", "services"]
+    },
+    "api-routes": {
+      "name": "api-routes",
+      "description": "DaaS proxy API routes for fields, items, relations, and files",
+      "files": [
+        {
+          "source": "cli/templates/api/auth-headers.ts",
+          "target": "lib/api/auth-headers.ts"
+        },
+        {
+          "source": "cli/templates/api/fields-route.ts",
+          "target": "app/api/fields/[collection]/route.ts"
+        },
+        {
+          "source": "cli/templates/api/items-route.ts",
+          "target": "app/api/items/[collection]/route.ts"
+        },
+        {
+          "source": "cli/templates/api/items-id-route.ts",
+          "target": "app/api/items/[collection]/[id]/route.ts"
+        },
+        {
+          "source": "cli/templates/api/relations-route.ts",
+          "target": "app/api/relations/route.ts"
+        },
+        {
+          "source": "cli/templates/api/files-route.ts",
+          "target": "app/api/files/route.ts"
+        },
+        {
+          "source": "cli/templates/api/files-id-route.ts",
+          "target": "app/api/files/[id]/route.ts"
+        }
+      ],
+      "internalDependencies": ["supabase-auth"]
+    },
+    "supabase-auth": {
+      "name": "supabase-auth",
+      "description": "Supabase authentication clients and middleware for Next.js",
+      "files": [
+        {
+          "source": "cli/templates/supabase/client.ts",
+          "target": "lib/supabase/client.ts"
+        },
+        {
+          "source": "cli/templates/supabase/server.ts",
+          "target": "lib/supabase/server.ts"
+        },
+        {
+          "source": "cli/templates/supabase/middleware.ts",
+          "target": "lib/supabase/middleware.ts"
+        },
+        {
+          "source": "cli/templates/middleware/middleware.ts",
+          "target": "middleware.ts"
+        }
+      ]
     }
   },
 

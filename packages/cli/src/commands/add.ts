@@ -20,8 +20,10 @@ import {
   transformImports, 
   transformRelativeImports,
   transformVFormImports,
+  normalizeImportPaths,
   addOriginHeader
 } from './transformer.js';
+import { validate } from './validate.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -466,12 +468,13 @@ export async function add(
   components: string[],
   options: {
     all?: boolean;
+    withApi?: boolean;
     category?: string;
     overwrite?: boolean;
     cwd: string;
   }
 ) {
-  const { cwd, all, category, overwrite = false } = options;
+  const { cwd, all, withApi, category, overwrite = false } = options;
 
   // Load config
   const config = await loadConfig(cwd);
@@ -481,6 +484,25 @@ export async function add(
   }
 
   const registry = await getRegistry();
+
+  // If --with-api flag is set, add api-routes and supabase-auth lib modules
+  if (withApi || all) {
+    console.log(chalk.bold('\n🔌 Installing API routes and Supabase auth...\n'));
+    const spinner = ora('Processing lib modules...').start();
+    
+    // Install supabase-auth first (dependency of api-routes)
+    if (registry.lib['supabase-auth'] && !config.installedLib.includes('supabase-auth')) {
+      await copyLibModule('supabase-auth', registry, config, cwd, spinner);
+    }
+    
+    // Install api-routes
+    if (registry.lib['api-routes'] && !config.installedLib.includes('api-routes')) {
+      await copyLibModule('api-routes', registry, config, cwd, spinner);
+    }
+    
+    spinner.succeed('API routes and auth installed!');
+    await saveConfig(cwd, config);
+  }
 
   // Determine which components to add
   let componentsToAdd: ComponentEntry[] = [];
@@ -568,6 +590,14 @@ export async function add(
     await generateComponentsIndex(config, cwd, registry, spinner);
 
     spinner.succeed('All components added!');
+
+    // Run post-install validation to catch any issues
+    console.log(chalk.bold('\n🔍 Running post-install validation...\n'));
+    try {
+      await validate({ cwd, json: false });
+    } catch {
+      // Validation errors are already printed, continue with summary
+    }
 
     // Check for missing external dependencies
     console.log(chalk.bold('\n📦 External dependencies...\n'));

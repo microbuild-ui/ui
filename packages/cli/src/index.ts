@@ -41,6 +41,7 @@ program
   .description('Copy components to your project (with transformed imports)')
   .argument('[components...]', 'Component names to add')
   .option('-a, --all', 'Add all components')
+  .option('--with-api', 'Also add API routes and Supabase auth templates')
   .option('--category <name>', 'Add all components from a category')
   .option('-o, --overwrite', 'Overwrite existing components')
   .option('--cwd <path>', 'Project directory', process.cwd())

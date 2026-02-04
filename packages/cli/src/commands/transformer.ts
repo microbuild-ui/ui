@@ -114,6 +114,7 @@ export function getImportMappings(config: Config): ImportMapping[] {
 
 /**
  * Transform a file's content by replacing @microbuild/* imports with local paths
+ * Also normalizes import paths to use consistent kebab-case file names
  */
 export function transformImports(content: string, config: Config): string {
   const mappings = getImportMappings(config);
@@ -122,6 +123,9 @@ export function transformImports(content: string, config: Config): string {
   for (const mapping of mappings) {
     result = result.replace(mapping.from, mapping.to);
   }
+
+  // Normalize any PascalCase import paths to kebab-case
+  result = normalizeImportPaths(result);
 
   return result;
 }
@@ -175,6 +179,38 @@ export function toPascalCase(str: string): string {
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
+}
+
+/**
+ * Normalize import paths to use consistent kebab-case file names
+ * Fixes issues where imports use PascalCase but files are kebab-case
+ * 
+ * Examples:
+ *   ./InputBlockEditor → ./input-block-editor
+ *   ./FileImage → ./file-image
+ *   ../Upload/Upload → ./upload
+ */
+export function normalizeImportPaths(content: string): string {
+  // Pattern matches relative imports with PascalCase filenames
+  // e.g., from './InputBlockEditor' or from '../Upload/Upload'
+  const pascalCaseImportPattern = /from\s+['"](\.\.\/?|\.\/)([A-Z][a-zA-Z0-9]*(?:\/[A-Z][a-zA-Z0-9]*)?)['"]/g;
+  
+  return content.replace(pascalCaseImportPattern, (match, prefix, importPath) => {
+    // Extract the last component (filename) from the path
+    const parts = importPath.split('/');
+    const fileName = parts[parts.length - 1];
+    
+    // Convert to kebab-case
+    const kebabFileName = toKebabCase(fileName);
+    
+    // If it was a nested path like '../Upload/Upload', flatten to './upload'
+    if (prefix === '../' && parts.length >= 1) {
+      return `from './${kebabFileName}'`;
+    }
+    
+    // Otherwise, just convert the filename
+    return `from '${prefix}${kebabFileName}'`;
+  });
 }
 
 /**

@@ -208,27 +208,65 @@ async function checkSsrIssues(
 async function checkApiRoutes(cwd: string): Promise<ValidationWarning[]> {
   const warnings: ValidationWarning[] = [];
   
-  const apiDir = path.join(cwd, 'app/api');
+  // Check for srcDir vs non-srcDir project structure
+  const srcDir = fs.existsSync(path.join(cwd, 'src/app')) 
+    ? path.join(cwd, 'src') 
+    : cwd;
+  const appDir = path.join(srcDir, 'app');
+  const apiDir = path.join(appDir, 'api');
   
   // Required API routes for DaaS integration
   const requiredRoutes = [
-    'fields/[collection]/route.ts',
-    'items/[collection]/route.ts',
-    'items/[collection]/[id]/route.ts',
-    'permissions/me/route.ts',
+    { path: 'fields/[collection]/route.ts', description: 'Fetch collection field schemas' },
+    { path: 'items/[collection]/route.ts', description: 'List/Create items' },
+    { path: 'items/[collection]/[id]/route.ts', description: 'Get/Update/Delete item' },
   ];
   
-  if (fs.existsSync(apiDir)) {
-    for (const route of requiredRoutes) {
-      const routePath = path.join(apiDir, route);
-      if (!fs.existsSync(routePath)) {
-        warnings.push({
-          file: `app/api/${route}`,
-          message: 'Missing API route for DaaS integration',
-          code: 'MISSING_API_ROUTE',
-        });
-      }
+  // Optional but recommended routes
+  const recommendedRoutes = [
+    { path: 'relations/route.ts', description: 'Relation definitions (for M2M/M2O/O2M)' },
+    { path: 'files/route.ts', description: 'File operations (for file components)' },
+  ];
+  
+  if (!fs.existsSync(apiDir)) {
+    warnings.push({
+      file: 'app/api/',
+      message: 'Missing API directory. Forms require API routes to fetch data from DaaS.',
+      code: 'MISSING_API_DIR',
+    });
+    return warnings;
+  }
+  
+  for (const route of requiredRoutes) {
+    const routePath = path.join(apiDir, route.path);
+    if (!fs.existsSync(routePath)) {
+      warnings.push({
+        file: `app/api/${route.path}`,
+        message: `Missing required API route: ${route.description}`,
+        code: 'MISSING_API_ROUTE',
+      });
     }
+  }
+  
+  for (const route of recommendedRoutes) {
+    const routePath = path.join(apiDir, route.path);
+    if (!fs.existsSync(routePath)) {
+      warnings.push({
+        file: `app/api/${route.path}`,
+        message: `Missing recommended API route: ${route.description}`,
+        code: 'MISSING_OPTIONAL_API_ROUTE',
+      });
+    }
+  }
+  
+  // Check for auth-headers helper
+  const authHeadersPath = path.join(srcDir, 'lib/api/auth-headers.ts');
+  if (!fs.existsSync(authHeadersPath)) {
+    warnings.push({
+      file: 'lib/api/auth-headers.ts',
+      message: 'Missing auth-headers helper. API routes need this to forward auth tokens.',
+      code: 'MISSING_AUTH_HELPER',
+    });
   }
   
   return warnings;
@@ -444,9 +482,12 @@ function generateSuggestions(
   
   // Missing API routes
   const missingRouteCount = warnings.filter(w => w.code === 'MISSING_API_ROUTE').length;
-  if (missingRouteCount > 0) {
+  const missingApiDir = warnings.some(w => w.code === 'MISSING_API_DIR');
+  const missingAuthHelper = warnings.some(w => w.code === 'MISSING_AUTH_HELPER');
+  
+  if (missingApiDir || missingRouteCount > 0 || missingAuthHelper) {
     suggestions.push(
-      `Create missing API routes using templates from microbuild-copilot/.github/templates/api/`
+      `Install API routes and auth helpers: pnpm cli add api-routes --cwd .`
     );
   }
   
