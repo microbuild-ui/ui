@@ -20,6 +20,7 @@ import { diff } from './commands/diff.js';
 import { status } from './commands/status.js';
 import { info } from './commands/info.js';
 import { tree } from './commands/tree.js';
+import { validate } from './commands/validate.js';
 
 const program = new Command();
 
@@ -81,5 +82,12 @@ program
   .option('--json', 'Output as JSON')
   .option('-d, --depth <number>', 'Max depth to display', '2')
   .action((component, options) => tree(component, { ...options, depth: parseInt(options.depth) }));
+
+program
+  .command('validate')
+  .description('Validate Microbuild installation (check imports, missing files, SSR issues)')
+  .option('--json', 'Output as JSON')
+  .option('--cwd <path>', 'Project directory', process.cwd())
+  .action(validate);
 
 program.parse();

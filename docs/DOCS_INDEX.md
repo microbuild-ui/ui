@@ -30,6 +30,8 @@ microbuild list --json          # Get all components as JSON
 microbuild info <component>     # Detailed component info
 microbuild tree <component>     # Show dependency tree
 microbuild add <component>      # Add component with all dependencies
+microbuild validate             # Check for common installation issues
+microbuild validate --json      # JSON output for CI/CD
 ```
 
 ## 🎯 Quick Navigation
@@ -108,6 +110,7 @@ microbuild add <component>      # Add component with all dependencies
 | Add component | `microbuild add input` | [packages/cli/README.md](../packages/cli/README.md#add) |
 | Initialize project | `microbuild init` | [packages/cli/README.md](../packages/cli/README.md#init) |
 | Check status | `microbuild status` | [packages/cli/README.md](../packages/cli/README.md#status) |
+| Validate installation | `microbuild validate` | [packages/cli/README.md](../packages/cli/README.md#validate) |
 
 ## 🎨 Component Categories
 
@@ -142,7 +145,7 @@ microbuild add <component>      # Add component with all dependencies
 - [WorkflowButton](../packages/README.md#microbuildui-interfaces) - State transitions with policy-based commands
 
 ### Rich Text Components
-- [InputBlockEditor](../packages/README.md#microbuildui-interfaces) - Block-based editor (EditorJS)
+- [InputBlockEditor](../packages/README.md#microbuildui-interfaces) - Block-based editor using EditorJS (SSR-safe wrapper)
 - [RichTextHTML](../packages/README.md#microbuildui-interfaces) - WYSIWYG HTML editor (TipTap)
 - [RichTextMarkdown](../packages/README.md#microbuildui-interfaces) - Markdown editor with preview
 

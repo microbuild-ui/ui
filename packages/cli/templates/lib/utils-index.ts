@@ -11,6 +11,7 @@ export { cn, formatFileSize, getFileCategory, getAssetUrl, generateSlug } from '
 // Field interface mapping (from @microbuild/utils)
 export { 
   getFieldInterface,
+  getFieldDefault,
   type InterfaceType,
   type InterfaceConfig,
 } from '../field-interface-mapper';

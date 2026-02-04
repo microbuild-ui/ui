@@ -151,6 +151,26 @@ The status command shows:
 - Their versions and installation dates
 - Origin tracking for updates
 
+### Validate Installation
+
+```bash
+# Check for common issues
+microbuild validate
+
+# JSON output for CI/CD
+microbuild validate --json
+
+# Run in specific directory
+microbuild validate --cwd /path/to/project
+```
+
+The validate command checks for:
+- **Untransformed imports** - `@microbuild/*` imports that weren't converted
+- **Missing lib files** - Required utility modules not installed
+- **Missing CSS files** - CSS required by rich text/block editors
+- **SSR issues** - Components exported without SSR-safe wrappers
+- **Missing API routes** - DaaS integration routes not created
+
 ## 🧪 Testing the Setup
 
 ### Test MCP Server

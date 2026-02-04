@@ -18,6 +18,8 @@ microbuild info <component>        # Get full details about a component
 microbuild tree <component>        # Show dependency tree
 microbuild add <component>         # Add component to project
 microbuild status                  # Show installed components
+microbuild validate                # Validate installation (imports, SSR, missing files)
+microbuild validate --json         # JSON output for CI/CD
 ```
 
 ## Component Locations
@@ -153,6 +155,25 @@ microbuild status --json
 microbuild info input
 microbuild info vform
 ```
+
+### Task 6: Validate installation
+```bash
+# Check for common issues (untransformed imports, missing files, SSR problems)
+microbuild validate
+
+# JSON output for CI/CD integration
+microbuild validate --json
+
+# Run in specific directory
+microbuild validate --cwd /path/to/project
+```
+
+The validate command checks for:
+- **Untransformed imports** - `@microbuild/*` imports that weren't converted to local paths
+- **Missing lib files** - Required utility modules not present
+- **Missing CSS files** - CSS required by rich text/block editors
+- **SSR issues** - Components exported without SSR-safe wrappers
+- **Missing API routes** - DaaS integration routes
 
 ## Registry Schema
 

@@ -1,5 +1,5 @@
 // src/CollectionForm.tsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Paper,
   Stack,
@@ -28,23 +28,43 @@ var READ_ONLY_FIELDS = [
   "date_created",
   "date_updated"
 ];
+var EMPTY_OBJECT = {};
+var EMPTY_ARRAY = [];
 var CollectionForm = ({
   collection,
   id,
   mode = "create",
-  defaultValues = {},
+  defaultValues,
   onSuccess,
   onCancel,
-  excludeFields = [],
+  excludeFields,
   includeFields
 }) => {
+  const stableDefaultValues = useMemo(
+    () => defaultValues || EMPTY_OBJECT,
+    [defaultValues]
+  );
+  const stableExcludeFields = useMemo(
+    () => excludeFields || EMPTY_ARRAY,
+    [excludeFields]
+  );
+  const stableIncludeFields = useMemo(
+    () => includeFields,
+    [includeFields]
+  );
   const [fields, setFields] = useState([]);
-  const [formData, setFormData] = useState(defaultValues);
+  const [formData, setFormData] = useState(stableDefaultValues);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const dataLoadedRef = useRef(false);
+  const lastLoadKey = useRef("");
   useEffect(() => {
+    const loadKey = `${collection}-${id}-${mode}`;
+    if (dataLoadedRef.current && lastLoadKey.current === loadKey) {
+      return;
+    }
     const loadData = async () => {
       try {
         setLoading(true);
@@ -52,16 +72,16 @@ var CollectionForm = ({
         const fieldsService = new FieldsService();
         const allFields = await fieldsService.readAll(collection);
         const editableFields = allFields.filter((f) => {
-          if (SYSTEM_FIELDS.includes(f.field) && !defaultValues[f.field]) {
+          if (SYSTEM_FIELDS.includes(f.field) && !stableDefaultValues[f.field]) {
             return false;
           }
           if (f.type === "alias") {
             return false;
           }
-          if (excludeFields.includes(f.field)) {
+          if (stableExcludeFields.includes(f.field)) {
             return false;
           }
-          if (includeFields && !includeFields.includes(f.field)) {
+          if (stableIncludeFields && !stableIncludeFields.includes(f.field)) {
             return false;
           }
           return true;
@@ -70,10 +90,12 @@ var CollectionForm = ({
         if (mode === "edit" && id) {
           const itemsService = new ItemsService(collection);
           const item = await itemsService.readOne(id);
-          setFormData({ ...defaultValues, ...item });
+          setFormData({ ...stableDefaultValues, ...item });
         } else {
-          setFormData(defaultValues);
+          setFormData(stableDefaultValues);
         }
+        dataLoadedRef.current = true;
+        lastLoadKey.current = loadKey;
       } catch (err) {
         console.error("Error loading form data:", err);
         setError(err instanceof Error ? err.message : "Failed to load form data");
@@ -82,7 +104,7 @@ var CollectionForm = ({
       }
     };
     loadData();
-  }, [collection, id, mode, defaultValues, excludeFields, includeFields]);
+  }, [collection, id, mode, stableDefaultValues, stableExcludeFields, stableIncludeFields]);
   const handleFormUpdate = useCallback((values) => {
     setFormData((prev) => ({
       ...prev,
@@ -100,7 +122,7 @@ var CollectionForm = ({
       const itemsService = new ItemsService(collection);
       const dataToSave = { ...formData };
       READ_ONLY_FIELDS.forEach((f) => {
-        if (!defaultValues[f]) {
+        if (!stableDefaultValues[f]) {
           delete dataToSave[f];
         }
       });

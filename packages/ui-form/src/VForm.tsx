@@ -86,29 +86,52 @@ export interface VFormProps {
   onPermissionsLoaded?: (accessibleFields: string[]) => void;
 }
 
+// Stable empty references to prevent re-renders
+const EMPTY_OBJECT: FieldValues = {};
+const EMPTY_ARRAY: string[] = [];
+const EMPTY_VALIDATION_ERRORS: ValidationError[] = [];
+
 /**
  * VForm - Dynamic form component
  */
 export const VForm: React.FC<VFormProps> = ({
   collection,
   fields: fieldsProp,
-  modelValue = {},
-  initialValues = {},
+  modelValue,
+  initialValues,
   onUpdate,
   primaryKey,
   disabled = false,
   loading: loadingProp = false,
-  validationErrors = [],
+  validationErrors,
   autofocus = false,
   group = null,
   showDivider: _showDivider = false, // prefixed with _ to indicate it's intentionally unused for now
   showNoVisibleFields = true,
-  excludeFields = [],
+  excludeFields,
   className,
   action,
   enforcePermissions = false,
   onPermissionsLoaded,
 }) => {
+  // Use stable references for optional props
+  const stableModelValue = useMemo(
+    () => modelValue || EMPTY_OBJECT,
+    [modelValue]
+  );
+  const stableInitialValues = useMemo(
+    () => initialValues || EMPTY_OBJECT,
+    [initialValues]
+  );
+  const stableValidationErrors = useMemo(
+    () => validationErrors || EMPTY_VALIDATION_ERRORS,
+    [validationErrors]
+  );
+  const stableExcludeFields = useMemo(
+    () => excludeFields || EMPTY_ARRAY,
+    [excludeFields]
+  );
+  
   const [fields, setFields] = useState<Field[]>([]);
   const [loadingFields, setLoadingFields] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -222,8 +245,8 @@ export const VForm: React.FC<VFormProps> = ({
     }
 
     // Exclude specified fields
-    if (excludeFields.length > 0) {
-      processed = processed.filter((f) => !excludeFields.includes(f.field));
+    if (stableExcludeFields.length > 0) {
+      processed = processed.filter((f) => !stableExcludeFields.includes(f.field));
     }
 
     // Filter by permissions if enforced
@@ -239,7 +262,7 @@ export const VForm: React.FC<VFormProps> = ({
     processed = updateFieldWidths(processed);
 
     return processed;
-  }, [fields, group, excludeFields, enforcePermissions, accessibleFields]);
+  }, [fields, group, stableExcludeFields, enforcePermissions, accessibleFields]);
 
   // Get visible fields (excluding hidden and presentation-only fields)
   const visibleFields = useMemo(() => {
@@ -256,10 +279,10 @@ export const VForm: React.FC<VFormProps> = ({
   const allValues = useMemo(() => {
     return {
       ...defaultValues,
-      ...initialValues,
-      ...modelValue,
+      ...stableInitialValues,
+      ...stableModelValue,
     };
-  }, [defaultValues, initialValues, modelValue]);
+  }, [defaultValues, stableInitialValues, stableModelValue]);
 
   // Handle field value change
   const handleFieldChange = useCallback(
@@ -268,21 +291,21 @@ export const VForm: React.FC<VFormProps> = ({
       if (!field) return;
 
       // Check if value is same as initial/default
-      const initialValue = initialValues[fieldName] ?? defaultValues[fieldName];
+      const initialValue = stableInitialValues[fieldName] ?? defaultValues[fieldName];
       if (value === initialValue) {
         // Remove from edits
-        const newValues = { ...modelValue };
+        const newValues = { ...stableModelValue };
         delete newValues[fieldName];
         onUpdate?.(newValues);
       } else {
         // Add to edits
         onUpdate?.({
-          ...modelValue,
+          ...stableModelValue,
           [fieldName]: value,
         });
       }
     },
-    [fields, initialValues, defaultValues, modelValue, onUpdate]
+    [fields, stableInitialValues, defaultValues, stableModelValue, onUpdate]
   );
 
   // Handle field unset
@@ -298,14 +321,14 @@ export const VForm: React.FC<VFormProps> = ({
   // Get validation error for a field
   const getFieldError = useCallback(
     (fieldName: string): ValidationError | undefined => {
-      return validationErrors.find(
+      return stableValidationErrors.find(
         (err) =>
           err.field === fieldName ||
           err.field.endsWith(`(${fieldName})`) ||
           (err.collection === collection && err.field === fieldName)
       );
     },
-    [validationErrors, collection]
+    [stableValidationErrors, collection]
   );
 
   // Show loading skeleton
@@ -370,7 +393,7 @@ export const VForm: React.FC<VFormProps> = ({
               key={field.field}
               field={field}
               value={allValues[field.field]}
-              initialValue={initialValues[field.field]}
+              initialValue={stableInitialValues[field.field]}
               onChange={(value) => handleFieldChange(field.field, value)}
               onUnset={() => handleFieldUnset(field.field)}
               disabled={disabled}

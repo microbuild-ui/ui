@@ -99,6 +99,57 @@ Options:
   -h, --help         display help for command
 ```
 
+## validate
+
+Use the `validate` command to check your Microbuild installation for common issues.
+
+```bash
+npx @microbuild/cli validate
+```
+
+### Options
+
+```
+Usage: microbuild validate [options]
+
+validate Microbuild installation (check imports, missing files, SSR issues)
+
+Options:
+  --json           output as JSON for CI/CD
+  -c, --cwd <cwd>  the working directory (defaults to current directory)
+  -h, --help       display help for command
+```
+
+### What It Checks
+
+- **Untransformed imports** - `@microbuild/*` imports that weren't converted to local paths
+- **Missing lib files** - Required utility modules not present (types, services, hooks, utils)
+- **Missing CSS files** - CSS required by rich text editors (RichTextHTML.css, InputBlockEditor.css)
+- **SSR issues** - Components like InputBlockEditor exported without SSR-safe wrappers
+- **Missing API routes** - DaaS integration routes for fields, items, permissions
+
+### Example Output
+
+```
+✗ Found 2 error(s):
+
+  ✗ src/components/ui/input.tsx:5
+    Untransformed import: import { Field } from '@microbuild/types';
+
+  ✗ lib/microbuild/interface-registry.ts
+    Missing required file for utils module
+
+⚠ Found 1 warning(s):
+
+  ⚠ components/ui/index.ts
+    InputBlockEditor exported directly may cause SSR errors. Use input-block-editor-wrapper instead.
+
+💡 Suggestions:
+
+  1. Fix 2 untransformed import(s) by running: pnpm cli add --all --overwrite --cwd .
+  2. Update components/ui/index.ts to export InputBlockEditor from './input-block-editor-wrapper'
+```
+
 ## diff
 
 Use the `diff` command to preview changes before adding a component.

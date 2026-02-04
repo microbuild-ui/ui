@@ -497,7 +497,7 @@ import { WorkflowButton } from '@microbuild/ui-interfaces';
 
 | Component | Description | Key Props |
 |-----------|-------------|-----------|
-| `InputBlockEditor` | Block-based editor (EditorJS) | `tools`, `placeholder`, `font` |
+| `InputBlockEditor` | Block-based editor using EditorJS (SSR-safe with dynamic import) | `tools`, `placeholder`, `font` |
 | `RichTextHTML` | WYSIWYG HTML editor (TipTap) | `toolbar`, `softLength`, `minimal` |
 | `RichTextMarkdown` | Markdown editor with preview | `toolbar`, `softLength`, `editorFont` |
 

@@ -49,6 +49,10 @@
           "target": "lib/microbuild/define-interface.ts"
         },
         {
+          "source": "utils/src/interface-registry.ts",
+          "target": "lib/microbuild/interface-registry.ts"
+        },
+        {
           "source": "cli/templates/lib/utils-index.ts",
           "target": "lib/microbuild/utils/index.ts"
         }
@@ -269,12 +273,20 @@
     {
       "name": "input-block-editor",
       "title": "InputBlockEditor",
-      "description": "Block-based content editor using EditorJS",
+      "description": "Block-based content editor using EditorJS (SSR-safe wrapper)",
       "category": "input",
       "files": [
         {
+          "source": "ui-interfaces/src/input-block-editor/index.tsx",
+          "target": "components/ui/input-block-editor-wrapper.tsx"
+        },
+        {
           "source": "ui-interfaces/src/input-block-editor/InputBlockEditor.tsx",
           "target": "components/ui/input-block-editor.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/input-block-editor/InputBlockEditor.css",
+          "target": "components/ui/InputBlockEditor.css"
         }
       ],
       "dependencies": ["@mantine/core", "@editorjs/editorjs", "@editorjs/header", "@editorjs/nested-list", "@editorjs/paragraph", "@editorjs/code", "@editorjs/quote", "@editorjs/checklist", "@editorjs/delimiter", "@editorjs/table", "@editorjs/underline", "@editorjs/inline-code"],
@@ -943,6 +955,10 @@
         {
           "source": "ui-interfaces/src/rich-text-html/RichTextHtml.tsx",
           "target": "components/ui/rich-text-html.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/rich-text-html/RichTextHTML.css",
+          "target": "components/ui/RichTextHTML.css"
         }
       ],
       "dependencies": ["@mantine/core", "@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link"],
@@ -969,6 +985,10 @@
         {
           "source": "ui-interfaces/src/rich-text-markdown/RichTextMarkdown.tsx",
           "target": "components/ui/rich-text-markdown.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/rich-text-markdown/RichTextMarkdown.css",
+          "target": "components/ui/RichTextMarkdown.css"
         }
       ],
       "dependencies": ["@mantine/core"],

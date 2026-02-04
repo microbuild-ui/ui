@@ -13,7 +13,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
     Paper,
     Stack,
@@ -66,6 +66,10 @@ const READ_ONLY_FIELDS = [
     'date_updated',
 ];
 
+// Stable empty references to prevent re-renders
+const EMPTY_OBJECT: Record<string, unknown> = {};
+const EMPTY_ARRAY: string[] = [];
+
 /**
  * CollectionForm - Dynamic form for creating/editing collection items
  */
@@ -73,21 +77,47 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
     collection,
     id,
     mode = 'create',
-    defaultValues = {},
+    defaultValues,
     onSuccess,
     onCancel,
-    excludeFields = [],
+    excludeFields,
     includeFields,
 }) => {
+    // Use stable references for optional props
+    const stableDefaultValues = useMemo(
+        () => defaultValues || EMPTY_OBJECT,
+        [defaultValues]
+    );
+    const stableExcludeFields = useMemo(
+        () => excludeFields || EMPTY_ARRAY,
+        [excludeFields]
+    );
+    const stableIncludeFields = useMemo(
+        () => includeFields,
+        [includeFields]
+    );
+    
     const [fields, setFields] = useState<Field[]>([]);
-    const [formData, setFormData] = useState<Record<string, unknown>>(defaultValues);
+    const [formData, setFormData] = useState<Record<string, unknown>>(stableDefaultValues);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    
+    // Track if data has been loaded to prevent re-fetching
+    const dataLoadedRef = useRef(false);
+    const lastLoadKey = useRef<string>('');
 
     // Load fields and item data
     useEffect(() => {
+        // Create a unique key for this load request
+        const loadKey = `${collection}-${id}-${mode}`;
+        
+        // Skip if already loaded for the same key
+        if (dataLoadedRef.current && lastLoadKey.current === loadKey) {
+            return;
+        }
+        
         const loadData = async () => {
             try {
                 setLoading(true);
@@ -100,7 +130,7 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
                 // Filter out system fields and alias fields (like O2M, M2M)
                 const editableFields = allFields.filter(f => {
                     // Exclude system fields unless they're in defaultValues
-                    if (SYSTEM_FIELDS.includes(f.field) && !defaultValues[f.field]) {
+                    if (SYSTEM_FIELDS.includes(f.field) && !stableDefaultValues[f.field]) {
                         return false;
                     }
                     // Exclude alias fields (O2M, M2M, M2A)
@@ -108,11 +138,11 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
                         return false;
                     }
                     // Apply exclude list
-                    if (excludeFields.includes(f.field)) {
+                    if (stableExcludeFields.includes(f.field)) {
                         return false;
                     }
                     // Apply include list if provided
-                    if (includeFields && !includeFields.includes(f.field)) {
+                    if (stableIncludeFields && !stableIncludeFields.includes(f.field)) {
                         return false;
                     }
                     return true;
@@ -124,10 +154,14 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
                 if (mode === 'edit' && id) {
                     const itemsService = new ItemsService(collection);
                     const item = await itemsService.readOne(id);
-                    setFormData({ ...defaultValues, ...item });
+                    setFormData({ ...stableDefaultValues, ...item });
                 } else {
-                    setFormData(defaultValues);
+                    setFormData(stableDefaultValues);
                 }
+                
+                // Mark as loaded
+                dataLoadedRef.current = true;
+                lastLoadKey.current = loadKey;
             } catch (err) {
                 console.error('Error loading form data:', err);
                 setError(err instanceof Error ? err.message : 'Failed to load form data');
@@ -137,7 +171,7 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
         };
 
         loadData();
-    }, [collection, id, mode, defaultValues, excludeFields, includeFields]);
+    }, [collection, id, mode, stableDefaultValues, stableExcludeFields, stableIncludeFields]);
 
     // Update form field - used by VForm's onUpdate callback
     const handleFormUpdate = useCallback((values: Record<string, unknown>) => {
@@ -164,7 +198,7 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
             // Remove read-only fields from data
             const dataToSave = { ...formData };
             READ_ONLY_FIELDS.forEach(f => {
-                if (!defaultValues[f]) {
+                if (!stableDefaultValues[f]) {
                     delete dataToSave[f];
                 }
             });

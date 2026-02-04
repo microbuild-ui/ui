@@ -262,7 +262,7 @@ Directus-compatible field interface components built with Mantine v8.
 |-----------|-----------|
 | `RichTextHtml` | WYSIWYG HTML editor (requires @tiptap packages) |
 | `RichTextMarkdown` | Markdown editor with live preview |
-| `InputBlockEditor` | Block-based editor (Notion-style) |
+| `InputBlockEditor` | Block-based editor using EditorJS (SSR-safe with dynamic import) |
 | `InputCode` | Monospace code editor with syntax highlighting |
 
 **Media Components:**
@@ -492,6 +492,7 @@ See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 | `pnpm dev` | Run all apps in dev mode |
 | `pnpm mcp:dev` | Run MCP server in watch mode |
 | `pnpm cli` | Run CLI tool locally |
+| `pnpm cli validate` | Validate Microbuild installation in a project |
 | `pnpm lint` | Lint all projects |
 | `pnpm clean` | Remove node_modules and build artifacts |
 | `pnpm storybook` | Run Storybook for ui-interfaces |

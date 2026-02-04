@@ -17,7 +17,7 @@ Quick reference for finding component source files.
 | `input` | `microbuild add input` | [ui-interfaces/src/input/Input.tsx](../packages/ui-interfaces/src/input/Input.tsx) |
 | `textarea` | `microbuild add textarea` | [ui-interfaces/src/textarea/Textarea.tsx](../packages/ui-interfaces/src/textarea/Textarea.tsx) |
 | `input-code` | `microbuild add input-code` | [ui-interfaces/src/input-code/InputCode.tsx](../packages/ui-interfaces/src/input-code/InputCode.tsx) |
-| `input-block-editor` | `microbuild add input-block-editor` | [ui-interfaces/src/input-block-editor/InputBlockEditor.tsx](../packages/ui-interfaces/src/input-block-editor/InputBlockEditor.tsx) |
+| `input-block-editor` | `microbuild add input-block-editor` | [ui-interfaces/src/input-block-editor/index.tsx](../packages/ui-interfaces/src/input-block-editor/index.tsx) (SSR-safe wrapper) |
 | `tags` | `microbuild add tags` | [ui-interfaces/src/tags/Tags.tsx](../packages/ui-interfaces/src/tags/Tags.tsx) |
 | `slider` | `microbuild add slider` | [ui-interfaces/src/slider/Slider.tsx](../packages/ui-interfaces/src/slider/Slider.tsx) |
 
@@ -151,4 +151,7 @@ microbuild info vform
 
 # Show dependency tree
 microbuild tree collection-form
+
+# Validate installation (check for issues)
+microbuild validate
 ```
