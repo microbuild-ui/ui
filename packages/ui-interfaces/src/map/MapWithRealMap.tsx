@@ -363,10 +363,13 @@ export const MapWithRealMap: React.FC<MapWithRealMapProps> = ({
       center: defaultView.center || [0, 0],
       zoom: defaultView.zoom || 1,
       attributionControl: false,
-      pitchWithRotate: false,
-      dragRotate: false,
-      touchPitch: false,
+      pitch: 0,
+      maxPitch: 0,
     });
+    
+    // Disable rotation controls
+    map.current.dragRotate.disable();
+    map.current.touchZoomRotate.disableRotation();
 
     // Add controls
     if (showNavigation) {
