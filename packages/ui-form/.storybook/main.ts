@@ -66,13 +66,19 @@ const config: StorybookConfig = {
         changeOrigin: true,
         secure: true,
         // No rewrite needed - DaaS API expects /api/collections, /api/fields, etc.
-        // Add authorization header to all proxied requests
+        // Add authorization header to proxied requests (except auth endpoints)
         configure: (proxy: any) => {
           proxy.on('proxyReq', (proxyReq: any, req: any) => {
-            if (DAAS_TOKEN) {
+            // Don't add static token to auth endpoints - they handle their own auth
+            const isAuthEndpoint = req.url?.startsWith('/api/auth/');
+            
+            // Check if request already has an Authorization header (from login session)
+            const existingAuth = proxyReq.getHeader('Authorization');
+            
+            if (DAAS_TOKEN && !isAuthEndpoint && !existingAuth) {
               proxyReq.setHeader('Authorization', `Bearer ${DAAS_TOKEN}`);
             }
-            console.log(`[Storybook Proxy] ${req.method} ${req.url} → ${DAAS_URL}${req.url}`);
+            console.log(`[Storybook Proxy] ${req.method} ${req.url} → ${DAAS_URL}${req.url}${isAuthEndpoint ? ' (auth endpoint)' : ''}`);
           });
         },
       };

@@ -65,12 +65,12 @@ microbuild add <component>      # Add component with all dependencies
 | Package | Description | Documentation |
 |---------|-------------|---------------|
 | @microbuild/types | TypeScript types | [README](../packages/types/README.md) |
-| @microbuild/services | CRUD services, DaaSProvider, apiRequest | [README](../packages/services/README.md) |
-| @microbuild/hooks | React hooks (relations, files, versioning, workflow) | [README](../packages/hooks/README.md) |
+| @microbuild/services | CRUD services, DaaSProvider, apiRequest, authentication | [README](../packages/services/README.md) |
+| @microbuild/hooks | React hooks (auth, permissions, relations, files, versioning, workflow) | [README](../packages/hooks/README.md) |
 | @microbuild/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
-| @microbuild/ui-interfaces | Field components | [README](../packages/ui-interfaces/README.md) |
+| @microbuild/ui-interfaces | Field components (40+) | [README](../packages/ui-interfaces/README.md) |
 | @microbuild/ui-collections | Collection components | [README](../packages/ui-collections/README.md) |
-| @microbuild/ui-form | VForm - Directus-inspired dynamic form | [README](../packages/ui-form/README.md) |
+| @microbuild/ui-form | VForm - Dynamic form with permission enforcement | [README](../packages/ui-form/README.md) |
 | @microbuild/mcp-server | MCP server | [README](../packages/mcp-server/README.md) |
 | @microbuild/cli | CLI tool | [README](../packages/cli/README.md) |
 

@@ -93,7 +93,7 @@ import { getFileCategory, formatFileSize, getAssetUrl } from '@microbuild/types'
 
 ### @microbuild/services
 
-Service classes for CRUD operations on Directus collections, plus DaaS API configuration.
+Service classes for CRUD operations on Directus collections, plus DaaS API configuration and authentication.
 
 **Available Services:**
 - `ItemsService` - Generic CRUD for any collection
@@ -107,9 +107,14 @@ Service classes for CRUD operations on Directus collections, plus DaaS API confi
 - `getApiHeaders` - Get headers with auth token when in direct mode
 
 **DaaS Context (for Storybook/Testing):**
-- `DaaSProvider` - React provider for direct DaaS API access
-- `useDaaSContext` - Hook to access DaaS configuration
+- `DaaSProvider` - React provider for direct DaaS API access with authentication state
+- `useDaaSContext` - Hook to access DaaS config, user info, and auth helpers
 - `setGlobalDaaSConfig` - Set global config for non-React contexts
+
+**Authentication (follows DaaS architecture):**
+- Cookie-based sessions for browser requests (automatic)
+- Static tokens for programmatic access (Directus-style)
+- JWT Bearer tokens for API clients with Supabase Auth
 
 **Usage:**
 ```tsx
@@ -134,7 +139,12 @@ import { DaaSProvider } from '@microbuild/services';
 
 ### @microbuild/hooks
 
-React hooks for managing Directus relationships, selection, presets, and workflows.
+React hooks for managing authentication, permissions, Directus relationships, selection, presets, and workflows.
+
+**Authentication Hooks (DaaS-compatible):**
+- `useAuth` - Authentication state (user, isAdmin, isAuthenticated) and methods (refresh, logout, checkPermission)
+- `usePermissions` - Field-level and action-level permission checking (canPerform, getAccessibleFields, isFieldAccessible)
+- `useDaaSContext` / `DaaSProvider` - DaaS configuration context for direct API access
 
 **Relation Hooks:**
 - `useRelationM2M` / `useRelationM2MItems` - Many-to-Many relationships
@@ -159,12 +169,28 @@ React hooks for managing Directus relationships, selection, presets, and workflo
 
 **Usage:**
 ```tsx
-import { useRelationM2M, useRelationM2MItems } from '@microbuild/hooks';
+import { useAuth, usePermissions, useRelationM2M } from '@microbuild/hooks';
 
+// Authentication
+function UserProfile() {
+  const { user, isAdmin, isAuthenticated, loading } = useAuth();
+  
+  if (!isAuthenticated) return <LoginButton />;
+  return <div>Welcome, {user.first_name}!</div>;
+}
+
+// Permissions
+function ArticleEditor({ articleId }) {
+  const { canPerform, getAccessibleFields } = usePermissions({ collections: ['articles'] });
+  
+  if (!canPerform('articles', 'update')) return <Alert>No edit access</Alert>;
+  const fields = getAccessibleFields('articles', 'update');
+  // ...
+}
+
+// Relations
 function ProductTags({ productId }: { productId: string }) {
   const { relationInfo, loading } = useRelationM2M('products', 'tags');
-  const { items, loadItems, selectItems } = useRelationM2MItems(relationInfo, productId);
-  
   // Manage M2M relationships...
 }
 ```
@@ -290,7 +316,7 @@ import {
 
 ### @microbuild/ui-form
 
-Dynamic form component system inspired by Directus v-form, with comprehensive Storybook documentation.
+Dynamic form component system inspired by Directus v-form, with comprehensive Storybook documentation and built-in permission enforcement.
 
 **Components:**
 | Component | Description |
@@ -303,6 +329,7 @@ Dynamic form component system inspired by Directus v-form, with comprehensive St
 **Features:**
 - 🎯 Dynamic field rendering based on schema
 - 📝 40+ interface types (input, textarea, boolean, datetime, select, etc.)
+- 🔐 **Permission enforcement** - Filter fields based on user permissions (DaaS-compatible)
 - ✅ Validation error display with field-level messages
 - 📱 Responsive grid layout (full, half, fill widths)
 - 🔄 Change tracking and dirty state management
@@ -317,7 +344,9 @@ Dynamic form component system inspired by Directus v-form, with comprehensive St
 **Usage:**
 ```tsx
 import { VForm } from '@microbuild/ui-form';
+import { DaaSProvider } from '@microbuild/services';
 
+// Basic usage
 function MyForm() {
   const [values, setValues] = useState({});
 
@@ -332,13 +361,21 @@ function MyForm() {
   );
 }
 
-// Or with explicit fields
-<VForm
-  fields={myFields}
-  modelValue={values}
-  onUpdate={setValues}
-  primaryKey="existing-id"
-/>
+// With permission enforcement
+function ProtectedForm() {
+  return (
+    <DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'xxx' }}>
+      <VForm
+        collection="articles"
+        modelValue={values}
+        onUpdate={setValues}
+        enforcePermissions={true}
+        action="update"  // 'create' | 'update' | 'read'
+        onPermissionsLoaded={(fields) => console.log('Accessible:', fields)}
+      />
+    </DaaSProvider>
+  );
+}
 ```
 
 **Testing:**

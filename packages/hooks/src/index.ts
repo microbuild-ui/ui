@@ -3,7 +3,37 @@
  * 
  * Shared React hooks for Microbuild projects.
  * Directus-compatible relation hooks for M2M, M2O, O2M relationships.
+ * Authentication and permission hooks following DaaS architecture.
  */
+
+// Authentication & Authorization hooks (DaaS-compatible)
+export {
+  useAuth,
+  type AuthUser,
+  type AuthState,
+  type AuthMethods,
+  type UseAuthOptions,
+  type UseAuthReturn,
+} from './useAuth';
+export {
+  usePermissions,
+  type PermissionAction,
+  type PermissionDetails,
+  type CollectionPermissions,
+  type UserPermissions,
+  type PermissionsState,
+  type PermissionsMethods,
+  type UsePermissionsOptions,
+  type UsePermissionsReturn,
+} from './usePermissions';
+export {
+  useDaaSContext,
+  useIsDirectDaaSMode,
+  DaaSProvider,
+  type DaaSConfig,
+  type DaaSContextValue,
+  type DaaSProviderProps,
+} from './useDaaSContext';
 
 // Relation hooks
 export { useRelationM2M, type M2MRelationInfo } from './useRelationM2M';

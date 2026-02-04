@@ -46,8 +46,17 @@ The VForm component has extensive test coverage across both tiers:
 - Fetch actual collection schemas from live API
 - Test with real data and field configurations
 - Test relational interfaces (M2O, O2M, M2M, M2A) with actual relations
-- Perfect for testing custom collections and edge cases
+- **Authentication support**: Login with email/password or static token
+- **Permission enforcement**: Test field-level filtering based on user permissions
 - Two modes: **Proxy Mode** (recommended) and **Direct Mode**
+
+### DaaS Playground Authentication
+
+The playground supports the same authentication methods as DaaS:
+
+1. **Static Tokens** - Long-lived tokens for programmatic access (Directus-style)
+2. **Email/Password Login** - JWT-based authentication via `/api/auth/login`
+3. **Session Management** - JWT tokens stored in sessionStorage for persistence
 
 **Proxy Mode (Recommended - No CORS Issues):**
 
@@ -66,6 +75,16 @@ pnpm storybook:form
 
 This mode forwards all `/api/*` requests through Vite's development server proxy,
 completely avoiding CORS restrictions. All relational interfaces work correctly.
+
+**Authentication Options:**
+- **Static Token Tab**: Uses token from environment variable (automatic)
+- **Login Tab**: Enter email/password to get a JWT access token
+- Login-based auth overrides the static token for that session
+
+**Permission Enforcement:**
+- Enable "Enforce Field Permissions" in the Permission Settings accordion
+- Select form action: Create, Update, or Read
+- Fields will be filtered based on your actual DaaS permissions
 
 **Direct Mode (Manual Entry - CORS Warning):**
 
@@ -168,7 +187,15 @@ tests/
 | `WithReadonlyFields` | System fields (id, date_created) |
 | `RequiredFieldsOnly` | Required field indicators |
 | `EmptyForm` | No visible fields message |
-| **`Playground` (DaaS)** | **Connect to real DaaS and test with live API** |
+| **`Playground` (DaaS)** | **Connect to real DaaS, authenticate, and test permissions** |
+
+### DaaS Playground Features
+
+- **Authentication Display**: Shows current user info and admin badge
+- **Login Form**: Authenticate with email/password (JWT)
+- **Static Token**: Use environment variable token
+- **Permission Settings**: Enable field-level permission filtering
+- **Action Selection**: Test create/update/read permissions separately
 
 ### Running Storybook Tests
 

@@ -99,8 +99,8 @@ Quick reference for finding component source files.
 | Module | Path | Description |
 |--------|------|-------------|
 | `types` | [types/src/](../packages/types/src/) | Core TypeScript types |
-| `services` | [services/src/](../packages/services/src/) | API services (ItemsService, FieldsService) |
-| `hooks` | [hooks/src/](../packages/hooks/src/) | React hooks (useRelationM2M, etc.) |
+| `services` | [services/src/](../packages/services/src/) | API services, DaaSProvider, authentication |
+| `hooks` | [hooks/src/](../packages/hooks/src/) | React hooks (useAuth, usePermissions, useRelationM2M, etc.) |
 | `utils` | [utils/src/](../packages/utils/src/) | Utility functions (field-interface-mapper) |
 
 ## Dependency Reference

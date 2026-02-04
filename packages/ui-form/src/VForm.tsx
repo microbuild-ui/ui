@@ -5,17 +5,22 @@
  * 
  * Integrates with:
  * - @microbuild/types for Field types
- * - @microbuild/services for FieldsService API calls
+ * - @microbuild/services for FieldsService API calls and DaaS context
  * - @microbuild/utils for field interface mapping and utilities
  * - @microbuild/ui-interfaces (via FormFieldInterface) for interface components
+ * 
+ * Security Features (following DaaS architecture):
+ * - Field-level permissions filtering (show only accessible fields)
+ * - Action-based permissions (create, read, update mode)
+ * - Integration with DaaSProvider for authenticated requests
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import './VForm.css';
 import { Stack, Box, Alert, Text, Skeleton } from '@mantine/core';
-import { IconInfoCircle } from '@tabler/icons-react';
+import { IconInfoCircle, IconLock } from '@tabler/icons-react';
 import type { Field } from '@microbuild/types';
-import { FieldsService } from '@microbuild/services';
+import { FieldsService, useDaaSContext } from '@microbuild/services';
 // isPresentationField is available from @microbuild/utils if needed for filtering
 import type { ValidationError, FieldValues } from './types';
 import { FormField } from './components/FormField';
@@ -25,6 +30,11 @@ import {
   isFieldVisible,
   updateFieldWidths,
 } from './utils';
+
+/**
+ * Permission action for the form
+ */
+export type FormAction = 'create' | 'read' | 'update';
 
 export interface VFormProps {
   /** Collection name to load fields from */
@@ -57,6 +67,23 @@ export interface VFormProps {
   excludeFields?: string[];
   /** CSS class name */
   className?: string;
+  /** 
+   * Form action for permission filtering.
+   * - 'create': Filter by create permissions (default for primaryKey === '+')
+   * - 'update': Filter by update permissions (default for existing primaryKey)
+   * - 'read': Filter by read permissions (for read-only forms)
+   */
+  action?: FormAction;
+  /** 
+   * Enable permission-based field filtering.
+   * When true, only fields the user has permission to access will be shown.
+   * Requires DaaSProvider context for authentication.
+   */
+  enforcePermissions?: boolean;
+  /**
+   * Callback when permissions are loaded
+   */
+  onPermissionsLoaded?: (accessibleFields: string[]) => void;
 }
 
 /**
@@ -78,10 +105,26 @@ export const VForm: React.FC<VFormProps> = ({
   showNoVisibleFields = true,
   excludeFields = [],
   className,
+  action,
+  enforcePermissions = false,
+  onPermissionsLoaded,
 }) => {
   const [fields, setFields] = useState<Field[]>([]);
   const [loadingFields, setLoadingFields] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accessibleFields, setAccessibleFields] = useState<string[] | null>(null);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
+  
+  // Get DaaS context for authenticated requests
+  const daasContext = useDaaSContext();
+  
+  // Determine the action based on primaryKey if not explicitly provided
+  const effectiveAction: FormAction = useMemo(() => {
+    if (action) return action;
+    if (primaryKey === '+') return 'create';
+    if (primaryKey) return 'update';
+    return 'read';
+  }, [action, primaryKey]);
 
   // Load fields from API if collection is provided
   useEffect(() => {
@@ -114,6 +157,53 @@ export const VForm: React.FC<VFormProps> = ({
     loadFields();
   }, [collection, fieldsProp]);
 
+  // Load permissions if enforcePermissions is enabled
+  useEffect(() => {
+    if (!enforcePermissions || !collection) {
+      setAccessibleFields(null);
+      return;
+    }
+
+    const loadPermissions = async () => {
+      try {
+        setPermissionsLoading(true);
+        
+        // Check if we're in direct mode (has auth context)
+        const url = daasContext.isDirectMode 
+          ? daasContext.buildUrl(`/api/permissions/${collection}?action=${effectiveAction}`)
+          : `/api/permissions/${collection}?action=${effectiveAction}`;
+        
+        const response = await fetch(url, {
+          headers: daasContext.getHeaders(),
+          credentials: 'include',
+        });
+        
+        if (!response.ok) {
+          if (response.status === 403) {
+            // No permissions - show no fields
+            setAccessibleFields([]);
+            return;
+          }
+          throw new Error(`Failed to fetch permissions: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const permissionFields = data.data?.fields || [];
+        
+        setAccessibleFields(permissionFields);
+        onPermissionsLoaded?.(permissionFields);
+      } catch (err) {
+        console.error('Error loading permissions:', err);
+        // On error, default to showing all fields (fail open for better UX)
+        setAccessibleFields(null);
+      } finally {
+        setPermissionsLoading(false);
+      }
+    };
+
+    loadPermissions();
+  }, [collection, effectiveAction, enforcePermissions, daasContext, onPermissionsLoaded]);
+
   // Get default values from field schemas
   const defaultValues = useMemo(() => {
     return getDefaultValuesFromFields(fields);
@@ -136,11 +226,20 @@ export const VForm: React.FC<VFormProps> = ({
       processed = processed.filter((f) => !excludeFields.includes(f.field));
     }
 
+    // Filter by permissions if enforced
+    if (enforcePermissions && accessibleFields !== null) {
+      // Wildcard means all fields are accessible
+      if (!accessibleFields.includes('*')) {
+        const accessibleSet = new Set(accessibleFields);
+        processed = processed.filter((f) => accessibleSet.has(f.field));
+      }
+    }
+
     // Update field widths for proper layout
     processed = updateFieldWidths(processed);
 
     return processed;
-  }, [fields, group, excludeFields]);
+  }, [fields, group, excludeFields, enforcePermissions, accessibleFields]);
 
   // Get visible fields (excluding hidden and presentation-only fields)
   const visibleFields = useMemo(() => {
@@ -210,7 +309,7 @@ export const VForm: React.FC<VFormProps> = ({
   );
 
   // Show loading skeleton
-  if (loadingFields || loadingProp) {
+  if (loadingFields || loadingProp || permissionsLoading) {
     return (
       <Box className={className}>
         <Stack gap="md">
@@ -227,6 +326,18 @@ export const VForm: React.FC<VFormProps> = ({
     return (
       <Alert icon={<IconInfoCircle size={16} />} color="red" className={className}>
         {error}
+      </Alert>
+    );
+  }
+
+  // Show no permissions message
+  if (enforcePermissions && accessibleFields !== null && accessibleFields.length === 0) {
+    return (
+      <Alert icon={<IconLock size={16} />} color="yellow" className={className}>
+        <Text size="sm" fw={600}>No field access</Text>
+        <Text size="sm" c="dimmed" mt="xs">
+          You don&apos;t have permission to {effectiveAction} fields in this collection.
+        </Text>
       </Alert>
     );
   }

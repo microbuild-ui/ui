@@ -3,6 +3,7 @@
  * 
  * Shared service classes for Microbuild projects.
  * Directus-compatible CRUD services for items, fields, collections.
+ * Authentication follows DaaS architecture with multiple auth methods.
  */
 
 export { ItemsService, createItemsService } from './items';
@@ -12,6 +13,7 @@ export { PermissionsService, createPermissionsService, type FieldPermissions } f
 export { apiRequest, type ApiRequestOptions } from './api-request';
 
 // DaaS Context Provider for direct API access (bypassing proxy routes)
+// Includes authentication state management following DaaS architecture
 export {
   DaaSProvider,
   useDaaSContext,
@@ -21,6 +23,7 @@ export {
   buildApiUrl,
   getApiHeaders,
   type DaaSConfig,
+  type DaaSUser,
   type DaaSContextValue,
   type DaaSProviderProps,
 } from './daas-context';

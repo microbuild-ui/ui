@@ -270,11 +270,19 @@ pnpm storybook:form
 
 This enables a Vite proxy that forwards `/api/*` requests to DaaS, allowing all relational interfaces (M2O, O2M, M2M, M2A) to work correctly.
 
+**DaaS Playground Features:**
+- **Authentication Display**: Shows current user info and admin status
+- **Permission Enforcement**: Test field-level permissions (create/update/read actions)
+- **Login Support**: Authenticate with email/password or static token
+- **Real-time Testing**: Test with actual collection schemas and data
+
 **DaaS Playground Usage:**
 1. Start Storybook with proxy config (see above)
 2. Navigate to "Forms/VForm DaaS Playground" → "Playground" story
-3. Select a collection from the dropdown
-4. Test VForm with real fields including relational interfaces
+3. Optionally login with email/password for JWT authentication
+4. Select a collection from the dropdown
+5. Enable "Enforce Field Permissions" to test permission filtering
+6. Test VForm with real fields including relational interfaces
 
 ### DaaS E2E Tests (Full integration testing)
 

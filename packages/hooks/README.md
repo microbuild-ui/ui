@@ -1,6 +1,6 @@
 # @microbuild/hooks
 
-React hooks for Microbuild projects. Directus-compatible relation hooks for M2M, M2O, O2M, and M2A relationships, plus UI state management hooks.
+React hooks for Microbuild projects. Includes authentication and permission hooks following DaaS architecture, plus Directus-compatible relation hooks for M2M, M2O, O2M, and M2A relationships.
 
 ## Installation
 
@@ -13,6 +13,101 @@ pnpm add @microbuild/hooks
 - `@microbuild/types` workspace:*
 - `@microbuild/services` workspace:*
 - `react` ^18.0.0 || ^19.0.0
+
+## Authentication Architecture
+
+The hooks follow the DaaS (Data-as-a-Service) authentication architecture:
+
+### Authentication Methods Supported
+
+1. **Cookie-Based Sessions** - For browser requests (automatic)
+2. **Static Tokens** - For programmatic access (Directus-style)
+3. **JWT Bearer Tokens** - For API clients with Supabase Auth
+
+### DaaSProvider
+
+Wrap your app with `DaaSProvider` to enable direct DaaS API access:
+
+```tsx
+import { DaaSProvider } from '@microbuild/hooks';
+
+// In Storybook or testing environment
+<DaaSProvider 
+  config={{ 
+    url: 'https://xxx.microbuild-daas.xtremax.com', 
+    token: 'your-static-token' 
+  }}
+  onAuthenticated={(user) => console.log('Authenticated:', user)}
+>
+  <App />
+</DaaSProvider>
+
+// In Next.js app (uses proxy routes - no config needed)
+<DaaSProvider>
+  <App />
+</DaaSProvider>
+```
+
+### useAuth Hook
+
+Get authentication state and methods:
+
+```tsx
+import { useAuth } from '@microbuild/hooks';
+
+function UserProfile() {
+  const { 
+    user, 
+    isAdmin, 
+    isAuthenticated, 
+    loading, 
+    error,
+    refresh,
+    checkPermission 
+  } = useAuth();
+
+  if (loading) return <Spinner />;
+  if (!isAuthenticated) return <LoginButton />;
+
+  return (
+    <div>
+      <h1>Welcome, {user.first_name}!</h1>
+      {isAdmin && <Badge>Admin</Badge>}
+    </div>
+  );
+}
+```
+
+### usePermissions Hook
+
+Check field-level and action-level permissions:
+
+```tsx
+import { usePermissions } from '@microbuild/hooks';
+
+function ArticleEditor({ articleId }: { articleId: string }) {
+  const { 
+    canPerform, 
+    getAccessibleFields, 
+    isFieldAccessible,
+    isAdmin,
+    loading 
+  } = usePermissions({ collections: ['articles'] });
+
+  if (!canPerform('articles', 'update')) {
+    return <Alert>You don't have permission to edit articles</Alert>;
+  }
+
+  const editableFields = getAccessibleFields('articles', 'update');
+  
+  return (
+    <ArticleForm 
+      fields={editableFields} 
+      readonly={!isFieldAccessible('articles', 'update', 'title')}
+    />
+  );
+}
+```
 
 ## API Request Handling
 

@@ -26,11 +26,11 @@ microbuild status                  # Show installed components
 | Package | Path | Contains |
 |---------|------|----------|
 | **ui-interfaces** | `packages/ui-interfaces/src/` | 32+ interface components (input, select, datetime, etc.) |
-| **ui-form** | `packages/ui-form/src/` | VForm dynamic form component |
+| **ui-form** | `packages/ui-form/src/` | VForm dynamic form component with permission enforcement |
 | **ui-collections** | `packages/ui-collections/src/` | CollectionForm, CollectionList |
 | **types** | `packages/types/src/` | TypeScript type definitions |
-| **services** | `packages/services/src/` | API services (ItemsService, FieldsService) |
-| **hooks** | `packages/hooks/src/` | React hooks (useRelationM2M, useFiles, etc.) |
+| **services** | `packages/services/src/` | API services (ItemsService, DaaSProvider, etc.) |
+| **hooks** | `packages/hooks/src/` | React hooks (useAuth, usePermissions, useRelationM2M, etc.) |
 | **utils** | `packages/utils/src/` | Utility functions (field-interface-mapper) |
 
 ### Component-to-File Mapping

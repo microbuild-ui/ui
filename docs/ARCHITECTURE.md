@@ -34,11 +34,11 @@
 │                                                                      │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                │
 │  │   types/    │  │  services/  │  │   hooks/    │                │
-│  │   (Base)    │  │(CRUD+DaaS)  │  │ (Relations) │                │
+│  │   (Base)    │  │(CRUD+DaaS)  │  │(Auth+Rels)  │                │
 │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘                │
 │         │                │                 │                        │
-│         │          DaaSProvider            │                        │
-│         │          apiRequest              │                        │
+│         │          DaaSProvider       useAuth                       │
+│         │          apiRequest         usePermissions                │
 │         └────────────────┼─────────────────┘                        │
 │                          │                                          │
 │                          ▼                                          │
@@ -53,7 +53,7 @@
 │                          ▼                                          │
 │         ┌────────────────────────────────────┐                     │
 │         │    ui-form/                        │                     │
-│         │  - VForm (Directus-inspired)       │                     │
+│         │  - VForm (with permission filter)  │                     │
 │         │  - FormField, FormFieldLabel       │                     │
 │         │  - Field processing utilities      │                     │
 │         └────────────────┬───────────────────┘                     │
@@ -216,9 +216,9 @@ registry.ts
 │   ├── @microbuild/types
 │   │   └── exports: [Field, Collection, ...]
 │   ├── @microbuild/services
-│   │   └── exports: [ItemsService, ...]
+│   │   └── exports: [ItemsService, DaaSProvider, ...]
 │   ├── @microbuild/hooks
-│   │   └── exports: [useRelationM2M, ...]
+│   │   └── exports: [useAuth, usePermissions, useRelationM2M, ...]
 │   ├── @microbuild/ui-interfaces
 │   │   └── components: [
 │   │       { name: 'Input', category: 'input', ... },
@@ -453,6 +453,95 @@ Source Code Changes
         
         User controls            User owns
         via config               the code
+```
+
+## Authentication Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    DaaS Authentication Flow                           │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  Authentication Methods (DaaS-Compatible):                            │
+│  ┌──────────────────────────────────────────────────────────────┐    │
+│  │ 1. Cookie-Based Sessions - For browser requests (automatic)   │    │
+│  │ 2. Static Tokens - For programmatic access (Directus-style)   │    │
+│  │ 3. JWT Bearer Tokens - For API clients with Supabase Auth     │    │
+│  └──────────────────────────────────────────────────────────────┘    │
+│                                                                        │
+│  Client-Side Hooks:                                                    │
+│  ┌────────────────────┐   ┌────────────────────┐                     │
+│  │ useAuth            │   │ usePermissions     │                     │
+│  │ - user             │   │ - canPerform       │                     │
+│  │ - isAdmin          │   │ - getAccessibleFld │                     │
+│  │ - isAuthenticated  │   │ - isFieldAccessble │                     │
+│  │ - checkPermission  │   │ - filterFields     │                     │
+│  └─────────┬──────────┘   └─────────┬──────────┘                     │
+│            │                        │                                  │
+│            └──────────┬─────────────┘                                  │
+│                       ▼                                                │
+│           ┌─────────────────────┐                                     │
+│           │ DaaSProvider        │                                     │
+│           │ - config (url/token)│                                     │
+│           │ - user              │                                     │
+│           │ - isDirectMode      │                                     │
+│           │ - buildUrl          │                                     │
+│           │ - getHeaders        │                                     │
+│           └─────────┬───────────┘                                     │
+│                     │                                                  │
+│                     ▼                                                  │
+│           ┌─────────────────────┐                                     │
+│           │ API Endpoints       │                                     │
+│           │ /api/users/me       │                                     │
+│           │ /api/permissions/me │                                     │
+│           │ /api/auth/login     │                                     │
+│           └─────────────────────┘                                     │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+## Permission Enforcement Flow
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    VForm Permission Filtering                         │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  ┌─────────────────┐                                                  │
+│  │ VForm Component │                                                  │
+│  │ enforcePerms=T  │                                                  │
+│  │ action="update" │                                                  │
+│  └────────┬────────┘                                                  │
+│           │                                                            │
+│           │ 1. Fetch permissions                                       │
+│           ▼                                                            │
+│  ┌─────────────────────────────────┐                                  │
+│  │ GET /api/permissions/{coll}    │                                  │
+│  │   ?action=update               │                                  │
+│  └────────┬────────────────────────┘                                  │
+│           │                                                            │
+│           │ 2. Response: { fields: ['title', 'content'] }             │
+│           ▼                                                            │
+│  ┌─────────────────────────────────┐                                  │
+│  │ Filter fields array            │                                  │
+│  │ - All fields: [id, title,      │                                  │
+│  │   content, status, author]     │                                  │
+│  │ - Accessible: [title, content] │                                  │
+│  │ - Filtered: 2 fields shown     │                                  │
+│  └────────┬────────────────────────┘                                  │
+│           │                                                            │
+│           │ 3. Render only accessible fields                          │
+│           ▼                                                            │
+│  ┌─────────────────────────────────┐                                  │
+│  │ FormField: title               │                                  │
+│  │ FormField: content             │                                  │
+│  │ (id, status, author hidden)    │                                  │
+│  └─────────────────────────────────┘                                  │
+│                                                                        │
+│  Note: Admin users (admin_access=true) bypass filtering               │
+│        and see all fields regardless of permissions.                  │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---

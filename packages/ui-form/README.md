@@ -1,6 +1,6 @@
 # @microbuild/ui-form
 
-Dynamic form component system for building Directus-compatible forms.
+Dynamic form component system for building Directus-compatible forms with built-in permission enforcement.
 
 ## Exports
 
@@ -10,7 +10,8 @@ import { VForm, FormField, FormFieldLabel, FormFieldInterface } from '@microbuil
 
 // Types
 import type { 
-  VFormProps, 
+  VFormProps,
+  FormAction,
   FormFieldProps, 
   FormFieldInterfaceProps,
   FormField as FormFieldType,
@@ -21,6 +22,7 @@ import type {
 ## Features
 
 - 🎯 **VForm Component** - Main dynamic form component that renders fields based on collection schema
+- 🔐 **Permission Enforcement** - Filter fields based on user permissions (DaaS-compatible)
 - 📝 **FormField Component** - Individual field wrapper with label, validation, and interface rendering
 - 🔌 **Interface Integration** - Automatically loads appropriate interface component based on field type
 - 🎨 **Field Metadata** - Respects meta configuration from `directus_fields` table (interface, options, display)
@@ -54,6 +56,37 @@ function MyForm() {
   );
 }
 ```
+
+### With Permission Enforcement
+
+The form can filter fields based on user permissions, following the DaaS security architecture:
+
+```tsx
+import { VForm } from '@microbuild/ui-form';
+import { DaaSProvider } from '@microbuild/services';
+
+function ProtectedForm() {
+  const [values, setValues] = useState({});
+
+  return (
+    <DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'xxx' }}>
+      <VForm
+        collection="articles"
+        modelValue={values}
+        onUpdate={setValues}
+        enforcePermissions={true}
+        action="update"
+        onPermissionsLoaded={(fields) => console.log('Accessible fields:', fields)}
+      />
+    </DaaSProvider>
+  );
+}
+```
+
+**Action Types:**
+- `create` - Filter by create permissions (default for new items)
+- `update` - Filter by update permissions (default for existing items)
+- `read` - Filter by read permissions (for read-only forms)
 
 ### With Initial Values
 
@@ -110,6 +143,9 @@ function MyForm() {
 | `group` | `string \| null` | `null` | Show only fields in specific group |
 | `showDivider` | `boolean` | `false` | Show divider between system and user fields |
 | `excludeFields` | `string[]` | `[]` | Fields to exclude from rendering |
+| `action` | `'create' \| 'update' \| 'read'` | auto | Form action for permission filtering |
+| `enforcePermissions` | `boolean` | `false` | Enable permission-based field filtering |
+| `onPermissionsLoaded` | `(fields: string[]) => void` | - | Callback when permissions are loaded |
 
 ### FormField Props
 
