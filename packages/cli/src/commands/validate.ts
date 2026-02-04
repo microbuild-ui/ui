@@ -3,9 +3,11 @@
  * 
  * Validates the Microbuild installation in a project:
  * - Checks for untransformed @microbuild/* imports
+ * - Checks for broken relative imports (file not found)
  * - Verifies all component files exist
  * - Checks for missing CSS files
  * - Validates required lib modules are present
+ * - Checks for React 19 / Next.js 16 compatibility issues
  * - Suggests fixes for common issues
  */
 
@@ -32,6 +34,7 @@ interface ValidationError {
 
 interface ValidationWarning {
   file: string;
+  line?: number;
   message: string;
   code: string;
 }
@@ -61,7 +64,7 @@ async function checkUntransformedImports(
       lines.forEach((line, index) => {
         // Check for @microbuild/* imports (not in comments)
         if (
-          line.includes("from '@microbuild/") && 
+          (line.includes("from '@microbuild/") || line.includes('from "@microbuild/')) && 
           !line.trim().startsWith('//') &&
           !line.trim().startsWith('*')
         ) {
@@ -232,6 +235,159 @@ async function checkApiRoutes(cwd: string): Promise<ValidationWarning[]> {
 }
 
 /**
+ * Check for broken relative imports (file not found)
+ */
+async function checkBrokenRelativeImports(
+  cwd: string,
+  config: Config
+): Promise<ValidationError[]> {
+  const errors: ValidationError[] = [];
+  
+  const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
+  const patterns = [
+    path.join(srcDir, 'components/**/*.{ts,tsx,js,jsx}'),
+    path.join(srcDir, 'lib/microbuild/**/*.{ts,tsx,js,jsx}'),
+  ];
+  
+  // Regex to extract relative imports
+  const relativeImportPattern = /from\s+['"](\.\.?\/[^'"]+)['"]/g;
+  
+  for (const pattern of patterns) {
+    const files = await fg(pattern, { ignore: ['**/node_modules/**'] });
+    
+    for (const file of files) {
+      const content = await fs.readFile(file, 'utf-8');
+      const lines = content.split('\n');
+      const fileDir = path.dirname(file);
+      
+      lines.forEach((line, index) => {
+        // Skip comments
+        if (line.trim().startsWith('//') || line.trim().startsWith('*')) {
+          return;
+        }
+        
+        let match;
+        relativeImportPattern.lastIndex = 0;
+        while ((match = relativeImportPattern.exec(line)) !== null) {
+          const importPath = match[1];
+          
+          // Try to resolve the import
+          const possibleExtensions = ['.ts', '.tsx', '.js', '.jsx', '/index.ts', '/index.tsx', '/index.js', '/index.jsx', ''];
+          const absolutePath = path.resolve(fileDir, importPath);
+          
+          const exists = possibleExtensions.some(ext => 
+            fs.existsSync(absolutePath + ext)
+          );
+          
+          if (!exists) {
+            errors.push({
+              file: path.relative(cwd, file),
+              line: index + 1,
+              message: `Cannot find module '${importPath}'`,
+              code: 'BROKEN_IMPORT',
+            });
+          }
+        }
+      });
+    }
+  }
+  
+  return errors;
+}
+
+/**
+ * Check for React 19 / Next.js 16 compatibility issues
+ */
+async function checkReact19Compatibility(
+  cwd: string,
+  config: Config
+): Promise<ValidationWarning[]> {
+  const warnings: ValidationWarning[] = [];
+  
+  const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
+  
+  // Check for component={Link} patterns in Server Components
+  const appDir = path.join(srcDir, 'app');
+  if (!fs.existsSync(appDir)) {
+    return warnings;
+  }
+  
+  const serverComponentPattern = path.join(appDir, '**/page.tsx');
+  const files = await fg(serverComponentPattern, { ignore: ['**/node_modules/**'] });
+  
+  // Pattern for component prop passing (React 19 breaking change)
+  const componentPropPattern = /component=\{[A-Z][a-zA-Z]*\}/;
+  
+  for (const file of files) {
+    const content = await fs.readFile(file, 'utf-8');
+    
+    // Skip if file has "use client" directive
+    if (content.includes('"use client"') || content.includes("'use client'")) {
+      continue;
+    }
+    
+    const lines = content.split('\n');
+    lines.forEach((line, index) => {
+      if (componentPropPattern.test(line)) {
+        warnings.push({
+          file: path.relative(cwd, file),
+          line: index + 1,
+          message: 'Passing component as prop in Server Component may cause React 19 errors. Add "use client" or use wrapper pattern.',
+          code: 'REACT19_COMPONENT_PROP',
+        });
+      }
+    });
+  }
+  
+  return warnings;
+}
+
+/**
+ * Check for duplicate exports in index.ts
+ */
+async function checkDuplicateExports(
+  cwd: string,
+  config: Config
+): Promise<ValidationWarning[]> {
+  const warnings: ValidationWarning[] = [];
+  
+  const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
+  const indexPath = path.join(srcDir, 'components/ui/index.ts');
+  
+  if (!fs.existsSync(indexPath)) {
+    return warnings;
+  }
+  
+  const content = await fs.readFile(indexPath, 'utf-8');
+  const exportPattern = /export \* from ['"]\.\/([^'"]+)['"]/g;
+  const exports = new Map<string, number>();
+  
+  let match;
+  let lineNum = 0;
+  const lines = content.split('\n');
+  
+  for (const line of lines) {
+    lineNum++;
+    exportPattern.lastIndex = 0;
+    while ((match = exportPattern.exec(line)) !== null) {
+      const exportPath = match[1];
+      if (exports.has(exportPath)) {
+        warnings.push({
+          file: 'components/ui/index.ts',
+          line: lineNum,
+          message: `Duplicate export from './${exportPath}' (first at line ${exports.get(exportPath)})`,
+          code: 'DUPLICATE_EXPORT',
+        });
+      } else {
+        exports.set(exportPath, lineNum);
+      }
+    }
+  }
+  
+  return warnings;
+}
+
+/**
  * Generate suggestions based on errors and warnings
  */
 function generateSuggestions(
@@ -245,6 +401,14 @@ function generateSuggestions(
   if (untransformedCount > 0) {
     suggestions.push(
       `Fix ${untransformedCount} untransformed import(s) by running: pnpm cli add --all --overwrite --cwd .`
+    );
+  }
+  
+  // Broken imports
+  const brokenImportCount = errors.filter(e => e.code === 'BROKEN_IMPORT').length;
+  if (brokenImportCount > 0) {
+    suggestions.push(
+      `Fix ${brokenImportCount} broken import(s) by checking file paths or reinstalling components`
     );
   }
   
@@ -286,6 +450,22 @@ function generateSuggestions(
     );
   }
   
+  // React 19 compatibility
+  const react19Count = warnings.filter(w => w.code === 'REACT19_COMPONENT_PROP').length;
+  if (react19Count > 0) {
+    suggestions.push(
+      `Fix ${react19Count} React 19 compatibility issue(s): wrap component with "use client" or use Link directly`
+    );
+  }
+  
+  // Duplicate exports
+  const duplicateCount = warnings.filter(w => w.code === 'DUPLICATE_EXPORT').length;
+  if (duplicateCount > 0) {
+    suggestions.push(
+      `Remove ${duplicateCount} duplicate export(s) from components/ui/index.ts`
+    );
+  }
+  
   return suggestions;
 }
 
@@ -321,20 +501,26 @@ export async function validate(options: {
     // Run all checks
     const [
       untransformedErrors,
+      brokenImportErrors,
       missingCssWarnings,
       libModuleErrors,
       ssrWarnings,
       apiRouteWarnings,
+      react19Warnings,
+      duplicateExportWarnings,
     ] = await Promise.all([
       checkUntransformedImports(cwd, config),
+      checkBrokenRelativeImports(cwd, config),
       checkMissingCssFiles(cwd, config),
       checkLibModules(cwd, config),
       checkSsrIssues(cwd, config),
       checkApiRoutes(cwd),
+      checkReact19Compatibility(cwd, config),
+      checkDuplicateExports(cwd, config),
     ]);
     
-    const errors = [...untransformedErrors, ...libModuleErrors];
-    const warnings = [...missingCssWarnings, ...ssrWarnings, ...apiRouteWarnings];
+    const errors = [...untransformedErrors, ...brokenImportErrors, ...libModuleErrors];
+    const warnings = [...missingCssWarnings, ...ssrWarnings, ...apiRouteWarnings, ...react19Warnings, ...duplicateExportWarnings];
     const suggestions = generateSuggestions(errors, warnings);
     
     const result: ValidationResult = {

@@ -68,6 +68,24 @@ export function getImportMappings(config: Config): ImportMapping[] {
       from: /from ['"]@microbuild\/ui-collections\/([^'"]+)['"]/g,
       to: `from '${componentsAlias}/$1'`,
     },
+    // Utils
+    {
+      from: /from ['"]@microbuild\/utils['"]/g,
+      to: `from '${libAlias}/utils'`,
+    },
+    {
+      from: /from ['"]@microbuild\/utils\/([^'"]+)['"]/g,
+      to: `from '${libAlias}/utils/$1'`,
+    },
+    // UI Form (VForm and related components)
+    {
+      from: /from ['"]@microbuild\/ui-form['"]/g,
+      to: `from '${componentsAlias}/vform'`,
+    },
+    {
+      from: /from ['"]@microbuild\/ui-form\/([^'"]+)['"]/g,
+      to: `from '${componentsAlias}/vform/$1'`,
+    },
     // Import type statements
     {
       from: /import type \{([^}]+)\} from ['"]@microbuild\/types['"]/g,
@@ -80,6 +98,16 @@ export function getImportMappings(config: Config): ImportMapping[] {
     {
       from: /import type \{([^}]+)\} from ['"]@microbuild\/services['"]/g,
       to: `import type {$1} from '${libAlias}/services'`,
+    },
+    // Import type for utils
+    {
+      from: /import type \{([^}]+)\} from ['"]@microbuild\/utils['"]/g,
+      to: `import type {$1} from '${libAlias}/utils'`,
+    },
+    // Import type for ui-form
+    {
+      from: /import type \{([^}]+)\} from ['"]@microbuild\/ui-form['"]/g,
+      to: `import type {$1} from '${componentsAlias}/vform'`,
     },
   ];
 }
@@ -153,7 +181,115 @@ export function toPascalCase(str: string): string {
  * Check if content has @microbuild/* imports
  */
 export function hasMicrobuildImports(content: string): boolean {
-  return /@microbuild\/(types|services|hooks|ui-interfaces|ui-collections)/.test(content);
+  return /@microbuild\/(types|services|hooks|utils|ui-interfaces|ui-collections|ui-form)/.test(content);
+}
+
+/**
+ * Known relative import mappings for ui-interfaces components
+ * Maps source folder imports to target file imports when flattening structure
+ */
+const RELATIVE_IMPORT_MAPPINGS: Record<string, string> = {
+  // file-image/FileImage.tsx imports from ../upload → ./upload
+  '../upload': './upload',
+  // file/File.tsx imports from ../upload → ./upload
+  // files/Files.tsx imports from ../upload → ./upload
+  // list-o2m imports from ../upload → ./upload
+};
+
+/**
+ * Known relative import mappings for VForm components (nested folder structure)
+ * VForm keeps its folder structure, so imports like '../types' need to stay as '../types'
+ * but imports from './types' when in the same folder should remain './types'
+ */
+const VFORM_IMPORT_MAPPINGS: Record<string, Record<string, string>> = {
+  // Files in vform/components/ folder
+  'components': {
+    '../types': '../types',
+    './types': '../types',
+  },
+  // Files in vform/utils/ folder  
+  'utils': {
+    '../types': '../types',
+    './types': '../types',
+  },
+  // Files in vform/ root folder
+  'root': {
+    './types': './types',
+  },
+};
+
+/**
+ * Transform VForm-specific relative imports based on source file location
+ */
+export function transformVFormImports(
+  content: string,
+  sourceFile: string,
+  targetFile: string
+): string {
+  let result = content;
+  
+  // Determine which subfolder this file is in
+  let folder = 'root';
+  if (sourceFile.includes('/components/')) {
+    folder = 'components';
+  } else if (sourceFile.includes('/utils/')) {
+    folder = 'utils';
+  }
+  
+  const mappings = VFORM_IMPORT_MAPPINGS[folder] || {};
+  
+  for (const [from, to] of Object.entries(mappings)) {
+    const importPattern = new RegExp(
+      `(from\\s+['"])${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(['"])`,
+      'g'
+    );
+    result = result.replace(importPattern, `$1${to}$2`);
+  }
+  
+  return result;
+}
+
+/**
+ * Transform relative imports when flattening component folder structure
+ * e.g., file-image/FileImage.tsx has `from '../upload'` 
+ *       which becomes `from './upload'` when copied to components/ui/file-image.tsx
+ */
+export function transformRelativeImports(
+  content: string, 
+  sourceFile: string,
+  targetFile: string,
+  componentsAlias: string
+): string {
+  let result = content;
+  
+  // Calculate source and target depths
+  const sourceParts = sourceFile.split('/');
+  const targetParts = targetFile.split('/');
+  
+  // Check if source is nested (e.g., file-image/FileImage.tsx) and target is flat (e.g., file-image.tsx)
+  const sourceIsNested = sourceParts.length > 2; // e.g., ui-interfaces/src/file-image/FileImage.tsx
+  const targetIsFlat = !targetParts[targetParts.length - 1].includes('/'); // e.g., components/ui/file-image.tsx
+  
+  // Apply known mappings
+  for (const [from, to] of Object.entries(RELATIVE_IMPORT_MAPPINGS)) {
+    // Match import statements with this relative path
+    const importPattern = new RegExp(
+      `(from\\s+['"])${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(['"])`,
+      'g'
+    );
+    result = result.replace(importPattern, `$1${to}$2`);
+  }
+  
+  // Transform sibling component imports (../component-name → ./component-name)
+  // This handles cases like: import { Upload } from '../upload' → import { Upload } from './upload'
+  const siblingImportPattern = /from\s+['"](\.\.\/([a-z][-a-z0-9]*)(?:\/[A-Z][a-zA-Z]*)?)['"]/g;
+  result = result.replace(siblingImportPattern, (match, fullPath, componentFolder) => {
+    // Convert to kebab-case and use relative import
+    const kebabName = toKebabCase(componentFolder);
+    return `from './${kebabName}'`;
+  });
+
+  return result;
 }
 
 /**

@@ -21,10 +21,14 @@
   "dependencies": {
     "core": ["@mantine/core", "@mantine/hooks", "react", "react-dom"],
     "icons": ["@tabler/icons-react"],
+    "utilities": ["clsx", "tailwind-merge", "axios"],
     "dates": ["@mantine/dates", "dayjs"],
     "dropzone": ["@mantine/dropzone"],
     "notifications": ["@mantine/notifications"],
-    "richText": ["@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link"]
+    "richText": ["@tiptap/react", "@tiptap/starter-kit", "@tiptap/extension-link", "@tiptap/extension-color", "@tiptap/extension-text-style", "@tiptap/extension-highlight", "@tiptap/extension-placeholder", "@tiptap/extension-subscript", "@tiptap/extension-superscript", "@tiptap/extension-text-align", "@tiptap/extension-underline", "@tiptap/extension-code-block-lowlight", "@mantine/tiptap", "lowlight"],
+    "blockEditor": ["@editorjs/editorjs", "@editorjs/header", "@editorjs/nested-list", "@editorjs/paragraph", "@editorjs/code", "@editorjs/quote", "@editorjs/checklist", "@editorjs/delimiter", "@editorjs/table", "@editorjs/underline", "@editorjs/inline-code", "highlight.js"],
+    "maps": ["maplibre-gl", "@mapbox/mapbox-gl-draw"],
+    "supabase": ["@supabase/ssr", "@supabase/supabase-js"]
   },
 
   "lib": {
@@ -33,8 +37,8 @@
       "description": "Utility functions (cn, formatFileSize, field interface mapper, etc.)",
       "files": [
         {
-          "source": "cli/templates/lib/utils.ts",
-          "target": "lib/microbuild/utils.ts"
+          "source": "cli/templates/lib/common-utils.ts",
+          "target": "lib/microbuild/common-utils.ts"
         },
         {
           "source": "utils/src/field-interface-mapper.ts",
@@ -55,6 +59,10 @@
         {
           "source": "cli/templates/lib/utils-index.ts",
           "target": "lib/microbuild/utils/index.ts"
+        },
+        {
+          "source": "cli/templates/types/modules.d.ts",
+          "target": "types/modules.d.ts"
         }
       ],
       "internalDependencies": ["types"]
