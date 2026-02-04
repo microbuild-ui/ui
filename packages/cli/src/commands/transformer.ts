@@ -109,14 +109,35 @@ export function getImportMappings(config: Config): ImportMapping[] {
       from: /import type \{([^}]+)\} from ['"]@microbuild\/ui-form['"]/g,
       to: `import type {$1} from '${componentsAlias}/vform'`,
     },
+    // Dynamic imports - import('@microbuild/services') etc.
+    {
+      from: /import\s*\(\s*['"]@microbuild\/services['"]\s*\)/g,
+      to: `import('${libAlias}/services')`,
+    },
+    {
+      from: /import\s*\(\s*['"]@microbuild\/hooks['"]\s*\)/g,
+      to: `import('${libAlias}/hooks')`,
+    },
+    {
+      from: /import\s*\(\s*['"]@microbuild\/types['"]\s*\)/g,
+      to: `import('${libAlias}/types')`,
+    },
+    {
+      from: /import\s*\(\s*['"]@microbuild\/utils['"]\s*\)/g,
+      to: `import('${libAlias}/utils')`,
+    },
   ];
 }
 
 /**
  * Transform a file's content by replacing @microbuild/* imports with local paths
  * Also normalizes import paths to use consistent kebab-case file names
+ * 
+ * @param content - File content to transform
+ * @param config - Microbuild config
+ * @param targetPath - Optional target path for context-aware transformations
  */
-export function transformImports(content: string, config: Config): string {
+export function transformImports(content: string, config: Config, targetPath?: string): string {
   const mappings = getImportMappings(config);
   let result = content;
 
@@ -124,8 +145,8 @@ export function transformImports(content: string, config: Config): string {
     result = result.replace(mapping.from, mapping.to);
   }
 
-  // Normalize any PascalCase import paths to kebab-case
-  result = normalizeImportPaths(result);
+  // Normalize any PascalCase import paths to kebab-case (skips VForm folder)
+  result = normalizeImportPaths(result, targetPath);
 
   return result;
 }
@@ -137,7 +158,7 @@ export function transformImports(content: string, config: Config): string {
  */
 export function transformComponentImports(
   content: string,
-  componentName: string,
+  _componentName: string,
   config: Config
 ): string {
   const componentsAlias = config.aliases.components;
@@ -192,12 +213,23 @@ export function toPascalCase(str: string): string {
  *   ./InputBlockEditor → ./input-block-editor
  *   ./FileImage → ./file-image
  *   ../Upload/Upload → ./upload
+ *   dynamic import('./InputBlockEditor') → import('./input-block-editor')
  *   
  * Files marked with @microbuild-preserve-casing are not normalized.
  */
-export function normalizeImportPaths(content: string): string {
+export function normalizeImportPaths(content: string, targetPath?: string): string {
   // Skip normalization for files that preserve casing
   if (content.includes('@microbuild-preserve-casing')) {
+    return content;
+  }
+  
+  // Skip normalization for VForm folder files (they use PascalCase filenames)
+  if (targetPath && (
+    targetPath.includes('/vform/') || 
+    targetPath.includes('/ui-form/') ||
+    targetPath.includes('VForm') ||
+    targetPath.includes('FormField')
+  )) {
     return content;
   }
   
@@ -205,7 +237,7 @@ export function normalizeImportPaths(content: string): string {
   // e.g., from './InputBlockEditor' or from '../Upload/Upload'
   const pascalCaseImportPattern = /from\s+['"](\.\.\/?|\.\/)([A-Z][a-zA-Z0-9]*(?:\/[A-Z][a-zA-Z0-9]*)?)['"]/g;
   
-  return content.replace(pascalCaseImportPattern, (match, prefix, importPath) => {
+  let result = content.replace(pascalCaseImportPattern, (_match, prefix, importPath) => {
     // Extract the last component (filename) from the path
     const parts = importPath.split('/');
     const fileName = parts[parts.length - 1];
@@ -221,6 +253,17 @@ export function normalizeImportPaths(content: string): string {
     // Otherwise, just convert the filename
     return `from '${prefix}${kebabFileName}'`;
   });
+  
+  // Handle dynamic imports: import('./InputBlockEditor') → import('./input-block-editor')
+  // This pattern matches: import('./ComponentName') or import("./ComponentName")
+  const dynamicImportPattern = /import\s*\(\s*['"](\.\/)([A-Z][a-zA-Z0-9]*)['"]\s*\)/g;
+  
+  result = result.replace(dynamicImportPattern, (_match, prefix, componentName) => {
+    const kebabName = toKebabCase(componentName);
+    return `import('${prefix}${kebabName}')`;
+  });
+  
+  return result;
 }
 
 /**
@@ -270,7 +313,7 @@ const VFORM_IMPORT_MAPPINGS: Record<string, Record<string, string>> = {
 export function transformVFormImports(
   content: string,
   sourceFile: string,
-  targetFile: string
+  _targetFile: string
 ): string {
   let result = content;
   
@@ -302,19 +345,11 @@ export function transformVFormImports(
  */
 export function transformRelativeImports(
   content: string, 
-  sourceFile: string,
-  targetFile: string,
-  componentsAlias: string
+  _sourceFile: string,
+  _targetFile: string,
+  _componentsAlias: string
 ): string {
   let result = content;
-  
-  // Calculate source and target depths
-  const sourceParts = sourceFile.split('/');
-  const targetParts = targetFile.split('/');
-  
-  // Check if source is nested (e.g., file-image/FileImage.tsx) and target is flat (e.g., file-image.tsx)
-  const sourceIsNested = sourceParts.length > 2; // e.g., ui-interfaces/src/file-image/FileImage.tsx
-  const targetIsFlat = !targetParts[targetParts.length - 1].includes('/'); // e.g., components/ui/file-image.tsx
   
   // Apply known mappings
   for (const [from, to] of Object.entries(RELATIVE_IMPORT_MAPPINGS)) {
@@ -329,7 +364,7 @@ export function transformRelativeImports(
   // Transform sibling component imports (../component-name → ./component-name)
   // This handles cases like: import { Upload } from '../upload' → import { Upload } from './upload'
   const siblingImportPattern = /from\s+['"](\.\.\/([a-z][-a-z0-9]*)(?:\/[A-Z][a-zA-Z]*)?)['"]/g;
-  result = result.replace(siblingImportPattern, (match, fullPath, componentFolder) => {
+  result = result.replace(siblingImportPattern, (_match, _fullPath, componentFolder) => {
     // Convert to kebab-case and use relative import
     const kebabName = toKebabCase(componentFolder);
     return `from './${kebabName}'`;

@@ -114,6 +114,18 @@ import { Button } from '@mantine/core';`;
     const expected = `import { Field } from '~/shared/types';`;
     expect(transformImports(input, customConfig)).toBe(expected);
   });
+
+  test('transforms dynamic imports for @microbuild/services', () => {
+    const input = `const ItemsService = (await import('@microbuild/services')).ItemsService;`;
+    const expected = `const ItemsService = (await import('@/lib/microbuild/services')).ItemsService;`;
+    expect(transformImports(input, defaultConfig)).toBe(expected);
+  });
+
+  test('transforms dynamic imports for @microbuild/hooks', () => {
+    const input = `const hook = await import('@microbuild/hooks');`;
+    const expected = `const hook = await import('@/lib/microbuild/hooks');`;
+    expect(transformImports(input, defaultConfig)).toBe(expected);
+  });
 });
 
 describe('normalizeImportPaths', () => {

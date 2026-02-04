@@ -15,12 +15,11 @@ import ora, { type Ora } from 'ora';
 import prompts from 'prompts';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { type Config, type ComponentVersion, loadConfig, saveConfig } from './init.js';
+import { type Config, loadConfig, saveConfig } from './init.js';
 import { 
   transformImports, 
   transformRelativeImports,
   transformVFormImports,
-  normalizeImportPaths,
   addOriginHeader
 } from './transformer.js';
 import { validate } from './validate.js';
@@ -394,7 +393,7 @@ async function copyComponent(
 
     // Read and transform
     let content = await fs.readFile(sourcePath, 'utf-8');
-    content = transformImports(content, config);
+    content = transformImports(content, config, file.target);
     
     // Transform relative imports for flattened folder structure
     content = transformRelativeImports(content, file.source, file.target, config.aliases.components);
@@ -438,6 +437,8 @@ async function copyComponent(
 /**
  * Generate components/ui/index.ts with exports for all installed components
  * This allows import { ComponentA, ComponentB } from '@/components/ui'
+ * 
+ * Also detects duplicate named exports across files and warns the user.
  */
 async function generateComponentsIndex(
   config: Config,
@@ -465,8 +466,19 @@ async function generateComponentsIndex(
   // Use Set to track unique export paths and prevent duplicates
   const exportedPaths = new Set<string>();
   
+  // Track named exports across files to detect duplicates
+  const namedExportMap = new Map<string, string[]>(); // exportName -> [files]
+  
   // Sort components alphabetically for consistent output
   const sortedComponents = [...config.installedComponents].sort();
+  
+  // Components with known SSR issues that should use wrappers
+  const ssrUnsafeComponents: Record<string, string> = {
+    'input-block-editor': 'input-block-editor-wrapper',
+  };
+  
+  // Track skipped components due to SSR wrappers
+  const skippedForWrapper: string[] = [];
   
   for (const componentName of sortedComponents) {
     const component = registry.components.find(c => c.name === componentName);
@@ -486,20 +498,68 @@ async function generateComponentsIndex(
     } else {
       // Flat structure - export from kebab-case file
       const fileName = path.basename(targetPath, path.extname(targetPath));
-      exportPath = `./${fileName}`;
+      
+      // Check for SSR wrapper replacements
+      if (ssrUnsafeComponents[fileName]) {
+        const wrapperPath = path.join(componentsDir, `${ssrUnsafeComponents[fileName]}.tsx`);
+        if (fs.existsSync(wrapperPath)) {
+          exportPath = `./${ssrUnsafeComponents[fileName]}`;
+          skippedForWrapper.push(fileName);
+        } else {
+          exportPath = `./${fileName}`;
+        }
+      } else {
+        exportPath = `./${fileName}`;
+      }
     }
     
     // Only add if not already exported (prevents duplicates)
     if (!exportedPaths.has(exportPath)) {
       exportedPaths.add(exportPath);
       exportLines.push(`export * from '${exportPath}';`);
+      
+      // Check for named exports in the file
+      const filePath = path.join(componentsDir, exportPath.slice(2) + '.tsx');
+      if (fs.existsSync(filePath)) {
+        try {
+          const content = await fs.readFile(filePath, 'utf-8');
+          const namedExportPattern = /export\s+(?:const|function|class)\s+(\w+)/g;
+          let match;
+          while ((match = namedExportPattern.exec(content)) !== null) {
+            const exportName = match[1];
+            if (!namedExportMap.has(exportName)) {
+              namedExportMap.set(exportName, []);
+            }
+            namedExportMap.get(exportName)!.push(exportPath);
+          }
+        } catch {
+          // Ignore read errors
+        }
+      }
     }
   }
   
   // Write the index file
   await fs.writeFile(indexPath, exportLines.join('\n') + '\n');
   
-  spinner.info('Generated components/ui/index.ts');
+  // Warn about duplicate named exports
+  const duplicates = Array.from(namedExportMap.entries())
+    .filter(([_, files]) => files.length > 1);
+  
+  if (duplicates.length > 0) {
+    spinner.warn('Generated components/ui/index.ts (with duplicate warnings)');
+    console.log(chalk.yellow('\n⚠ Duplicate export names detected:'));
+    for (const [exportName, files] of duplicates) {
+      console.log(chalk.dim(`  "${exportName}" exported from: ${files.join(', ')}`));
+    }
+    console.log(chalk.dim('  Consider using named imports or renaming exports.\n'));
+  } else {
+    spinner.info('Generated components/ui/index.ts');
+  }
+  
+  if (skippedForWrapper.length > 0) {
+    console.log(chalk.dim(`  ℹ Using SSR-safe wrappers for: ${skippedForWrapper.join(', ')}`));
+  }
 }
 
 /**

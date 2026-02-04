@@ -16,40 +16,32 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Container, Group, Text, Alert, Select, Button, Stack, Badge } from '@mantine/core';
 import { IconMap, IconMapPin, IconLine, IconSquare, IconTrash } from '@tabler/icons-react';
 import maplibregl from 'maplibre-gl';
+import type { Map as MaplibreMap, LngLatLike } from 'maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 
-// Geometry types supported by the map interface
-export type GeometryType = 
-  | 'Point' 
-  | 'LineString' 
-  | 'Polygon' 
-  | 'MultiPoint' 
-  | 'MultiLineString' 
-  | 'MultiPolygon' 
-  | 'GeometryCollection';
-
-// Format types for storing geometry data
-export type GeometryFormat = 'geometry' | 'json' | 'csv' | 'string' | 'text';
-
-// Basemap configuration
-export interface BasemapSource {
-  name: string;
-  type: 'raster' | 'vector';
-  url: string;
-  attribution?: string;
-  maxzoom?: number;
-  tileSize?: number;
+// GeoJSON types for geometry handling
+interface GeoJSONGeometry {
+  type: string;
+  coordinates: number[] | number[][] | number[][][];
 }
 
-// Default view configuration
-export interface DefaultView {
-  center?: [number, number];
-  zoom?: number;
-  bearing?: number;
-  pitch?: number;
+interface GeoJSONFeature {
+  type: 'Feature';
+  geometry: GeoJSONGeometry;
+  properties: Record<string, unknown>;
 }
+
+interface GeoJSONFeatureCollection {
+  type: 'FeatureCollection';
+  features: GeoJSONFeature[];
+}
+
+// Re-export types from Map component to avoid duplication
+// These are the same types used in the base Map component
+import type { GeometryType, GeometryFormat, BasemapSource, DefaultView } from './Map';
+export type { GeometryType, GeometryFormat, BasemapSource, DefaultView };
 
 /**
  * Props for the Map interface component
@@ -304,8 +296,10 @@ export const MapWithRealMap: React.FC<MapWithRealMapProps> = ({
       if (data.features.length === 1) {
         geometry = data.features[0].geometry;
       } else if (geometryType?.startsWith('Multi')) {
-        // Handle multi-geometry types
-        const coordinates = data.features.map((f: any) => f.geometry.coordinates);
+        // Handle multi-geometry types - cast to any for MapboxDraw compatibility
+        const coordinates = (data.features as any[]).map((f) => {
+          return f.geometry?.coordinates;
+        });
         geometry = {
           type: geometryType,
           coordinates
@@ -325,10 +319,12 @@ export const MapWithRealMap: React.FC<MapWithRealMapProps> = ({
 
       // Convert to required format
       let output;
+      const geom = geometry as GeoJSONGeometry;
       switch (geometryFormat) {
         case 'csv':
-          if (geometry.type === 'Point') {
-            output = `${geometry.coordinates[1]},${geometry.coordinates[0]}`;
+          if (geom.type === 'Point' && Array.isArray(geom.coordinates)) {
+            const coords = geom.coordinates as number[];
+            output = `${coords[1]},${coords[0]}`;
           } else {
             output = JSON.stringify(geometry);
           }
@@ -366,8 +362,10 @@ export const MapWithRealMap: React.FC<MapWithRealMapProps> = ({
       style: getMapStyle(selectedBasemapSource),
       center: defaultView.center || [0, 0],
       zoom: defaultView.zoom || 1,
-      dragRotate: false,
       attributionControl: false,
+      pitchWithRotate: false,
+      dragRotate: false,
+      touchPitch: false,
     });
 
     // Add controls
@@ -403,11 +401,12 @@ export const MapWithRealMap: React.FC<MapWithRealMapProps> = ({
         try {
           const geometry = typeof value === 'string' ? JSON.parse(value) : value;
           if (geometry && geometry.type) {
+            // Cast to any for MapboxDraw compatibility
             draw.current.add({
               type: 'Feature',
               geometry,
               properties: {}
-            });
+            } as any);
           }
         } catch {
           // Failed to load initial geometry

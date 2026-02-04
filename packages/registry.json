@@ -61,6 +61,10 @@
           "target": "lib/microbuild/utils/index.ts"
         },
         {
+          "source": "cli/templates/lib/utils.ts",
+          "target": "lib/microbuild/utils.ts"
+        },
+        {
           "source": "cli/templates/types/modules.d.ts",
           "target": "types/modules.d.ts"
         }

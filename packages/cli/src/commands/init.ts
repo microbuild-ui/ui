@@ -91,7 +91,6 @@ export async function init(options: { yes?: boolean; cwd: string }) {
   const packageJsonPath = path.join(cwd, 'package.json');
   let projectType = 'unknown';
   let hasSrcDir = fs.existsSync(path.join(cwd, 'src'));
-  let createdPackageJson = false;
 
   if (fs.existsSync(packageJsonPath)) {
     const packageJson = await fs.readJSON(packageJsonPath);
@@ -142,7 +141,6 @@ export async function init(options: { yes?: boolean; cwd: string }) {
     await fs.writeJSON(packageJsonPath, minimalPackageJson, { spaces: 2 });
     projectType = 'next';
     hasSrcDir = false; // New projects use App Router without src/
-    createdPackageJson = true;
     console.log(chalk.green('✓ Created package.json\n'));
   }
 
@@ -194,8 +192,6 @@ export async function init(options: { yes?: boolean; cwd: string }) {
     spinner.succeed('Created microbuild.json');
 
     // Create directory structure
-    const baseDir = config.srcDir ? path.join(cwd, 'src') : cwd;
-    
     // Components directory
     const componentsDir = resolveAlias(config.aliases.components, cwd, config.srcDir);
     await fs.ensureDir(componentsDir);
@@ -212,6 +208,50 @@ export async function init(options: { yes?: boolean; cwd: string }) {
     console.log(chalk.dim('  └── services/'));
     console.log(chalk.dim('  └── hooks/'));
 
+    // Create tsconfig.json if missing (required for path aliases)
+    const tsconfigPath = path.join(cwd, 'tsconfig.json');
+    if (!fs.existsSync(tsconfigPath) && config.tsx) {
+      const tsconfig = {
+        compilerOptions: {
+          target: 'ES2017',
+          lib: ['dom', 'dom.iterable', 'esnext'],
+          allowJs: true,
+          skipLibCheck: true,
+          strict: true,
+          noEmit: true,
+          esModuleInterop: true,
+          module: 'esnext',
+          moduleResolution: 'bundler',
+          resolveJsonModule: true,
+          isolatedModules: true,
+          jsx: 'preserve',
+          incremental: true,
+          plugins: [{ name: 'next' }],
+          paths: {
+            '@/*': [config.srcDir ? './src/*' : './*']
+          },
+          baseUrl: '.'
+        },
+        include: ['next-env.d.ts', '**/*.ts', '**/*.tsx', '.next/types/**/*.ts'],
+        exclude: ['node_modules']
+      };
+      await fs.writeJSON(tsconfigPath, tsconfig, { spaces: 2 });
+      console.log(chalk.green(`✓ Created tsconfig.json with @/ path alias`));
+    }
+
+    // Create next-env.d.ts if missing (for Next.js TypeScript support)
+    const nextEnvPath = path.join(cwd, 'next-env.d.ts');
+    if (!fs.existsSync(nextEnvPath) && projectType === 'next') {
+      const nextEnvContent = `/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+`;
+      await fs.writeFile(nextEnvPath, nextEnvContent);
+      console.log(chalk.green(`✓ Created next-env.d.ts`));
+    }
+
     // Check for required dependencies
     console.log(chalk.bold('\n📦 Checking dependencies...\n'));
 
@@ -223,14 +263,12 @@ export async function init(options: { yes?: boolean; cwd: string }) {
       'react-dom',
     ];
 
-    // Optional dependencies for specific features
-    const optionalDeps = [
-      { name: '@mantine/dates', for: 'DateTime component' },
-      { name: '@mantine/notifications', for: 'CollectionForm notifications' },
-      { name: '@mantine/dropzone', for: 'Upload component' },
-      { name: '@tabler/icons-react', for: 'Icon components' },
-      { name: 'dayjs', for: 'DateTime component' },
-    ];
+    // Optional dependencies for specific features (installed on-demand when components need them)
+    // @mantine/dates - DateTime component
+    // @mantine/notifications - CollectionForm notifications
+    // @mantine/dropzone - Upload component
+    // @tabler/icons-react - Icon components
+    // dayjs - DateTime component
 
     // Utility dependencies (for utils.ts)
     const utilityDeps = ['clsx', 'tailwind-merge'];
