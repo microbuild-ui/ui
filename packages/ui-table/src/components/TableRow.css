@@ -1,0 +1,102 @@
+.table-row {
+  display: grid;
+  grid-template-columns: var(--grid-columns);
+}
+
+.table-row .cell {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background-color: var(--v-table-background-color, transparent);
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+
+.table-row .cell:last-child {
+  padding: 0 12px;
+}
+
+.table-row .cell.select {
+  display: flex;
+  align-items: center;
+}
+
+.table-row .cell.manual {
+  justify-content: center;
+  padding: 8px 4px;
+}
+
+.table-row .cell.spacer {
+  padding: 0;
+}
+
+.table-row .cell.append {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.table-row .cell.align-left {
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.table-row .cell.align-center {
+  text-align: center;
+  justify-content: center;
+}
+
+.table-row .cell.align-right {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+/* Subdued state (loading or reordering) */
+.table-row.subdued .cell {
+  opacity: 0.3;
+}
+
+/* Clickable row hover */
+.table-row.clickable:not(.subdued):hover .cell {
+  background-color: var(--mantine-color-gray-1);
+  cursor: pointer;
+}
+
+/* Dark mode hover */
+[data-mantine-color-scheme="dark"] .table-row.clickable:not(.subdued):hover .cell {
+  background-color: var(--mantine-color-dark-5);
+}
+
+/* Dragging state */
+.table-row.dragging {
+  opacity: 0.8;
+  z-index: 100;
+}
+
+.table-row.dragging .cell {
+  background-color: var(--mantine-color-gray-1);
+}
+
+[data-mantine-color-scheme="dark"] .table-row.dragging .cell {
+  background-color: var(--mantine-color-dark-5);
+}
+
+/* Drag handle */
+.drag-handle {
+  color: var(--mantine-color-dimmed);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-handle.sorted-manually {
+  color: var(--mantine-color-text);
+  cursor: ns-resize;
+}
+
+.drag-handle:hover.sorted-manually {
+  color: var(--mantine-color-primary);
+}

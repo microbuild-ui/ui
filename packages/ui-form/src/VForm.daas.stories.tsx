@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { TextInput, PasswordInput, Button, Stack, Alert, Code, Group, Text, Paper, Badge, Divider, Select, Switch, Accordion, Tabs, ActionIcon, Tooltip } from '@mantine/core';
-import { IconPlugConnected, IconPlugConnectedX, IconRefresh, IconCloudDownload, IconServer, IconUser, IconShield, IconLock, IconLogin, IconLogout, IconKey } from '@tabler/icons-react';
+import { TextInput, Button, Stack, Alert, Code, Group, Text, Paper, Badge, Divider, Select, Switch, Accordion } from '@mantine/core';
+import { IconPlugConnected, IconPlugConnectedX, IconRefresh, IconCloudDownload, IconServer, IconUser, IconShield, IconLock, IconKey } from '@tabler/icons-react';
 import { VForm } from './VForm';
 import type { Field } from '@microbuild/types';
 import type { FieldValues } from './types';
@@ -74,59 +74,6 @@ const PROXY_MODE_ENABLED = Boolean(
 );
 
 // ============================================================================
-// Session Token Management (for login-based auth)
-// ============================================================================
-
-interface SessionData {
-  accessToken: string;
-  refreshToken?: string;
-  expiresAt?: number;
-  user: {
-    id: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-    admin_access?: boolean;
-    status?: string;
-  };
-}
-
-// Store session in memory (not localStorage for security in Storybook)
-let currentSession: SessionData | null = null;
-
-function getSession(): SessionData | null {
-  // Also check sessionStorage as a backup
-  if (!currentSession) {
-    const stored = sessionStorage.getItem('storybook_daas_session');
-    if (stored) {
-      try {
-        currentSession = JSON.parse(stored);
-      } catch {
-        // Ignore parse errors
-      }
-    }
-  }
-  return currentSession;
-}
-
-function setSession(session: SessionData | null) {
-  currentSession = session;
-  if (session) {
-    sessionStorage.setItem('storybook_daas_session', JSON.stringify(session));
-  } else {
-    sessionStorage.removeItem('storybook_daas_session');
-  }
-}
-
-function getAuthHeader(): Record<string, string> {
-  const session = getSession();
-  if (session?.accessToken) {
-    return { 'Authorization': `Bearer ${session.accessToken}` };
-  }
-  return {};
-}
-
-// ============================================================================
 // DaaS API Helper - Supports both proxy and direct modes
 // ============================================================================
 
@@ -141,14 +88,12 @@ interface DaaSConfig {
  */
 async function fetchFieldsFromDaaS(collection: string, config?: DaaSConfig): Promise<Field[]> {
   if (PROXY_MODE_ENABLED || !config) {
-    // Proxy mode: use local /api/* routes (Vite proxies to DaaS)
-    // If we have a session token, include it (overrides proxy's static token)
+    // Proxy mode: use local /api/* routes (Vite proxies to DaaS with static token)
     const url = `/api/fields/${collection}?_t=${Date.now()}`;
     const response = await fetch(url, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache',
-        ...getAuthHeader(),
       },
     });
     if (!response.ok) {
@@ -183,13 +128,8 @@ async function fetchFieldsFromDaaS(collection: string, config?: DaaSConfig): Pro
  */
 async function fetchCollectionsFromDaaS(config?: DaaSConfig): Promise<string[]> {
   if (PROXY_MODE_ENABLED || !config) {
-    // Proxy mode: use local /api/* routes
-    // If we have a session token, include it (overrides proxy's static token)
-    const response = await fetch(`/api/collections`, {
-      headers: {
-        ...getAuthHeader(),
-      },
-    });
+    // Proxy mode: use local /api/* routes (Vite proxies to DaaS with static token)
+    const response = await fetch(`/api/collections`);
     if (!response.ok) {
       throw new Error(`Failed to fetch collections: ${response.status}`);
     }
@@ -218,219 +158,21 @@ async function fetchCollectionsFromDaaS(config?: DaaSConfig): Promise<string[]> 
 }
 
 // ============================================================================
-// Login Form Component
-// ============================================================================
-
-interface LoginFormProps {
-  onLoginSuccess: (session: SessionData) => void;
-  onLogout: () => void;
-  session: SessionData | null;
-}
-
-/**
- * Login form that authenticates with DaaS using email/password
- * Returns a JWT access token for subsequent API requests
- */
-const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onLogout, session }) => {
-  const [email, setEmail] = useState(() => localStorage.getItem('storybook_login_email') || '');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Save email to localStorage for convenience (not password!)
-  useEffect(() => {
-    if (email) {
-      localStorage.setItem('storybook_login_email', email);
-    }
-  }, [email]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      setError('Please enter email and password');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Call the DaaS login API
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType?.includes('application/json')) {
-        // Server returned HTML instead of JSON - likely a server error or 503
-        const text = await response.text();
-        if (text.includes('503') || text.includes('Service Temporarily Unavailable')) {
-          throw new Error('DaaS server is unavailable (503). Please check if the server is running.');
-        }
-        if (text.includes('404') || text.includes('not found')) {
-          throw new Error('Login endpoint not found (404). The /api/auth/login route may not exist on this DaaS instance.');
-        }
-        throw new Error(`Server returned HTML instead of JSON. Status: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        const errorMsg = result.errors?.[0]?.message || `Login failed: ${response.status}`;
-        throw new Error(errorMsg);
-      }
-
-      if (!result.data?.access_token) {
-        throw new Error('No access token in response');
-      }
-
-      // Create session from response
-      const newSession: SessionData = {
-        accessToken: result.data.access_token,
-        refreshToken: result.data.refresh_token,
-        expiresAt: result.data.expires_at,
-        user: {
-          id: result.data.user.id,
-          email: result.data.user.email,
-          first_name: result.data.user.first_name,
-          last_name: result.data.user.last_name,
-          admin_access: result.data.user.admin_access,
-          status: result.data.user.status,
-        },
-      };
-
-      // Store session and notify parent
-      setSession(newSession);
-      onLoginSuccess(newSession);
-      setPassword(''); // Clear password from memory
-      
-    } catch (err) {
-      console.error('[Login] Error:', err);
-      setError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    setSession(null);
-    setPassword('');
-    onLogout();
-  };
-
-  // If already logged in, show user info
-  if (session) {
-    return (
-      <Paper p="sm" withBorder>
-        <Group justify="space-between">
-          <Group gap="sm">
-            <IconUser size={20} />
-            <div>
-              <Group gap="xs">
-                <Text size="sm" fw={600}>
-                  {session.user.first_name || ''} {session.user.last_name || session.user.email}
-                </Text>
-                {session.user.admin_access && (
-                  <Badge color="green" size="xs" leftSection={<IconShield size={10} />}>
-                    Admin
-                  </Badge>
-                )}
-              </Group>
-              <Text size="xs" c="dimmed">{session.user.email}</Text>
-            </div>
-          </Group>
-          <Tooltip label="Logout">
-            <ActionIcon variant="light" color="red" onClick={handleLogout}>
-              <IconLogout size={16} />
-            </ActionIcon>
-          </Tooltip>
-        </Group>
-      </Paper>
-    );
-  }
-
-  return (
-    <Paper p="md" withBorder>
-      <form onSubmit={handleLogin}>
-        <Stack gap="sm">
-          <Group gap="xs">
-            <IconLogin size={20} />
-            <Text fw={600}>Login with Email & Password</Text>
-          </Group>
-          
-          <Text size="sm" c="dimmed">
-            Authenticate with your DaaS credentials to get a JWT access token.
-          </Text>
-
-          <TextInput
-            label="Email"
-            placeholder="user@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            leftSection={<IconUser size={16} />}
-            autoComplete="email"
-          />
-
-          <PasswordInput
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            leftSection={<IconKey size={16} />}
-            autoComplete="current-password"
-          />
-
-          {error && (
-            <Alert color="red" title="Login Failed">
-              {error}
-            </Alert>
-          )}
-
-          <Button
-            type="submit"
-            loading={isLoading}
-            leftSection={<IconLogin size={16} />}
-            disabled={!email || !password}
-          >
-            Login
-          </Button>
-        </Stack>
-      </form>
-    </Paper>
-  );
-};
-
-// ============================================================================
 // DaaS Connection Component
 // ============================================================================
 
 interface DaaSConnectionProps {
   onFieldsLoaded: (fields: Field[], collection: string) => void;
   onConfigChange: (config: DaaSConfig | null) => void;
-  session: SessionData | null;
-  onSessionChange: (session: SessionData | null) => void;
 }
 
 const DaaSConnection: React.FC<DaaSConnectionProps> = ({ 
   onFieldsLoaded, 
   onConfigChange,
-  session,
-  onSessionChange,
 }) => {
   // In proxy mode, we don't need URL/token - they're handled by Vite proxy
   const [collection, setCollection] = useState(() => 
     localStorage.getItem('storybook_daas_collection') || 'interface_showcase'
-  );
-  
-  // Auth tab: 'login' for email/password, 'token' for static token
-  const [authTab, setAuthTab] = useState<string | null>(() => 
-    localStorage.getItem('storybook_auth_tab') || 'login'
   );
   
   // Direct mode state (only used when proxy mode is disabled)
@@ -451,9 +193,6 @@ const DaaSConnection: React.FC<DaaSConnectionProps> = ({
   // Save to localStorage when values change
   useEffect(() => {
     localStorage.setItem('storybook_daas_collection', collection);
-    if (authTab) {
-      localStorage.setItem('storybook_auth_tab', authTab);
-    }
     if (!PROXY_MODE_ENABLED) {
       localStorage.setItem('storybook_daas_url', daasUrl);
       localStorage.setItem('storybook_daas_token', daasToken);
@@ -595,58 +334,15 @@ const DaaSConnection: React.FC<DaaSConnectionProps> = ({
         </Group>
 
         {PROXY_MODE_ENABLED ? (
-          <>
-            <Alert color="green" title="Proxy Mode Active">
-              <Text size="sm">
-                Storybook is configured with DaaS proxy via environment variables.
-                All <Code>/api/*</Code> requests are forwarded to your DaaS instance.
-              </Text>
-              <Text size="xs" c="dimmed" mt="xs">
-                No CORS issues - the proxy handles authentication automatically.
-              </Text>
-            </Alert>
-
-            {/* Authentication Options */}
-            <Tabs value={authTab} onChange={setAuthTab}>
-              <Tabs.List>
-                <Tabs.Tab value="login" leftSection={<IconLogin size={14} />}>
-                  Login
-                </Tabs.Tab>
-                <Tabs.Tab value="token" leftSection={<IconKey size={14} />}>
-                  Static Token
-                </Tabs.Tab>
-              </Tabs.List>
-
-              <Tabs.Panel value="login" pt="md">
-                <LoginForm
-                  session={session}
-                  onLoginSuccess={(newSession) => {
-                    onSessionChange(newSession);
-                    // Auto-connect after login
-                    connectProxy();
-                  }}
-                  onLogout={() => {
-                    onSessionChange(null);
-                    setIsConnected(false);
-                    setCollections([]);
-                    setFields([]);
-                  }}
-                />
-              </Tabs.Panel>
-
-              <Tabs.Panel value="token" pt="md">
-                <Alert color="blue" icon={<IconKey size={16} />}>
-                  <Text size="sm">
-                    Using static token from environment variable. The proxy adds 
-                    the token to all <Code>/api/*</Code> requests automatically.
-                  </Text>
-                  <Text size="xs" c="dimmed" mt="xs">
-                    To use a different token, login with email/password above.
-                  </Text>
-                </Alert>
-              </Tabs.Panel>
-            </Tabs>
-          </>
+          <Alert color="green" title="Proxy Mode Active" icon={<IconKey size={16} />}>
+            <Text size="sm">
+              Storybook is configured with DaaS proxy via environment variables.
+              All <Code>/api/*</Code> requests are forwarded to your DaaS instance.
+            </Text>
+            <Text size="xs" c="dimmed" mt="xs">
+              Authentication is handled automatically using the static token from <Code>.env.local</Code>.
+            </Text>
+          </Alert>
         ) : (
           <>
             <Alert color="yellow" title="Direct Mode (CORS Warning)">
@@ -829,9 +525,6 @@ const DaaSPlayground: React.FC = () => {
   const [enforcePermissions, setEnforcePermissions] = useState(false);
   const [formAction, setFormAction] = useState<'create' | 'update' | 'read'>('create');
   const [accessibleFields, setAccessibleFields] = useState<string[]>([]);
-  
-  // Session state for login-based auth
-  const [session, setSessionState] = useState<SessionData | null>(() => getSession());
 
   const handleFieldsLoaded = (loadedFields: Field[], collectionName: string) => {
     setFields(loadedFields);
@@ -845,11 +538,6 @@ const DaaSPlayground: React.FC = () => {
     setDaasConfig(config as ServiceDaaSConfig | null);
   };
   
-  const handleSessionChange = (newSession: SessionData | null) => {
-    setSessionState(newSession);
-    setSession(newSession); // Also update the global session
-  };
-  
   const handlePermissionsLoaded = (fields: string[]) => {
     setAccessibleFields(fields);
   };
@@ -860,36 +548,10 @@ const DaaSPlayground: React.FC = () => {
         <DaaSConnection 
           onFieldsLoaded={handleFieldsLoaded} 
           onConfigChange={handleConfigChange}
-          session={session}
-          onSessionChange={handleSessionChange}
         />
         
-        {/* Auth Status - Shows current user info from session or context */}
-        {session ? (
-          <Paper p="sm" withBorder>
-            <Group justify="space-between">
-              <Group gap="sm">
-                <IconUser size={20} />
-                <div>
-                  <Group gap="xs">
-                    <Text size="sm" fw={600}>
-                      {session.user.first_name || ''} {session.user.last_name || session.user.email}
-                    </Text>
-                    {session.user.admin_access && (
-                      <Badge color="green" size="xs" leftSection={<IconShield size={10} />}>
-                        Admin
-                      </Badge>
-                    )}
-                  </Group>
-                  <Text size="xs" c="dimmed">{session.user.email}</Text>
-                </div>
-              </Group>
-              <Badge color="blue">
-                {session.user.status || 'authenticated'}
-              </Badge>
-            </Group>
-          </Paper>
-        ) : (PROXY_MODE_ENABLED || daasConfig) && <AuthStatus />}
+        {/* Auth Status - Shows current user info from context */}
+        {(PROXY_MODE_ENABLED || daasConfig) && <AuthStatus />}
 
         {fields.length > 0 ? (
           <>

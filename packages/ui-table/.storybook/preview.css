@@ -1,0 +1,9 @@
+/* Storybook preview styles */
+
+body {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.sb-show-main {
+  padding: 0 !important;
+}

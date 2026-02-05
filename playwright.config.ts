@@ -17,6 +17,7 @@ dotenv.config({ path: '.env.local' });
 // URLs from environment
 const DAAS_URL = process.env.NEXT_PUBLIC_MICROBUILD_DAAS_URL || 'http://localhost:3000';
 const STORYBOOK_URL = process.env.STORYBOOK_URL || 'http://localhost:6006';
+const STORYBOOK_TABLE_URL = process.env.STORYBOOK_TABLE_URL || 'http://localhost:6007';
 
 export default defineConfig({
   testDir: './tests',
@@ -64,7 +65,18 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: STORYBOOK_URL,
       },
-      testMatch: /.*storybook.*\.spec\.ts/,
+      testMatch: /ui-form\/.*storybook.*\.spec\.ts/,
+      // No setup dependency - Storybook tests don't need auth
+    },
+
+    // Storybook Table Component Tests - no auth needed
+    {
+      name: 'storybook-table',
+      use: { 
+        ...devices['Desktop Chrome'],
+        baseURL: STORYBOOK_TABLE_URL,
+      },
+      testMatch: /ui-table\/.*storybook.*\.spec\.ts/,
       // No setup dependency - Storybook tests don't need auth
     },
   ],
@@ -72,11 +84,20 @@ export default defineConfig({
   /* 
    * Web server configuration for Storybook tests
    * Automatically starts Storybook when running storybook project
+   * Set SKIP_WEBSERVER=true to skip starting web servers (useful when already running)
    */
-  webServer: {
-    command: 'cd packages/ui-form && pnpm storybook --ci',
-    url: STORYBOOK_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000, // 2 minutes to start Storybook
-  },
+  webServer: process.env.SKIP_WEBSERVER ? undefined : [
+    {
+      command: 'cd packages/ui-form && npx storybook dev -p 6006 --ci',
+      url: STORYBOOK_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000, // 2 minutes to start Storybook
+    },
+    {
+      command: 'cd packages/ui-table && npx storybook dev -p 6007 --ci',
+      url: STORYBOOK_TABLE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000, // 2 minutes to start Storybook
+    },
+  ],
 });

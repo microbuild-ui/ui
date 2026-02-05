@@ -1,0 +1,178 @@
+/* Note: display: contents is set in VTable.css for thead/tbody */
+/* The tr grid styles are also set in VTable.css for consistency */
+
+.table-header tr.fixed {
+  position: sticky;
+  top: var(--v-table-sticky-offset-top, 0);
+  z-index: 10;
+  background-color: var(--mantine-color-body);
+}
+
+.table-header .cell {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  font-weight: 600;
+  color: var(--mantine-color-text);
+  background-color: var(--mantine-color-gray-0);
+  border-bottom: 2px solid var(--mantine-color-default-border);
+  user-select: none;
+  position: relative;
+}
+
+[data-mantine-color-scheme="dark"] .table-header .cell {
+  background-color: var(--mantine-color-dark-6);
+}
+
+.table-header .cell.select {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.table-header .cell.manual {
+  justify-content: center;
+  padding: 12px 4px;
+  cursor: pointer;
+}
+
+.table-header .cell.manual:hover {
+  background-color: var(--mantine-color-gray-1);
+}
+
+[data-mantine-color-scheme="dark"] .table-header .cell.manual:hover {
+  background-color: var(--mantine-color-dark-5);
+}
+
+.table-header .cell.manual.sorted-manually {
+  color: var(--mantine-color-primary);
+}
+
+.table-header .cell.spacer {
+  padding: 0;
+}
+
+.table-header .cell.append {
+  padding: 0 12px;
+}
+
+/* Sortable header */
+.table-header .cell.sortable {
+  cursor: pointer;
+}
+
+.table-header .cell.sortable:hover {
+  background-color: var(--mantine-color-gray-1);
+}
+
+[data-mantine-color-scheme="dark"] .table-header .cell.sortable:hover {
+  background-color: var(--mantine-color-dark-5);
+}
+
+/* Alignment */
+.table-header .cell.align-left {
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.table-header .cell.align-center {
+  text-align: center;
+  justify-content: center;
+}
+
+.table-header .cell.align-right {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+/* Header content */
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.reorder-handle {
+  color: var(--mantine-color-dimmed);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.table-header .cell:hover .reorder-handle {
+  opacity: 1;
+}
+
+/* Sort indicator */
+.sort-indicator {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.sort-icon {
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.sort-icon.idle {
+  opacity: 0;
+}
+
+.table-header .cell:hover .sort-icon.idle {
+  opacity: 0.4;
+}
+
+.sort-icon.active {
+  opacity: 1;
+  color: var(--mantine-color-primary);
+}
+
+/* Resize handle */
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.15s;
+}
+
+.resize-handle:hover,
+.table-header.resizing .resize-handle {
+  background-color: var(--mantine-color-primary);
+  opacity: 0.3;
+}
+
+/* Small column */
+.table-header .cell.small {
+  padding: 12px 4px;
+}
+
+.table-header .cell.small .header-content {
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Resizing state */
+.table-header.resizing {
+  cursor: col-resize;
+}
+
+.table-header.resizing .cell {
+  pointer-events: none;
+}
+
+.table-header.resizing .resize-handle {
+  pointer-events: auto;
+}
+
+/* Reordering state */
+.table-header.reordering .cell {
+  pointer-events: none;
+}

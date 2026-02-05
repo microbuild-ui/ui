@@ -1,0 +1,167 @@
+/**
+ * VTable Styles
+ * Based on Directus v-table component
+ */
+
+/*
+  CSS Variables:
+  --v-table-sticky-offset-top: 0
+  --v-table-color: var(--mantine-color-text)
+  --v-table-background-color: transparent
+*/
+
+.v-table {
+  position: relative;
+  height: auto;
+  overflow-y: auto;
+}
+
+.v-table table {
+  min-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.v-table table tbody {
+  display: contents !important;
+}
+
+.v-table table thead {
+  display: contents !important;
+}
+
+.v-table table tbody tr {
+  --grid-columns: var(--grid-columns-rows);
+  display: grid !important;
+  grid-template-columns: var(--grid-columns);
+}
+
+.v-table table thead tr {
+  --grid-columns: var(--grid-columns-header);
+  display: grid !important;
+  grid-template-columns: var(--grid-columns);
+}
+
+.v-table table td,
+.v-table table th {
+  color: var(--v-table-color, var(--mantine-color-text));
+}
+
+.v-table table tr {
+  display: grid;
+  grid-template-columns: var(--grid-columns);
+}
+
+/* Alignment */
+.v-table table td.align-left,
+.v-table table th.align-left {
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.v-table table td.align-center,
+.v-table table th.align-center {
+  text-align: center;
+  justify-content: center;
+}
+
+.v-table table td.align-right,
+.v-table table th.align-right {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+/* Loading indicator */
+.v-table table .loading-indicator {
+  position: relative;
+  z-index: 3;
+}
+
+.v-table table .loading-indicator > th {
+  padding: 0;
+  border: none;
+}
+
+.v-table table .loading-indicator .progress-bar {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--mantine-color-primary) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: loading-progress 1.5s infinite;
+}
+
+@keyframes loading-progress {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.v-table.loading table .loading-indicator.sticky th {
+  position: sticky;
+  top: 48px;
+  z-index: 2;
+}
+
+/* Loading state */
+.v-table.loading table {
+  pointer-events: none;
+}
+
+/* Loading and empty text */
+.v-table .loading-text,
+.v-table .no-items-text {
+  text-align: center;
+  background-color: var(--mantine-color-gray-0);
+}
+
+[data-mantine-color-scheme="dark"] .v-table .loading-text,
+[data-mantine-color-scheme="dark"] .v-table .no-items-text {
+  background-color: var(--mantine-color-dark-6);
+}
+
+.v-table .loading-text td,
+.v-table .no-items-text td {
+  padding: 16px;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Inline style (bordered) */
+.v-table.inline {
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+}
+
+.v-table.inline table .table-row:last-of-type .cell {
+  border-bottom: none;
+}
+
+/* Disabled state */
+.v-table.disabled {
+  --v-table-color: var(--mantine-color-dimmed);
+  --v-table-background-color: var(--mantine-color-gray-1);
+}
+
+[data-mantine-color-scheme="dark"] .v-table.disabled {
+  --v-table-background-color: var(--mantine-color-dark-5);
+}
+
+/* Sortable ghost */
+.v-table table .sortable-ghost .cell {
+  background-color: var(--mantine-color-gray-1);
+}
+
+[data-mantine-color-scheme="dark"] .v-table table .sortable-ghost .cell {
+  background-color: var(--mantine-color-dark-5);
+}

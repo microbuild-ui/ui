@@ -20,6 +20,7 @@ pnpm exec playwright install chromium
 
 # Option 1: Storybook Tests (Recommended for component development)
 pnpm storybook:form          # Start VForm Storybook on port 6006
+pnpm storybook:table         # Start VTable Storybook on port 6007
 pnpm test:storybook          # Run Playwright against Storybook
 
 # Option 2: DaaS E2E Tests (Full integration testing)
@@ -121,12 +122,53 @@ tests/ui-form/
 ├── vform-daas.spec.ts        # DaaS integration tests (real API)
 └── vform.spec.ts             # Full E2E workflow tests (create, edit, validate)
 
+tests/ui-table/
+└── vtable-storybook.spec.ts  # VTable Storybook component tests (22 tests)
+
 tests/helpers/
 └── seed-test-data.ts         # Test data seeding utilities for E2E
 
 tests/
 └── auth.setup.ts             # Authentication setup (runs once before E2E)
 ```
+
+## VTable Component Testing
+
+The VTable component is based on Directus v-table and includes comprehensive Storybook stories and Playwright tests.
+
+### Storybook Stories
+
+**VTable Stories** ([packages/ui-table/src/VTable.stories.tsx](../packages/ui-table/src/VTable.stories.tsx)) - 18 stories:
+- Basic table rendering
+- Column sorting (ascending/descending)
+- Row selection (single/multiple)
+- Column resizing
+- Manual row sorting (drag-and-drop)
+- Custom cell rendering
+- Row actions
+- Clickable rows
+- Loading/empty states
+- Fixed/sticky header
+- Inline (bordered) styling
+- Full-featured example
+
+### Running VTable Tests
+
+```bash
+# Terminal 1: Start VTable Storybook
+pnpm storybook:table    # Runs on port 6007
+
+# Terminal 2: Run Playwright tests
+SKIP_WEBSERVER=true STORYBOOK_TABLE_URL=http://localhost:6007 \\
+  npx playwright test tests/ui-table --project=storybook-table
+```
+
+### VTable Test Files
+
+| File | Purpose |
+|------|---------|
+| `tests/ui-table/vtable-storybook.spec.ts` | 22 Playwright tests for VTable Storybook stories |
+| `packages/ui-table/src/VTable.stories.tsx` | 18 Storybook story definitions |
 
 ## Test Architecture
 

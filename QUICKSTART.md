@@ -260,11 +260,16 @@ Microbuild uses Playwright for E2E testing with a two-tier strategy.
 ### Storybook Component Tests (Recommended for development)
 
 ```bash
-# Terminal 1: Start VForm Storybook
-pnpm storybook:form
+# Terminal 1: Start VForm or VTable Storybook
+pnpm storybook:form    # VForm on port 6006
+pnpm storybook:table   # VTable on port 6007
 
 # Terminal 2: Run Playwright tests
-pnpm test:storybook
+pnpm test:storybook    # Run VForm Storybook tests
+
+# Run VTable Storybook tests
+SKIP_WEBSERVER=true STORYBOOK_TABLE_URL=http://localhost:6007 \\
+  npx playwright test tests/ui-table --project=storybook-table
 ```
 
 Storybook tests:
@@ -334,10 +339,12 @@ tests/
 ├── auth.setup.ts               # Auth setup (runs once)
 ├── helpers/
 │   └── seed-test-data.ts       # Test data seeding utilities
-└── ui-form/
-    ├── vform-storybook.spec.ts # Storybook component tests
-    ├── vform-daas.spec.ts      # DaaS integration tests
-    └── vform.spec.ts           # Full E2E workflow tests
+├── ui-form/
+│   ├── vform-storybook.spec.ts # VForm Storybook component tests
+│   ├── vform-daas.spec.ts      # VForm DaaS integration tests
+│   └── vform.spec.ts           # VForm full E2E workflow tests
+└── ui-table/
+    └── vtable-storybook.spec.ts # VTable Storybook component tests (22 tests)
 ```
 
 See [docs/TESTING.md](./docs/TESTING.md) for complete testing guide and best practices.

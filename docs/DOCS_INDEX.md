@@ -73,6 +73,7 @@ microbuild validate --json      # JSON output for CI/CD
 | @microbuild/ui-interfaces | Field components (40+) | [README](../packages/ui-interfaces/README.md) |
 | @microbuild/ui-collections | Collection components | [README](../packages/ui-collections/README.md) |
 | @microbuild/ui-form | VForm - Dynamic form with permission enforcement | [README](../packages/ui-form/README.md) |
+| @microbuild/ui-table | VTable - Dynamic table with sorting, selection, drag-drop | [README](../packages/ui-table/README.md) |
 | @microbuild/mcp-server | MCP server | [README](../packages/mcp-server/README.md) |
 | @microbuild/cli | CLI tool | [README](../packages/cli/README.md) |
 
@@ -88,6 +89,7 @@ microbuild validate --json      # JSON output for CI/CD
 | Build CLI tool | `pnpm build:cli` | [QUICKSTART.md](../QUICKSTART.md#option-1-use-from-workspace-development) |
 | Run Storybook | `pnpm storybook` | [packages/README.md](../packages/README.md#storybook) |
 | Run VForm Storybook | `pnpm storybook:form` | [TESTING.md](TESTING.md#storybook-stories) |
+| Run VTable Storybook | `pnpm storybook:table` | [TESTING.md](TESTING.md#vtable-component-testing) |
 | Run VForm with DaaS proxy | See [TESTING.md](TESTING.md#proxy-mode-recommended---no-cors-issues) | [TESTING.md](TESTING.md) |
 | Install Playwright | `pnpm exec playwright install chromium` | [TESTING.md](TESTING.md#prerequisites) |
 

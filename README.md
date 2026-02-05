@@ -26,7 +26,8 @@ microbuild-ui-packages/
 │   └── WINDOWS.md          # Windows setup
 ├── tests/                  # Playwright E2E tests
 │   ├── auth.setup.ts       # Authentication setup
-│   └── ui-form/            # VForm component tests
+│   ├── ui-form/            # VForm component tests
+│   └── ui-table/           # VTable component tests
 └── packages/               # Component library (source of truth)
     ├── registry.json       # Component registry schema
     ├── cli/                # CLI tool for developers (@microbuild/cli)
@@ -36,6 +37,9 @@ microbuild-ui-packages/
     │   ├── src/            # VForm component and utilities
     │   ├── VForm.stories.tsx        # Storybook stories with mocked data
     │   └── VForm.daas.stories.tsx   # DaaS playground for testing with real API
+    ├── ui-table/           # VTable dynamic table component (with Storybook)
+    │   ├── src/            # VTable component and utilities
+    │   └── VTable.stories.tsx       # Storybook stories with 18 examples
     ├── ui-collections/     # Collection Form & List
     ├── types/              # Shared TypeScript types
     ├── services/           # Shared service classes
@@ -408,6 +412,60 @@ When you install `collection-form` via CLI, VForm and all 32 dependent interface
 
 **Usage:**
 ```tsx
+
+### @microbuild/ui-table
+
+Dynamic table component inspired by Directus v-table, built with Mantine v8 and @dnd-kit.
+
+**Components:**
+| Component | Description |
+|-----------|-------------|
+| `VTable` | Main dynamic table component |
+| `TableHeader` | Header row with sorting, resize handles, select all |
+| `TableRow` | Data row with selection, drag handle, custom cells |
+
+**Features:**
+- 📊 Column sorting (ascending/descending toggle)
+- ↔️ Column resizing via drag handles
+- ✅ Row selection (single/radio or multiple/checkbox)
+- 🔀 Manual row sorting via drag-and-drop (@dnd-kit)
+- ⏳ Loading/empty states with skeletons
+- 📌 Fixed/sticky header option
+- 🎨 Inline (bordered) styling option
+- 🎯 Custom cell rendering
+- 🔧 Row actions slot
+- ⌨️ Keyboard navigation for clickable rows
+- 🌙 Dark mode support
+
+**Usage:**
+```tsx
+import { VTable } from '@microbuild/ui-table';
+
+<VTable
+  headers={[
+    { text: 'Name', value: 'name', sortable: true, width: 200 },
+    { text: 'Email', value: 'email', sortable: true, width: 250 },
+    { text: 'Status', value: 'status', sortable: true, width: 100 },
+  ]}
+  items={users}
+  itemKey="id"
+  showSelect="multiple"
+  showResize
+  sort={{ by: 'name', desc: false }}
+  onSortChange={setSort}
+  onUpdate={setSelectedUsers}
+/>
+```
+
+**Testing:**
+```bash
+# Run Storybook for VTable development
+pnpm storybook:table
+
+# Run Playwright tests against VTable Storybook
+SKIP_WEBSERVER=true STORYBOOK_TABLE_URL=http://localhost:6007 \
+  npx playwright test tests/ui-table --project=storybook-table
+```
 import { CollectionForm, CollectionList } from '@microbuild/ui-collections';
 
 // Create/Edit form
@@ -493,6 +551,8 @@ See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 | `pnpm mcp:dev` | Run MCP server in watch mode |
 | `pnpm cli` | Run CLI tool locally |
 | `pnpm cli validate` | Validate Microbuild installation in a project |
+| `pnpm storybook:form` | Run VForm Storybook (port 6006) |
+| `pnpm storybook:table` | Run VTable Storybook (port 6007) |
 | `pnpm lint` | Lint all projects |
 | `pnpm clean` | Remove node_modules and build artifacts |
 | `pnpm storybook` | Run Storybook for ui-interfaces |

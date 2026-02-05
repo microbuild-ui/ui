@@ -7,6 +7,7 @@ Quick reference for finding component source files.
 | Name | Command | Source | Description |
 |------|---------|--------|-------------|
 | `vform` | `microbuild add vform` | [ui-form/src/VForm.tsx](../packages/ui-form/src/VForm.tsx) | Dynamic form - renders 40+ interface types |
+| `vtable` | `microbuild add vtable` | [ui-table/src/VTable.tsx](../packages/ui-table/src/VTable.tsx) | Dynamic table with sorting, selection, drag-drop |
 | `collection-form` | `microbuild add collection-form` | [ui-collections/src/CollectionForm.tsx](../packages/ui-collections/src/CollectionForm.tsx) | CRUD wrapper with data fetching |
 | `collection-list` | `microbuild add collection-list` | [ui-collections/src/CollectionList.tsx](../packages/ui-collections/src/CollectionList.tsx) | Dynamic table with pagination |
 

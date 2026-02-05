@@ -1,0 +1,73 @@
+{
+  "name": "@microbuild/ui-table",
+  "version": "0.1.0",
+  "description": "Dynamic table component (VTable) for Microbuild projects - inspired by Directus v-table",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --external react --external @mantine/core --external @mantine/hooks --external @tabler/icons-react",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
+    "storybook": "storybook dev -p 6007",
+    "build-storybook": "storybook build"
+  },
+  "peerDependencies": {
+    "@dnd-kit/core": "^6.0.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@mantine/core": "^8.0.0",
+    "@mantine/hooks": "^8.0.0",
+    "@microbuild/services": "workspace:*",
+    "@microbuild/types": "workspace:*",
+    "@microbuild/hooks": "workspace:*",
+    "@tabler/icons-react": "^3.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^9.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@mantine/core": "^8.0.0",
+    "@mantine/hooks": "^8.0.0",
+    "@microbuild/services": "workspace:*",
+    "@microbuild/types": "workspace:*",
+    "@microbuild/hooks": "workspace:*",
+    "@storybook/addon-a11y": "^8.6.12",
+    "@storybook/addon-docs": "^8.6.12",
+    "@storybook/addon-links": "^8.6.12",
+    "@storybook/react": "^8.6.12",
+    "@storybook/react-vite": "^8.6.12",
+    "@tabler/icons-react": "^3.0.0",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "storybook": "^8.6.12",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.0.0"
+  },
+  "keywords": [
+    "microbuild",
+    "table",
+    "vtable",
+    "directus",
+    "react",
+    "mantine"
+  ],
+  "license": "MIT"
+}
