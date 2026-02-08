@@ -56,6 +56,7 @@ export async function bootstrap(options: {
       all: true,
       withApi: true,
       cwd,
+      nonInteractive: true,
     });
   } catch (error) {
     console.error(chalk.red('\n✗ Component installation failed:'), error);

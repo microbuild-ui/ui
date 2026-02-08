@@ -257,6 +257,31 @@ cat packages/ui-interfaces/src/input/Input.tsx
 cat packages/ui-form/src/VForm.tsx
 ```
 
+## Bootstrap Command (Recommended for AI Agents)
+
+The `bootstrap` command combines `init` + `add --all` + `pnpm install` + `validate` into a single atomic command. This is the recommended approach for AI agents and CI/CD pipelines.
+
+```bash
+# Full project setup in one command (non-interactive, no prompts)
+microbuild bootstrap --cwd /path/to/project
+
+# Skip dependency installation (if you want to install manually)
+microbuild bootstrap --skip-deps --cwd /path/to/project
+
+# Skip validation step
+microbuild bootstrap --skip-validate --cwd /path/to/project
+```
+
+**What bootstrap does:**
+1. Creates `microbuild.json` and project skeleton (package.json, tsconfig, etc.)
+2. Copies all 40+ UI components to `components/ui/`
+3. Copies types, services, hooks to `lib/microbuild/`
+4. Copies API routes, Supabase auth, middleware templates
+5. Runs `pnpm install` to resolve all dependencies
+6. Validates the installation
+
+**Key advantage:** Bootstrap works in non-empty directories (unlike `create-next-app`).
+
 ## For Humans: Quick Start
 
 ```bash
@@ -270,7 +295,10 @@ npx @microbuild/cli add input select-dropdown datetime
 # 3. Or add the full form system
 npx @microbuild/cli add collection-form
 
-# 4. Install npm dependencies (shown at end)
+# 4. Or bootstrap everything at once
+npx @microbuild/cli bootstrap
+
+# 5. Install npm dependencies (shown at end, or done by bootstrap)
 pnpm add @mantine/core @mantine/hooks @tabler/icons-react
 ```
 

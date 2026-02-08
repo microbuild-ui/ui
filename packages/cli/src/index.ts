@@ -22,6 +22,7 @@ import { info } from './commands/info.js';
 import { tree } from './commands/tree.js';
 import { validate } from './commands/validate.js';
 import { fix } from './commands/fix.js';
+import { bootstrap } from './commands/bootstrap.js';
 
 const program = new Command();
 
@@ -92,6 +93,20 @@ program
   .option('--json', 'Output as JSON')
   .option('--cwd <path>', 'Project directory', process.cwd())
   .action(async (options) => { await validate(options); });
+
+program
+  .command('bootstrap')
+  .description('Full project setup: init + add --all + install deps + validate (single command for AI agents)')
+  .option('--cwd <path>', 'Project directory', process.cwd())
+  .option('--skip-deps', 'Skip npm dependency installation')
+  .option('--skip-validate', 'Skip post-install validation')
+  .action(async (options) => {
+    await bootstrap({
+      cwd: options.cwd,
+      skipDeps: options.skipDeps,
+      skipValidate: options.skipValidate,
+    });
+  });
 
 program
   .command('fix')

@@ -322,6 +322,10 @@ async function copyComponent(
   
   // Check if already installed
   if (config.installedComponents.includes(component.name) && !overwrite && !dryRun) {
+    // In non-interactive/batch mode (--all, bootstrap), silently skip already-installed components
+    if (installing.has('__nonInteractive__')) {
+      return true;
+    }
     const { shouldOverwrite } = await prompts({
       type: 'confirm',
       name: 'shouldOverwrite',
@@ -573,10 +577,11 @@ export async function add(
     category?: string;
     overwrite?: boolean;
     dryRun?: boolean;
+    nonInteractive?: boolean;
     cwd: string;
   }
 ) {
-  const { cwd, all, withApi, category, overwrite = false, dryRun = false } = options;
+  const { cwd, all, withApi, category, overwrite = false, dryRun = false, nonInteractive = false } = options;
 
   // Dry run mode header
   if (dryRun) {
@@ -724,9 +729,16 @@ export async function add(
   const allDeps = new Set<string>();
 
   try {
+    // Share a single installing Set across all components to prevent duplicate processing
+    const sharedInstalling = new Set<string>();
+    // Signal non-interactive mode so already-installed components are silently skipped
+    if (nonInteractive || all) {
+      sharedInstalling.add('__nonInteractive__');
+    }
+
     for (const component of componentsToAdd) {
       spinner.text = `Adding ${component.title}...`;
-      await copyComponent(component, registry, config, cwd, overwrite, spinner, new Set(), false);
+      await copyComponent(component, registry, config, cwd, overwrite, spinner, sharedInstalling, false);
       
       // Collect external dependencies
       component.dependencies.forEach(dep => allDeps.add(dep));
@@ -743,12 +755,14 @@ export async function add(
 
     spinner.succeed('All components added!');
 
-    // Run post-install validation to catch any issues
-    console.log(chalk.bold('\n🔍 Running post-install validation...\n'));
-    try {
-      await validate({ cwd, json: false });
-    } catch {
-      // Validation errors are already printed, continue with summary
+    // Run post-install validation to catch any issues (skip in non-interactive mode — bootstrap runs its own)
+    if (!nonInteractive) {
+      console.log(chalk.bold('\n🔍 Running post-install validation...\n'));
+      try {
+        await validate({ cwd, json: false });
+      } catch {
+        // Validation errors are already printed, continue with summary
+      }
     }
 
     // Check for missing external dependencies
@@ -773,13 +787,17 @@ export async function add(
       console.log(chalk.yellow('⚠ Missing dependencies:'));
       missingDeps.forEach(dep => console.log(chalk.dim(`  - ${dep}`)));
       
-      // Ask user if they want to auto-install
-      const { autoInstall } = await prompts({
-        type: 'confirm',
-        name: 'autoInstall',
-        message: 'Install missing dependencies automatically?',
-        initial: true,
-      });
+      // In non-interactive mode (bootstrap), auto-install without prompting
+      let autoInstall = nonInteractive;
+      if (!nonInteractive) {
+        const answer = await prompts({
+          type: 'confirm',
+          name: 'autoInstall',
+          message: 'Install missing dependencies automatically?',
+          initial: true,
+        });
+        autoInstall = answer.autoInstall;
+      }
       
       if (autoInstall) {
         const installSpinner = ora('Installing dependencies...').start();
