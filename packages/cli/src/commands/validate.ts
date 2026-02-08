@@ -612,8 +612,9 @@ function generateSuggestions(
 export async function validate(options: {
   cwd: string;
   json?: boolean;
-}) {
-  const { cwd, json = false } = options;
+  noExit?: boolean;
+}): Promise<ValidationResult | undefined> {
+  const { cwd, json = false, noExit = false } = options;
   
   // Load config
   const config = await loadConfig(cwd);
@@ -627,6 +628,9 @@ export async function validate(options: {
       }));
     } else {
       console.log(chalk.red('\n✗ microbuild.json not found. Run "npx microbuild init" first.\n'));
+    }
+    if (noExit) {
+      return { valid: false, errors: [{ file: 'microbuild.json', message: 'Not found', code: 'NO_CONFIG' }], warnings: [], suggestions: ['Run "npx microbuild init" first'] };
     }
     process.exit(1);
   }
@@ -672,9 +676,13 @@ export async function validate(options: {
       suggestions,
     };
     
+    if (noExit) {
+      return result;
+    }
+
     if (json) {
       console.log(JSON.stringify(result, null, 2));
-      return;
+      return result;
     }
     
     // Display results
@@ -682,7 +690,7 @@ export async function validate(options: {
       spinner?.succeed(chalk.green('Microbuild installation is valid! ✓'));
       console.log(chalk.dim(`\n  ${config.installedComponents.length} components installed`));
       console.log(chalk.dim(`  ${config.installedLib.length} lib modules installed\n`));
-      return;
+      return result;
     }
     
     spinner?.stop();
@@ -719,6 +727,8 @@ export async function validate(options: {
     if (errors.length > 0) {
       process.exit(1);
     }
+
+    return result;
   } catch (error) {
     spinner?.fail('Validation failed');
     console.error(error);
