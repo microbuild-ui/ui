@@ -91,7 +91,7 @@ program
   .description('Validate Microbuild installation (check imports, missing files, SSR issues)')
   .option('--json', 'Output as JSON')
   .option('--cwd <path>', 'Project directory', process.cwd())
-  .action(validate);
+  .action(async (options) => { await validate(options); });
 
 program
   .command('fix')
