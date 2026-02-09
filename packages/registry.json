@@ -205,11 +205,31 @@
     },
     "api-routes": {
       "name": "api-routes",
-      "description": "DaaS proxy API routes for fields, items, relations, and files",
+      "description": "DaaS proxy API routes for auth, fields, items, relations, and files",
       "files": [
         {
           "source": "cli/templates/api/auth-headers.ts",
           "target": "lib/api/auth-headers.ts"
+        },
+        {
+          "source": "cli/templates/api/auth-login-route.ts",
+          "target": "app/api/auth/login/route.ts"
+        },
+        {
+          "source": "cli/templates/api/auth-logout-route.ts",
+          "target": "app/api/auth/logout/route.ts"
+        },
+        {
+          "source": "cli/templates/api/auth-user-route.ts",
+          "target": "app/api/auth/user/route.ts"
+        },
+        {
+          "source": "cli/templates/api/auth-callback-route.ts",
+          "target": "app/api/auth/callback/route.ts"
+        },
+        {
+          "source": "cli/templates/api/login-page.tsx",
+          "target": "app/login/page.tsx"
         },
         {
           "source": "cli/templates/api/fields-route.ts",

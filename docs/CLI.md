@@ -276,9 +276,20 @@ microbuild bootstrap --skip-validate --cwd /path/to/project
 1. Creates `microbuild.json` and project skeleton (package.json, tsconfig, etc.)
 2. Copies all 40+ UI components to `components/ui/`
 3. Copies types, services, hooks to `lib/microbuild/`
-4. Copies API routes, Supabase auth, middleware templates
-5. Runs `pnpm install` to resolve all dependencies
-6. Validates the installation
+4. Copies API proxy routes (items, fields, relations, files)
+5. Copies auth proxy routes (login, logout, user, callback) and login page
+6. Copies Supabase auth utilities and middleware
+7. Runs `pnpm install` to resolve all dependencies
+8. Validates the installation
+
+**Auth Routes Installed:**
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/auth/login` | POST | Login via Supabase Auth (server-side, no CORS) |
+| `/api/auth/logout` | POST | Sign out and clear session cookies |
+| `/api/auth/user` | GET | Get current user profile |
+| `/api/auth/callback` | GET | Handle OAuth/email-confirm redirects |
+| `/app/login/page.tsx` | — | Login page using proxy pattern |
 
 **Key advantage:** Bootstrap works in non-empty directories (unlike `create-next-app`).
 
