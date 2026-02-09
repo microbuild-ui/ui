@@ -435,6 +435,30 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['name'],
         },
       },
+      {
+        name: 'get_rbac_pattern',
+        description: 'Get RBAC (Role-Based Access Control) setup patterns for DaaS applications. Returns complete MCP tool call sequences to set up roles, policies, access, and permissions with dynamic variables.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            pattern: {
+              type: 'string',
+              enum: ['own_items', 'role_hierarchy', 'public_read', 'multi_tenant', 'full_crud', 'read_only'],
+              description: 'RBAC pattern to generate. own_items: users manage their own records. role_hierarchy: Admin>Editor>Viewer cascading. public_read: public read + authenticated write. multi_tenant: org-level isolation. full_crud: unrestricted CRUD. read_only: read-only access.',
+            },
+            collections: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Collection names to apply the pattern to (e.g., ["articles", "categories"])',
+            },
+            roleName: {
+              type: 'string',
+              description: 'Role name for single-role patterns (e.g., "Editor")',
+            },
+          },
+          required: ['pattern'],
+        },
+      },
     ],
   };
 });
@@ -897,9 +921,135 @@ import { ${component.title} } from '@/components/ui/${component.name}';
     }
 
     default:
+      if (name === 'get_rbac_pattern') {
+        return handleGetRbacPattern(args as any);
+      }
       throw new Error(`Unknown tool: ${name}`);
   }
 });
+
+/**
+ * Generate RBAC pattern with MCP tool call sequences
+ */
+function handleGetRbacPattern(args: { pattern: string; collections?: string[]; roleName?: string }) {
+  const collections = args.collections || ['<collection_name>'];
+  const roleName = args.roleName || 'CustomRole';
+
+  const dynamicVariablesRef = {
+    variables: [
+      { name: '$CURRENT_USER', type: 'string', description: 'Current user UUID', example: '{ "user_created": { "_eq": "$CURRENT_USER" } }' },
+      { name: '$CURRENT_USER.<field>', type: 'any', description: 'Field on current user', example: '{ "organization": { "_eq": "$CURRENT_USER.organization" } }' },
+      { name: '$CURRENT_ROLE', type: 'string', description: 'Primary role UUID', example: '{ "assigned_role": { "_eq": "$CURRENT_ROLE" } }' },
+      { name: '$CURRENT_ROLES', type: 'string[]', description: 'All role UUIDs', example: '{ "target_role": { "_in": "$CURRENT_ROLES" } }' },
+      { name: '$CURRENT_POLICIES', type: 'string[]', description: 'All policy UUIDs', example: '{ "required_policy": { "_in": "$CURRENT_POLICIES" } }' },
+      { name: '$NOW', type: 'timestamp', description: 'Current time', example: '{ "publish_date": { "_lte": "$NOW" } }' },
+    ],
+  };
+
+  const patterns: Record<string, object> = {
+    own_items: {
+      description: 'Users can fully manage their own items, read others\' published items',
+      steps: [
+        { step: 1, tool: 'roles', args: { action: 'create', data: { name: roleName, icon: 'person', description: `${roleName} - own items pattern` } } },
+        { step: 2, tool: 'policies', args: { action: 'create', data: { name: `${roleName} Policy`, icon: 'shield' } } },
+        { step: 3, tool: 'access', args: { action: 'create', data: { role: '<role-id>', policy: '<policy-id>' } } },
+        ...collections.flatMap((c, i) => [
+          { step: 4 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'create', fields: ['*'], presets: { user_created: '$CURRENT_USER' } } } },
+          { step: 5 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'read', fields: ['*'], permissions: { _or: [{ user_created: { _eq: '$CURRENT_USER' } }, { status: { _eq: 'published' } }] } } } },
+          { step: 6 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'update', fields: ['*'], permissions: { user_created: { _eq: '$CURRENT_USER' } } } } },
+          { step: 7 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'delete', permissions: { user_created: { _eq: '$CURRENT_USER' } } } } },
+        ]),
+      ],
+      dynamicVariables: dynamicVariablesRef,
+    },
+
+    role_hierarchy: {
+      description: 'Admin (full access) → Editor (full CRUD) → Viewer (read-only published)',
+      steps: [
+        { step: 1, tool: 'roles', args: { action: 'create', data: { name: 'Admin', icon: 'admin_panel_settings' } } },
+        { step: 2, tool: 'roles', args: { action: 'create', data: { name: 'Editor', icon: 'edit' } } },
+        { step: 3, tool: 'roles', args: { action: 'create', data: { name: 'Viewer', icon: 'visibility' } } },
+        { step: 4, tool: 'policies', args: { action: 'create', data: { name: 'Admin Policy', admin_access: true } } },
+        { step: 5, tool: 'policies', args: { action: 'create', data: { name: 'Editor Policy', app_access: true } } },
+        { step: 6, tool: 'policies', args: { action: 'create', data: { name: 'Viewer Policy', app_access: true } } },
+        { step: 7, note: 'Create access entries linking each policy to its role' },
+        { step: 8, note: 'Editor permissions: full CRUD on all collections', tool: 'permissions', example: { policy: '<editor-policy-id>', collection: '<collection>', action: 'create|read|update|delete', fields: ['*'], permissions: null } },
+        { step: 9, note: 'Viewer permissions: read-only on published', tool: 'permissions', example: { policy: '<viewer-policy-id>', collection: '<collection>', action: 'read', fields: ['*'], permissions: { status: { _eq: 'published' } } } },
+      ],
+      dynamicVariables: dynamicVariablesRef,
+    },
+
+    public_read: {
+      description: 'Published items publicly readable, authenticated users can create',
+      steps: [
+        { step: 1, tool: 'policies', args: { action: 'create', data: { name: 'Public Read Policy', icon: 'public' } } },
+        { step: 2, tool: 'access', args: { action: 'create', data: { role: null, user: null, policy: '<public-policy-id>' } }, note: 'Public access: role=null, user=null' },
+        ...collections.map((c, i) => (
+          { step: 3 + i, tool: 'permissions', args: { action: 'create', data: { policy: '<public-policy-id>', collection: c, action: 'read', fields: ['id', 'title', 'content', 'date_created'], permissions: { status: { _eq: 'published' } } } } }
+        )),
+        { step: 3 + collections.length, note: 'Then create an authenticated role with create/update permissions using own_items pattern' },
+      ],
+      dynamicVariables: dynamicVariablesRef,
+    },
+
+    multi_tenant: {
+      description: 'Organization-level isolation — users only see data from their org',
+      steps: [
+        { step: 1, tool: 'roles', args: { action: 'create', data: { name: roleName, icon: 'business' } } },
+        { step: 2, tool: 'policies', args: { action: 'create', data: { name: `${roleName} Policy`, icon: 'shield' } } },
+        { step: 3, tool: 'access', args: { action: 'create', data: { role: '<role-id>', policy: '<policy-id>' } } },
+        ...collections.flatMap((c, i) => [
+          { step: 4 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'create', fields: ['*'], presets: { organization: '$CURRENT_USER.organization', user_created: '$CURRENT_USER' } } } },
+          { step: 5 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'read', fields: ['*'], permissions: { organization: { _eq: '$CURRENT_USER.organization' } } } } },
+          { step: 6 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'update', fields: ['*'], permissions: { organization: { _eq: '$CURRENT_USER.organization' } } } } },
+          { step: 7 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'delete', permissions: { organization: { _eq: '$CURRENT_USER.organization' } } } } },
+        ]),
+      ],
+      note: 'Requires "organization" field on directus_users and on each collection',
+      dynamicVariables: dynamicVariablesRef,
+    },
+
+    full_crud: {
+      description: 'Unrestricted CRUD access to specified collections',
+      steps: [
+        { step: 1, tool: 'roles', args: { action: 'create', data: { name: roleName, icon: 'build' } } },
+        { step: 2, tool: 'policies', args: { action: 'create', data: { name: `${roleName} Policy`, icon: 'shield' } } },
+        { step: 3, tool: 'access', args: { action: 'create', data: { role: '<role-id>', policy: '<policy-id>' } } },
+        ...collections.flatMap((c, i) =>
+          ['create', 'read', 'update', 'delete'].map((a, j) => (
+            { step: 4 + i * 4 + j, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: a, fields: ['*'], permissions: null } } }
+          ))
+        ),
+      ],
+      dynamicVariables: dynamicVariablesRef,
+    },
+
+    read_only: {
+      description: 'Read-only access to specified collections',
+      steps: [
+        { step: 1, tool: 'roles', args: { action: 'create', data: { name: roleName, icon: 'visibility' } } },
+        { step: 2, tool: 'policies', args: { action: 'create', data: { name: `${roleName} Policy`, icon: 'shield' } } },
+        { step: 3, tool: 'access', args: { action: 'create', data: { role: '<role-id>', policy: '<policy-id>' } } },
+        ...collections.map((c, i) => (
+          { step: 4 + i, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'read', fields: ['*'], permissions: null } } }
+        )),
+      ],
+      dynamicVariables: dynamicVariablesRef,
+    },
+  };
+
+  const pattern = patterns[args.pattern];
+  if (!pattern) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({ error: `Unknown pattern: ${args.pattern}. Available: ${Object.keys(patterns).join(', ')}` }) }],
+      isError: true,
+    };
+  }
+
+  return {
+    content: [{ type: 'text', text: JSON.stringify({ pattern: args.pattern, ...pattern }, null, 2) }],
+  };
+}
 
 /**
  * Start the server
