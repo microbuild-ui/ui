@@ -9,6 +9,7 @@ A pnpm workspace containing reusable components distributed via Copy & Own model
 | [QUICKSTART.md](QUICKSTART.md) | Setup guide for MCP Server & CLI |
 | [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md) | Complete documentation index |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture diagrams |
+| [docs/CLI.md](docs/CLI.md) | CLI commands & agent reference |
 | [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods guide |
 | [docs/TESTING.md](docs/TESTING.md) | Playwright E2E testing guide |
 | [docs/WINDOWS.md](docs/WINDOWS.md) | Windows development guide |
@@ -513,7 +514,19 @@ pnpm build:mcp
 # Use with Copilot:
 # "Show me how to use the Input component from Microbuild"
 # "Generate a CollectionForm for products"
+# "Get RBAC pattern for own_items on articles collection"
 ```
+
+**Available MCP Tools:**
+- `list_components` - Discover all components by category
+- `get_component` - Read source code and metadata
+- `list_packages` - List all available packages with exports
+- `get_install_command` - Get CLI install commands
+- `get_copy_own_info` - Explain the Copy & Own distribution model
+- `copy_component` - Get full source for manual copy
+- `generate_form` / `generate_interface` - Code generation
+- `get_usage_example` - Usage examples with local imports
+- `get_rbac_pattern` - Generate RBAC setup sequences (own_items, role_hierarchy, public_read, multi_tenant, full_crud, read_only)
 
 ### CLI Tool - For Developers
 
@@ -529,7 +542,20 @@ npx @microbuild/cli add input select-dropdown
 npx @microbuild/cli list
 npx @microbuild/cli add --category selection
 npx @microbuild/cli add --all
+
+# Bootstrap entire project in one command (recommended for AI agents)
+npx @microbuild/cli bootstrap
 ```
+
+**What `bootstrap` does:**
+1. Creates `microbuild.json` and project skeleton
+2. Copies all 40+ UI components to `components/ui/`
+3. Copies types, services, hooks to `lib/microbuild/`
+4. Copies API proxy routes (fields, items, relations, files)
+5. Copies auth proxy routes (login, logout, user, callback) + login page
+6. Copies Supabase auth utilities and middleware
+7. Runs `pnpm install` to resolve all dependencies
+8. Validates the installation
 
 **Benefits:**
 - ✅ Source code remains private

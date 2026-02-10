@@ -17,9 +17,14 @@ microbuild list --category input   # Filter by category
 microbuild info <component>        # Get full details about a component
 microbuild tree <component>        # Show dependency tree
 microbuild add <component>         # Add component to project
+microbuild add --all               # Add all components (non-interactive)
+microbuild bootstrap               # Full setup: init + add --all + deps + validate
+microbuild bootstrap --cwd <path>  # Bootstrap in a specific directory
 microbuild status                  # Show installed components
 microbuild validate                # Validate installation (imports, SSR, missing files)
 microbuild validate --json         # JSON output for CI/CD
+microbuild fix                     # Auto-fix common issues
+microbuild outdated                # Check for component updates
 ```
 
 ## Component Locations
@@ -167,6 +172,26 @@ microbuild validate --json
 # Run in specific directory
 microbuild validate --cwd /path/to/project
 ```
+
+### Task 7: Full project bootstrap (recommended for AI agents)
+```bash
+# Single command: init + add --all + install deps + validate
+microbuild bootstrap --cwd /path/to/project
+
+# Skip dependency installation
+microbuild bootstrap --skip-deps --cwd /path/to/project
+
+# Skip validation step
+microbuild bootstrap --skip-validate --cwd /path/to/project
+```
+
+Bootstrap installs everything non-interactively, including:
+- All 40+ UI components
+- Lib modules (types, services, hooks, utils)
+- API proxy routes (fields, items, relations, files)
+- Auth proxy routes (login, logout, user, callback) + login page
+- Supabase auth utilities and middleware
+- npm dependencies via `pnpm install`
 
 The validate command checks for:
 - **Untransformed imports** - `@microbuild/*` imports that weren't converted to local paths

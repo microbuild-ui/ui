@@ -30,6 +30,7 @@ microbuild list --json          # Get all components as JSON
 microbuild info <component>     # Detailed component info
 microbuild tree <component>     # Show dependency tree
 microbuild add <component>      # Add component with all dependencies
+microbuild bootstrap            # Full setup: init + add --all + deps + validate
 microbuild validate             # Check for common installation issues
 microbuild validate --json      # JSON output for CI/CD
 ```
@@ -111,6 +112,7 @@ microbuild validate --json      # JSON output for CI/CD
 | List components | `microbuild list` | [packages/cli/README.md](../packages/cli/README.md#list) |
 | Add component | `microbuild add input` | [packages/cli/README.md](../packages/cli/README.md#add) |
 | Initialize project | `microbuild init` | [packages/cli/README.md](../packages/cli/README.md#init) |
+| Bootstrap project | `microbuild bootstrap` | [CLI.md](CLI.md#bootstrap-command-recommended-for-ai-agents) |
 | Check status | `microbuild status` | [packages/cli/README.md](../packages/cli/README.md#status) |
 | Validate installation | `microbuild validate` | [packages/cli/README.md](../packages/cli/README.md#validate) |
 
@@ -309,6 +311,17 @@ Microbuild Architecture
 - Check existing documentation first
 
 ## 📝 Changelog
+
+### Version 1.2.0 (February 2026)
+- ✨ New `bootstrap` CLI command (init + add --all + deps + validate in one step)
+- ✨ Auth proxy routes (login, logout, user, OAuth callback) + login page template
+- ✨ `get_rbac_pattern` MCP tool for generating RBAC setup sequences
+- ✨ Non-interactive mode for `add` command (used by bootstrap)
+- ✨ Supabase SSR auth integration (`@supabase/ssr`)
+- ✨ New root dependencies: `@mantine/form`, TipTap extensions, `axios`, `lowlight`
+- 🔧 Improved `validate` command with `noExit` option and return value
+- 🔧 Updated registry: api-routes now includes auth routes
+- 🔧 Fixed ESM/CJS type exports in `@microbuild/utils`
 
 ### Version 1.1.0 (January 2026)
 - ✨ New `@microbuild/ui-form` package with VForm component (Directus-inspired)

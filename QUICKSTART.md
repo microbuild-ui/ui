@@ -99,6 +99,41 @@ This will:
 - Set up component directory structure
 - Check for required dependencies
 
+### Bootstrap a Project (Recommended for AI Agents)
+
+The `bootstrap` command combines init + add --all + install deps + validate into a single non-interactive command.
+
+```bash
+# Full project setup in one command
+microbuild bootstrap --cwd /path/to/project
+
+# Skip dependency installation
+microbuild bootstrap --skip-deps --cwd /path/to/project
+
+# Skip validation step
+microbuild bootstrap --skip-validate --cwd /path/to/project
+```
+
+**What bootstrap installs:**
+- `microbuild.json` configuration + Next.js skeleton
+- 40+ UI components in `components/ui/`
+- Types, services, hooks in `lib/microbuild/`
+- API proxy routes (fields, items, relations, files)
+- Auth proxy routes (login, logout, user, OAuth callback) + login page
+- Supabase auth utilities and middleware
+- npm dependencies via `pnpm install`
+
+**Auth Routes Installed:**
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/auth/login` | POST | Login via Supabase Auth (server-side, no CORS) |
+| `/api/auth/logout` | POST | Sign out and clear session cookies |
+| `/api/auth/user` | GET | Get current user profile |
+| `/api/auth/callback` | GET | Handle OAuth/email-confirm redirects |
+| `/app/login/page.tsx` | — | Login page using proxy pattern |
+
+**Key advantage:** Bootstrap works in non-empty directories and requires no user interaction.
+
 ### Add Components
 
 ```bash
@@ -216,6 +251,9 @@ The validate command checks for:
    
    # Initialize Microbuild
    node /path/to/microbuild-ui-packages/packages/cli/dist/index.js init --yes
+   
+   # Or bootstrap everything at once
+   node /path/to/microbuild-ui-packages/packages/cli/dist/index.js bootstrap --cwd .
    
    # Check generated files
    ls -la
@@ -383,6 +421,7 @@ See [docs/TESTING.md](./docs/TESTING.md) for complete testing guide and best pra
 1. **For AI Development:**
    - Configure VS Code with MCP server
    - Ask Copilot to generate forms and components
+   - Use `get_rbac_pattern` MCP tool for RBAC setup
    - Let AI discover and use your component library
 
 2. **For Team Development:**

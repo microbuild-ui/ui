@@ -16,7 +16,10 @@ npx @microbuild/cli init
 # 2. Add components
 npx @microbuild/cli add input select-dropdown datetime
 
-# 3. Use in your code
+# 3. Or bootstrap everything at once (recommended for AI agents)
+npx @microbuild/cli bootstrap
+
+# 4. Use in your code
 import { Input } from '@/components/ui/input'
 ```
 
@@ -49,6 +52,17 @@ When you add components, they're copied to your project:
 
 ```
 your-project/
+├── app/
+│   ├── api/
+│   │   ├── auth/                        # Auth proxy routes (installed by CLI)
+│   │   │   ├── login/route.ts           # POST - Supabase login
+│   │   │   ├── logout/route.ts          # POST - Sign out
+│   │   │   ├── user/route.ts            # GET - Current user info
+│   │   │   └── callback/route.ts        # GET - OAuth callback
+│   │   ├── fields/[collection]/route.ts # Fields proxy
+│   │   ├── items/[collection]/route.ts  # Items proxy
+│   │   └── ...
+│   └── login/page.tsx                   # Login page template
 ├── src/
 │   ├── components/
 │   │   └── ui/                      # UI components
@@ -60,12 +74,17 @@ your-project/
 │   │           ├── components/
 │   │           └── utils/
 │   └── lib/
-│       └── microbuild/              # Lib modules (auto-resolved)
-│           ├── utils.ts
-│           ├── field-interface-mapper.ts
-│           ├── types/
-│           ├── services/
-│           └── hooks/
+│       ├── microbuild/              # Lib modules (auto-resolved)
+│       │   ├── utils.ts
+│       │   ├── field-interface-mapper.ts
+│       │   ├── types/
+│       │   ├── services/
+│       │   └── hooks/
+│       ├── api/auth-headers.ts      # Auth header utilities
+│       └── supabase/                # Supabase client utilities
+│           ├── server.ts
+│           └── client.ts
+├── middleware.ts                     # Auth middleware
 └── microbuild.json                  # Configuration
 ```
 

@@ -144,6 +144,9 @@ microbuild add vform
 # Add CRUD form with data fetching
 microbuild add collection-form
 
+# Bootstrap entire project (init + add all + deps + validate)
+microbuild bootstrap --cwd /path/to/project
+
 # List all available components
 microbuild list
 

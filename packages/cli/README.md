@@ -53,11 +53,12 @@ Arguments:
   components         name of components to add
 
 Options:
-  -y, --yes          skip confirmation prompt (default: false)
-  -o, --overwrite    overwrite existing files (default: false)
-  -c, --cwd <cwd>    the working directory (defaults to current directory)
   -a, --all          add all available components (default: false)
+  --with-api         also add API routes and Supabase auth templates
   --category <name>  add all components from a category
+  -o, --overwrite    overwrite existing files (default: false)
+  -n, --dry-run      preview changes without modifying files
+  --cwd <cwd>        the working directory (defaults to current directory)
   -h, --help         display help for command
 ```
 
@@ -99,6 +100,48 @@ Options:
   -h, --help         display help for command
 ```
 
+## bootstrap
+
+Use the `bootstrap` command for full project setup in a single non-interactive command. Recommended for AI agents and CI/CD pipelines.
+
+```bash
+npx @microbuild/cli bootstrap
+```
+
+### Options
+
+```
+Usage: microbuild bootstrap [options]
+
+Full project setup: init + add --all + install deps + validate (single command for AI agents)
+
+Options:
+  --cwd <cwd>          the working directory (defaults to current directory)
+  --skip-deps          skip npm dependency installation
+  --skip-validate      skip post-install validation
+  -h, --help           display help for command
+```
+
+### What Bootstrap Does
+
+1. Creates `microbuild.json` and project skeleton (package.json, tsconfig, Next.js layout/page)
+2. Copies all 40+ UI components to `components/ui/`
+3. Copies types, services, hooks to `lib/microbuild/`
+4. Copies API proxy routes (fields, items, relations, files)
+5. Copies auth proxy routes (login, logout, user, callback) + login page
+6. Copies Supabase auth utilities and middleware
+7. Runs `pnpm install` to resolve all dependencies
+8. Validates the installation
+
+**Auth Routes Installed:**
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/auth/login` | POST | Login via Supabase Auth (server-side, no CORS) |
+| `/api/auth/logout` | POST | Sign out and clear session cookies |
+| `/api/auth/user` | GET | Get current user profile |
+| `/api/auth/callback` | GET | Handle OAuth/email-confirm redirects |
+| `/app/login/page.tsx` | — | Login page using proxy pattern |
+
 ## validate
 
 Use the `validate` command to check your Microbuild installation for common issues.
@@ -116,7 +159,7 @@ validate Microbuild installation (check imports, missing files, SSR issues)
 
 Options:
   --json           output as JSON for CI/CD
-  -c, --cwd <cwd>  the working directory (defaults to current directory)
+  --cwd <cwd>      the working directory (defaults to current directory)
   -h, --help       display help for command
 ```
 
@@ -166,7 +209,7 @@ Usage: microbuild diff [options] <component>
 preview changes before adding a component
 
 Options:
-  -c, --cwd <cwd>  the working directory (defaults to current directory)
+  --cwd <cwd>      the working directory (defaults to current directory)
   -h, --help       display help for command
 ```
 
@@ -187,7 +230,7 @@ show installed Microbuild components and their origins
 
 Options:
   --json           output as JSON
-  -c, --cwd <cwd>  the working directory (defaults to current directory)
+  --cwd <cwd>      the working directory (defaults to current directory)
   -h, --help       display help for command
 ```
 
@@ -380,6 +423,17 @@ pnpm add clsx tailwind-merge
 
 ```
 your-project/
+├── app/
+│   ├── api/
+│   │   ├── auth/                        # Auth proxy routes
+│   │   │   ├── login/route.ts           # POST - Supabase login
+│   │   │   ├── logout/route.ts          # POST - Sign out
+│   │   │   ├── user/route.ts            # GET - Current user info
+│   │   │   └── callback/route.ts        # GET - OAuth callback
+│   │   ├── fields/[collection]/route.ts # Fields proxy
+│   │   ├── items/[collection]/route.ts  # Items proxy
+│   │   └── ...
+│   └── login/page.tsx                   # Login page template
 ├── src/
 │   ├── components/
 │   │   └── ui/
@@ -387,24 +441,29 @@ your-project/
 │   │       ├── select-dropdown.tsx
 │   │       └── datetime.tsx
 │   └── lib/
-│       └── microbuild/
-│           ├── utils.ts
-│           ├── types/
-│           │   ├── index.ts
-│           │   ├── core.ts
-│           │   ├── file.ts
-│           │   └── relations.ts
-│           ├── services/
-│           │   ├── index.ts
-│           │   ├── api-request.ts
-│           │   ├── items.ts
-│           │   ├── fields.ts
-│           │   └── collections.ts
-│           └── hooks/
-│               ├── index.ts
-│               ├── useRelationM2M.ts
-│               ├── useRelationM2O.ts
-│               └── ...
+│       ├── microbuild/
+│       │   ├── utils.ts
+│       │   ├── types/
+│       │   │   ├── index.ts
+│       │   │   ├── core.ts
+│       │   │   ├── file.ts
+│       │   │   └── relations.ts
+│       │   ├── services/
+│       │   │   ├── index.ts
+│       │   │   ├── api-request.ts
+│       │   │   ├── items.ts
+│       │   │   ├── fields.ts
+│       │   │   └── collections.ts
+│       │   └── hooks/
+│       │       ├── index.ts
+│       │       ├── useRelationM2M.ts
+│       │       ├── useRelationM2O.ts
+│       │       └── ...
+│       ├── api/auth-headers.ts          # Auth header utilities
+│       └── supabase/                    # Supabase client utilities
+│           ├── server.ts
+│           └── client.ts
+├── middleware.ts                         # Auth middleware
 ├── microbuild.json
 └── package.json
 ```
@@ -415,6 +474,9 @@ your-project/
 # Initialize project
 microbuild init [--yes] [--cwd <path>]
 
+# Bootstrap full project (init + add all + deps + validate)
+microbuild bootstrap [--cwd <path>] [--skip-deps] [--skip-validate]
+
 # Add components
 microbuild add [components...] [--all] [--category <name>] [--overwrite] [--cwd <path>]
 
@@ -423,6 +485,22 @@ microbuild list [--category <name>] [--json]
 
 # Preview changes
 microbuild diff <component> [--cwd <path>]
+
+# Validate installation
+microbuild validate [--json] [--cwd <path>]
+
+# Check installed components
+microbuild status [--json] [--cwd <path>]
+
+# Component info and dependency tree
+microbuild info <component> [--json]
+microbuild tree <component> [--json] [--depth <n>]
+
+# Auto-fix common issues
+microbuild fix [--dry-run] [--yes] [--cwd <path>]
+
+# Check for component updates
+microbuild outdated [--json] [--cwd <path>]
 ```
 
 ## Troubleshooting

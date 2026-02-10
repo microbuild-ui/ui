@@ -13,8 +13,9 @@
 │  ├──────────────────────────┤      ├──────────────────────────┤    │
 │  │ - List components        │      │ - microbuild init        │    │
 │  │ - Read source code       │      │ - microbuild add         │    │
-│  │ - Generate examples      │      │ - microbuild list        │    │
-│  │ - Code generation        │      │ - Copy source files      │    │
+│  │ - Generate examples      │      │ - microbuild bootstrap   │    │
+│  │ - Code generation        │      │ - microbuild list        │    │
+│  │ - RBAC patterns          │      │ - Copy source files      │    │
 │  └──────────┬───────────────┘      └──────────┬───────────────┘    │
 │             │                                  │                     │
 │             └──────────────┬───────────────────┘                     │
@@ -495,6 +496,9 @@ Source Code Changes
 │           │ /api/users/me       │                                     │
 │           │ /api/permissions/me │                                     │
 │           │ /api/auth/login     │                                     │
+│           │ /api/auth/logout    │                                     │
+│           │ /api/auth/user      │                                     │
+│           │ /api/auth/callback  │                                     │
 │           └─────────────────────┘                                     │
 │                                                                        │
 └──────────────────────────────────────────────────────────────────────┘
@@ -550,6 +554,117 @@ Source Code Changes
 - `┌─┐` Boxes represent systems/components
 - `│ ▼` Arrows show data/control flow
 - `├──┤` Represents dependencies/relationships
+
+## Auth Proxy Routes Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                   Auth Proxy Routes (installed by CLI)                │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  Browser (same-origin)                                                │
+│  ┌────────────────────────────────────────────────────────────┐      │
+│  │  Login Page (/app/login/page.tsx)                          │      │
+│  │  → POST /api/auth/login (same-origin, no CORS)            │      │
+│  └────────────────────┬───────────────────────────────────────┘      │
+│                       │                                               │
+│                       ▼                                               │
+│  Next.js API Routes (Server-Side)                                    │
+│  ┌────────────────────────────────────────────────────────────┐      │
+│  │ /api/auth/login    → Supabase signInWithPassword          │      │
+│  │ /api/auth/logout   → Supabase signOut + clear cookies     │      │
+│  │ /api/auth/user     → DaaS /api/users/me (or fallback)    │      │
+│  │ /api/auth/callback → OAuth code exchange + redirect       │      │
+│  └────────────────────┬───────────────────────────────────────┘      │
+│                       │                                               │
+│                       ▼                                               │
+│  Supabase Auth (Server-Side, no CORS issues)                         │
+│  ┌────────────────────────────────────────────────────────────┐      │
+│  │ @supabase/ssr createClient() → server-side cookies        │      │
+│  │ Session management with Next.js middleware                 │      │
+│  └────────────────────────────────────────────────────────────┘      │
+│                                                                        │
+│  Pattern: Browser → Next.js API Route → Supabase Auth (server-side)  │
+│  Benefit: No CORS, cookie-based sessions, server-side token mgmt    │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+## Bootstrap Flow (CLI)
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                  Bootstrap Command Flow                               │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  $ microbuild bootstrap --cwd /path/to/project                       │
+│                                                                        │
+│  Step 1: Init                                                         │
+│  ┌─────────────────────────────────────────┐                         │
+│  │ • microbuild.json                       │                         │
+│  │ • package.json + tsconfig               │                         │
+│  │ • Next.js skeleton (layout, page)       │                         │
+│  └─────────────────────┬───────────────────┘                         │
+│                        ▼                                              │
+│  Step 2: Add All Components (non-interactive)                        │
+│  ┌─────────────────────────────────────────┐                         │
+│  │ • 40+ UI components → components/ui/    │                         │
+│  │ • types, services, hooks → lib/microbuild/│                       │
+│  │ • API proxy routes → app/api/            │                         │
+│  │ • Auth routes → app/api/auth/            │                         │
+│  │ • Login page → app/login/page.tsx        │                         │
+│  │ • Supabase utilities → lib/supabase/     │                         │
+│  │ • Middleware → middleware.ts              │                         │
+│  └─────────────────────┬───────────────────┘                         │
+│                        ▼                                              │
+│  Step 3: Install Dependencies                                        │
+│  ┌─────────────────────────────────────────┐                         │
+│  │ • pnpm install (auto-detects pkg mgr)   │                         │
+│  │ • Mantine, TipTap, Supabase, etc.       │                         │
+│  └─────────────────────┬───────────────────┘                         │
+│                        ▼                                              │
+│  Step 4: Validate                                                     │
+│  ┌─────────────────────────────────────────┐                         │
+│  │ • Check untransformed imports           │                         │
+│  │ • Check missing lib/CSS files           │                         │
+│  │ • Check SSR issues                      │                         │
+│  │ • Separate TS errors (non-fatal)        │                         │
+│  └─────────────────────────────────────────┘                         │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+## MCP RBAC Pattern Tool
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│              get_rbac_pattern MCP Tool                                │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  Available Patterns:                                                  │
+│  ┌─────────────────────────────────────────┐                         │
+│  │ own_items       → Users manage own data │                         │
+│  │ role_hierarchy  → Admin>Editor>Viewer   │                         │
+│  │ public_read     → Public read + auth write │                      │
+│  │ multi_tenant    → Org-level isolation   │                         │
+│  │ full_crud       → Unrestricted CRUD     │                         │
+│  │ read_only       → Read-only access      │                         │
+│  └─────────────────────────────────────────┘                         │
+│                                                                        │
+│  Returns: Step-by-step MCP tool call sequences                       │
+│  ┌─────────────────────────────────────────┐                         │
+│  │ 1. Create role(s)                       │                         │
+│  │ 2. Create policy/policies               │                         │
+│  │ 3. Create access entries                │                         │
+│  │ 4. Create permissions per collection    │                         │
+│  └─────────────────────────────────────────┘                         │
+│                                                                        │
+│  Dynamic Variables:                                                   │
+│  $CURRENT_USER, $CURRENT_ROLE, $CURRENT_ROLES,                      │
+│  $CURRENT_POLICIES, $NOW                                             │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
 
 ## Testing Architecture
 

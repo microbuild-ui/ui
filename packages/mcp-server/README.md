@@ -116,6 +116,10 @@ Get detailed information and source code for a specific component.
 }
 ```
 
+### `list_packages`
+
+List all Microbuild packages with their exports.
+
 ### `get_install_command`
 
 Get the CLI command to install components. Essential for AI agents to help users add components.
@@ -193,6 +197,30 @@ Get real-world usage examples for a component (with local imports).
 }
 ```
 
+### `get_rbac_pattern`
+
+Get RBAC (Role-Based Access Control) setup patterns for DaaS applications. Returns step-by-step MCP tool call sequences to set up roles, policies, access, and permissions.
+
+```json
+{
+  "pattern": "own_items",
+  "collections": ["articles", "categories"],
+  "roleName": "Editor"
+}
+```
+
+**Available patterns:**
+| Pattern | Description |
+|---------|-------------|
+| `own_items` | Users manage their own records, read others' published items |
+| `role_hierarchy` | Admin > Editor > Viewer cascading permissions |
+| `public_read` | Public read + authenticated write |
+| `multi_tenant` | Organization-level data isolation |
+| `full_crud` | Unrestricted CRUD access |
+| `read_only` | Read-only access |
+
+**Dynamic variables supported:** `$CURRENT_USER`, `$CURRENT_USER.<field>`, `$CURRENT_ROLE`, `$CURRENT_ROLES`, `$CURRENT_POLICIES`, `$NOW`
+
 ## Usage with Copilot
 
 Once configured, you can ask Copilot:
@@ -203,6 +231,8 @@ Once configured, you can ask Copilot:
 - "Generate a form for a products collection" (uses `generate_form`)
 - "List all available selection components" (uses `list_components`)
 - "Show me the source code for CollectionForm" (uses `get_component`)
+- "Set up RBAC with own_items pattern for articles" (uses `get_rbac_pattern`)
+- "Generate role hierarchy for Admin, Editor, Viewer" (uses `get_rbac_pattern`)
 
 The AI agent will provide CLI commands that you can run to install components.
 
@@ -243,6 +273,7 @@ pnpm typecheck
 │  │  - generate_form                 │   │
 │  │  - generate_interface            │   │
 │  │  - get_usage_example             │   │
+│  │  - get_rbac_pattern              │   │
 │  └──────────────────────────────────┘   │
 │  ┌──────────────────────────────────┐   │
 │  │  Component Registry (JSON)       │   │
