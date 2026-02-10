@@ -192,7 +192,7 @@ export function GroupDetail({
       {/* Header/Activator */}
       <Paper
         withBorder
-        radius="var(--mantine-radius-sm)" // SGDS border-radius
+        radius="var(--mantine-radius-sm)" // Tokenized border radius
         style={{
           cursor: disabled ? 'default' : 'pointer',
           borderColor: headerColor || undefined,

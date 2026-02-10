@@ -50,7 +50,7 @@ function toFileUpload(file: DirectusFile): FileUpload {
 }
 
 /**
- * SGDS-compliant styles for file components matching Directus file.vue interface
+ * Token-based styles for file components matching Directus file.vue interface
  */
 const fileStyles = {
   preview: {

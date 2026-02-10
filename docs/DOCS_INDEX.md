@@ -13,6 +13,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide | DevOps/Teams |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
 | [TESTING.md](TESTING.md) | Playwright E2E testing guide | Developers |
+| [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Token-based theming architecture | Designers, Developers |
 
 ## 🤖 For AI Agents
 

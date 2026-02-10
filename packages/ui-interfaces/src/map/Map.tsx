@@ -373,8 +373,8 @@ export const Map: React.FC<MapProps> = ({
                 position: 'absolute',
                 bottom: 10,
                 right: 10,
-                borderRadius: 'var(--mantine-radius-xs)', // SGDS border-radius-sm
-                boxShadow: 'var(--mantine-shadow-sm)', // SGDS box-shadow-sm
+                borderRadius: 'var(--mantine-radius-xs)', // Tokenized border radius
+                boxShadow: 'var(--mantine-shadow-sm)', // Tokenized shadow
               }}
             >
               <IconMap size={16} />

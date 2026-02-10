@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import ora from 'ora';
 import prompts from 'prompts';
@@ -64,6 +65,22 @@ const DEFAULT_CONFIG: Config = {
   componentVersions: {},
   registryVersion: '1.0.0',
 };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TEMPLATES_ROOT = path.resolve(__dirname, '../templates');
+
+async function copyTemplateFile(sourceRelativePath: string, targetPath: string, cwd: string) {
+  const sourcePath = path.join(TEMPLATES_ROOT, sourceRelativePath);
+
+  if (!fs.existsSync(sourcePath) || fs.existsSync(targetPath)) {
+    return;
+  }
+
+  await fs.ensureDir(path.dirname(targetPath));
+  await fs.copy(sourcePath, targetPath);
+  console.log(chalk.green(`✓ Created ${path.relative(cwd, targetPath)}`));
+}
 
 export async function init(options: { yes?: boolean; cwd: string }) {
   const { cwd, yes } = options;
@@ -250,6 +267,29 @@ export async function init(options: { yes?: boolean; cwd: string }) {
 `;
       await fs.writeFile(nextEnvPath, nextEnvContent);
       console.log(chalk.green(`✓ Created next-env.d.ts`));
+    }
+
+    // Create a basic Next.js app skeleton with design system files
+    if (projectType === 'next') {
+      const srcRoot = config.srcDir ? path.join(cwd, 'src') : cwd;
+      const appDir = path.join(srcRoot, 'app');
+      const libRoot = path.join(srcRoot, 'lib');
+      const componentsRoot = path.join(srcRoot, 'components');
+
+      await fs.ensureDir(appDir);
+      await fs.ensureDir(libRoot);
+      await fs.ensureDir(componentsRoot);
+
+      await copyTemplateFile('app/design-tokens.css', path.join(appDir, 'design-tokens.css'), cwd);
+      await copyTemplateFile('app/globals.css', path.join(appDir, 'globals.css'), cwd);
+      await copyTemplateFile('app/layout.tsx', path.join(appDir, 'layout.tsx'), cwd);
+      await copyTemplateFile('app/page.tsx', path.join(appDir, 'page.tsx'), cwd);
+      await copyTemplateFile('lib/theme.ts', path.join(libRoot, 'theme.ts'), cwd);
+      await copyTemplateFile(
+        'components/ColorSchemeToggle.tsx',
+        path.join(componentsRoot, 'ColorSchemeToggle.tsx'),
+        cwd
+      );
     }
 
     // Check for required dependencies

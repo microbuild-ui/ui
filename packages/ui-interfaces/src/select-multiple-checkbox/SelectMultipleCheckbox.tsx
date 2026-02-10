@@ -222,7 +222,7 @@ export function SelectMultipleCheckbox({
                   padding: '12px',
                   backgroundColor: 'var(--mantine-color-gray-0)',
                   border: '1px solid var(--mantine-color-gray-3)',
-                  borderRadius: 'var(--mantine-radius-xs)', // SGDS border-radius-sm
+                  borderRadius: 'var(--mantine-radius-xs)', // Tokenized border radius
                   transition: 'all 200ms ease',
                   cursor: disabled ? 'not-allowed' : 'pointer',
                 },

@@ -1,0 +1,58 @@
+/* Global styles using design tokens */
+body {
+  background: var(--ds-body-bg);
+  color: var(--ds-body-color);
+  font-family: var(--ds-font-family);
+  font-size: var(--ds-body-font-size);
+  line-height: var(--ds-line-height-base);
+}
+
+.emoji-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.mantine-Tabs-tab:hover {
+  background-color: var(--ds-gray-100);
+  color: var(--ds-gray-700);
+}
+
+.mantine-Tabs-tab[data-active],
+.mantine-Tabs-tab[data-active]:hover {
+  color: var(--ds-primary);
+  border-bottom-color: var(--ds-primary);
+  font-weight: 600;
+}
+
+.mantine-Notification-root[data-variant="success"] {
+  border-left-color: var(--ds-success);
+}
+
+.mantine-Notification-root[data-variant="error"] {
+  border-left-color: var(--ds-danger);
+}
+
+.mantine-Notification-root[data-variant="warning"] {
+  border-left-color: var(--ds-warning);
+}
+
+.mantine-Notification-root[data-variant="info"] {
+  border-left-color: var(--ds-info);
+}
+
+.mantine-Input-input:focus {
+  border-color: var(--mantine-color-primary-6);
+}
+
+.mantine-Modal-close:hover {
+  background-color: var(--ds-gray-100);
+}
+
+.mantine-Anchor-root:hover {
+  text-decoration: underline;
+  color: var(--mantine-color-primary-6);
+}
+
+.mantine-ActionIcon-root:hover {
+  background-color: var(--ds-gray-100);
+}

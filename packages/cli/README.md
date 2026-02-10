@@ -124,7 +124,7 @@ Options:
 
 ### What Bootstrap Does
 
-1. Creates `microbuild.json` and project skeleton (package.json, tsconfig, Next.js layout/page)
+1. Creates `microbuild.json` and project skeleton (package.json, tsconfig, Next.js layout/page, design tokens)
 2. Copies all 40+ UI components to `components/ui/`
 3. Copies types, services, hooks to `lib/microbuild/`
 4. Copies API proxy routes (fields, items, relations, files)
