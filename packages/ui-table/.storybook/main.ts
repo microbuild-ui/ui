@@ -1,22 +1,16 @@
-import type { StorybookConfig } from '@storybook/react-vite';
-import { mergeConfig, loadEnv } from 'vite';
+import type { StorybookConfig } from '@storybook/nextjs-vite';
+import { mergeConfig } from 'vite';
 import path from 'path';
 
-/**
- * DaaS Proxy Configuration
- * 
- * To enable DaaS API proxying in Storybook, create a .env.local file in packages/ui-table/:
- * 
- *   STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com
- *   STORYBOOK_DAAS_TOKEN=your-static-token
- * 
- * This allows Storybook to proxy /api/* requests to DaaS, avoiding CORS issues.
- */
+const __dirname = import.meta.dirname;
 
-// Load environment variables from .env.local file
-const env = loadEnv('development', path.resolve(__dirname, '..'), 'STORYBOOK_');
-const DAAS_URL = env.STORYBOOK_DAAS_URL || process.env.STORYBOOK_DAAS_URL || '';
-const DAAS_TOKEN = env.STORYBOOK_DAAS_TOKEN || process.env.STORYBOOK_DAAS_TOKEN || '';
+/**
+ * DaaS API Proxy
+ *
+ * In local development, /api/* requests are proxied to the Storybook Host
+ * app (apps/storybook-host) running on localhost:3000.
+ * See apps/storybook-host/README or visit http://localhost:3000 to configure.
+ */
 
 const config: StorybookConfig = {
   stories: [
@@ -29,7 +23,7 @@ const config: StorybookConfig = {
     '@storybook/addon-a11y',
   ],
   framework: {
-    name: '@storybook/react-vite',
+    name: '@storybook/nextjs-vite',
     options: {},
   },
   docs: {},
@@ -48,41 +42,21 @@ const config: StorybookConfig = {
     },
   },
   viteFinal: async (config) => {
-    // Build proxy configuration if DaaS env vars are set
-    const proxyConfig: Record<string, unknown> = {};
-    
-    if (DAAS_URL) {
-      proxyConfig['/api'] = {
-        target: DAAS_URL,
-        changeOrigin: true,
-        secure: true,
-        configure: (proxy: any) => {
-          proxy.on('proxyReq', (proxyReq: any, req: any) => {
-            const isAuthEndpoint = req.url?.startsWith('/api/auth/');
-            const existingAuth = proxyReq.getHeader('Authorization');
-            
-            if (DAAS_TOKEN && !isAuthEndpoint && !existingAuth) {
-              proxyReq.setHeader('Authorization', `Bearer ${DAAS_TOKEN}`);
-            }
-            console.log(`[Storybook Proxy] ${req.method} ${req.url} → ${DAAS_URL}${req.url}${isAuthEndpoint ? ' (auth endpoint)' : ''}`);
-          });
-        },
-      };
-      
-      console.log(`[Storybook] DaaS proxy enabled: /api/* → ${DAAS_URL}/api/*`);
-    }
-    
     return mergeConfig(config, {
       resolve: {
         alias: {
-          // Map workspace packages for Storybook
           '@microbuild/types': path.resolve(__dirname, '../../types/src'),
           '@microbuild/services': path.resolve(__dirname, '../../services/src'),
           '@microbuild/hooks': path.resolve(__dirname, '../../hooks/src'),
         },
       },
       server: {
-        proxy: proxyConfig,
+        proxy: {
+          '/api': {
+            target: 'http://localhost:3000',
+            changeOrigin: true,
+          },
+        },
       },
     });
   },

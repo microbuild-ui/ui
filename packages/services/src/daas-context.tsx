@@ -109,7 +109,7 @@ export interface DaaSProviderProps {
 export function DaaSProvider({ 
   config, 
   children, 
-  autoFetchUser = true,
+  autoFetchUser,
   onAuthenticated,
   onAuthError,
 }: DaaSProviderProps) {
@@ -118,6 +118,9 @@ export function DaaSProvider({
   const [authError, setAuthError] = useState<string | null>(null);
 
   const isDirectMode = Boolean(config?.url && config?.token);
+
+  // Default: auto-fetch in direct mode; opt-in for proxy mode
+  const shouldAutoFetch = autoFetchUser ?? isDirectMode;
 
   // Build URL helper
   const buildUrl = useCallback((path: string): string => {
@@ -178,12 +181,12 @@ export function DaaSProvider({
     }
   }, [buildUrl, getHeaders, onAuthenticated, onAuthError]);
 
-  // Auto-fetch user when config is available
+  // Auto-fetch user when enabled (direct mode: by default, proxy mode: opt-in)
   useEffect(() => {
-    if (autoFetchUser && isDirectMode) {
+    if (shouldAutoFetch) {
       refreshUser();
     }
-  }, [autoFetchUser, isDirectMode, config?.token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [shouldAutoFetch, isDirectMode, config?.token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const value = useMemo<DaaSContextValue>(() => ({
     config: config ?? null,

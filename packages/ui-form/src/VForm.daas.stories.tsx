@@ -1,53 +1,52 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { TextInput, Button, Stack, Alert, Code, Group, Text, Paper, Badge, Divider, Select, Switch, Accordion } from '@mantine/core';
-import { IconPlugConnected, IconPlugConnectedX, IconRefresh, IconCloudDownload, IconServer, IconUser, IconShield, IconLock, IconKey } from '@tabler/icons-react';
+import {
+  Button,
+  Stack,
+  Alert,
+  Code,
+  Group,
+  Text,
+  Paper,
+  Badge,
+  Divider,
+  Select,
+  Switch,
+  Accordion,
+} from '@mantine/core';
+import {
+  IconPlugConnected,
+  IconPlugConnectedX,
+  IconRefresh,
+  IconCloudDownload,
+  IconUser,
+  IconShield,
+  IconLock,
+  IconExternalLink,
+} from '@tabler/icons-react';
 import { VForm } from './VForm';
 import type { Field } from '@microbuild/types';
 import type { FieldValues } from './types';
-import { setGlobalDaaSConfig, DaaSProvider, useDaaSContext, type DaaSConfig as ServiceDaaSConfig } from '@microbuild/services';
+import { DaaSProvider, useDaaSContext } from '@microbuild/services';
 
 /**
  * VForm - DaaS Connected Playground
- * 
+ *
  * This story connects to a real DaaS instance to fetch fields and test
  * the VForm component with actual collection schemas.
- * 
- * ## Authentication Architecture (DaaS-Compatible)
- * 
- * The playground supports the same authentication methods as DaaS:
- * 1. **Static Tokens** - For programmatic access (Directus-style)
- * 2. **Proxy Mode** - Uses Vite proxy with environment variables
- * 
- * ## Proxy Mode (Recommended - No CORS Issues)
- * 
- * Start Storybook with environment variables:
- * ```bash
- * STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
- * STORYBOOK_DAAS_TOKEN=your-static-token \
- * pnpm storybook:form
- * ```
- * 
- * This enables a Vite proxy that forwards `/api/*` requests to DaaS,
- * avoiding CORS issues entirely.
- * 
- * ## Direct Mode (Manual Entry)
- * 
- * Enter DaaS URL and token manually. Note: This may encounter CORS issues
- * as the browser makes direct requests to DaaS.
- * 
- * ## Permission Enforcement
- * 
- * Enable `enforcePermissions` to see only fields you have permission to access.
- * This mirrors the server-side permission enforcement in DaaS.
- * 
+ *
  * ## How It Works
- * - Authenticates using static token (Bearer header)
- * - Fetches current user from `/api/users/me`
- * - Fetches fields from `/api/fields/{collection}` (proxied or direct)
- * - Optionally fetches permissions from `/api/permissions/{collection}`
- * - Renders VForm with the fetched schema
- * - Shows field values in real-time
+ *
+ * All API requests go through the **Storybook Host** app (`apps/storybook-host`),
+ * a Next.js app that acts as an authentication proxy:
+ *
+ * 1. Start the host: `pnpm dev:host`
+ * 2. Visit http://localhost:3000 and enter your DaaS URL + static token
+ * 3. Start this Storybook: `pnpm storybook:form`
+ * 4. Open this story → select a collection → fields load from real DaaS
+ *
+ * In production (Amplify), the Storybook is served from the same origin
+ * as the host app, so the proxy works without any configuration.
  */
 const meta: Meta<typeof VForm> = {
   title: 'Forms/VForm DaaS Playground',
@@ -56,7 +55,8 @@ const meta: Meta<typeof VForm> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'Connect VForm to a real DaaS instance and test with actual collection schemas. Features authentication state display and permission enforcement.',
+        component:
+          'Connect VForm to a real DaaS instance and test with actual collection schemas. Authentication is handled by the Storybook Host app.',
       },
     },
   },
@@ -65,404 +65,68 @@ const meta: Meta<typeof VForm> = {
 export default meta;
 
 // ============================================================================
-// Check if Proxy Mode is enabled via environment variables
-// Storybook exposes STORYBOOK_* env vars to the browser
-// ============================================================================
-const PROXY_MODE_ENABLED = Boolean(
-  // @ts-expect-error - Storybook injects STORYBOOK_* env vars
-  typeof window !== 'undefined' && import.meta.env?.STORYBOOK_DAAS_URL
-);
-
-// ============================================================================
-// DaaS API Helper - Supports both proxy and direct modes
+// API Helpers — all requests go through /api/* (proxied to host app)
 // ============================================================================
 
-interface DaaSConfig {
-  url: string;
-  token: string;
+interface ConnectionStatus {
+  connected: boolean;
+  url: string | null;
+  user: {
+    id: string;
+    email: string;
+    first_name: string | null;
+    last_name: string | null;
+    admin_access: boolean;
+    status: string;
+  } | null;
+  error?: string;
 }
 
-/**
- * Fetch fields - uses proxy in proxy mode, direct fetch otherwise
- * Supports both static token and login-based JWT authentication
- */
-async function fetchFieldsFromDaaS(collection: string, config?: DaaSConfig): Promise<Field[]> {
-  if (PROXY_MODE_ENABLED || !config) {
-    // Proxy mode: use local /api/* routes (Vite proxies to DaaS with static token)
-    const url = `/api/fields/${collection}?_t=${Date.now()}`;
-    const response = await fetch(url, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache',
-      },
-    });
+async function checkConnection(): Promise<ConnectionStatus> {
+  try {
+    const response = await fetch('/api/status', { cache: 'no-store' });
     if (!response.ok) {
-      const text = await response.text();
-      console.error('[DaaS API] Error response:', text);
-      throw new Error(`API Error: ${response.status} - ${text}`);
+      return { connected: false, url: null, user: null, error: `Status check failed: ${response.status}` };
     }
-    const data = await response.json();
-    return data.data || [];
-  } else {
-    // Direct mode: call DaaS directly (may have CORS issues)
-    const response = await fetch(`${config.url}/fields/${collection}`, {
-      headers: {
-        'Authorization': `Bearer ${config.token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`DaaS API Error: ${response.status} - ${text}`);
-    }
-    
-    const data = await response.json();
-    return data.data || [];
+    return await response.json();
+  } catch {
+    return {
+      connected: false,
+      url: null,
+      user: null,
+      error: 'Storybook Host app is not running. Start it with: pnpm dev:host',
+    };
   }
 }
 
-/**
- * Fetch collections - uses proxy in proxy mode, direct fetch otherwise
- * Supports both static token and login-based JWT authentication
- */
-async function fetchCollectionsFromDaaS(config?: DaaSConfig): Promise<string[]> {
-  if (PROXY_MODE_ENABLED || !config) {
-    // Proxy mode: use local /api/* routes (Vite proxies to DaaS with static token)
-    const response = await fetch(`/api/collections`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch collections: ${response.status}`);
-    }
-    const data = await response.json();
-    return (data.data || [])
-      .map((c: any) => c.collection)
-      .filter((name: string) => !name.startsWith('directus_'));
-  } else {
-    // Direct mode: call DaaS directly
-    const response = await fetch(`${config.url}/collections`, {
-      headers: {
-        'Authorization': `Bearer ${config.token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch collections: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return (data.data || [])
-      .map((c: any) => c.collection)
-      .filter((name: string) => !name.startsWith('directus_'));
+async function fetchFieldsFromDaaS(collection: string): Promise<Field[]> {
+  const response = await fetch(`/api/fields/${collection}`, { cache: 'no-store' });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API Error ${response.status}: ${text.slice(0, 200)}`);
   }
+  const data = await response.json();
+  return data.data || [];
+}
+
+async function fetchCollectionsFromDaaS(): Promise<string[]> {
+  const response = await fetch('/api/collections', { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch collections: ${response.status}`);
+  }
+  const data = await response.json();
+  return (data.data || [])
+    .map((c: any) => c.collection)
+    .filter((name: string) => !name.startsWith('directus_'));
 }
 
 // ============================================================================
-// DaaS Connection Component
+// Auth Status Component
 // ============================================================================
 
-interface DaaSConnectionProps {
-  onFieldsLoaded: (fields: Field[], collection: string) => void;
-  onConfigChange: (config: DaaSConfig | null) => void;
-}
-
-const DaaSConnection: React.FC<DaaSConnectionProps> = ({ 
-  onFieldsLoaded, 
-  onConfigChange,
-}) => {
-  // In proxy mode, we don't need URL/token - they're handled by Vite proxy
-  const [collection, setCollection] = useState(() => 
-    localStorage.getItem('storybook_daas_collection') || 'interface_showcase'
-  );
-  
-  // Direct mode state (only used when proxy mode is disabled)
-  const [daasUrl, setDaasUrl] = useState(() => 
-    localStorage.getItem('storybook_daas_url') || ''
-  );
-  const [daasToken, setDaasToken] = useState(() => 
-    localStorage.getItem('storybook_daas_token') || ''
-  );
-  
-  // Don't start as connected - we need to verify the proxy works
-  const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [collections, setCollections] = useState<string[]>([]);
-  const [fields, setFields] = useState<Field[]>([]);
-
-  // Save to localStorage when values change
-  useEffect(() => {
-    localStorage.setItem('storybook_daas_collection', collection);
-    if (!PROXY_MODE_ENABLED) {
-      localStorage.setItem('storybook_daas_url', daasUrl);
-      localStorage.setItem('storybook_daas_token', daasToken);
-    }
-  }, [daasUrl, daasToken, collection]);
-
-  // Auto-connect in proxy mode on mount
-  useEffect(() => {
-    if (PROXY_MODE_ENABLED) {
-      connectProxy();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const connectProxy = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Test connection by fetching collections via proxy
-      const collectionList = await fetchCollectionsFromDaaS();
-      setCollections(collectionList);
-      setIsConnected(true);
-      
-      // In proxy mode, don't set global config - use /api/* routes directly
-      // The proxy handles auth
-      onConfigChange(null);
-      
-      // Auto-load fields if collection is set
-      if (collection && collectionList.includes(collection)) {
-        await loadFieldsProxy(collection);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Proxy connection failed');
-      setIsConnected(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [collection, onConfigChange]);
-
-  const connectDirect = useCallback(async () => {
-    if (!daasUrl || !daasToken) {
-      setError('Please enter DaaS URL and Token');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Test connection by fetching collections directly
-      const config: DaaSConfig = { url: daasUrl, token: daasToken };
-      const collectionList = await fetchCollectionsFromDaaS(config);
-      setCollections(collectionList);
-      setIsConnected(true);
-      
-      // Set global DaaS config for services/hooks to use
-      setGlobalDaaSConfig(config);
-      onConfigChange(config);
-      
-      // Auto-load fields if collection is set
-      if (collection && collectionList.includes(collection)) {
-        await loadFieldsDirect(config, collection);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Connection failed. CORS may be blocking the request.');
-      setIsConnected(false);
-      setGlobalDaaSConfig(null);
-      onConfigChange(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [daasUrl, daasToken, collection, onConfigChange]);
-
-  const loadFieldsProxy = async (collectionName: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const loadedFields = await fetchFieldsFromDaaS(collectionName);
-      setFields(loadedFields);
-      onFieldsLoaded(loadedFields, collectionName);
-    } catch (err) {
-      console.error('[DaaS Playground] Error loading fields:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load fields');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadFieldsDirect = async (config: DaaSConfig, collectionName: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const loadedFields = await fetchFieldsFromDaaS(collectionName, config);
-      setFields(loadedFields);
-      onFieldsLoaded(loadedFields, collectionName);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load fields');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLoadCollection = async () => {
-    if (!collection) {
-      setError('Please enter a collection name');
-      return;
-    }
-    if (PROXY_MODE_ENABLED) {
-      await loadFieldsProxy(collection);
-    } else {
-      await loadFieldsDirect({ url: daasUrl, token: daasToken }, collection);
-    }
-  };
-
-  return (
-    <Paper p="md" withBorder mb="lg">
-      <Stack gap="md">
-        <Group justify="space-between">
-          <Group gap="xs">
-            <Text fw={600} size="lg">🔌 DaaS Connection</Text>
-            {PROXY_MODE_ENABLED && (
-              <Badge color="blue" size="sm" leftSection={<IconServer size={10} />}>
-                Proxy Mode
-              </Badge>
-            )}
-          </Group>
-          {isConnected ? (
-            <Badge color="green" leftSection={<IconPlugConnected size={12} />}>
-              Connected
-            </Badge>
-          ) : (
-            <Badge color="gray" leftSection={<IconPlugConnectedX size={12} />}>
-              Not Connected
-            </Badge>
-          )}
-        </Group>
-
-        {PROXY_MODE_ENABLED ? (
-          <Alert color="green" title="Proxy Mode Active" icon={<IconKey size={16} />}>
-            <Text size="sm">
-              Storybook is configured with DaaS proxy via environment variables.
-              All <Code>/api/*</Code> requests are forwarded to your DaaS instance.
-            </Text>
-            <Text size="xs" c="dimmed" mt="xs">
-              Authentication is handled automatically using the static token from <Code>.env.local</Code>.
-            </Text>
-          </Alert>
-        ) : (
-          <>
-            <Alert color="yellow" title="Direct Mode (CORS Warning)">
-              <Text size="sm">
-                Requests go directly from your browser to DaaS. This may fail due to CORS.
-              </Text>
-              <Text size="sm" mt="xs">
-                <strong>Recommended:</strong> Start Storybook with proxy configuration:
-              </Text>
-              <Code block mt="xs" style={{ fontSize: '11px' }}>
-{`STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \\
-STORYBOOK_DAAS_TOKEN=your-token \\
-pnpm storybook:form`}
-              </Code>
-            </Alert>
-
-            <TextInput
-              label="DaaS URL"
-              placeholder="https://xxx.microbuild-daas.xtremax.com"
-              value={daasUrl}
-              onChange={(e) => setDaasUrl(e.target.value)}
-              description="Your DaaS instance URL (without /api prefix)"
-            />
-
-            <TextInput
-              label="Static Token"
-              placeholder="Enter your static token..."
-              value={daasToken}
-              onChange={(e) => setDaasToken(e.target.value)}
-              description="Generate from Users → Edit User → Generate Token"
-              type="password"
-            />
-
-            <Group>
-              <Button
-                onClick={connectDirect}
-                loading={isLoading && !isConnected}
-                leftSection={<IconPlugConnected size={16} />}
-                disabled={!daasUrl || !daasToken}
-              >
-                Connect
-              </Button>
-            </Group>
-          </>
-        )}
-
-        {isConnected && (
-          <>
-            <Divider label="Load Collection" labelPosition="center" />
-            
-            {collections.length > 0 ? (
-              <Select
-                label="Collection"
-                placeholder="Select a collection..."
-                data={collections}
-                value={collection}
-                onChange={(val) => setCollection(val || '')}
-                searchable
-                description={`${collections.length} collections available`}
-              />
-            ) : (
-              <TextInput
-                label="Collection Name"
-                placeholder="e.g., interface_showcase"
-                value={collection}
-                onChange={(e) => setCollection(e.target.value)}
-              />
-            )}
-
-            <Group>
-              <Button
-                onClick={handleLoadCollection}
-                loading={isLoading}
-                leftSection={<IconCloudDownload size={16} />}
-                disabled={!collection}
-              >
-                Load Fields
-              </Button>
-              
-              {fields.length > 0 && (
-                <Button
-                  variant="light"
-                  onClick={handleLoadCollection}
-                  leftSection={<IconRefresh size={16} />}
-                >
-                  Refresh
-                </Button>
-              )}
-            </Group>
-
-            {fields.length > 0 && (
-              <Alert color="green" title={`Loaded ${fields.length} fields from "${collection}"`}>
-                <Code block style={{ fontSize: '11px', maxHeight: '100px', overflow: 'auto' }}>
-                  {fields.map(f => `${f.field} (${f.type} → ${f.meta?.interface || 'auto'})`).join('\n')}
-                </Code>
-              </Alert>
-            )}
-          </>
-        )}
-
-        {error && (
-          <Alert color="red" title="Error">
-            {error}
-          </Alert>
-        )}
-      </Stack>
-    </Paper>
-  );
-};
-
-// ============================================================================
-// DaaS Connected Story
-// ============================================================================
-
-/**
- * Auth Status Display Component
- */
 const AuthStatus: React.FC = () => {
   const { user, isAdmin, authLoading, authError } = useDaaSContext();
-  
+
   if (authLoading) {
     return (
       <Paper p="sm" withBorder>
@@ -473,7 +137,7 @@ const AuthStatus: React.FC = () => {
       </Paper>
     );
   }
-  
+
   if (authError) {
     return (
       <Alert color="red" icon={<IconLock size={16} />} title="Auth Error">
@@ -481,15 +145,11 @@ const AuthStatus: React.FC = () => {
       </Alert>
     );
   }
-  
+
   if (!user) {
-    return (
-      <Alert color="yellow" icon={<IconUser size={16} />} title="Not Authenticated">
-        Connect to DaaS to see authentication status.
-      </Alert>
-    );
+    return null;
   }
-  
+
   return (
     <Paper p="sm" withBorder>
       <Group justify="space-between">
@@ -517,45 +177,236 @@ const AuthStatus: React.FC = () => {
   );
 };
 
+// ============================================================================
+// DaaS Playground
+// ============================================================================
+
 const DaaSPlayground: React.FC = () => {
   const [fields, setFields] = useState<Field[]>([]);
-  const [collection, setCollection] = useState<string>('');
+  const [collection, setCollection] = useState(() =>
+    localStorage.getItem('storybook_daas_collection') || 'interface_showcase'
+  );
   const [values, setValues] = useState<FieldValues>({});
-  const [daasConfig, setDaasConfig] = useState<ServiceDaaSConfig | null>(null);
+  const [collections, setCollections] = useState<string[]>([]);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [enforcePermissions, setEnforcePermissions] = useState(false);
   const [formAction, setFormAction] = useState<'create' | 'update' | 'read'>('create');
   const [accessibleFields, setAccessibleFields] = useState<string[]>([]);
 
-  const handleFieldsLoaded = (loadedFields: Field[], collectionName: string) => {
-    setFields(loadedFields);
-    setCollection(collectionName);
-    setValues({});
-    setAccessibleFields([]);
-  };
+  // Check connection and load collections on mount
+  useEffect(() => {
+    const init = async () => {
+      const status = await checkConnection();
+      setConnectionStatus(status);
 
-  const handleConfigChange = (config: DaaSConfig | null) => {
-    // Convert to service DaaSConfig type (they're the same structure)
-    setDaasConfig(config as ServiceDaaSConfig | null);
-  };
-  
-  const handlePermissionsLoaded = (fields: string[]) => {
-    setAccessibleFields(fields);
-  };
+      if (status.connected) {
+        try {
+          const cols = await fetchCollectionsFromDaaS();
+          setCollections(cols);
 
+          if (collection && cols.includes(collection)) {
+            const loadedFields = await fetchFieldsFromDaaS(collection);
+            setFields(loadedFields);
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Failed to load collections');
+        }
+      }
+
+      setIsLoading(false);
+    };
+    init();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist selected collection
+  useEffect(() => {
+    localStorage.setItem('storybook_daas_collection', collection);
+  }, [collection]);
+
+  const handleLoadCollection = useCallback(async () => {
+    if (!collection) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const loadedFields = await fetchFieldsFromDaaS(collection);
+      setFields(loadedFields);
+      setValues({});
+      setAccessibleFields([]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load fields');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [collection]);
+
+  const handleRefreshConnection = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    const status = await checkConnection();
+    setConnectionStatus(status);
+    if (status.connected) {
+      try {
+        const cols = await fetchCollectionsFromDaaS();
+        setCollections(cols);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to refresh');
+      }
+    }
+    setIsLoading(false);
+  }, []);
+
+  const handlePermissionsLoaded = useCallback((perms: string[]) => {
+    setAccessibleFields(perms);
+  }, []);
+
+  // ── Loading state ──
+  if (isLoading && !connectionStatus) {
+    return (
+      <Alert color="blue">
+        <Text size="sm">Checking connection to Storybook Host...</Text>
+      </Alert>
+    );
+  }
+
+  // ── Not connected ──
+  if (!connectionStatus?.connected) {
+    return (
+      <Stack gap="md">
+        <Alert
+          color="yellow"
+          title="Not Connected to DaaS"
+          icon={<IconPlugConnectedX size={16} />}
+        >
+          <Stack gap="sm">
+            <Text size="sm">
+              Configure your DaaS connection in the <strong>Storybook Host</strong> app
+              to use this playground.
+            </Text>
+            <Divider />
+            <Text size="sm" fw={600}>Quick Start:</Text>
+            <Code block style={{ fontSize: '11px' }}>
+{`# 1. Start the host app
+pnpm dev:host
+
+# 2. Visit http://localhost:3000 and enter your DaaS URL + token
+
+# 3. Refresh this page`}
+            </Code>
+            {connectionStatus?.error && (
+              <Text size="sm" c="red">{connectionStatus.error}</Text>
+            )}
+          </Stack>
+        </Alert>
+        <Button
+          variant="light"
+          onClick={handleRefreshConnection}
+          leftSection={<IconRefresh size={16} />}
+          loading={isLoading}
+        >
+          Retry Connection
+        </Button>
+      </Stack>
+    );
+  }
+
+  // ── Connected ──
   return (
-    <DaaSProvider config={daasConfig}>
+    <DaaSProvider autoFetchUser>
       <Stack gap="lg">
-        <DaaSConnection 
-          onFieldsLoaded={handleFieldsLoaded} 
-          onConfigChange={handleConfigChange}
-        />
-        
-        {/* Auth Status - Shows current user info from context */}
-        {(PROXY_MODE_ENABLED || daasConfig) && <AuthStatus />}
+        {/* Connection Info */}
+        <Paper p="md" withBorder>
+          <Group justify="space-between">
+            <Group gap="xs">
+              <Text fw={600} size="lg">🔌 DaaS Connection</Text>
+              <Badge color="green" leftSection={<IconPlugConnected size={12} />}>
+                Connected
+              </Badge>
+            </Group>
+            <Group gap="xs">
+              <Text size="xs" c="dimmed">{connectionStatus.url}</Text>
+              <Button
+                variant="subtle"
+                size="compact-xs"
+                component="a"
+                href="http://localhost:3000"
+                target="_blank"
+                leftSection={<IconExternalLink size={12} />}
+              >
+                Settings
+              </Button>
+            </Group>
+          </Group>
+        </Paper>
 
+        {/* Auth Status */}
+        <AuthStatus />
+
+        {/* Collection Picker */}
+        <Paper p="md" withBorder>
+          <Stack gap="md">
+            <Divider label="Load Collection" labelPosition="center" />
+
+            {collections.length > 0 ? (
+              <Select
+                label="Collection"
+                placeholder="Select a collection..."
+                data={collections}
+                value={collection}
+                onChange={(val) => setCollection(val || '')}
+                searchable
+                description={`${collections.length} collections available`}
+              />
+            ) : (
+              <Alert color="yellow">
+                No collections found. Check your DaaS connection.
+              </Alert>
+            )}
+
+            <Group>
+              <Button
+                onClick={handleLoadCollection}
+                loading={isLoading}
+                leftSection={<IconCloudDownload size={16} />}
+                disabled={!collection}
+              >
+                Load Fields
+              </Button>
+
+              {fields.length > 0 && (
+                <Button
+                  variant="light"
+                  onClick={handleLoadCollection}
+                  leftSection={<IconRefresh size={16} />}
+                >
+                  Refresh
+                </Button>
+              )}
+            </Group>
+
+            {fields.length > 0 && (
+              <Alert color="green" title={`Loaded ${fields.length} fields from "${collection}"`}>
+                <Code block style={{ fontSize: '11px', maxHeight: '100px', overflow: 'auto' }}>
+                  {fields
+                    .map((f) => `${f.field} (${f.type} → ${f.meta?.interface || 'auto'})`)
+                    .join('\n')}
+                </Code>
+              </Alert>
+            )}
+          </Stack>
+        </Paper>
+
+        {error && (
+          <Alert color="red" title="Error">
+            {error}
+          </Alert>
+        )}
+
+        {/* Form + Permission Settings */}
         {fields.length > 0 ? (
           <>
-            {/* Permission Settings */}
             <Accordion>
               <Accordion.Item value="permissions">
                 <Accordion.Control icon={<IconShield size={16} />}>
@@ -565,11 +416,11 @@ const DaaSPlayground: React.FC = () => {
                   <Stack gap="md">
                     <Switch
                       label="Enforce Field Permissions"
-                      description="When enabled, only fields you have permission to access will be shown. This mirrors server-side permission enforcement."
+                      description="When enabled, only fields you have permission to access will be shown."
                       checked={enforcePermissions}
                       onChange={(e) => setEnforcePermissions(e.currentTarget.checked)}
                     />
-                    
+
                     <Select
                       label="Form Action"
                       description="The action type determines which permissions are checked"
@@ -579,16 +430,17 @@ const DaaSPlayground: React.FC = () => {
                         { value: 'read', label: 'Read - Check read permissions' },
                       ]}
                       value={formAction}
-                      onChange={(val) => setFormAction(val as 'create' | 'update' | 'read')}
+                      onChange={(val) =>
+                        setFormAction(val as 'create' | 'update' | 'read')
+                      }
                     />
-                    
+
                     {enforcePermissions && accessibleFields.length > 0 && (
                       <Alert color="blue" icon={<IconShield size={16} />}>
                         <Text size="sm" fw={600}>
-                          {accessibleFields.includes('*') 
+                          {accessibleFields.includes('*')
                             ? 'Full field access (admin or wildcard permission)'
-                            : `${accessibleFields.length} fields accessible for ${formAction}`
-                          }
+                            : `${accessibleFields.length} fields accessible for ${formAction}`}
                         </Text>
                         {!accessibleFields.includes('*') && (
                           <Code block style={{ fontSize: '11px', marginTop: '8px' }}>
@@ -601,7 +453,7 @@ const DaaSPlayground: React.FC = () => {
                 </Accordion.Panel>
               </Accordion.Item>
             </Accordion>
-            
+
             <Paper p="md" withBorder>
               <Text fw={600} mb="md">📝 Form: {collection}</Text>
               <VForm
@@ -624,15 +476,13 @@ const DaaSPlayground: React.FC = () => {
             </Paper>
           </>
         ) : (
-          <Alert color="blue" title={PROXY_MODE_ENABLED ? "Select a Collection" : "Connect to DaaS"}>
+          <Alert color="blue" title="Select a Collection">
             <Text size="sm">
-              {PROXY_MODE_ENABLED 
-                ? "Proxy mode is active. Select a collection from the dropdown above to load its fields."
-                : "Enter your DaaS URL and static token above, then load a collection to see the form."
-              }
+              Select a collection from the dropdown and click Load Fields to see the form.
             </Text>
             <Text size="sm" mt="xs">
-              <strong>Tip:</strong> The <Code>interface_showcase</Code> collection has diverse field types including relational fields.
+              <strong>Tip:</strong> The <Code>interface_showcase</Code> collection has
+              diverse field types including relational fields.
             </Text>
           </Alert>
         )}
@@ -643,9 +493,8 @@ const DaaSPlayground: React.FC = () => {
 
 /**
  * DaaS Connected Playground
- * 
+ *
  * Connect to a real DaaS instance and test VForm with actual collection schemas.
- * Features authentication state display and permission enforcement.
  */
 export const Playground: StoryObj<typeof VForm> = {
   render: () => <DaaSPlayground />,
@@ -653,55 +502,36 @@ export const Playground: StoryObj<typeof VForm> = {
     docs: {
       description: {
         story: `
-## Authentication Architecture
+## Authentication via Storybook Host
 
-This playground follows the DaaS authentication architecture:
+This playground uses the **Storybook Host** app as an authentication proxy:
 
-1. **Static Tokens** - Long-lived tokens for programmatic access (Directus-style)
-2. **Cookie Sessions** - For browser requests (automatic in Next.js apps)
-3. **JWT Bearer Tokens** - For API clients with Supabase Auth
+1. The host app is a Next.js server with a catch-all \`/api/[...path]\` route
+2. You configure DaaS URL + static token at the host's settings page
+3. Credentials are stored in an encrypted httpOnly cookie
+4. All \`/api/*\` requests are proxied through the host to DaaS with Bearer auth
+5. **No CORS issues** — the browser never talks directly to DaaS
 
-### Proxy Mode (Recommended)
-
-Start Storybook with environment variables to enable DaaS proxy:
+### Getting Started
 
 \`\`\`bash
-STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \\
-STORYBOOK_DAAS_TOKEN=your-static-token \\
-pnpm storybook:form
+pnpm dev:host          # Start the host app (port 3000)
+# Visit http://localhost:3000 to configure DaaS connection
+pnpm storybook:form    # Start this Storybook (port 6006)
 \`\`\`
 
-This enables a Vite proxy that forwards \`/api/*\` requests to DaaS, avoiding CORS issues.
-All relational interfaces (M2O, O2M, M2M, M2A) will work correctly in this mode.
+### Production (AWS Amplify)
 
-### Direct Mode (Manual Entry)
+When deployed, the built Storybook is served from \`/storybook/form/\` on the
+same origin as the host app — no proxy configuration needed.
 
-If you don't use environment variables, you can enter DaaS URL and token manually.
-Note: This may encounter CORS issues as the browser makes direct requests to DaaS.
+### Permission Enforcement
 
-## Permission Enforcement
-
-Enable "Enforce Field Permissions" to see only fields you have permission to access.
-This mirrors the server-side permission enforcement in DaaS:
+Enable "Enforce Field Permissions" to test RBAC:
 
 - **Field-Level Permissions**: Only show fields the user can access
 - **Action-Based Filtering**: Different fields for create vs update vs read
 - **Admin Bypass**: Admins see all fields regardless of permissions
-
-## Getting a Static Token
-
-1. Log into DaaS as admin
-2. Go to **Users** → Edit your user
-3. Scroll to **Token** field → Click **Generate Token**
-4. **Copy the token** (it won't be shown again!)
-5. Click **Save**
-
-## Security Note
-
-In direct mode, your token is stored in localStorage. Clear it after testing:
-\`\`\`js
-localStorage.removeItem('storybook_daas_token');
-\`\`\`
         `,
       },
     },

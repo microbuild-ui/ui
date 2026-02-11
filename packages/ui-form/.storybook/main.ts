@@ -1,28 +1,26 @@
-import type { StorybookConfig } from '@storybook/react-vite';
-import { mergeConfig, loadEnv } from 'vite';
+import type { StorybookConfig } from '@storybook/nextjs-vite';
+import { mergeConfig } from 'vite';
 import path from 'path';
 
-/**
- * DaaS Proxy Configuration
- * 
- * To enable DaaS API proxying in Storybook, create a .env.local file in packages/ui-form/:
- * 
- *   STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com
- *   STORYBOOK_DAAS_TOKEN=your-static-token
- * 
- * Or pass environment variables when starting Storybook:
- * 
- *   STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
- *   STORYBOOK_DAAS_TOKEN=your-token \
- *   pnpm storybook:form
- * 
- * This allows Storybook to proxy /api/* requests to DaaS, avoiding CORS issues.
- */
+const __dirname = import.meta.dirname;
 
-// Load environment variables from .env.local file
-const env = loadEnv('development', path.resolve(__dirname, '..'), 'STORYBOOK_');
-const DAAS_URL = env.STORYBOOK_DAAS_URL || process.env.STORYBOOK_DAAS_URL || '';
-const DAAS_TOKEN = env.STORYBOOK_DAAS_TOKEN || process.env.STORYBOOK_DAAS_TOKEN || '';
+/**
+ * DaaS API Proxy
+ *
+ * In local development, /api/* requests are proxied to the Storybook Host
+ * app (apps/storybook-host) running on localhost:3000.
+ *
+ * The host app handles authentication (DaaS URL + token stored in an
+ * encrypted httpOnly cookie) and proxies requests to the DaaS backend.
+ *
+ * In production (deployed to Amplify), the built Storybook is served from
+ * the same origin as the host app — no proxy needed.
+ *
+ * To get started:
+ *   1. pnpm dev:host          — start the host app
+ *   2. Visit http://localhost:3000 and enter your DaaS URL + token
+ *   3. pnpm storybook:form    — start this Storybook
+ */
 
 const config: StorybookConfig = {
   stories: [
@@ -35,7 +33,7 @@ const config: StorybookConfig = {
     '@storybook/addon-a11y',
   ],
   framework: {
-    name: '@storybook/react-vite',
+    name: '@storybook/nextjs-vite',
     options: {},
   },
   docs: {},
@@ -54,38 +52,6 @@ const config: StorybookConfig = {
     },
   },
   viteFinal: async (config) => {
-    // Build proxy configuration if DaaS env vars are set
-    const proxyConfig: Record<string, unknown> = {};
-    
-    if (DAAS_URL) {
-      // Proxy all /api/* requests to DaaS
-      // This avoids CORS issues when testing relational interfaces
-      // DaaS API uses /api/ prefix, so we keep the path as-is
-      proxyConfig['/api'] = {
-        target: DAAS_URL,
-        changeOrigin: true,
-        secure: true,
-        // No rewrite needed - DaaS API expects /api/collections, /api/fields, etc.
-        // Add authorization header to proxied requests (except auth endpoints)
-        configure: (proxy: any) => {
-          proxy.on('proxyReq', (proxyReq: any, req: any) => {
-            // Don't add static token to auth endpoints - they handle their own auth
-            const isAuthEndpoint = req.url?.startsWith('/api/auth/');
-            
-            // Check if request already has an Authorization header (from login session)
-            const existingAuth = proxyReq.getHeader('Authorization');
-            
-            if (DAAS_TOKEN && !isAuthEndpoint && !existingAuth) {
-              proxyReq.setHeader('Authorization', `Bearer ${DAAS_TOKEN}`);
-            }
-            console.log(`[Storybook Proxy] ${req.method} ${req.url} → ${DAAS_URL}${req.url}${isAuthEndpoint ? ' (auth endpoint)' : ''}`);
-          });
-        },
-      };
-      
-      console.log(`[Storybook] DaaS proxy enabled: /api/* → ${DAAS_URL}/api/*`);
-    }
-    
     return mergeConfig(config, {
       resolve: {
         alias: {
@@ -98,7 +64,13 @@ const config: StorybookConfig = {
         },
       },
       server: {
-        proxy: Object.keys(proxyConfig).length > 0 ? proxyConfig : undefined,
+        // Proxy /api/* to the Storybook Host app (handles auth + DaaS proxy)
+        proxy: {
+          '/api': {
+            target: 'http://localhost:3000',
+            changeOrigin: true,
+          },
+        },
       },
     });
   },

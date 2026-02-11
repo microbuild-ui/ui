@@ -197,25 +197,25 @@ VForm has comprehensive Storybook documentation with DaaS integration.
 ### Running Storybook
 
 ```bash
-# Basic Storybook (mocked data)
+# Start Storybook (mocked data stories work immediately)
 pnpm storybook:form
 
-# With DaaS proxy (recommended for relational interfaces)
-STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
-STORYBOOK_DAAS_TOKEN=your-token \
-pnpm storybook:form
+# For DaaS Playground, also start the host app (in a separate terminal):
+pnpm dev:host
 ```
 
 ### DaaS Playground
 
-The "VForm DaaS Playground" story allows testing VForm with real collection schemas:
+The "VForm DaaS Playground" story allows testing VForm with real collection schemas using the **storybook-host** Next.js app as an authentication proxy:
 
-1. Start Storybook with DaaS proxy (see above)
-2. Navigate to "Forms/VForm DaaS Playground" → "Playground"
-3. Select a collection from the dropdown
-4. Test VForm with real fields including relational interfaces (M2O, O2M, M2M, M2A)
+1. Start the host app: `pnpm dev:host`
+2. Open `http://localhost:3000` and connect with your DaaS URL + static token
+3. Start Storybook: `pnpm storybook:form`
+4. Navigate to "Forms/VForm DaaS Playground" → "Playground"
+5. Select a collection from the dropdown
+6. Test VForm with real fields including relational interfaces (M2O, O2M, M2M, M2A)
 
-When DaaS proxy is enabled, the Vite server forwards `/api/*` requests to DaaS, avoiding CORS issues.
+All `/api/*` requests from Storybook are proxied through the host app, avoiding CORS issues in both development and production.
 
 ## Utility Integration
 

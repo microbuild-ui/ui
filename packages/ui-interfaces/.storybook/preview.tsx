@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Preview } from '@storybook/react-vite';
+import type { Preview } from '@storybook/nextjs-vite';
 import { MantineProvider, createTheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 

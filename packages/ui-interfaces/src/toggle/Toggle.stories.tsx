@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Toggle } from './Toggle';
 import { IconSun, IconMoon, IconBell, IconBellOff, IconLock, IconLockOpen } from '@tabler/icons-react';
 

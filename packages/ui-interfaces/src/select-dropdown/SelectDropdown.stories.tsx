@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { SelectDropdown, SelectOption } from './SelectDropdown';
 
 const meta: Meta<typeof SelectDropdown> = {

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { GroupDetail } from './GroupDetail';
 import { Input } from '../input';
 import { Textarea } from '../textarea';

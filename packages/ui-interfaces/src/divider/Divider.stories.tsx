@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Divider } from './Divider';
 import { IconSettings, IconUser, IconFolder, IconStar } from '@tabler/icons-react';
 

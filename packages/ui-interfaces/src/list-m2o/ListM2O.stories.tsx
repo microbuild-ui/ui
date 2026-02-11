@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { ListM2O } from './ListM2O';
 
 const meta: Meta<typeof ListM2O> = {
