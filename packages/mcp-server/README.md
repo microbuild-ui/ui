@@ -1,4 +1,4 @@
-# @microbuild/mcp-server
+# @microbuild/mcp
 
 Model Context Protocol (MCP) server for Microbuild components. Enables AI agents like VS Code Copilot to discover, understand, and generate code using the **Copy & Own** distribution model.
 
@@ -259,7 +259,7 @@ pnpm typecheck
 └────────────────┬────────────────────────┘
                  │ MCP Protocol
 ┌────────────────▼────────────────────────┐
-│       @microbuild/mcp-server            │
+│       @microbuild/mcp                   │
 │  ┌──────────────────────────────────┐   │
 │  │  Resource Handlers               │   │
 │  │  - List components               │   │

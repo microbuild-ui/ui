@@ -4,7 +4,7 @@
   "name": "microbuild",
   "description": "A collection of copy-and-own components for building Directus-compatible CMS frontends",
   "license": "MIT",
-  "repository": "https://github.com/your-org/microbuild",
+  "repository": "https://github.com/microbuild-ui/ui",
   
   "meta": {
     "model": "copy-own",

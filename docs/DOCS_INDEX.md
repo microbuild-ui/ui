@@ -11,6 +11,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | [CLI.md](CLI.md) | CLI commands & agent reference | AI agents & developers |
 | [COMPONENT_MAP.md](COMPONENT_MAP.md) | Quick component lookup table | AI agents & developers |
 | [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide | DevOps/Teams |
+| [PUBLISHING.md](PUBLISHING.md) | npm publishing & release workflow | DevOps/Maintainers |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
 | [TESTING.md](TESTING.md) | Playwright E2E testing guide | Developers |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Token-based theming architecture | Designers, Developers |
@@ -76,7 +77,7 @@ microbuild validate --json      # JSON output for CI/CD
 | @microbuild/ui-collections | Collection components | [README](../packages/ui-collections/README.md) |
 | @microbuild/ui-form | VForm - Dynamic form with permission enforcement | [README](../packages/ui-form/README.md) |
 | @microbuild/ui-table | VTable - Dynamic table with sorting, selection, drag-drop | [README](../packages/ui-table/README.md) |
-| @microbuild/mcp-server | MCP server | [README](../packages/mcp-server/README.md) |
+| @microbuild/mcp | MCP server | [README](../packages/mcp-server/README.md) |
 | @microbuild/cli | CLI tool | [README](../packages/cli/README.md) |
 
 ## 🚀 Common Tasks

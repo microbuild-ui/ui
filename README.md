@@ -32,7 +32,7 @@ microbuild-ui-packages/
 └── packages/               # Component library (source of truth)
     ├── registry.json       # Component registry schema
     ├── cli/                # CLI tool for developers (@microbuild/cli)
-    ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp-server)
+    ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp)
     ├── ui-interfaces/      # Field interface components
     ├── ui-form/            # VForm dynamic form component (NEW: with Storybook)
     │   ├── src/            # VForm component and utilities

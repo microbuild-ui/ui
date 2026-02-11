@@ -5,52 +5,24 @@
  * to the current registry version.
  */
 
-import fs from 'fs-extra';
-import path from 'path';
 import chalk from 'chalk';
 import ora from 'ora';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { loadConfig } from './init.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Get packages root
-const PACKAGES_ROOT = path.resolve(__dirname, '../..');
-
-interface Registry {
-  version: string;
-  name: string;
-}
-
-interface OutdatedComponent {
-  name: string;
-  installedVersion: string;
-  latestVersion: string;
-  installedAt: string;
-}
-
-interface OutdatedResult {
-  outdated: OutdatedComponent[];
-  upToDate: string[];
-  unknown: string[];
-  registryVersion: string;
-  installedRegistryVersion?: string;
-}
+import {
+  getRegistry as fetchRegistry,
+  type Registry,
+} from '../resolver.js';
 
 /**
- * Load registry from workspace
+ * Load registry (local or remote via resolver)
  */
 async function getRegistry(): Promise<Registry> {
-  const registryPath = path.join(PACKAGES_ROOT, 'registry.json');
-  
-  if (!fs.existsSync(registryPath)) {
-    console.error(chalk.red('Registry file not found:', registryPath));
+  try {
+    return await fetchRegistry();
+  } catch (err: any) {
+    console.error(chalk.red('Failed to load registry:', err.message));
     process.exit(1);
   }
-  
-  return await fs.readJSON(registryPath);
 }
 
 /**

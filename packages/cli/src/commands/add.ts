@@ -13,8 +13,6 @@ import path from 'path';
 import chalk from 'chalk';
 import ora, { type Ora } from 'ora';
 import prompts from 'prompts';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { type Config, loadConfig, saveConfig } from './init.js';
 import { 
   transformImports, 
@@ -23,61 +21,26 @@ import {
   addOriginHeader
 } from './transformer.js';
 import { validate } from './validate.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Get packages root (packages/cli/dist/commands -> packages)
-const PACKAGES_ROOT = path.resolve(__dirname, '../..');
-
-/**
- * Registry types
- */
-interface FileMapping {
-  source: string;
-  target: string;
-}
-
-interface LibModule {
-  name: string;
-  description: string;
-  files?: FileMapping[];
-  path?: string;
-  target?: string;
-  internalDependencies?: string[];
-}
-
-interface ComponentEntry {
-  name: string;
-  title: string;
-  description: string;
-  category: string;
-  files: FileMapping[];
-  dependencies: string[];
-  internalDependencies: string[];
-  registryDependencies?: string[];
-}
-
-interface Registry {
-  version: string;
-  name: string;
-  lib: Record<string, LibModule>;
-  components: ComponentEntry[];
-  categories: Array<{ name: string; title: string; description: string }>;
-}
+import {
+  getRegistry as fetchRegistry,
+  resolveSourceFile,
+  sourceFileExists,
+  type Registry,
+  type FileMapping,
+  type LibModule,
+  type ComponentEntry,
+} from '../resolver.js';
 
 /**
- * Load registry from workspace
+ * Load registry (local or remote via resolver)
  */
 async function getRegistry(): Promise<Registry> {
-  const registryPath = path.join(PACKAGES_ROOT, 'registry.json');
-  
-  if (!fs.existsSync(registryPath)) {
-    console.error(chalk.red('Registry file not found:', registryPath));
+  try {
+    return await fetchRegistry();
+  } catch (err: any) {
+    console.error(chalk.red('Failed to load registry:', err.message));
     process.exit(1);
   }
-  
-  return await fs.readJSON(registryPath);
 }
 
 /**
@@ -248,14 +211,13 @@ async function copyLibModule(
 
   // Handle single file module (like utils)
   if (libModule.path && libModule.target) {
-    const sourcePath = path.join(PACKAGES_ROOT, libModule.path);
     const targetPath = path.join(
       config.srcDir ? path.join(cwd, 'src') : cwd,
       libModule.target
     );
 
-    if (fs.existsSync(sourcePath)) {
-      let content = await fs.readFile(sourcePath, 'utf-8');
+    if (await sourceFileExists(libModule.path)) {
+      let content = await resolveSourceFile(libModule.path);
       content = transformImports(content, config);
       content = addOriginHeader(content, moduleName, '@microbuild/lib', registry.version);
       await fs.ensureDir(path.dirname(targetPath));
@@ -266,14 +228,13 @@ async function copyLibModule(
   // Handle multi-file module
   if (libModule.files) {
     for (const file of libModule.files) {
-      const sourcePath = path.join(PACKAGES_ROOT, file.source);
       const targetPath = path.join(
         config.srcDir ? path.join(cwd, 'src') : cwd,
         file.target
       );
 
-      if (fs.existsSync(sourcePath)) {
-        let content = await fs.readFile(sourcePath, 'utf-8');
+      if (await sourceFileExists(file.source)) {
+        let content = await resolveSourceFile(file.source);
         content = transformImports(content, config);
         // Extract filename for origin tracking
         const fileName = path.basename(file.source, path.extname(file.source));
@@ -384,19 +345,18 @@ async function copyComponent(
 
   // Copy component files
   for (const file of component.files) {
-    const sourcePath = path.join(PACKAGES_ROOT, file.source);
     const targetPath = path.join(
       config.srcDir ? path.join(cwd, 'src') : cwd,
       file.target
     );
 
-    if (!fs.existsSync(sourcePath)) {
+    if (!(await sourceFileExists(file.source))) {
       spinner.warn(`Source not found: ${file.source}`);
       continue;
     }
 
     // Read and transform
-    let content = await fs.readFile(sourcePath, 'utf-8');
+    let content = await resolveSourceFile(file.source);
     content = transformImports(content, config, file.target);
     
     // Transform relative imports for flattened folder structure

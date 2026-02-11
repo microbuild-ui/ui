@@ -1,12 +1,20 @@
 {
   "name": "@microbuild/cli",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "CLI tool for adding Microbuild components to your project - like shadcn/ui",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
     "microbuild": "dist/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microbuild-ui/ui.git",
+    "directory": "packages/cli"
   },
   "scripts": {
     "build": "tsup",
@@ -15,7 +23,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "chalk": "^5.3.0",
@@ -34,7 +43,8 @@
     "vitest": "^2.1.9"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "keywords": [
     "cli",
@@ -42,7 +52,9 @@
     "directus",
     "cms",
     "microbuild",
-    "shadcn"
+    "shadcn",
+    "copy-own",
+    "ui"
   ],
   "author": "Microbuild",
   "license": "MIT"

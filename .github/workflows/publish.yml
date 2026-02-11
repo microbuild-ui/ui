@@ -1,0 +1,64 @@
+# GitHub Actions workflow: Publish packages to npm
+#
+# Two ways to trigger:
+#
+# A) **Automated via Changesets (recommended)**
+#    Push to main with changeset files → opens a "Version Packages" PR.
+#    Merge that PR → versions are bumped, CHANGELOG updated, and packages
+#    are published to npm automatically.
+#
+# B) **Manual dispatch**
+#    Go to Actions → "Publish" → "Run workflow" to publish immediately.
+#
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # create git tags & update CHANGELOG
+      pull-requests: write  # create the "Version Packages" PR
+      id-token: write       # npm provenance
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # full history for changeset detection
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      # Changesets will either:
+      # - open a "Version Packages" PR (if there are unreleased changesets), or
+      # - publish to npm (if that PR was just merged and versions were bumped)
+      - name: Create Release PR or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+          version: pnpm changeset version
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

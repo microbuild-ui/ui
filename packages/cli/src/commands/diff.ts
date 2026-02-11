@@ -1,39 +1,24 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { loadConfig, resolveAlias } from './init.js';
 import { transformImports } from './transformer.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Get packages root (packages/cli/dist/commands -> packages)
-const PACKAGES_ROOT = path.resolve(__dirname, '../..');
-
-interface FileMapping {
-  source: string;
-  target: string;
-}
-
-interface ComponentEntry {
-  name: string;
-  title: string;
-  description: string;
-  files: FileMapping[];
-  dependencies: string[];
-  internalDependencies: string[];
-}
-
-interface Registry {
-  components: ComponentEntry[];
-  lib: Record<string, { name: string; files?: FileMapping[] }>;
-}
+import {
+  getRegistry as fetchRegistry,
+  resolveSourceFile,
+  sourceFileExists,
+  type Registry,
+  type FileMapping,
+  type ComponentEntry,
+} from '../resolver.js';
 
 async function getRegistry(): Promise<Registry> {
-  const registryPath = path.join(PACKAGES_ROOT, 'registry.json');
-  return await fs.readJSON(registryPath) as Registry;
+  try {
+    return await fetchRegistry();
+  } catch (err: any) {
+    console.error(chalk.red('Failed to load registry:', err.message));
+    process.exit(1);
+  }
 }
 
 export async function diff(component: string, options: { cwd: string }) {
@@ -132,9 +117,8 @@ export async function diff(component: string, options: { cwd: string }) {
   
   const sampleSource = comp.files[0]?.source;
   if (sampleSource) {
-    const sourcePath = path.join(PACKAGES_ROOT, sampleSource);
-    if (fs.existsSync(sourcePath)) {
-      const content = await fs.readFile(sourcePath, 'utf-8');
+    try {
+      const content = await resolveSourceFile(sampleSource);
       const lines = content.split('\n').slice(0, 15);
       
       console.log(chalk.dim('\nOriginal imports:'));
@@ -153,6 +137,8 @@ export async function diff(component: string, options: { cwd: string }) {
           console.log(chalk.green(`  ${line}`));
         }
       });
+    } catch {
+      console.log(chalk.dim('\n  (source preview not available in remote mode)'));
     }
   }
 

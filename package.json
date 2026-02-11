@@ -1,5 +1,5 @@
 {
-  "name": "microbuild-ui-packages",
+  "name": "microbuild-ui",
   "version": "0.1.0",
   "private": true,
   "description": "Shared components between Next.js projects",
@@ -7,7 +7,7 @@
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "build:packages": "pnpm --filter './packages/**' build",
-    "build:mcp": "pnpm --filter @microbuild/mcp-server build",
+    "build:mcp": "pnpm --filter @microbuild/mcp build",
     "build:cli": "pnpm --filter @microbuild/cli build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
@@ -21,9 +21,14 @@
     "install:all": "pnpm install",
     "storybook": "pnpm --filter @microbuild/ui-interfaces storybook",
     "cli": "pnpm --filter @microbuild/cli build && node packages/cli/dist/index.js",
-    "mcp:dev": "pnpm --filter @microbuild/mcp-server dev"
+    "mcp:dev": "pnpm --filter @microbuild/mcp dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "publish-packages": "pnpm build && changeset publish",
+    "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.0",
     "@playwright/test": "^1.50.1",
     "dotenv": "^17.2.3",
     "rimraf": "^5.0.5",

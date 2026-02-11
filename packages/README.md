@@ -14,7 +14,7 @@ A collection of packages for building Directus-compatible content management app
 | [@microbuild/ui-form](./ui-form) | VForm dynamic form component | [README](./ui-form/README.md) |
 | [@microbuild/ui-collections](./ui-collections) | CollectionForm & CollectionList | [README](./ui-collections/README.md) |
 | [@microbuild/cli](./cli) | CLI for copying components | [README](./cli/README.md) |
-| [@microbuild/mcp-server](./mcp-server) | MCP server for AI agents | [README](./mcp-server/README.md) |
+| [@microbuild/mcp](./mcp-server) | MCP server for AI agents | [README](./mcp-server/README.md) |
 
 ## Architecture
 

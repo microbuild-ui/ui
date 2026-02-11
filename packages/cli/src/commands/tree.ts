@@ -8,57 +8,22 @@
  */
 
 import chalk from 'chalk';
-import fs from 'fs-extra';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import {
+  getRegistry as fetchRegistry,
+  type Registry,
+  type FileMapping,
+  type LibModule,
+  type ComponentEntry,
+} from '../resolver.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Get packages root (packages/cli/dist/commands -> packages)
-const PACKAGES_ROOT = path.resolve(__dirname, '../..');
-
-interface FileMapping {
-  source: string;
-  target: string;
-}
-
-interface ComponentEntry {
-  name: string;
-  title: string;
-  description: string;
-  category: string;
-  files: FileMapping[];
-  dependencies: string[];
-  internalDependencies: string[];
-  registryDependencies?: string[];
-}
-
-interface LibModule {
-  name: string;
-  description: string;
-  files?: FileMapping[];
-  internalDependencies?: string[];
-}
-
-interface Registry {
-  version: string;
-  name: string;
-  lib: Record<string, LibModule>;
-  components: ComponentEntry[];
-}
-
-// Load registry from shared JSON file
+// Load registry (local or remote via resolver)
 async function getRegistry(): Promise<Registry> {
-  const registryPath = path.join(PACKAGES_ROOT, 'registry.json');
-  
-  if (!fs.existsSync(registryPath)) {
-    console.error(chalk.red('Registry file not found:', registryPath));
+  try {
+    return await fetchRegistry();
+  } catch (err: any) {
+    console.error(chalk.red('Failed to load registry:', err.message));
     process.exit(1);
   }
-  
-  return await fs.readJSON(registryPath) as Registry;
 }
 
 /**

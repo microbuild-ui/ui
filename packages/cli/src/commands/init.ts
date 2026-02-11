@@ -1,9 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import ora from 'ora';
 import prompts from 'prompts';
+import { getTemplatesRoot } from '../resolver.js';
 
 /**
  * Component version info for tracking updates
@@ -66,9 +66,7 @@ const DEFAULT_CONFIG: Config = {
   registryVersion: '1.0.0',
 };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const TEMPLATES_ROOT = path.resolve(__dirname, '../templates');
+const TEMPLATES_ROOT = getTemplatesRoot();
 
 async function copyTemplateFile(sourceRelativePath: string, targetPath: string, cwd: string) {
   const sourcePath = path.join(TEMPLATES_ROOT, sourceRelativePath);
