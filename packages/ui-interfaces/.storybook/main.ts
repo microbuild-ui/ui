@@ -1,4 +1,8 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite';
+import { mergeConfig } from 'vite';
+import path from 'path';
+
+const __dirname = import.meta.dirname;
 
 const config: StorybookConfig = {
   stories: [
@@ -28,6 +32,28 @@ const config: StorybookConfig = {
         return true;
       },
     },
+  },
+  viteFinal: async (config) => {
+    return mergeConfig(config, {
+      resolve: {
+        alias: {
+          '@microbuild/types': path.resolve(__dirname, '../../types/src'),
+          '@microbuild/services': path.resolve(__dirname, '../../services/src'),
+          '@microbuild/hooks': path.resolve(__dirname, '../../hooks/src'),
+          '@microbuild/ui-form': path.resolve(__dirname, '../../ui-form/src'),
+          '@microbuild/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),
+          '@microbuild/utils': path.resolve(__dirname, '../../utils/src'),
+        },
+      },
+      server: {
+        proxy: {
+          '/api': {
+            target: 'http://localhost:3000',
+            changeOrigin: true,
+          },
+        },
+      },
+    });
   },
 };
 
