@@ -65,11 +65,12 @@ export async function GET(
     // Without this, ./sb-manager/runtime.js resolves to /storybook/sb-manager/runtime.js (wrong)
     // With trailing slash, it resolves to /storybook/form/sb-manager/runtime.js (correct)
     // Use relative Location header to avoid localhost redirect in Lambda environments
+    // Use 302 (not 308) to prevent browsers caching the redirect permanently
     if (isDirectory) {
       const pathname = request.nextUrl.pathname;
       if (!pathname.endsWith('/')) {
         return new NextResponse(null, {
-          status: 308,
+          status: 302,
           headers: { Location: pathname + '/' },
         });
       }
