@@ -12,6 +12,7 @@ A pnpm workspace containing reusable components distributed via Copy & Own model
 | [docs/CLI.md](docs/CLI.md) | CLI commands & agent reference |
 | [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods guide |
 | [docs/TESTING.md](docs/TESTING.md) | Playwright E2E testing guide |
+| [docs/PUBLISHING.md](docs/PUBLISHING.md) | npm publishing & release workflow |
 | [docs/WINDOWS.md](docs/WINDOWS.md) | Windows development guide |
 
 ## 🏗️ Structure
@@ -497,20 +498,23 @@ Microbuild includes two powerful distribution tools:
 
 Expose Microbuild components to AI assistants like VS Code Copilot.
 
-```bash
-# Build and configure
-pnpm build:mcp
+The MCP server is published on npm as [`@microbuild/mcp`](https://www.npmjs.com/package/@microbuild/mcp).
 
-# Add to VS Code settings.json or .vscode/mcp.json:
+```json
+// Add to VS Code settings.json or .vscode/mcp.json:
 {
-  "servers": {
-    "microbuild": {
-      "command": "node",
-      "args": ["/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"]
+  "mcp": {
+    "servers": {
+      "microbuild": {
+        "command": "npx",
+        "args": ["@microbuild/mcp@latest"]
+      }
     }
   }
 }
+```
 
+```bash
 # Use with Copilot:
 # "Show me how to use the Input component from Microbuild"
 # "Generate a CollectionForm for products"
@@ -532,19 +536,18 @@ pnpm build:mcp
 
 Copy components directly to your project (like shadcn/ui).
 
-```bash
-# Build CLI
-pnpm build:cli
+The CLI is published on npm as [`@microbuild/cli`](https://www.npmjs.com/package/@microbuild/cli).
 
-# Use in any project
-npx @microbuild/cli init
-npx @microbuild/cli add input select-dropdown
-npx @microbuild/cli list
-npx @microbuild/cli add --category selection
-npx @microbuild/cli add --all
+```bash
+# Use in any project (no local build needed)
+npx @microbuild/cli@latest init
+npx @microbuild/cli@latest add input select-dropdown
+npx @microbuild/cli@latest list
+npx @microbuild/cli@latest add --category selection
+npx @microbuild/cli@latest add --all
 
 # Bootstrap entire project in one command (recommended for AI agents)
-npx @microbuild/cli bootstrap
+npx @microbuild/cli@latest bootstrap
 ```
 
 **What `bootstrap` does:**
@@ -561,7 +564,7 @@ npx @microbuild/cli bootstrap
 - ✅ Source code remains private
 - ✅ AI agents can discover and use components
 - ✅ Developers get full control over copied code
-- ✅ No npm publishing required
+- ✅ Published on npm (`@microbuild/cli`, `@microbuild/mcp`)
 
 See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 

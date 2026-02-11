@@ -2,6 +2,8 @@
 
 Model Context Protocol (MCP) server for Microbuild components. Enables AI agents like VS Code Copilot to discover, understand, and generate code using the **Copy & Own** distribution model.
 
+[![npm version](https://img.shields.io/npm/v/@microbuild/mcp)](https://www.npmjs.com/package/@microbuild/mcp)
+
 ## What is MCP?
 
 The [Model Context Protocol](https://modelcontextprotocol.io) is an open standard that enables AI assistants to securely access external data sources and tools. This MCP server exposes the Microbuild component library to AI agents.
@@ -16,9 +18,6 @@ Microbuild uses the **Copy & Own** distribution model (similar to shadcn/ui):
 - ✅ No breaking changes from upstream updates
 - ✅ Works offline after installation
 
-⚠️ **IMPORTANT:** `@microbuild/cli` is **NOT published to npm**.
-You must clone `microbuild-ui-packages` locally and use the CLI from there.
-
 ## Features
 
 - 📦 **Component Discovery** - List all available Microbuild components
@@ -29,14 +28,35 @@ You must clone `microbuild-ui-packages` locally and use the CLI from there.
 
 ## Installation
 
-### For VS Code Copilot
+### For VS Code Copilot (Recommended — via npx)
 
-1. Install the MCP server:
+The MCP server is published on npm. No local build required.
+
+Add to your VS Code `settings.json` or `.vscode/mcp.json`:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "microbuild": {
+        "command": "npx",
+        "args": ["@microbuild/mcp@latest"]
+      }
+    }
+  }
+}
+```
+
+Reload VS Code window.
+
+### For VS Code Copilot (Local build)
+
+For development within the monorepo:
+
+1. Build the MCP server:
 
 ```bash
-cd packages/mcp-server
-pnpm install
-pnpm build
+pnpm build:mcp
 ```
 
 2. Add to your VS Code `settings.json` or `.vscode/mcp.json`:
@@ -236,8 +256,6 @@ Once configured, you can ask Copilot:
 
 The AI agent will provide CLI commands that you can run to install components.
 
-⚠️ **Note:** The CLI commands use local paths, not npx. You must run them from the microbuild-ui-packages directory.
-
 ## Development
 
 ```bash
@@ -276,7 +294,7 @@ pnpm typecheck
 │  │  - get_rbac_pattern              │   │
 │  └──────────────────────────────────┘   │
 │  ┌──────────────────────────────────┐   │
-│  │  Component Registry (JSON)       │   │
+│  │  Component Registry (embedded)   │   │
 │  │  - Metadata & Categories         │   │
 │  │  - Dependencies                  │   │
 │  │  - File mappings                 │   │
@@ -284,13 +302,12 @@ pnpm typecheck
 └─────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────┐
-│         Microbuild CLI (LOCAL)          │
-│  cd microbuild-ui-packages              │
-│  pnpm cli add <components> --project .. │
-│  - Copies source to user project        │
+│         @microbuild/cli (npm)           │
+│  npx @microbuild/cli@latest add <comp>  │
+│  - Fetches source from GitHub CDN       │
 │  - Transforms imports                   │
 │  - Resolves dependencies                │
-│  ⚠️ NOT on npm - use from local clone   │
+│  - Copies to user project               │
 └─────────────────────────────────────────┘
 ```
 

@@ -13,8 +13,8 @@ A collection of packages for building Directus-compatible content management app
 | [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (40+) | [README](./ui-interfaces/README.md) |
 | [@microbuild/ui-form](./ui-form) | VForm dynamic form component | [README](./ui-form/README.md) |
 | [@microbuild/ui-collections](./ui-collections) | CollectionForm & CollectionList | [README](./ui-collections/README.md) |
-| [@microbuild/cli](./cli) | CLI for copying components | [README](./cli/README.md) |
-| [@microbuild/mcp](./mcp-server) | MCP server for AI agents | [README](./mcp-server/README.md) |
+| [@microbuild/cli](./cli) | CLI for copying components ([npm](https://www.npmjs.com/package/@microbuild/cli)) | [README](./cli/README.md) |
+| [@microbuild/mcp](./mcp-server) | MCP server for AI agents ([npm](https://www.npmjs.com/package/@microbuild/mcp)) | [README](./mcp-server/README.md) |
 
 ## Architecture
 
@@ -49,15 +49,17 @@ A collection of packages for building Directus-compatible content management app
 
 ### CLI Installation (Recommended - Copy & Own)
 
+The CLI is published on npm. No local build required.
+
 ```bash
 # Initialize in your project
-npx @microbuild/cli init
+npx @microbuild/cli@latest init
 
 # Add components
-npx @microbuild/cli add input select-dropdown datetime
+npx @microbuild/cli@latest add input select-dropdown datetime
 
 # List available components
-npx @microbuild/cli list
+npx @microbuild/cli@latest list
 ```
 
 ### Traditional Package Installation
@@ -126,4 +128,5 @@ See the root [QUICKSTART.md](../QUICKSTART.md) for detailed setup instructions.
 
 - [QUICKSTART.md](../QUICKSTART.md) - MCP & CLI setup guide
 - [docs/DISTRIBUTION.md](../docs/DISTRIBUTION.md) - Distribution methods
+- [docs/PUBLISHING.md](../docs/PUBLISHING.md) - npm publishing & release workflow
 - [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) - System architecture

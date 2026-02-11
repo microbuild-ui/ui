@@ -15,6 +15,7 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
 | [TESTING.md](TESTING.md) | Playwright E2E testing guide | Developers |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Token-based theming architecture | Designers, Developers |
+| [PUBLISHING.md](PUBLISHING.md) | npm publishing & release workflow | DevOps/Maintainers |
 
 ## 🤖 For AI Agents
 
@@ -52,7 +53,7 @@ microbuild validate --json      # JSON output for CI/CD
 
 ### For AI Development
 - [MCP Server Setup](../QUICKSTART.md#-setup-mcp-server-for-vs-code-copilot) - VS Code Copilot integration
-- [MCP Documentation](../packages/mcp-server/README.md) - MCP server details
+- [MCP Documentation](../packages/mcp-server/README.md) - MCP server details (`@microbuild/mcp` on npm)
 - [Available Tools](../packages/mcp-server/README.md#available-tools) - AI tools reference
 
 ### For Teams
@@ -77,8 +78,8 @@ microbuild validate --json      # JSON output for CI/CD
 | @microbuild/ui-collections | Collection components | [README](../packages/ui-collections/README.md) |
 | @microbuild/ui-form | VForm - Dynamic form with permission enforcement | [README](../packages/ui-form/README.md) |
 | @microbuild/ui-table | VTable - Dynamic table with sorting, selection, drag-drop | [README](../packages/ui-table/README.md) |
-| @microbuild/mcp | MCP server | [README](../packages/mcp-server/README.md) |
-| @microbuild/cli | CLI tool | [README](../packages/cli/README.md) |
+| @microbuild/mcp | MCP server (`@microbuild/mcp` on npm) | [README](../packages/mcp-server/README.md) |
+| @microbuild/cli | CLI tool (`@microbuild/cli` on npm) | [README](../packages/cli/README.md) |
 
 ## 🚀 Common Tasks
 
@@ -184,9 +185,10 @@ microbuild validate --json      # JSON output for CI/CD
 
 ### Distribution Guides
 1. [Choose Distribution Method](DISTRIBUTION.md#comparison-matrix)
-2. [Set up GitHub Packages](DISTRIBUTION.md#4-github-packages-private-npm-registry)
-3. [Use Git URLs](DISTRIBUTION.md#3-private-git-repository)
-4. [Share with Team](DISTRIBUTION.md#recommended-setup)
+2. [npm Publishing Workflow](PUBLISHING.md) - Versioning & release with changesets
+3. [Set up GitHub Packages](DISTRIBUTION.md#4-github-packages-private-npm-registry)
+4. [Use Git URLs](DISTRIBUTION.md#3-private-git-repository)
+5. [Share with Team](DISTRIBUTION.md#recommended-setup)
 
 ### Troubleshooting
 1. [MCP Server Issues](../QUICKSTART.md#mcp-server-issues)
@@ -313,6 +315,15 @@ Microbuild Architecture
 - Check existing documentation first
 
 ## 📝 Changelog
+
+### Version 1.3.0 (February 2026)
+- ✨ Published `@microbuild/cli` and `@microbuild/mcp` to npm
+- ✨ Remote registry resolver — CLI fetches components from GitHub CDN when installed via npm
+- ✨ Renamed `@microbuild/mcp-server` to `@microbuild/mcp`
+- ✨ Changesets-based versioning and release workflow
+- ✨ GitHub Actions CI + automated npm publish workflows
+- ✨ `PUBLISHING.md` documentation for release process
+- 🔧 CLI auto-detects local vs remote mode (monorepo dev vs npm install)
 
 ### Version 1.2.0 (February 2026)
 - ✨ New `bootstrap` CLI command (init + add --all + deps + validate in one step)

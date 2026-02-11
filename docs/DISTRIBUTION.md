@@ -108,16 +108,31 @@ The design of Microbuild makes it easy for AI tools to work with your code. Its 
 
 The MCP (Model Context Protocol) server exposes Microbuild components to AI assistants like VS Code Copilot.
 
-```bash
-# Build the MCP server
-cd packages/mcp-server
-pnpm install
-pnpm build
-```
+The MCP server is published as [`@microbuild/mcp`](https://www.npmjs.com/package/@microbuild/mcp) on npm.
 
-**Configure VS Code:**
+**Configure VS Code (Recommended — via npx):**
 
 Add to your VS Code `settings.json` or `.vscode/mcp.json`:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "microbuild": {
+        "command": "npx",
+        "args": ["@microbuild/mcp@latest"]
+      }
+    }
+  }
+}
+```
+
+**Configure VS Code (Local build — for development):**
+
+```bash
+# Build the MCP server
+pnpm build:mcp
+```
 
 ```json
 {
@@ -173,7 +188,8 @@ For external projects without publishing:
 
 ### GitHub Packages (Private Registry)
 
-Publish to GitHub's private npm registry:
+For private distribution, you can publish to GitHub's private npm registry.
+Note: The CLI and MCP server are already published publicly at `@microbuild/cli` and `@microbuild/mcp` on npmjs.com.
 
 ```bash
 # Create .npmrc
@@ -188,8 +204,8 @@ pnpm --filter @microbuild/types publish
 
 | Method | Use Case | Best For |
 |--------|----------|----------|
-| **CLI** | Copy components as source | Teams that customize |
-| **MCP Server** | AI-assisted development | VS Code Copilot users |
+| **CLI (npx)** | Copy components as source | Teams that customize |
+| **MCP Server (npx)** | AI-assisted development | VS Code Copilot users |
 | **Workspace** | Monorepo development | Internal teams |
 | **Git/npm** | Traditional package install | External distribution |
 

@@ -2,6 +2,8 @@
 
 A CLI for adding Microbuild components to your project.
 
+[![npm version](https://img.shields.io/npm/v/@microbuild/cli)](https://www.npmjs.com/package/@microbuild/cli)
+
 ## Usage
 
 Use the `init` command to set up a new project and the `add` command to add components.

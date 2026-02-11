@@ -82,8 +82,7 @@ main  ←── stable, always publishable
 ### 1. Replace placeholder repository URL
 
 Search for `microbuild-ui/ui` across:
-- [packages/cli/package.json](packages/cli/package.json) → `repository.url`
-- [packages/mcp-server/package.json](packages/mcp-server/package.json) → `repository.url`
+- [packages/mcp-server/package.json](packages/mcp-server/package.json) → `repository.url` (package name: `@microbuild/mcp`)
 - [packages/cli/src/resolver.ts](packages/cli/src/resolver.ts) → `DEFAULT_REGISTRY_URL`
 - [.github/workflows/publish.yml](.github/workflows/publish.yml)
 
@@ -203,6 +202,8 @@ cd ../mcp-server
 npm publish --access public
 ```
 
+> **Note:** The packages are already published as `@microbuild/cli@0.1.0` and `@microbuild/mcp@0.1.0` on npmjs.com under the `@microbuild` organization.
+
 ---
 
 ## What Gets Published
@@ -294,7 +295,7 @@ The CLI and MCP server are **linked** in changeset config — they always publis
 ## Checklist Before First Publish
 
 - [ ] Replace `microbuild-ui/ui` with actual repo path (if different)
-- [ ] Create `@microbuild` org on npmjs.com
+- [x] Create `@microbuild` org on npmjs.com
 - [ ] Add `NPM_TOKEN` secret to GitHub repo
 - [ ] Run `pnpm install` (installs `@changesets/cli`)
 - [ ] Run `pnpm build` — verify CLI + MCP server build cleanly
