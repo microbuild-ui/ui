@@ -46,6 +46,7 @@ export async function GET(
   try {
     // Try the exact path first
     let content: Buffer;
+    let isDirectory = false;
     try {
       content = await readFile(filePath);
     } catch {
@@ -53,8 +54,21 @@ export async function GET(
       if (!path.extname(filePath)) {
         filePath = path.join(filePath, 'index.html');
         content = await readFile(filePath);
+        isDirectory = true;
       } else {
         throw new Error('Not found');
+      }
+    }
+
+    // Redirect directory URLs to have trailing slash so relative paths resolve correctly
+    // e.g. /storybook/form → /storybook/form/
+    // Without this, ./sb-manager/runtime.js resolves to /storybook/sb-manager/runtime.js (wrong)
+    // With trailing slash, it resolves to /storybook/form/sb-manager/runtime.js (correct)
+    if (isDirectory) {
+      const url = new URL(request.url);
+      if (!url.pathname.endsWith('/')) {
+        url.pathname += '/';
+        return NextResponse.redirect(url, 308);
       }
     }
 
