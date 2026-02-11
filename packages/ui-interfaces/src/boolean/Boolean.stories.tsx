@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Boolean } from '../Boolean';
+import { Boolean } from './Boolean';
 import { IconCheck, IconX, IconSun, IconMoon } from '@tabler/icons-react';
 import '../stories-shared.css';
 
