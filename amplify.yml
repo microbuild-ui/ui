@@ -14,6 +14,20 @@ applications:
             - REPO_ROOT="$(git rev-parse --show-toplevel)" && bash "${REPO_ROOT}/scripts/build-storybooks.sh"
             # Build the Next.js host app (serves Storybooks + DaaS auth proxy)
             - REPO_ROOT="$(git rev-parse --show-toplevel)" && cd "${REPO_ROOT}/apps/storybook-host" && pnpm next build
+            # Next.js standalone doesn't include public/ or .next/static/ — copy them in
+            - |
+              APP="$(git rev-parse --show-toplevel)/apps/storybook-host"
+              cd "${APP}"
+              echo "Standalone contents:" && ls .next/standalone/ 2>/dev/null || true
+              # Find where server.js lives in standalone (monorepo may nest it)
+              if [ -d ".next/standalone/apps/storybook-host" ]; then
+                STANDALONE_APP=".next/standalone/apps/storybook-host"
+              else
+                STANDALONE_APP=".next/standalone"
+              fi
+              cp -r public "${STANDALONE_APP}/public"
+              cp -r .next/static "${STANDALONE_APP}/.next/static"
+              echo "Copied public/ and .next/static/ into ${STANDALONE_APP}"
       artifacts:
         baseDirectory: .next
         files:
