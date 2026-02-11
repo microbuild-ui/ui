@@ -64,11 +64,14 @@ export async function GET(
     // e.g. /storybook/form → /storybook/form/
     // Without this, ./sb-manager/runtime.js resolves to /storybook/sb-manager/runtime.js (wrong)
     // With trailing slash, it resolves to /storybook/form/sb-manager/runtime.js (correct)
+    // Use relative Location header to avoid localhost redirect in Lambda environments
     if (isDirectory) {
-      const url = new URL(request.url);
-      if (!url.pathname.endsWith('/')) {
-        url.pathname += '/';
-        return NextResponse.redirect(url, 308);
+      const pathname = request.nextUrl.pathname;
+      if (!pathname.endsWith('/')) {
+        return new NextResponse(null, {
+          status: 308,
+          headers: { Location: pathname + '/' },
+        });
       }
     }
 
