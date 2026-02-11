@@ -10,12 +10,11 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | [QUICKSTART.md](../QUICKSTART.md) | Setup guide for MCP & CLI | New users |
 | [CLI.md](CLI.md) | CLI commands & agent reference | AI agents & developers |
 | [COMPONENT_MAP.md](COMPONENT_MAP.md) | Quick component lookup table | AI agents & developers |
-| [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide | DevOps/Teams |
+| [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide + Amplify hosting | DevOps/Teams |
 | [PUBLISHING.md](PUBLISHING.md) | npm publishing & release workflow | DevOps/Maintainers |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
 | [TESTING.md](TESTING.md) | Playwright E2E testing guide | Developers |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Token-based theming architecture | Designers, Developers |
-| [PUBLISHING.md](PUBLISHING.md) | npm publishing & release workflow | DevOps/Maintainers |
 
 ## 🤖 For AI Agents
 

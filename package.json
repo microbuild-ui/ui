@@ -20,6 +20,7 @@
     "clean": "pnpm -r exec rimraf node_modules .next dist",
     "install:all": "pnpm install",
     "storybook": "pnpm --filter @microbuild/ui-interfaces storybook",
+    "build:storybook": "bash scripts/build-storybooks.sh",
     "cli": "pnpm --filter @microbuild/cli build && node packages/cli/dist/index.js",
     "mcp:dev": "pnpm --filter @microbuild/mcp dev",
     "changeset": "changeset",

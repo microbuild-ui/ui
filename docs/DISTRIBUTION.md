@@ -278,3 +278,60 @@ Or manually edit the copied component in your project. Since you own the code, y
 - [Model Context Protocol Documentation](https://modelcontextprotocol.io)
 - [pnpm Workspace Guide](https://pnpm.io/workspaces)
 - [shadcn/ui (inspiration)](https://ui.shadcn.com)
+
+## Hosting Storybook on AWS Amplify
+
+You can deploy all three Storybooks (ui-interfaces, ui-form, ui-table) as a single static site on AWS Amplify.
+
+### What Gets Deployed
+
+| Path | Package | Content |
+|------|---------|---------|
+| `/` | — | Landing page with links to all three |
+| `/interfaces/` | `@microbuild/ui-interfaces` | 40+ field interface components |
+| `/form/` | `@microbuild/ui-form` | VForm dynamic form component |
+| `/table/` | `@microbuild/ui-table` | VTable dynamic table component |
+
+### Setup
+
+1. **Connect repo:** AWS Amplify Console → **Host web app** → GitHub → select `microbuild-ui/ui`, branch `main`
+2. **Build settings:** Amplify auto-detects [amplify.yml](../amplify.yml) — no manual config needed
+3. **Deploy:** Click **Save and deploy** → get a CDN URL like `https://main.d1234abcdef.amplifyapp.com`
+
+The build spec installs pnpm via corepack, runs `pnpm install --frozen-lockfile`, then `bash scripts/build-storybooks.sh` which builds all 3 Storybooks into `storybook-dist/`.
+
+### Environment Variables (optional)
+
+To enable the VForm DaaS Playground on the hosted site, add in Amplify Console → Environment variables:
+
+| Variable | Value | Required |
+|----------|-------|----------|
+| `STORYBOOK_DAAS_URL` | `https://xxx.microbuild-daas.xtremax.com` | No |
+| `STORYBOOK_DAAS_TOKEN` | Your static token | No |
+
+Without these, Storybooks still work — the DaaS Playground stories just won't connect to a live backend.
+
+### Local Preview
+
+```bash
+# Build all Storybooks
+pnpm build:storybook
+
+# Preview
+npx serve storybook-dist
+```
+
+### Build Image & Node Version
+
+Use **Amazon Linux 2023** (default). If builds fail due to Node version, add a `.nvmrc` file with `20`.
+
+### Custom Domain
+
+Amplify Console → Domain management → **Add domain** → follow DNS verification. Free SSL included.
+
+### Amplify Troubleshooting
+
+- **Out of memory:** Increase compute to **Large** (7 GB) or add `export NODE_OPTIONS="--max-old-space-size=4096"` to preBuild
+- **pnpm not found:** Ensure preBuild has `corepack enable && corepack prepare pnpm@10.17.0 --activate`
+- **Blank page:** Verify `baseDirectory: storybook-dist` in `amplify.yml`
+- **DaaS Playground not connecting:** The Vite proxy only works in dev mode; static builds need CORS configured on DaaS

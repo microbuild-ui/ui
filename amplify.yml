@@ -1,0 +1,21 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - corepack enable
+        - corepack prepare pnpm@10.17.0 --activate
+        - pnpm install --frozen-lockfile
+    build:
+      commands:
+        - bash scripts/build-storybooks.sh
+  artifacts:
+    baseDirectory: storybook-dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - packages/ui-interfaces/node_modules/**/*
+      - packages/ui-form/node_modules/**/*
+      - packages/ui-table/node_modules/**/*

@@ -10,7 +10,7 @@ A pnpm workspace containing reusable components distributed via Copy & Own model
 | [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md) | Complete documentation index |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture diagrams |
 | [docs/CLI.md](docs/CLI.md) | CLI commands & agent reference |
-| [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods guide |
+| [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods + Amplify hosting |
 | [docs/TESTING.md](docs/TESTING.md) | Playwright E2E testing guide |
 | [docs/PUBLISHING.md](docs/PUBLISHING.md) | npm publishing & release workflow |
 | [docs/WINDOWS.md](docs/WINDOWS.md) | Windows development guide |
