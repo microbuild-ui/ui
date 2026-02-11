@@ -29,7 +29,7 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <MantineProvider theme={theme}>
-        <div style={{ padding: '1rem' }}>
+        <div className="sb-decorator-pad">
           <Story />
         </div>
       </MantineProvider>

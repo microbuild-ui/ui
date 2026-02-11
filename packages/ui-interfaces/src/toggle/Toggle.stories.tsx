@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Toggle } from './Toggle';
 import { IconSun, IconMoon, IconBell, IconBellOff, IconLock, IconLockOpen } from '@tabler/icons-react';
+import '../stories-shared.css';
 
 const meta: Meta<typeof Toggle> = {
   title: 'Interfaces/Toggle',
@@ -162,7 +163,7 @@ export const ReadOnly: Story = {
 // Size variants
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="story-stack">
       <Toggle label="Extra Small" size="xs" value={true} />
       <Toggle label="Small" size="sm" value={true} />
       <Toggle label="Medium" size="md" value={true} />
@@ -246,7 +247,7 @@ export const GreenRedToggle: Story = {
 // Value states
 export const ValueStates: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="story-stack">
       <Toggle label="True value" value={true} />
       <Toggle label="False value" value={false} />
       <Toggle label="Null value" value={null} />
@@ -272,15 +273,9 @@ export const CompleteExample: Story = {
 // Form context example
 export const InFormContext: Story = {
   render: () => (
-    <div style={{ 
-      maxWidth: '400px', 
-      padding: '2rem', 
-      border: '1px solid #dee2e6', 
-      borderRadius: '8px',
-      backgroundColor: '#f8f9fa'
-    }}>
-      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>System Settings</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="story-form-container">
+      <h3 className="story-form-heading">System Settings</h3>
+      <div className="story-stack">
         <Toggle 
           label="Auto-save enabled" 
           description="Automatically save changes every 30 seconds"
@@ -326,24 +321,19 @@ export const InFormContext: Story = {
 // Comparison with Boolean
 export const ComparisonWithBoolean: Story = {
   render: () => (
-    <div style={{ 
-      maxWidth: '500px', 
-      padding: '2rem', 
-      border: '1px solid #dee2e6', 
-      borderRadius: '8px',
-    }}>
-      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Toggle vs Boolean</h3>
-      <p style={{ fontSize: '14px', color: '#666', marginBottom: '1.5rem' }}>
+    <div className="story-form-container-lg">
+      <h3 className="story-form-heading">Toggle vs Boolean</h3>
+      <p className="story-description">
         Toggle provides enhanced visual styling with custom colors, icons, and state labels.
         Use Toggle when you need more visual feedback for on/off states.
       </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div className="story-stack-lg">
         <div>
-          <p style={{ margin: '0 0 0.5rem', fontWeight: 500, fontSize: '14px' }}>Standard Toggle:</p>
+          <p className="story-sub-label">Standard Toggle:</p>
           <Toggle label="Standard toggle" value={true} />
         </div>
         <div>
-          <p style={{ margin: '0 0 0.5rem', fontWeight: 500, fontSize: '14px' }}>With State Labels:</p>
+          <p className="story-sub-label">With State Labels:</p>
           <Toggle 
             label="With labels" 
             showStateLabels 
@@ -353,7 +343,7 @@ export const ComparisonWithBoolean: Story = {
           />
         </div>
         <div>
-          <p style={{ margin: '0 0 0.5rem', fontWeight: 500, fontSize: '14px' }}>Custom Colors:</p>
+          <p className="story-sub-label">Custom Colors:</p>
           <Toggle 
             label="Custom colors" 
             colorOn="#be4bdb" 
@@ -362,7 +352,7 @@ export const ComparisonWithBoolean: Story = {
           />
         </div>
         <div>
-          <p style={{ margin: '0 0 0.5rem', fontWeight: 500, fontSize: '14px' }}>With Icons:</p>
+          <p className="story-sub-label">With Icons:</p>
           <Toggle 
             label="With icons" 
             iconOn={<IconBell size={14} />}

@@ -166,8 +166,7 @@ export default function HomePage() {
               </button>
               <button
                 type="button"
-                className="btn"
-                style={{ border: '1px solid var(--border)' }}
+                className="btn btn-outline"
                 onClick={checkStatus}
               >
                 Refresh
@@ -227,7 +226,7 @@ export default function HomePage() {
         <h2>📚 Storybooks</h2>
 
         {!status?.connected && (
-          <div className="alert alert-info" style={{ marginTop: '0.75rem' }}>
+          <div className="alert alert-info alert-mt">
             Connect to DaaS above to enable live data in Storybook stories.
           </div>
         )}
@@ -253,7 +252,7 @@ export default function HomePage() {
         {isDev && (
           <div className="dev-note">
             <strong>💡 Local Development</strong>
-            <p style={{ marginTop: '0.25rem' }}>
+            <p className="dev-note-text">
               Start the host app first, then run Storybooks. They proxy{' '}
               <code>/api/*</code> to this app automatically.
             </p>
@@ -274,7 +273,7 @@ pnpm storybook:collections  # Port 6008`}</pre>
             This app is a <strong>Next.js authentication proxy</strong> that
             sits between your Storybooks and the DaaS backend:
           </p>
-          <ol style={{ paddingLeft: '1.25rem', marginTop: '0.5rem' }}>
+          <ol className="arch-list">
             <li>
               You enter your DaaS URL + static token above → stored in an
               encrypted <code>httpOnly</code> cookie
@@ -292,7 +291,7 @@ pnpm storybook:collections  # Port 6008`}</pre>
               proxy handles cross-origin server-side
             </li>
           </ol>
-          <p style={{ marginTop: '0.5rem' }}>
+          <p className="arch-footer">
             <strong>Local dev:</strong> Storybooks run on separate ports but
             their Vite proxy forwards <code>/api/*</code> to{' '}
             <code>localhost:3000</code> (this app).

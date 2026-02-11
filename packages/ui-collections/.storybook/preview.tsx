@@ -4,6 +4,7 @@ import { MantineProvider, createTheme } from '@mantine/core';
 
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import './preview.css';
 
 const theme = createTheme({
   primaryColor: 'blue',
@@ -27,7 +28,7 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <MantineProvider theme={theme} defaultColorScheme="light">
-        <div style={{ padding: '1rem' }}>
+        <div className="sb-decorator-pad">
           <Story />
         </div>
       </MantineProvider>

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Notice } from './Notice';
 import { IconRocket, IconInfoCircle } from '@tabler/icons-react';
+import '../stories-shared.css';
 
 const meta: Meta<typeof Notice> = {
   title: 'Interfaces/Notice',
@@ -210,7 +211,7 @@ Your data is handled securely and in accordance with applicable data protection 
 
 export const AllVariants: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="story-stack-16">
       <Notice type="info" title="Information">
         An informational message for the user.
       </Notice>

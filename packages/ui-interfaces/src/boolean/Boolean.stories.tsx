@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Boolean } from '../Boolean';
 import { IconCheck, IconX, IconSun, IconMoon } from '@tabler/icons-react';
+import '../stories-shared.css';
 
 const meta: Meta<typeof Boolean> = {
   title: 'Interfaces/Boolean',
@@ -120,7 +121,7 @@ export const ReadOnly: Story = {
 // Size variants
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="story-stack">
       <Boolean label="Extra Small" size="xs" value={true} />
       <Boolean label="Small" size="sm" value={true} />
       <Boolean label="Medium" size="md" value={true} />
@@ -162,7 +163,7 @@ export const CustomColors: Story = {
 // Value states
 export const ValueStates: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="story-stack">
       <Boolean label="True value" value={true} />
       <Boolean label="False value" value={false} />
       <Boolean label="Null value" value={null} />
@@ -188,15 +189,9 @@ export const ComplexExample: Story = {
 // Form context example
 export const InFormContext: Story = {
   render: () => (
-    <div style={{ 
-      maxWidth: '400px', 
-      padding: '2rem', 
-      border: '1px solid #dee2e6', 
-      borderRadius: '8px',
-      backgroundColor: '#f8f9fa'
-    }}>
-      <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Account Settings</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="story-form-container">
+      <h3 className="story-form-heading">Account Settings</h3>
+      <div className="story-stack">
         <Boolean 
           label="Email notifications" 
           description="Receive email updates about your account"
