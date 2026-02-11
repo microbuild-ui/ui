@@ -13,12 +13,12 @@ applications:
             # Build Storybooks into the host app's public directory
             - REPO_ROOT="$(git rev-parse --show-toplevel)" && bash "${REPO_ROOT}/scripts/build-storybooks.sh"
             # Build the Next.js host app (serves Storybooks + DaaS auth proxy)
-            - npx next build
+            - REPO_ROOT="$(git rev-parse --show-toplevel)" && cd "${REPO_ROOT}/apps/storybook-host" && pnpm next build
       artifacts:
         baseDirectory: .next
         files:
           - '**/*'
       cache:
         paths:
-          - ../../node_modules/**/*
+          - node_modules/**/*
           - .next/cache/**/*
