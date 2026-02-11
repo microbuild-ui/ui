@@ -55,12 +55,14 @@ const config: StorybookConfig = {
     return mergeConfig(config, {
       resolve: {
         alias: {
-          // Map workspace packages for Storybook
+          // Map ALL workspace packages to source (required for cyclic deps)
           '@microbuild/types': path.resolve(__dirname, '../../types/src'),
           '@microbuild/services': path.resolve(__dirname, '../../services/src'),
-          '@microbuild/ui-interfaces': path.resolve(__dirname, '../../ui-interfaces/src'),
-          '@microbuild/utils': path.resolve(__dirname, '../../utils/src'),
           '@microbuild/hooks': path.resolve(__dirname, '../../hooks/src'),
+          '@microbuild/utils': path.resolve(__dirname, '../../utils/src'),
+          '@microbuild/ui-interfaces': path.resolve(__dirname, '../../ui-interfaces/src'),
+          '@microbuild/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),
+          '@microbuild/ui-form': path.resolve(__dirname, '../../ui-form/src'),
         },
       },
       server: {
