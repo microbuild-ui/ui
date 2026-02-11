@@ -7,11 +7,12 @@ applications:
           commands:
             - corepack enable
             - corepack prepare pnpm@10.17.0 --activate
-            - cd ../.. && pnpm install --frozen-lockfile
+            - echo "appRoot CWD=$(pwd)" && echo "CODEBUILD_SRC_DIR=${CODEBUILD_SRC_DIR:-unset}"
+            - cd ../.. && pwd && ls scripts/ && pnpm install --frozen-lockfile
         build:
           commands:
             # Build Storybooks into the host app's public directory
-            - cd ../.. && bash scripts/build-storybooks.sh
+            - REPO_ROOT="$(cd ../.. && pwd)" && bash "${REPO_ROOT}/scripts/build-storybooks.sh"
             # Build the Next.js host app (serves Storybooks + DaaS auth proxy)
             - npx next build
       artifacts:
