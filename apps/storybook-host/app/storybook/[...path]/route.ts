@@ -63,7 +63,7 @@ export async function GET(
       ? 'public, max-age=0, must-revalidate'
       : 'public, max-age=31536000, immutable';
 
-    return new NextResponse(content, {
+    return new NextResponse(new Uint8Array(content), {
       status: 200,
       headers: {
         'Content-Type': mimeType,
