@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { RichTextHTML } from './RichTextHtml';
+import { RichTextHTML } from './RichTextHTML';
 
 const meta: Meta<typeof RichTextHTML> = {
   title: 'Interfaces/RichTextHTML',
