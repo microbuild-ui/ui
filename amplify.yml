@@ -14,8 +14,6 @@ applications:
             - REPO_ROOT="$(git rev-parse --show-toplevel)" && bash "${REPO_ROOT}/scripts/build-storybooks.sh"
             # Build the Next.js host app (serves Storybooks + DaaS auth proxy)
             - REPO_ROOT="$(git rev-parse --show-toplevel)" && cd "${REPO_ROOT}/apps/storybook-host" && pnpm next build
-            # Copy public/ into .next/ so Amplify SSR adapter serves static storybook files
-            - cp -r public .next/public
       artifacts:
         baseDirectory: .next
         files:
