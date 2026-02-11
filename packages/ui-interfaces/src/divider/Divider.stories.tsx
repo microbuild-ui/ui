@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Divider } from './Divider';
 import { IconSettings, IconUser, IconFolder, IconStar } from '@tabler/icons-react';
+import '../stories-shared.css';
 
 const meta: Meta<typeof Divider> = {
   title: 'Interfaces/Divider',
@@ -150,10 +151,10 @@ export const Vertical: Story = {
   },
   decorators: [
     (Story) => (
-      <div style={{ display: 'flex', height: '100px', alignItems: 'stretch' }}>
-        <div style={{ padding: '10px' }}>Left Content</div>
+      <div className="story-flex-stretch-100">
+        <div className="story-pad-10">Left Content</div>
         <Story />
-        <div style={{ padding: '10px' }}>Right Content</div>
+        <div className="story-pad-10">Right Content</div>
       </div>
     ),
   ],
@@ -166,10 +167,10 @@ export const VerticalWithTitle: Story = {
   },
   decorators: [
     (Story) => (
-      <div style={{ display: 'flex', height: '150px', alignItems: 'stretch' }}>
-        <div style={{ padding: '10px' }}>Option A</div>
+      <div className="story-flex-stretch-150">
+        <div className="story-pad-10">Option A</div>
         <Story />
-        <div style={{ padding: '10px' }}>Option B</div>
+        <div className="story-pad-10">Option B</div>
       </div>
     ),
   ],
@@ -182,7 +183,7 @@ export const WithMargin: Story = {
   },
   decorators: [
     (Story) => (
-      <div style={{ border: '1px dashed #ccc', padding: '10px' }}>
+      <div className="story-dashed-container">
         <Story />
       </div>
     ),

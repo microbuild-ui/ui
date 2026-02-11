@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Preview } from '@storybook/react-vite';
+import type { Preview } from '@storybook/nextjs-vite';
 import { MantineProvider, createTheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 
@@ -7,6 +7,7 @@ import { Notifications } from '@mantine/notifications';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
+import './preview.css';
 
 // Create a default theme (can be customized)
 const theme = createTheme({
@@ -32,7 +33,7 @@ const preview: Preview = {
     (Story) => (
       <MantineProvider theme={theme} defaultColorScheme="light">
         <Notifications position="top-right" />
-        <div style={{ padding: '1rem', minWidth: '400px' }}>
+        <div className="sb-decorator-pad">
           <Story />
         </div>
       </MantineProvider>

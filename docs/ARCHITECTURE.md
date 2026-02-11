@@ -110,6 +110,119 @@
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+## Storybook Host Architecture
+
+The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy and a Storybook hosting server. This solves CORS issues in both development and production (AWS Amplify).
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Storybook Host (Next.js)                          │
+│                    apps/storybook-host                               │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────────┐    │
+│  │  Landing Page (/)                                             │    │
+│  │  • DaaS connection form (URL + static token)                  │    │
+│  │  • Storybook navigation grid                                 │    │
+│  │  • Connection status display                                  │    │
+│  └──────────────────────────────────────────────────────────────┘    │
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────────┐    │
+│  │  API Routes                                                    │    │
+│  │  POST /api/connect     → Validate & store DaaS credentials    │    │
+│  │  POST /api/disconnect  → Clear credentials                    │    │
+│  │  GET  /api/status      → Check connection status              │    │
+│  │  *    /api/[...path]   → Catch-all proxy to DaaS backend     │    │
+│  └──────────────────────────────────────────────────────────────┘    │
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────────┐    │
+│  │  Credential Storage (lib/cookie.ts)                           │    │
+│  │  • AES-256-GCM encrypted httpOnly cookie                      │    │
+│  │  • Key derived from COOKIE_SECRET env var via SHA-256         │    │
+│  │  • 30-day expiry, SameSite=Lax                                │    │
+│  └──────────────────────────────────────────────────────────────┘    │
+│                                                                       │
+│  ┌──────────────────────────────────────────────────────────────┐    │
+│  │  Static Storybooks (public/storybook/)                        │    │
+│  │  /storybook/interfaces/   ← ui-interfaces (40+ components)   │    │
+│  │  /storybook/form/         ← ui-form (VForm)                  │    │
+│  │  /storybook/table/        ← ui-table (VTable)                │    │
+│  │  /storybook/collections/  ← ui-collections (CRUD)            │    │
+│  └──────────────────────────────────────────────────────────────┘    │
+│                                                                       │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Storybook → Host → DaaS Request Flow
+
+```
+  Development Mode                         Production Mode (Amplify)
+  ┌─────────────┐                          ┌─────────────┐
+  │  Storybook   │                          │  Storybook   │
+  │  (port 6006) │                          │  /storybook/ │
+  └──────┬───────┘                          └──────┬───────┘
+         │ fetch('/api/collections')                │ fetch('/api/collections')
+         │                                         │
+         ▼                                         ▼
+  ┌─────────────────┐                       ┌─────────────────┐
+  │  Vite Dev Proxy  │                       │  Same-Origin     │
+  │  /api → :3000    │                       │  (Next.js app)   │
+  └──────┬───────────┘                       └──────┬───────────┘
+         │                                         │
+         ▼                                         ▼
+  ┌─────────────────────────────────────────────────────┐
+  │  Next.js Host App (apps/storybook-host)             │
+  │  /api/[...path]/route.ts                            │
+  │  1. Read encrypted cookie → {url, token}            │
+  │  2. Proxy to ${url}/api/${path}                     │
+  │  3. Add Authorization: Bearer ${token}              │
+  └──────────────────┬──────────────────────────────────┘
+                     │
+                     ▼
+  ┌─────────────────────────────────────────────────────┐
+  │  DaaS Backend                                       │
+  │  https://xxx.microbuild-daas.xtremax.com            │
+  └─────────────────────────────────────────────────────┘
+```
+
+## Deployment Architecture (AWS Amplify)
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    AWS Amplify Deployment                             │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  Build Pipeline (amplify.yml):                                        │
+│  ┌─────────────────────────────────────────────────────────────┐     │
+│  │ 1. corepack enable → pnpm install                           │     │
+│  │ 2. bash scripts/build-storybooks.sh                         │     │
+│  │    → Build 4 Storybooks to apps/storybook-host/public/      │     │
+│  │ 3. cd apps/storybook-host && npx next build                 │     │
+│  │    → Build Next.js host app (output: standalone)            │     │
+│  └─────────────────────────────────────────────────────────────┘     │
+│                                                                        │
+│  Artifacts: apps/storybook-host/**/*                                  │
+│                                                                        │
+│  Routes Served:                                                        │
+│  ┌─────────────────────────────────────────────────────────────┐     │
+│  │ /                       → Landing page (connect + nav)      │     │
+│  │ /storybook/interfaces/  → ui-interfaces Storybook           │     │
+│  │ /storybook/form/        → ui-form Storybook                 │     │
+│  │ /storybook/table/       → ui-table Storybook                │     │
+│  │ /storybook/collections/ → ui-collections Storybook          │     │
+│  │ /api/connect            → Store DaaS credentials            │     │
+│  │ /api/status             → Check connection                  │     │
+│  │ /api/[...path]          → Proxy to DaaS backend             │     │
+│  └─────────────────────────────────────────────────────────────┘     │
+│                                                                        │
+│  Environment Variables:                                               │
+│  ┌─────────────────────────────────────────────────────────────┐     │
+│  │ COOKIE_SECRET  → Encryption key for credential cookie        │     │
+│  └─────────────────────────────────────────────────────────────┘     │
+│                                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
 ## Distribution Flow
 
 ### Flow 1: AI-Assisted Development (MCP)

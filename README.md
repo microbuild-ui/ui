@@ -10,7 +10,7 @@ A pnpm workspace containing reusable components distributed via Copy & Own model
 | [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md) | Complete documentation index |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture diagrams |
 | [docs/CLI.md](docs/CLI.md) | CLI commands & agent reference |
-| [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods guide |
+| [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) | Distribution methods + Amplify hosting |
 | [docs/TESTING.md](docs/TESTING.md) | Playwright E2E testing guide |
 | [docs/PUBLISHING.md](docs/PUBLISHING.md) | npm publishing & release workflow |
 | [docs/WINDOWS.md](docs/WINDOWS.md) | Windows development guide |
@@ -19,13 +19,18 @@ A pnpm workspace containing reusable components distributed via Copy & Own model
 
 ```
 microbuild-ui-packages/
-├── pnpm-workspace.yaml     # Workspace configuration
+├── pnpm-workspace.yaml     # Workspace configuration (packages/* + apps/*)
 ├── package.json            # Root scripts
 ├── docs/                   # Documentation
 │   ├── DOCS_INDEX.md       # Documentation index
 │   ├── ARCHITECTURE.md     # System architecture
 │   ├── DISTRIBUTION.md     # Distribution guide
 │   └── WINDOWS.md          # Windows setup
+├── apps/                   # Standalone applications
+│   └── storybook-host/     # Next.js auth proxy & Storybook host (Amplify)
+│       ├── app/api/        # DaaS proxy routes (connect, status, catch-all)
+│       ├── lib/cookie.ts   # AES-256-GCM encrypted credential storage
+│       └── public/storybook/ # Built Storybooks served at /storybook/*
 ├── tests/                  # Playwright E2E tests
 │   ├── auth.setup.ts       # Authentication setup
 │   ├── ui-form/            # VForm component tests
@@ -34,15 +39,10 @@ microbuild-ui-packages/
     ├── registry.json       # Component registry schema
     ├── cli/                # CLI tool for developers (@microbuild/cli)
     ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp)
-    ├── ui-interfaces/      # Field interface components
-    ├── ui-form/            # VForm dynamic form component (NEW: with Storybook)
-    │   ├── src/            # VForm component and utilities
-    │   ├── VForm.stories.tsx        # Storybook stories with mocked data
-    │   └── VForm.daas.stories.tsx   # DaaS playground for testing with real API
-    ├── ui-table/           # VTable dynamic table component (with Storybook)
-    │   ├── src/            # VTable component and utilities
-    │   └── VTable.stories.tsx       # Storybook stories with 18 examples
-    ├── ui-collections/     # Collection Form & List
+    ├── ui-interfaces/      # Field interface components (Storybook port 6005)
+    ├── ui-form/            # VForm dynamic form component (Storybook port 6006)
+    ├── ui-table/           # VTable dynamic table component (Storybook port 6007)
+    ├── ui-collections/     # Collection Form & List (Storybook port 6008)
     ├── types/              # Shared TypeScript types
     ├── services/           # Shared service classes
     ├── hooks/              # Shared React hooks
@@ -580,31 +580,51 @@ See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 | `pnpm mcp:dev` | Run MCP server in watch mode |
 | `pnpm cli` | Run CLI tool locally |
 | `pnpm cli validate` | Validate Microbuild installation in a project |
+| `pnpm storybook` | Run Storybook for ui-interfaces (port 6005) |
 | `pnpm storybook:form` | Run VForm Storybook (port 6006) |
 | `pnpm storybook:table` | Run VTable Storybook (port 6007) |
+| `pnpm storybook:collections` | Run Collections Storybook (port 6008) |
+| `pnpm build:storybook` | Build all 4 Storybooks to host app's public dir |
+| `pnpm dev:host` | Start Storybook host app in dev mode (port 3000) |
+| `pnpm build:host` | Build the Storybook host app for production |
+| `pnpm start:host` | Start production Storybook host app |
 | `pnpm lint` | Lint all projects |
 | `pnpm clean` | Remove node_modules and build artifacts |
-| `pnpm storybook` | Run Storybook for ui-interfaces |
-| `pnpm storybook:form` | Run Storybook for ui-form (VForm) |
 | `pnpm test:e2e` | Run Playwright E2E tests against DaaS |
 | `pnpm test:storybook` | Run Playwright tests against Storybook |
 
 ## 📋 Storybook
+
+All Storybooks use **Storybook 10** with `@storybook/nextjs-vite`.
+
 ```bash
-# Run Storybook for ui-interfaces component development
-pnpm storybook
+# Run individual Storybooks
+pnpm storybook               # ui-interfaces (port 6005)
+pnpm storybook:form           # VForm (port 6006)
+pnpm storybook:table          # VTable (port 6007)
+pnpm storybook:collections    # Collections (port 6008)
 
-# Run Storybook for VForm development
-pnpm storybook:form
-
-# Build static Storybook
-pnpm --filter @microbuild/ui-interfaces build-storybook
+# Build all Storybooks for hosting
+pnpm build:storybook
 ```
 
-Storybook runs at http://localhost:6006 and provides:
-- Interactive component playground
-- Props documentation with controls
-- Visual testing for all interface components
+### DaaS Playground (Live API Testing)
+
+The DaaS Playground uses a **Next.js host app** (`apps/storybook-host`) as an authentication proxy, avoiding CORS issues:
+
+```bash
+# Terminal 1: Start the host app (DaaS auth proxy)
+pnpm dev:host
+
+# Terminal 2: Start Storybook
+pnpm storybook:form
+```
+
+1. Open `http://localhost:3000` and connect with your DaaS URL + static token
+2. Navigate to "Forms/VForm DaaS Playground" in Storybook
+3. Select a collection and test with real fields
+
+Credentials are stored in an AES-256-GCM encrypted httpOnly cookie. All `/api/*` requests from Storybook are proxied through the host app.
 
 ## 🧪 Testing
 

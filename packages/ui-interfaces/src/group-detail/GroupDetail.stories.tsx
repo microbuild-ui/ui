@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { GroupDetail } from './GroupDetail';
 import { Input } from '../input';
 import { Textarea } from '../textarea';
 import { SelectDropdown } from '../select-dropdown';
 import { Toggle } from '../toggle';
+import '../stories-shared.css';
 
 const meta: Meta<typeof GroupDetail> = {
   title: 'Interfaces/GroupDetail',
@@ -100,7 +101,7 @@ export const Default: Story = {
   args: {
     field: { name: 'Details', meta: { field: 'details' } },
     children: (
-      <div style={{ padding: '16px' }}>
+      <div className="story-pad-16">
         <p>Group content goes here...</p>
       </div>
     ),
@@ -112,7 +113,7 @@ export const StartOpen: Story = {
     field: { name: 'Personal Information', meta: { field: 'personal' } },
     start: 'open',
     children: (
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="story-pad-stack-16">
         <Input label="First Name" placeholder="Enter first name" />
         <Input label="Last Name" placeholder="Enter last name" />
         <Input label="Email" placeholder="Enter email" type="string" />
@@ -126,7 +127,7 @@ export const StartClosed: Story = {
     field: { name: 'Advanced Settings', meta: { field: 'advanced' } },
     start: 'closed',
     children: (
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="story-pad-stack-16">
         <Toggle label="Enable caching" />
         <Toggle label="Debug mode" />
         <Input label="Timeout (ms)" type="integer" />
@@ -141,7 +142,7 @@ export const WithIcon: Story = {
     headerIcon: 'settings',
     start: 'open',
     children: (
-      <div style={{ padding: '16px' }}>
+      <div className="story-pad-16">
         <Toggle label="Enable notifications" />
       </div>
     ),
@@ -154,7 +155,7 @@ export const WithBadge: Story = {
     badge: 'Optional',
     start: 'closed',
     children: (
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="story-pad-stack-16">
         <Input label="Nickname" placeholder="Optional nickname" />
         <Textarea label="Bio" placeholder="Tell us about yourself" />
       </div>
@@ -168,7 +169,7 @@ export const CustomColor: Story = {
     headerColor: '#6644FF',
     start: 'open',
     children: (
-      <div style={{ padding: '16px' }}>
+      <div className="story-pad-16">
         <p>This section has a custom header color.</p>
       </div>
     ),
@@ -184,7 +185,7 @@ export const WithValidationErrors: Story = {
       { field: 'phone', code: 'REQUIRED', type: 'validation' },
     ],
     children: (
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="story-pad-stack-16">
         <Input label="Email" error="Invalid email format" />
         <Input label="Phone" error="This field is required" />
       </div>
@@ -198,7 +199,7 @@ export const Disabled: Story = {
     disabled: true,
     start: 'open',
     children: (
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="story-pad-stack-16">
         <Input label="Read Only Field" value="Cannot edit" disabled />
       </div>
     ),
@@ -211,7 +212,7 @@ export const Loading: Story = {
     loading: true,
     start: 'open',
     children: (
-      <div style={{ padding: '16px' }}>
+      <div className="story-pad-16">
         <p>Content is loading...</p>
       </div>
     ),
@@ -224,7 +225,7 @@ export const RTLDirection: Story = {
     direction: 'rtl',
     start: 'open',
     children: (
-      <div style={{ padding: '16px', direction: 'rtl' }}>
+      <div className="story-pad-16-rtl">
         <p>محتوى بالعربية</p>
       </div>
     ),
@@ -237,7 +238,7 @@ export const FormSection: Story = {
     headerIcon: 'contacts',
     start: 'open',
     children: (
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="story-pad-stack-16">
         <Input label="Full Name" placeholder="John Doe" required />
         <Input label="Email Address" placeholder="john@example.com" required />
         <Input label="Phone Number" placeholder="+1 (555) 000-0000" />
@@ -256,13 +257,13 @@ export const FormSection: Story = {
 
 export const MultipleGroups: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="story-stack-16">
       <GroupDetail
         field={{ name: 'Basic Info', meta: { field: 'basic' } }}
         start="open"
         headerIcon="info"
       >
-        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="story-pad-stack-12">
           <Input label="Title" placeholder="Enter title" required />
           <Textarea label="Description" placeholder="Enter description" />
         </div>
@@ -273,7 +274,7 @@ export const MultipleGroups: Story = {
         start="closed"
         headerIcon="settings"
       >
-        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="story-pad-stack-12">
           <Toggle label="Published" />
           <Toggle label="Featured" />
         </div>
@@ -284,7 +285,7 @@ export const MultipleGroups: Story = {
         start="closed"
         badge="Optional"
       >
-        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="story-pad-stack-12">
           <Input label="Slug" placeholder="custom-slug" />
           <Input label="Sort Order" type="integer" />
         </div>

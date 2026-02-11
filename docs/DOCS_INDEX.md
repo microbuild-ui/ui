@@ -10,12 +10,11 @@ Complete guide to Microbuild UI Packages and distribution tools.
 | [QUICKSTART.md](../QUICKSTART.md) | Setup guide for MCP & CLI | New users |
 | [CLI.md](CLI.md) | CLI commands & agent reference | AI agents & developers |
 | [COMPONENT_MAP.md](COMPONENT_MAP.md) | Quick component lookup table | AI agents & developers |
-| [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide | DevOps/Teams |
+| [DISTRIBUTION.md](DISTRIBUTION.md) | Complete distribution guide + Amplify hosting | DevOps/Teams |
 | [PUBLISHING.md](PUBLISHING.md) | npm publishing & release workflow | DevOps/Maintainers |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System architecture diagrams | Technical users |
 | [TESTING.md](TESTING.md) | Playwright E2E testing guide | Developers |
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | Token-based theming architecture | Designers, Developers |
-| [PUBLISHING.md](PUBLISHING.md) | npm publishing & release workflow | DevOps/Maintainers |
 
 ## 🤖 For AI Agents
 
@@ -80,6 +79,7 @@ microbuild validate --json      # JSON output for CI/CD
 | @microbuild/ui-table | VTable - Dynamic table with sorting, selection, drag-drop | [README](../packages/ui-table/README.md) |
 | @microbuild/mcp | MCP server (`@microbuild/mcp` on npm) | [README](../packages/mcp-server/README.md) |
 | @microbuild/cli | CLI tool (`@microbuild/cli` on npm) | [README](../packages/cli/README.md) |
+| storybook-host | Next.js auth proxy & Storybook host (Amplify) | [apps/storybook-host](../apps/storybook-host) |
 
 ## 🚀 Common Tasks
 
@@ -94,7 +94,10 @@ microbuild validate --json      # JSON output for CI/CD
 | Run Storybook | `pnpm storybook` | [packages/README.md](../packages/README.md#storybook) |
 | Run VForm Storybook | `pnpm storybook:form` | [TESTING.md](TESTING.md#storybook-stories) |
 | Run VTable Storybook | `pnpm storybook:table` | [TESTING.md](TESTING.md#vtable-component-testing) |
-| Run VForm with DaaS proxy | See [TESTING.md](TESTING.md#proxy-mode-recommended---no-cors-issues) | [TESTING.md](TESTING.md) |
+| Run Collections Storybook | `pnpm storybook:collections` | [TESTING.md](TESTING.md) |
+| Start Storybook host | `pnpm dev:host` | [DISTRIBUTION.md](DISTRIBUTION.md#hosting-storybook-on-aws-amplify) |
+| Build Storybook host | `pnpm build:host` | [DISTRIBUTION.md](DISTRIBUTION.md#hosting-storybook-on-aws-amplify) |
+| Run VForm with DaaS proxy | See [TESTING.md](TESTING.md#daas-playground-authentication) | [TESTING.md](TESTING.md) |
 | Install Playwright | `pnpm exec playwright install chromium` | [TESTING.md](TESTING.md#prerequisites) |
 
 ### Development Tasks
@@ -315,6 +318,17 @@ Microbuild Architecture
 - Check existing documentation first
 
 ## 📝 Changelog
+
+### Version 1.4.0 (February 2026)
+- ✨ New `apps/storybook-host` Next.js app — DaaS auth proxy & Storybook host for AWS Amplify
+- ✨ Runtime DaaS credential input (no more env vars) with AES-256-GCM encrypted cookies
+- ✨ Storybook 10 migration with `@storybook/nextjs-vite` across all 4 packages
+- ✨ New `ui-collections` Storybook (port 6008)
+- ✨ Workspace now includes `apps/*` alongside `packages/*`
+- 🔧 Storybook configs simplified — removed DaaS env var proxy, replaced with host app proxy
+- 🔧 DaaSProvider updated for proxy-mode autoFetchUser
+- 🔧 Amplify deployment updated: serves Next.js app (not static storybook-dist/)
+- 🔧 New root scripts: `dev:host`, `build:host`, `start:host`, `storybook:collections`
 
 ### Version 1.3.0 (February 2026)
 - ✨ Published `@microbuild/cli` and `@microbuild/mcp` to npm

@@ -43,75 +43,52 @@ The VForm component has extensive test coverage across both tiers:
 - Accessibility features
 
 **DaaS Playground** ([packages/ui-form/src/VForm.daas.stories.tsx](../packages/ui-form/src/VForm.daas.stories.tsx)):
-- Connect to real DaaS instance with your credentials
+- Connect to real DaaS instance via the storybook-host proxy app
 - Fetch actual collection schemas from live API
 - Test with real data and field configurations
 - Test relational interfaces (M2O, O2M, M2M, M2A) with actual relations
-- **Authentication support**: Login with email/password or static token
+- **Authentication proxy**: Credentials stored in encrypted httpOnly cookie
 - **Permission enforcement**: Test field-level filtering based on user permissions
-- Two modes: **Proxy Mode** (recommended) and **Direct Mode**
 
 ### DaaS Playground Authentication
 
-The playground supports the same authentication methods as DaaS:
+The playground uses the **storybook-host** Next.js app as an authentication proxy:
 
-1. **Static Tokens** - Long-lived tokens for programmatic access (Directus-style)
-2. **Email/Password Login** - JWT-based authentication via `/api/auth/login`
-3. **Session Management** - JWT tokens stored in sessionStorage for persistence
+1. **Static Tokens** - Enter DaaS URL and static token through the host app's landing page
+2. **Encrypted Storage** - Credentials stored in AES-256-GCM encrypted httpOnly cookie
+3. **Proxy Mode** - All `/api/*` requests proxied through the host app to DaaS backend
 
-**Proxy Mode (Recommended - No CORS Issues):**
-
-Start Storybook with DaaS environment variables to enable a Vite proxy:
+**Setup (Recommended):**
 
 ```bash
-# Set environment variables and start Storybook
-STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
-STORYBOOK_DAAS_TOKEN=your-static-token \
+# Terminal 1: Start the host app (DaaS authentication proxy)
+pnpm dev:host
+
+# Terminal 2: Start Storybook
 pnpm storybook:form
 
-# Navigate to "Forms/VForm DaaS Playground" → "Playground" story
-# The proxy is automatically enabled - no CORS issues!
-# Select a collection from the dropdown and test
+# 1. Open http://localhost:3000 and enter your DaaS URL + static token
+# 2. Navigate to "Forms/VForm DaaS Playground" → "Playground" story
+# 3. Select a collection from the dropdown and test
 ```
 
-This mode forwards all `/api/*` requests through Vite's development server proxy,
-completely avoiding CORS restrictions. All relational interfaces work correctly.
-
-**Authentication Options:**
-- **Static Token Tab**: Uses token from environment variable (automatic)
-- **Login Tab**: Enter email/password to get a JWT access token
-- Login-based auth overrides the static token for that session
+This mode forwards all `/api/*` requests from Storybook through Vite's dev proxy to the
+Next.js host app, which then proxies to DaaS. No CORS issues in dev or production.
 
 **Permission Enforcement:**
 - Enable "Enforce Field Permissions" in the Permission Settings accordion
 - Select form action: Create, Update, or Read
 - Fields will be filtered based on your actual DaaS permissions
 
-**Direct Mode (Manual Entry - CORS Warning):**
-
-If you don't use environment variables, you can enter DaaS credentials manually.
-Note: This may encounter CORS issues as the browser makes direct requests to DaaS.
+### Generating a Static Token
 
 ```bash
-# 1. Start VForm Storybook (without env vars)
-pnpm storybook:form
-
-# 2. Navigate to "Forms/VForm DaaS Playground" story
-
-# 3. Generate Static Token in DaaS:
-#    - Log into your DaaS instance as admin
-#    - Go to Users → Edit your user
-#    - Scroll to Token field → Click "Generate Token"
-#    - Copy the token (it won't be shown again!)
-#    - Click Save
-
-# 4. In Storybook Playground:
-#    - Enter DaaS URL: https://xxx.microbuild-daas.xtremax.com
-#    - Enter static token
-#    - Click Connect
-#    - Enter collection name (e.g., "interface_showcase")
-#    - Click Load Fields
-#    - Test VForm with real fields!
+# 1. Log into your DaaS instance as admin
+# 2. Go to Users → Edit your user
+# 3. Scroll to Token field → Click "Generate Token"
+# 4. Copy the token (it won't be shown again!)
+# 5. Click Save
+# 6. Enter the token in the storybook-host landing page
 ```
 
 ### Test Files Organization
@@ -352,7 +329,7 @@ webServer: {
 
 ```tsx
 // packages/ui-form/src/MyComponent.stories.tsx
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { VForm } from './VForm';
 
 const meta: Meta<typeof VForm> = {
@@ -444,16 +421,11 @@ pnpm storybook
 - Verify admin user exists in DaaS with correct email/password
 
 ### DaaS Playground connection issues
-- Ensure DaaS is accessible from browser
-- Generate a fresh static token (tokens may expire)
-- Check browser console for CORS errors
-- Try clearing localStorage:
-  ```js
-  // In browser console
-  localStorage.removeItem('storybook_daas_url');
-  localStorage.removeItem('storybook_daas_token');
-  localStorage.removeItem('storybook_daas_collection');
-  ```
+- Ensure the storybook-host app is running: `pnpm dev:host`
+- Check host app connection at `http://localhost:3000`
+- Generate a fresh static token in DaaS (tokens may expire)
+- Verify DaaS URL includes `https://` prefix
+- Check browser console for errors
 
 ### Tests timing out
 - Increase timeout in test: `test.setTimeout(60000)`

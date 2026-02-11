@@ -278,3 +278,88 @@ Or manually edit the copied component in your project. Since you own the code, y
 - [Model Context Protocol Documentation](https://modelcontextprotocol.io)
 - [pnpm Workspace Guide](https://pnpm.io/workspaces)
 - [shadcn/ui (inspiration)](https://ui.shadcn.com)
+
+## Hosting Storybook on AWS Amplify
+
+All four Storybooks are served by a **Next.js host app** (`apps/storybook-host`) that also provides a DaaS authentication proxy. The host app is deployed as a single Amplify application.
+
+All Storybooks use **Storybook 10** with `@storybook/nextjs-vite`.
+
+### What Gets Deployed
+
+| Path | Package | Content |
+|------|---------|---------|
+| `/` | storybook-host | Landing page with DaaS connection form + Storybook links |
+| `/storybook/interfaces/` | `@microbuild/ui-interfaces` | 40+ field interface components |
+| `/storybook/form/` | `@microbuild/ui-form` | VForm dynamic form component |
+| `/storybook/table/` | `@microbuild/ui-table` | VTable dynamic table component |
+| `/storybook/collections/` | `@microbuild/ui-collections` | CollectionForm & CollectionList |
+| `/api/connect` | storybook-host | Store DaaS credentials (encrypted cookie) |
+| `/api/status` | storybook-host | Check connection status |
+| `/api/[...path]` | storybook-host | Catch-all proxy to DaaS backend |
+
+### Architecture
+
+The host app solves the CORS problem that arises when Storybooks (static HTML) try to make API requests to a DaaS backend on a different origin:
+
+- **Development**: Storybook's Vite dev server proxies `/api/*` to the host app on `localhost:3000`
+- **Production**: Storybooks are served from `public/storybook/` inside the host app (same origin)
+
+DaaS credentials (URL + static token) are stored in an **AES-256-GCM encrypted httpOnly cookie**. The catch-all proxy route reads the cookie and forwards requests to DaaS with `Authorization: Bearer <token>`.
+
+### Setup
+
+1. **Connect repo:** AWS Amplify Console → **Host web app** → GitHub → select repo, branch `main`
+2. **Build settings:** Amplify auto-detects [amplify.yml](../amplify.yml) — no manual config needed
+3. **Environment variable (required):** Add `COOKIE_SECRET` in Amplify Console → Environment variables (any random string for encryption key)
+4. **Deploy:** Click **Save and deploy** → get a CDN URL like `https://main.d1234abcdef.amplifyapp.com`
+
+The build pipeline:
+1. Installs pnpm via corepack
+2. Runs `pnpm install --frozen-lockfile`
+3. Builds all 4 Storybooks into `apps/storybook-host/public/storybook/`
+4. Builds the Next.js host app with `output: 'standalone'`
+
+### Environment Variables
+
+| Variable | Value | Required |
+|----------|-------|----------|
+| `COOKIE_SECRET` | Any random string (encryption key) | Yes (for production) |
+
+No DaaS URL/token env vars are needed — users enter credentials at runtime through the landing page UI.
+
+### Local Preview
+
+```bash
+# Build all Storybooks + host app
+pnpm build:storybook
+pnpm build:host
+
+# Start production mode
+pnpm start:host
+```
+
+Or in development mode:
+
+```bash
+# Terminal 1: Start the host app
+pnpm dev:host
+
+# Terminal 2: Start any Storybook
+pnpm storybook:form
+```
+
+### Build Image & Node Version
+
+Use **Amazon Linux 2023** (default). If builds fail due to Node version, add a `.nvmrc` file with `20`.
+
+### Custom Domain
+
+Amplify Console → Domain management → **Add domain** → follow DNS verification. Free SSL included.
+
+### Amplify Troubleshooting
+
+- **Out of memory:** Increase compute to **Large** (7 GB) or add `export NODE_OPTIONS="--max-old-space-size=4096"` to preBuild
+- **pnpm not found:** Ensure preBuild has `corepack enable && corepack prepare pnpm@10.17.0 --activate`
+- **Blank page:** Verify `baseDirectory: apps/storybook-host` in `amplify.yml`
+- **DaaS proxy not working:** Ensure `COOKIE_SECRET` env var is set in Amplify Console

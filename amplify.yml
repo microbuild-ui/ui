@@ -1,0 +1,22 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - corepack enable
+        - corepack prepare pnpm@10.17.0 --activate
+        - pnpm install --frozen-lockfile
+    build:
+      commands:
+        # Build Storybooks into the host app's public directory
+        - bash scripts/build-storybooks.sh
+        # Build the Next.js host app (serves Storybooks + DaaS auth proxy)
+        - cd apps/storybook-host && npx next build
+  artifacts:
+    baseDirectory: apps/storybook-host
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - apps/storybook-host/.next/cache/**/*

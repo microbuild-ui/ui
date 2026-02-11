@@ -325,8 +325,10 @@ Microbuild uses Playwright for E2E testing with a two-tier strategy.
 
 ```bash
 # Terminal 1: Start VForm or VTable Storybook
-pnpm storybook:form    # VForm on port 6006
-pnpm storybook:table   # VTable on port 6007
+pnpm storybook:form          # VForm on port 6006
+pnpm storybook:table         # VTable on port 6007
+pnpm storybook:collections   # Collections on port 6008
+pnpm storybook               # Interfaces on port 6005
 
 # Terminal 2: Run Playwright tests
 pnpm test:storybook    # Run VForm Storybook tests
@@ -342,36 +344,34 @@ Storybook tests:
 - ✅ **All interface types** - Test any field configuration
 - ✅ **DaaS Playground** - Connect to real DaaS and test live schemas
 
-**DaaS Playground with Proxy Mode (Recommended):**
+**DaaS Playground with Storybook Host (Recommended):**
 
-Start Storybook with DaaS environment variables to enable API proxying (no CORS issues):
+The DaaS Playground uses a Next.js host app (`apps/storybook-host`) as an authentication proxy. This avoids CORS issues in both development and production.
 
 ```bash
-# Create .env.local file in packages/ui-form/
-STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com
-STORYBOOK_DAAS_TOKEN=your-static-token
+# Terminal 1: Start the host app (authentication proxy)
+pnpm dev:host
 
-# Or pass env vars directly
-STORYBOOK_DAAS_URL=https://xxx.microbuild-daas.xtremax.com \
-STORYBOOK_DAAS_TOKEN=your-token \
+# Terminal 2: Start Storybook (proxies API requests to host app)
 pnpm storybook:form
 ```
 
-This enables a Vite proxy that forwards `/api/*` requests to DaaS, allowing all relational interfaces (M2O, O2M, M2M, M2A) to work correctly.
+Then open the host app at `http://localhost:3000`, enter your DaaS URL and static token to connect. All Storybook API requests are proxied through the host app with credentials stored in an encrypted cookie.
 
 **DaaS Playground Features:**
 - **Authentication Display**: Shows current user info and admin status
 - **Permission Enforcement**: Test field-level permissions (create/update/read actions)
-- **Login Support**: Authenticate with email/password or static token
+- **Encrypted Credential Storage**: AES-256-GCM encrypted httpOnly cookies
 - **Real-time Testing**: Test with actual collection schemas and data
 
 **DaaS Playground Usage:**
-1. Start Storybook with proxy config (see above)
-2. Navigate to "Forms/VForm DaaS Playground" → "Playground" story
-3. Optionally login with email/password for JWT authentication
-4. Select a collection from the dropdown
-5. Enable "Enforce Field Permissions" to test permission filtering
-6. Test VForm with real fields including relational interfaces
+1. Start the host app: `pnpm dev:host`
+2. Open `http://localhost:3000` and connect to your DaaS instance
+3. Start Storybook: `pnpm storybook:form`
+4. Navigate to "Forms/VForm DaaS Playground" → "Playground" story
+5. Select a collection from the dropdown
+6. Enable "Enforce Field Permissions" to test permission filtering
+7. Test VForm with real fields including relational interfaces
 
 ### DaaS E2E Tests (Full integration testing)
 

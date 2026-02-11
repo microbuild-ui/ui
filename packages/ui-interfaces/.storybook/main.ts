@@ -1,5 +1,6 @@
-/** @type { import('@storybook/react-vite').StorybookConfig } */
-const config = {
+import type { StorybookConfig } from '@storybook/nextjs-vite';
+
+const config: StorybookConfig = {
   stories: [
     '../src/**/*.mdx',
     '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
@@ -7,10 +8,10 @@ const config = {
   addons: [
     '@storybook/addon-links',
     '@chromatic-com/storybook',
-    '@storybook/addon-docs'
+    '@storybook/addon-docs',
   ],
   framework: {
-    name: '@storybook/react-vite',
+    name: '@storybook/nextjs-vite',
     options: {},
   },
   docs: {},
@@ -30,4 +31,4 @@ const config = {
   },
 };
 
-module.exports = config;
+export default config;

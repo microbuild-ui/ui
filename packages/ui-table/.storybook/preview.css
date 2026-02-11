@@ -7,3 +7,7 @@ body {
 .sb-show-main {
   padding: 0 !important;
 }
+
+.sb-decorator-pad {
+  padding: 1rem;
+}
