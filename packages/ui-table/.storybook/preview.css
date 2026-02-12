@@ -1,13 +1,5 @@
-/* Storybook preview styles */
-
-body {
-  font-family: Inter, system-ui, sans-serif;
-}
-
-.sb-show-main {
-  padding: 0 !important;
-}
-
-.sb-decorator-pad {
+.storybook-wrapper {
   padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }

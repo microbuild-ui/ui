@@ -11,7 +11,7 @@ import {
   Badge,
   Divider,
   Select,
-  NumberInput,
+  Switch,
 } from '@mantine/core';
 import {
   IconPlugConnected,
@@ -22,18 +22,16 @@ import {
   IconShield,
   IconLock,
   IconExternalLink,
-  IconTable,
   IconDatabase,
 } from '@tabler/icons-react';
-import { VTable } from './VTable';
-import type { HeaderRaw, Item, Sort } from './types';
+import { CollectionForm } from './CollectionForm';
 import { DaaSProvider, useDaaSContext } from '@microbuild/services';
 
 /**
- * VTable - DaaS Connected Playground
+ * CollectionForm - DaaS Connected Playground
  *
- * This story connects to a real DaaS instance to fetch items and test
- * the VTable component with actual collection data.
+ * This story connects to a real DaaS instance to test CollectionForm
+ * with actual collection schemas and data.
  *
  * ## How It Works
  *
@@ -42,22 +40,22 @@ import { DaaSProvider, useDaaSContext } from '@microbuild/services';
  *
  * 1. Start the host: `pnpm dev:host`
  * 2. Visit http://localhost:3000 and enter your DaaS URL + static token
- * 3. Start this Storybook: `pnpm storybook:table`
- * 4. Open this story → select a collection → data loads from real DaaS
+ * 3. Start this Storybook: `pnpm storybook:collections`
+ * 4. Open this story → select a collection → form loads from real DaaS
  *
  * In production (Amplify), the Storybook is served from the same origin
  * as the host app, so the proxy works without any configuration.
  */
-const meta: Meta<typeof VTable> = {
-  title: 'Tables/VTable',
-  component: VTable,
+const meta: Meta<typeof CollectionForm> = {
+  title: 'Collections/CollectionForm',
+  component: CollectionForm,
   tags: ['!autodocs'],
   parameters: {
     layout: 'padded',
     docs: {
       description: {
         component:
-          'Connect VTable to a real DaaS instance and test with actual collection data. Authentication is handled by the Storybook Host app.',
+          'Connect CollectionForm to a real DaaS instance and test CRUD operations with actual collection schemas. Authentication is handled by the Storybook Host app.',
       },
     },
   },
@@ -100,16 +98,6 @@ async function checkConnection(): Promise<ConnectionStatus> {
   }
 }
 
-interface FieldInfo {
-  field: string;
-  type: string;
-  meta?: {
-    interface?: string;
-    hidden?: boolean;
-    width?: string;
-  };
-}
-
 async function fetchCollectionsFromDaaS(): Promise<string[]> {
   const response = await fetch('/api/collections', { cache: 'no-store' });
   if (!response.ok) {
@@ -118,38 +106,16 @@ async function fetchCollectionsFromDaaS(): Promise<string[]> {
   const data = await response.json();
   return (data.data || [])
     .map((c: { collection: string }) => c.collection)
-    .filter((name: string) => name === 'directus_users' || !name.startsWith('directus_'));
+    .filter((name: string) => !name.startsWith('directus_'));
 }
 
-async function fetchFieldsFromDaaS(collection: string): Promise<FieldInfo[]> {
-  const response = await fetch(`/api/fields/${collection}`, { cache: 'no-store' });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`API Error ${response.status}: ${text.slice(0, 200)}`);
-  }
-  const data = await response.json();
-  return data.data || [];
-}
-
-async function fetchItemsFromDaaS(
-  collection: string,
-  options: { limit?: number; offset?: number; sort?: string } = {},
-): Promise<{ items: Item[]; total: number }> {
-  const params = new URLSearchParams();
-  if (options.limit) params.set('limit', String(options.limit));
-  if (options.offset) params.set('offset', String(options.offset));
-  if (options.sort) params.set('sort', options.sort);
-  params.set('meta', 'total_count');
-
-  const response = await fetch(`/api/items/${collection}?${params.toString()}`, { cache: 'no-store' });
+async function fetchItemIdsFromDaaS(collection: string): Promise<(string | number)[]> {
+  const response = await fetch(`/api/items/${collection}?limit=20&fields=id`, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`Failed to fetch items: ${response.status}`);
   }
   const data = await response.json();
-  return {
-    items: data.data || [],
-    total: data.meta?.total_count || data.data?.length || 0,
-  };
+  return (data.data || []).map((item: { id: string | number }) => item.id);
 }
 
 // ============================================================================
@@ -210,29 +176,24 @@ const AuthStatus: React.FC = () => {
 };
 
 // ============================================================================
-// DaaS Table Playground
+// DaaS CollectionForm Playground
 // ============================================================================
 
-const DaaSTablePlayground: React.FC = () => {
-  const [items, setItems] = useState<Item[]>([]);
-  const [headers, setHeaders] = useState<HeaderRaw[]>([]);
-  const [activeCollection, setActiveCollection] = useState('');
-  const [totalItems, setTotalItems] = useState(0);
-
+const DaaSFormPlayground: React.FC = () => {
   const [collection, setCollection] = useState(() =>
-    localStorage.getItem('storybook_daas_table_collection') || 'interface_showcase',
+    localStorage.getItem('storybook_daas_colform_collection') || 'interface_showcase',
   );
   const [collections, setCollections] = useState<string[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Table state
-  const [selectedItems, setSelectedItems] = useState<unknown[]>([]);
-  const [sort, setSort] = useState<Sort | null>(null);
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showSelect, setShowSelect] = useState<'none' | 'one' | 'multiple'>('multiple');
+  // Form controls
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [itemIds, setItemIds] = useState<(string | number)[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<string>('');
+  const [formKey, setFormKey] = useState(0);
+  const [showForm, setShowForm] = useState(false);
 
   // Check connection and load collections on mount
   useEffect(() => {
@@ -256,48 +217,29 @@ const DaaSTablePlayground: React.FC = () => {
 
   // Persist selected collection
   useEffect(() => {
-    localStorage.setItem('storybook_daas_table_collection', collection);
+    localStorage.setItem('storybook_daas_colform_collection', collection);
   }, [collection]);
 
-  const loadData = useCallback(async () => {
+  const handleLoadCollection = useCallback(async () => {
     if (!collection) return;
     setIsLoading(true);
     setError(null);
 
     try {
-      // Fetch fields to generate headers
-      const fields = await fetchFieldsFromDaaS(collection);
-
-      const newHeaders: HeaderRaw[] = fields
-        .filter((f) => !f.meta?.hidden && f.field !== 'id')
-        .slice(0, 8)
-        .map((f) => ({
-          text: f.field.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-          value: f.field,
-          sortable: true,
-          width: f.meta?.width === 'full' ? 300 : f.meta?.width === 'half' ? 200 : 150,
-        }));
-
-      newHeaders.unshift({ text: 'ID', value: 'id', sortable: true, width: 80 });
-
-      const sortString = sort ? `${sort.desc ? '-' : ''}${sort.by}` : undefined;
-      const { items: fetchedItems, total } = await fetchItemsFromDaaS(collection, {
-        limit: pageSize,
-        offset: (currentPage - 1) * pageSize,
-        sort: sortString,
-      });
-
-      setHeaders(newHeaders);
-      setItems(fetchedItems);
-      setActiveCollection(collection);
-      setTotalItems(total);
-      setSelectedItems([]);
+      // Fetch item IDs for edit mode
+      const ids = await fetchItemIdsFromDaaS(collection);
+      setItemIds(ids);
+      if (ids.length > 0) {
+        setSelectedItemId(String(ids[0]));
+      }
+      setShowForm(true);
+      setFormKey((k) => k + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load data');
+      setError(err instanceof Error ? err.message : 'Failed to load collection');
     } finally {
       setIsLoading(false);
     }
-  }, [collection, pageSize, currentPage, sort]);
+  }, [collection]);
 
   const handleRefreshConnection = useCallback(async () => {
     setIsLoading(true);
@@ -314,26 +256,6 @@ const DaaSTablePlayground: React.FC = () => {
     }
     setIsLoading(false);
   }, []);
-
-  const handleSortChange = (newSort: Sort | null) => {
-    setSort(newSort);
-    setCurrentPage(1);
-  };
-
-  const handleSelect = (item: Item) => {
-    const itemId = item.id as string | number;
-    if (showSelect === 'one') {
-      setSelectedItems((selectedItems as (string | number)[]).includes(itemId) ? [] : [itemId]);
-    } else if (showSelect === 'multiple') {
-      setSelectedItems(
-        (selectedItems as (string | number)[]).includes(itemId)
-          ? (selectedItems as (string | number)[]).filter((id) => id !== itemId)
-          : [...selectedItems, itemId],
-      );
-    }
-  };
-
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
 
   // ── Loading state ──
   if (isLoading && !connectionStatus) {
@@ -420,7 +342,7 @@ pnpm dev:host
         {/* Collection Picker */}
         <Paper p="md" withBorder>
           <Stack gap="md">
-            <Divider label="Load Collection Data" labelPosition="center" />
+            <Divider label="Load Collection" labelPosition="center" />
 
             {collections.length > 0 ? (
               <Select
@@ -428,7 +350,10 @@ pnpm dev:host
                 placeholder="Select a collection..."
                 data={collections}
                 value={collection}
-                onChange={(val) => setCollection(val || '')}
+                onChange={(val) => {
+                  setCollection(val || '');
+                  setShowForm(false);
+                }}
                 searchable
                 description={`${collections.length} collections available`}
                 leftSection={<IconDatabase size={16} />}
@@ -441,32 +366,24 @@ pnpm dev:host
 
             <Group>
               <Button
-                onClick={loadData}
+                onClick={handleLoadCollection}
                 loading={isLoading}
                 leftSection={<IconCloudDownload size={16} />}
                 disabled={!collection}
               >
-                Load Data
+                Load Collection
               </Button>
 
-              {headers.length > 0 && (
+              {showForm && (
                 <Button
                   variant="light"
-                  onClick={loadData}
+                  onClick={handleLoadCollection}
                   leftSection={<IconRefresh size={16} />}
                 >
                   Refresh
                 </Button>
               )}
             </Group>
-
-            {headers.length > 0 && (
-              <Alert color="green" title={`Loaded ${headers.length} columns, ${totalItems} items from "${activeCollection}"`}>
-                <Code block style={{ fontSize: '11px', maxHeight: '100px', overflow: 'auto' }}>
-                  {headers.map((h) => h.value).join(', ')}
-                </Code>
-              </Alert>
-            )}
           </Stack>
         </Paper>
 
@@ -476,127 +393,65 @@ pnpm dev:host
           </Alert>
         )}
 
-        {/* Table + Settings */}
-        {headers.length > 0 ? (
+        {/* Form Controls + Rendering */}
+        {showForm ? (
           <>
-            {/* Table Settings */}
             <Paper p="md" withBorder>
-              <Group gap="xl">
-                <Select
-                  label="Selection Mode"
-                  data={[
-                    { value: 'none', label: 'No Selection' },
-                    { value: 'one', label: 'Single Selection' },
-                    { value: 'multiple', label: 'Multiple Selection' },
-                  ]}
-                  value={showSelect}
-                  onChange={(val) => setShowSelect(val as 'none' | 'one' | 'multiple')}
-                  style={{ width: 180 }}
-                />
+              <Stack gap="md">
+                <Divider label="Form Settings" labelPosition="center" />
 
-                <NumberInput
-                  label="Page Size"
-                  value={pageSize}
-                  onChange={(val) => {
-                    setPageSize(Number(val) || 10);
-                    setCurrentPage(1);
-                  }}
-                  min={5}
-                  max={100}
-                  step={5}
-                  style={{ width: 100 }}
-                />
+                <Group gap="xl">
+                  <Switch
+                    label="Edit Mode"
+                    description={formMode === 'edit' ? 'Editing existing item' : 'Creating new item'}
+                    checked={formMode === 'edit'}
+                    onChange={(e) => {
+                      setFormMode(e.currentTarget.checked ? 'edit' : 'create');
+                      setFormKey((k) => k + 1);
+                    }}
+                  />
 
-                <Stack gap={4}>
-                  <Text size="sm" fw={500}>Pagination</Text>
-                  <Group gap="xs">
-                    <Button
-                      size="xs"
-                      variant="light"
-                      disabled={currentPage <= 1}
-                      onClick={() => setCurrentPage((p) => p - 1)}
-                    >
-                      Prev
-                    </Button>
-                    <Text size="sm">
-                      Page {currentPage} of {totalPages || 1}
-                    </Text>
-                    <Button
-                      size="xs"
-                      variant="light"
-                      disabled={currentPage >= totalPages}
-                      onClick={() => setCurrentPage((p) => p + 1)}
-                    >
-                      Next
-                    </Button>
-                  </Group>
-                </Stack>
-              </Group>
-            </Paper>
-
-            {/* Selection Status */}
-            {showSelect !== 'none' && (
-              <Text size="sm" c="dimmed">
-                Selected: {selectedItems.length} item{selectedItems.length !== 1 ? 's' : ''}
-                {selectedItems.length > 0 && (
-                  <>
-                    {' '}— IDs: {selectedItems.slice(0, 5).join(', ')}
-                    {selectedItems.length > 5 ? '...' : ''}
-                  </>
-                )}
-              </Text>
-            )}
-
-            {/* Table */}
-            <Paper p="md" withBorder>
-              <Group justify="space-between" mb="md">
-                <Group gap="xs">
-                  <IconTable size={20} />
-                  <Text fw={600}>Table: {activeCollection}</Text>
+                  {formMode === 'edit' && itemIds.length > 0 && (
+                    <Select
+                      label="Item ID"
+                      placeholder="Select an item..."
+                      data={itemIds.map((id) => ({ value: String(id), label: String(id) }))}
+                      value={selectedItemId}
+                      onChange={(val) => {
+                        setSelectedItemId(val || '');
+                        setFormKey((k) => k + 1);
+                      }}
+                      description={`${itemIds.length} items available`}
+                      style={{ width: 200 }}
+                    />
+                  )}
                 </Group>
-                <Badge color="blue">{totalItems} total items</Badge>
-              </Group>
-
-              <VTable
-                headers={headers}
-                items={items}
-                showSelect={showSelect}
-                value={selectedItems}
-                sort={sort}
-                onItemSelected={({ item }) => handleSelect(item)}
-                onUpdate={setSelectedItems}
-                onSortChange={handleSortChange}
-                itemKey="id"
-                fixedHeader
-              />
+              </Stack>
             </Paper>
 
-            {/* Current Sort */}
-            {sort && (
-              <Paper p="sm" withBorder>
-                <Text size="sm">
-                  <strong>Current Sort:</strong> {sort.by} ({sort.desc ? 'descending' : 'ascending'})
-                </Text>
-              </Paper>
-            )}
-
-            {/* Raw Data Preview */}
             <Paper p="md" withBorder>
-              <Text fw={600} mb="sm">
-                Raw Data {items.length > 0 ? `(first ${Math.min(3, items.length)} items)` : '(empty collection)'}:
+              <Text fw={600} mb="md">
+                📝 {formMode === 'create' ? 'Create' : 'Edit'}: {collection}
               </Text>
-              <Code block style={{ fontSize: '11px', maxHeight: '200px', overflow: 'auto' }}>
-                {items.length > 0 ? JSON.stringify(items.slice(0, 3), null, 2) : '[]'}
-              </Code>
+              <CollectionForm
+                key={formKey}
+                collection={collection}
+                mode={formMode}
+                id={formMode === 'edit' ? selectedItemId : undefined}
+                onSuccess={(data) => {
+                  console.log('[CollectionForm] Success:', data);
+                }}
+              />
             </Paper>
           </>
         ) : (
           <Alert color="blue" title="Select a Collection" icon={<IconDatabase size={16} />}>
             <Text size="sm">
-              Select a collection from the dropdown and click &quot;Load Data&quot; to see the table.
+              Select a collection from the dropdown and click &quot;Load Collection&quot; to see the form.
             </Text>
             <Text size="sm" mt="xs">
-              <strong>Tip:</strong> The <Code>directus_users</Code> collection has sample data for testing.
+              <strong>Tip:</strong> The <Code>interface_showcase</Code> collection has
+              diverse field types for testing.
             </Text>
           </Alert>
         )}
@@ -605,18 +460,14 @@ pnpm dev:host
   );
 };
 
-// ============================================================================
-// Story Export
-// ============================================================================
-
 /**
  * DaaS Connected Playground
  *
- * Connect to a real DaaS instance and test VTable with actual collection data.
- * Features pagination, sorting, and selection.
+ * Connect to a real DaaS instance and test CollectionForm with actual
+ * collection schemas. Supports both create and edit modes.
  */
-export const Playground: StoryObj<typeof VTable> = {
-  render: () => <DaaSTablePlayground />,
+export const Playground: StoryObj<typeof CollectionForm> = {
+  render: () => <DaaSFormPlayground />,
   parameters: {
     docs: {
       description: {
@@ -634,14 +485,14 @@ This playground uses the **Storybook Host** app as an authentication proxy:
 ### Getting Started
 
 \`\`\`bash
-pnpm dev:host          # Start the host app (port 3000)
+pnpm dev:host               # Start the host app (port 3000)
 # Visit http://localhost:3000 to configure DaaS connection
-pnpm storybook:table   # Start this Storybook (port 6007)
+pnpm storybook:collections  # Start this Storybook (port 6008)
 \`\`\`
 
 ### Production (AWS Amplify)
 
-When deployed, the built Storybook is served from \`/storybook/table/\` on the
+When deployed, the built Storybook is served from \`/storybook/collections/\` on the
 same origin as the host app — no proxy configuration needed.
         `,
       },

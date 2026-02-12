@@ -11,8 +11,6 @@ import {
   Badge,
   Divider,
   Select,
-  Switch,
-  Accordion,
 } from '@mantine/core';
 import {
   IconPlugConnected,
@@ -23,17 +21,17 @@ import {
   IconShield,
   IconLock,
   IconExternalLink,
+  IconDatabase,
+  IconList,
 } from '@tabler/icons-react';
-import { VForm } from './VForm';
-import type { Field } from '@microbuild/types';
-import type { FieldValues } from './types';
+import { CollectionList } from './CollectionList';
 import { DaaSProvider, useDaaSContext } from '@microbuild/services';
 
 /**
- * VForm - DaaS Connected Playground
+ * CollectionList - DaaS Connected Playground
  *
- * This story connects to a real DaaS instance to fetch fields and test
- * the VForm component with actual collection schemas.
+ * This story connects to a real DaaS instance to test CollectionList
+ * with actual collection data.
  *
  * ## How It Works
  *
@@ -42,22 +40,22 @@ import { DaaSProvider, useDaaSContext } from '@microbuild/services';
  *
  * 1. Start the host: `pnpm dev:host`
  * 2. Visit http://localhost:3000 and enter your DaaS URL + static token
- * 3. Start this Storybook: `pnpm storybook:form`
- * 4. Open this story → select a collection → fields load from real DaaS
+ * 3. Start this Storybook: `pnpm storybook:collections`
+ * 4. Open this story → select a collection → list loads from real DaaS
  *
  * In production (Amplify), the Storybook is served from the same origin
  * as the host app, so the proxy works without any configuration.
  */
-const meta: Meta<typeof VForm> = {
-  title: 'Forms/VForm',
-  component: VForm,
+const meta: Meta<typeof CollectionList> = {
+  title: 'Collections/CollectionList',
+  component: CollectionList,
   tags: ['!autodocs'],
   parameters: {
     layout: 'padded',
     docs: {
       description: {
         component:
-          'Connect VForm to a real DaaS instance and test with actual collection schemas. Authentication is handled by the Storybook Host app.',
+          'Connect CollectionList to a real DaaS instance and browse collection data with search, pagination, and selection. Authentication is handled by the Storybook Host app.',
       },
     },
   },
@@ -100,16 +98,6 @@ async function checkConnection(): Promise<ConnectionStatus> {
   }
 }
 
-async function fetchFieldsFromDaaS(collection: string): Promise<Field[]> {
-  const response = await fetch(`/api/fields/${collection}`, { cache: 'no-store' });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`API Error ${response.status}: ${text.slice(0, 200)}`);
-  }
-  const data = await response.json();
-  return data.data || [];
-}
-
 async function fetchCollectionsFromDaaS(): Promise<string[]> {
   const response = await fetch('/api/collections', { cache: 'no-store' });
   if (!response.ok) {
@@ -117,7 +105,7 @@ async function fetchCollectionsFromDaaS(): Promise<string[]> {
   }
   const data = await response.json();
   return (data.data || [])
-    .map((c: any) => c.collection)
+    .map((c: { collection: string }) => c.collection)
     .filter((name: string) => !name.startsWith('directus_'));
 }
 
@@ -179,22 +167,19 @@ const AuthStatus: React.FC = () => {
 };
 
 // ============================================================================
-// DaaS Playground
+// DaaS CollectionList Playground
 // ============================================================================
 
-const DaaSPlayground: React.FC = () => {
-  const [fields, setFields] = useState<Field[]>([]);
+const DaaSListPlayground: React.FC = () => {
   const [collection, setCollection] = useState(() =>
-    localStorage.getItem('storybook_daas_collection') || 'interface_showcase'
+    localStorage.getItem('storybook_daas_collist_collection') || 'interface_showcase',
   );
-  const [values, setValues] = useState<FieldValues>({});
   const [collections, setCollections] = useState<string[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [enforcePermissions, setEnforcePermissions] = useState(false);
-  const [formAction, setFormAction] = useState<'create' | 'update' | 'read'>('create');
-  const [accessibleFields, setAccessibleFields] = useState<string[]>([]);
+  const [showList, setShowList] = useState(false);
+  const [listKey, setListKey] = useState(0);
 
   // Check connection and load collections on mount
   useEffect(() => {
@@ -206,11 +191,6 @@ const DaaSPlayground: React.FC = () => {
         try {
           const cols = await fetchCollectionsFromDaaS();
           setCollections(cols);
-
-          if (collection && cols.includes(collection)) {
-            const loadedFields = await fetchFieldsFromDaaS(collection);
-            setFields(loadedFields);
-          }
         } catch (err) {
           setError(err instanceof Error ? err.message : 'Failed to load collections');
         }
@@ -219,28 +199,17 @@ const DaaSPlayground: React.FC = () => {
       setIsLoading(false);
     };
     init();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Persist selected collection
   useEffect(() => {
-    localStorage.setItem('storybook_daas_collection', collection);
+    localStorage.setItem('storybook_daas_collist_collection', collection);
   }, [collection]);
 
   const handleLoadCollection = useCallback(async () => {
     if (!collection) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const loadedFields = await fetchFieldsFromDaaS(collection);
-      setFields(loadedFields);
-      setValues({});
-      setAccessibleFields([]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load fields');
-    } finally {
-      setIsLoading(false);
-    }
+    setShowList(true);
+    setListKey((k) => k + 1);
   }, [collection]);
 
   const handleRefreshConnection = useCallback(async () => {
@@ -257,10 +226,6 @@ const DaaSPlayground: React.FC = () => {
       }
     }
     setIsLoading(false);
-  }, []);
-
-  const handlePermissionsLoaded = useCallback((perms: string[]) => {
-    setAccessibleFields(perms);
   }, []);
 
   // ── Loading state ──
@@ -356,9 +321,13 @@ pnpm dev:host
                 placeholder="Select a collection..."
                 data={collections}
                 value={collection}
-                onChange={(val) => setCollection(val || '')}
+                onChange={(val) => {
+                  setCollection(val || '');
+                  setShowList(false);
+                }}
                 searchable
                 description={`${collections.length} collections available`}
+                leftSection={<IconDatabase size={16} />}
               />
             ) : (
               <Alert color="yellow">
@@ -373,10 +342,10 @@ pnpm dev:host
                 leftSection={<IconCloudDownload size={16} />}
                 disabled={!collection}
               >
-                Load Fields
+                Load Collection
               </Button>
 
-              {fields.length > 0 && (
+              {showList && (
                 <Button
                   variant="light"
                   onClick={handleLoadCollection}
@@ -386,16 +355,6 @@ pnpm dev:host
                 </Button>
               )}
             </Group>
-
-            {fields.length > 0 && (
-              <Alert color="green" title={`Loaded ${fields.length} fields from "${collection}"`}>
-                <Code block style={{ fontSize: '11px', maxHeight: '100px', overflow: 'auto' }}>
-                  {fields
-                    .map((f) => `${f.field} (${f.type} → ${f.meta?.interface || 'auto'})`)
-                    .join('\n')}
-                </Code>
-              </Alert>
-            )}
           </Stack>
         </Paper>
 
@@ -405,85 +364,32 @@ pnpm dev:host
           </Alert>
         )}
 
-        {/* Form + Permission Settings */}
-        {fields.length > 0 ? (
-          <>
-            <Accordion>
-              <Accordion.Item value="permissions">
-                <Accordion.Control icon={<IconShield size={16} />}>
-                  Permission Settings
-                </Accordion.Control>
-                <Accordion.Panel>
-                  <Stack gap="md">
-                    <Switch
-                      label="Enforce Field Permissions"
-                      description="When enabled, only fields you have permission to access will be shown."
-                      checked={enforcePermissions}
-                      onChange={(e) => setEnforcePermissions(e.currentTarget.checked)}
-                    />
-
-                    <Select
-                      label="Form Action"
-                      description="The action type determines which permissions are checked"
-                      data={[
-                        { value: 'create', label: 'Create - Check create permissions' },
-                        { value: 'update', label: 'Update - Check update permissions' },
-                        { value: 'read', label: 'Read - Check read permissions' },
-                      ]}
-                      value={formAction}
-                      onChange={(val) =>
-                        setFormAction(val as 'create' | 'update' | 'read')
-                      }
-                    />
-
-                    {enforcePermissions && accessibleFields.length > 0 && (
-                      <Alert color="blue" icon={<IconShield size={16} />}>
-                        <Text size="sm" fw={600}>
-                          {accessibleFields.includes('*')
-                            ? 'Full field access (admin or wildcard permission)'
-                            : `${accessibleFields.length} fields accessible for ${formAction}`}
-                        </Text>
-                        {!accessibleFields.includes('*') && (
-                          <Code block style={{ fontSize: '11px', marginTop: '8px' }}>
-                            {accessibleFields.join(', ')}
-                          </Code>
-                        )}
-                      </Alert>
-                    )}
-                  </Stack>
-                </Accordion.Panel>
-              </Accordion.Item>
-            </Accordion>
-
-            <Paper p="md" withBorder>
-              <Text fw={600} mb="md">📝 Form: {collection}</Text>
-              <VForm
-                fields={fields}
-                modelValue={values}
-                onUpdate={setValues}
-                primaryKey={formAction === 'create' ? '+' : '1'}
-                collection={collection}
-                action={formAction}
-                enforcePermissions={enforcePermissions}
-                onPermissionsLoaded={handlePermissionsLoaded}
-              />
-            </Paper>
-
-            <Paper p="md" withBorder>
-              <Text fw={600} mb="sm">Current Form Values:</Text>
-              <Code block style={{ fontSize: '12px' }}>
-                {JSON.stringify(values, null, 2)}
-              </Code>
-            </Paper>
-          </>
+        {/* Collection List */}
+        {showList ? (
+          <Paper p="md" withBorder>
+            <Group gap="xs" mb="md">
+              <IconList size={20} />
+              <Text fw={600}>List: {collection}</Text>
+            </Group>
+            <CollectionList
+              key={listKey}
+              collection={collection}
+              enableSearch
+              enableSelection
+              limit={15}
+              onItemClick={(item) => {
+                console.log('[CollectionList] Item clicked:', item);
+              }}
+            />
+          </Paper>
         ) : (
-          <Alert color="blue" title="Select a Collection">
+          <Alert color="blue" title="Select a Collection" icon={<IconDatabase size={16} />}>
             <Text size="sm">
-              Select a collection from the dropdown and click Load Fields to see the form.
+              Select a collection from the dropdown and click &quot;Load Collection&quot; to see the list.
             </Text>
             <Text size="sm" mt="xs">
               <strong>Tip:</strong> The <Code>interface_showcase</Code> collection has
-              diverse field types including relational fields.
+              diverse field types for testing.
             </Text>
           </Alert>
         )}
@@ -495,10 +401,11 @@ pnpm dev:host
 /**
  * DaaS Connected Playground
  *
- * Connect to a real DaaS instance and test VForm with actual collection schemas.
+ * Connect to a real DaaS instance and browse collection data with
+ * search, pagination, and selection.
  */
-export const Playground: StoryObj<typeof VForm> = {
-  render: () => <DaaSPlayground />,
+export const Playground: StoryObj<typeof CollectionList> = {
+  render: () => <DaaSListPlayground />,
   parameters: {
     docs: {
       description: {
@@ -516,23 +423,15 @@ This playground uses the **Storybook Host** app as an authentication proxy:
 ### Getting Started
 
 \`\`\`bash
-pnpm dev:host          # Start the host app (port 3000)
+pnpm dev:host               # Start the host app (port 3000)
 # Visit http://localhost:3000 to configure DaaS connection
-pnpm storybook:form    # Start this Storybook (port 6006)
+pnpm storybook:collections  # Start this Storybook (port 6008)
 \`\`\`
 
 ### Production (AWS Amplify)
 
-When deployed, the built Storybook is served from \`/storybook/form/\` on the
+When deployed, the built Storybook is served from \`/storybook/collections/\` on the
 same origin as the host app — no proxy configuration needed.
-
-### Permission Enforcement
-
-Enable "Enforce Field Permissions" to test RBAC:
-
-- **Field-Level Permissions**: Only show fields the user can access
-- **Action-Based Filtering**: Different fields for create vs update vs read
-- **Admin Bypass**: Admins see all fields regardless of permissions
         `,
       },
     },

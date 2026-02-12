@@ -10,7 +10,7 @@ const meta = {
       description: {
         component:
           'A dynamic list/table that fetches items from a collection. ' +
-          'Requires a DaaS backend connection — configure STORYBOOK_DAAS_URL to test with live data.',
+          'Requires a DaaS backend connection — start the host app (`pnpm dev:host`) and connect at http://localhost:3000.',
       },
     },
   },
@@ -36,7 +36,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Basic list — requires STORYBOOK_DAAS_URL proxy to fetch items from the backend.
+ * Basic list — requires Storybook Host app running to proxy API requests.
+ * Start with `pnpm dev:host`, then connect at http://localhost:3000.
  */
 export const BasicList: Story = {
   args: {

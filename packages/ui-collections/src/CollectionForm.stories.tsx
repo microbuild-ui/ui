@@ -10,7 +10,7 @@ const meta = {
       description: {
         component:
           'A CRUD wrapper around VForm that handles data fetching and persistence. ' +
-          'Requires a DaaS backend connection — configure STORYBOOK_DAAS_URL to test with live data.',
+          'Requires a DaaS backend connection — start the host app (`pnpm dev:host`) and connect at http://localhost:3000.',
       },
     },
   },
@@ -34,7 +34,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Create mode — requires STORYBOOK_DAAS_URL proxy to fetch fields from the backend.
+ * Create mode — requires Storybook Host app running to proxy API requests.
+ * Start with `pnpm dev:host`, then connect at http://localhost:3000.
  */
 export const CreateMode: Story = {
   args: {
@@ -44,7 +45,8 @@ export const CreateMode: Story = {
 };
 
 /**
- * Edit mode — requires STORYBOOK_DAAS_URL proxy to fetch fields and item data.
+ * Edit mode — requires Storybook Host app running to proxy API requests.
+ * Start with `pnpm dev:host`, then connect at http://localhost:3000.
  */
 export const EditMode: Story = {
   args: {

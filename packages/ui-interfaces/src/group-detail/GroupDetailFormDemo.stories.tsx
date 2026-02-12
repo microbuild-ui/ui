@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { GroupDetailFormDemo } from './GroupDetailFormDemo';
 
 const meta: Meta<typeof GroupDetailFormDemo> = {
-  title: 'Interfaces/GroupDetail/FormDemo',
+  title: 'Interfaces/GroupDetail',
   component: GroupDetailFormDemo,
-  tags: ['autodocs'],
+  tags: ['!autodocs'],
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -35,7 +35,7 @@ This demo demonstrates:
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const FormDemo: Story = {
   parameters: {
     docs: {
       description: {

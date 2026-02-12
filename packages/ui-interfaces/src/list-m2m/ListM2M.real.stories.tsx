@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { ListM2M } from '../';
 
 const meta: Meta<typeof ListM2M> = {
-  title: 'Interfaces/ListM2M/Real Directus Data',
+  title: 'Interfaces/ListM2M',
   component: ListM2M,
+  tags: ['!autodocs'],
   parameters: {
     layout: 'padded',
     docs: {
