@@ -151,11 +151,10 @@ export default function HomePage() {
         <div className="hero-panel">
           <div className="code-card">
             <div className="code-title">Quick Start</div>
-            <pre>{`pnpm install
-pnpm build
-pnpm dev:host
-pnpm storybook:form`}</pre>
-            <div className="code-foot">Launch the host app, then open Storybook.</div>
+            <pre>{`npx @microbuild/cli@latest init
+npx @microbuild/cli@latest add collection-form
+npx @microbuild/cli@latest bootstrap`}</pre>
+            <div className="code-foot">Add components to any Next.js project.</div>
           </div>
           <div className="signal-strip">
             <div>

@@ -15,12 +15,15 @@ microbuild list                    # List all components with categories
 microbuild list --json             # JSON output for programmatic use
 microbuild list --category input   # Filter by category
 microbuild info <component>        # Get full details about a component
+microbuild info <component> --json # JSON output
 microbuild tree <component>        # Show dependency tree
 microbuild add <component>         # Add component to project
 microbuild add --all               # Add all components (non-interactive)
+microbuild diff <component>        # Preview changes before adding
 microbuild bootstrap               # Full setup: init + add --all + deps + validate
 microbuild bootstrap --cwd <path>  # Bootstrap in a specific directory
 microbuild status                  # Show installed components
+microbuild status --json           # JSON output for scripting
 microbuild validate                # Validate installation (imports, SSR, missing files)
 microbuild validate --json         # JSON output for CI/CD
 microbuild fix                     # Auto-fix common issues
@@ -32,8 +35,9 @@ microbuild outdated                # Check for component updates
 ### Source Packages (for reading code)
 | Package | Path | Contains |
 |---------|------|----------|
-| **ui-interfaces** | `packages/ui-interfaces/src/` | 32+ interface components (input, select, datetime, etc.) |
+| **ui-interfaces** | `packages/ui-interfaces/src/` | 31 interface components (input, select, datetime, etc.) |
 | **ui-form** | `packages/ui-form/src/` | VForm dynamic form component with permission enforcement |
+| **ui-table** | `packages/ui-table/src/` | VTable dynamic table component with DaaS playground |
 | **ui-collections** | `packages/ui-collections/src/` | CollectionForm, CollectionList |
 | **types** | `packages/types/src/` | TypeScript type definitions |
 | **services** | `packages/services/src/` | API services (ItemsService, DaaSProvider, etc.) |
@@ -46,6 +50,7 @@ microbuild outdated                # Check for component updates
 | Component | Source Path | Description |
 |-----------|-------------|-------------|
 | `vform` | `packages/ui-form/src/VForm.tsx` | Dynamic form - renders all 40+ interface types |
+| `vtable` | `packages/ui-table/src/VTable.tsx` | Dynamic table with sorting, selection, drag-drop |
 | `collection-form` | `packages/ui-collections/src/CollectionForm.tsx` | CRUD wrapper with data fetching (uses VForm) |
 | `collection-list` | `packages/ui-collections/src/CollectionList.tsx` | Dynamic table with pagination |
 

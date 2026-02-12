@@ -318,7 +318,7 @@ The build pipeline:
 1. Installs pnpm via corepack
 2. Runs `pnpm install --frozen-lockfile`
 3. Builds all 4 Storybooks into `apps/storybook-host/public/storybook/`
-4. Builds the Next.js host app with `output: 'standalone'`
+4. Builds the Next.js host app (Amplify handles deployment natively)
 
 ### Environment Variables
 

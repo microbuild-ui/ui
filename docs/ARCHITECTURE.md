@@ -98,10 +98,12 @@
 │       ├─────────────────────────────────────────────────────┤      │
 │       │ tests/                                              │      │
 │       │   ├── auth.setup.ts    (Authentication setup)       │      │
-│       │   └── ui-form/                                      │      │
-│       │       ├── vform-storybook.spec.ts (Storybook tests) │      │
-│       │       ├── vform-daas.spec.ts (DaaS integration)     │      │
-│       │       └── vform.spec.ts (Full E2E workflow)         │      │
+│       │   ├── ui-form/                                      │      │
+│       │   │   ├── vform-storybook.spec.ts (Storybook tests) │      │
+│       │   │   ├── vform-daas.spec.ts (DaaS integration)     │      │
+│       │   │   └── vform.spec.ts (Full E2E workflow)         │      │
+│       │   └── ui-table/                                     │      │
+│       │       └── vtable-storybook.spec.ts (22 tests)       │      │
 │       │                                                     │      │
 │       │ Tier 1: Storybook (isolated, no auth, with proxy)   │      │
 │       │ Tier 2: DaaS E2E (real API, auth, permissions)      │      │
@@ -198,10 +200,10 @@ The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy
 │  │ 2. bash scripts/build-storybooks.sh                         │     │
 │  │    → Build 4 Storybooks to apps/storybook-host/public/      │     │
 │  │ 3. cd apps/storybook-host && npx next build                 │     │
-│  │    → Build Next.js host app (output: standalone)            │     │
+│  │    → Build Next.js host app (Amplify handles natively)      │     │
 │  └─────────────────────────────────────────────────────────────┘     │
 │                                                                        │
-│  Artifacts: apps/storybook-host/**/*                                  │
+│  Artifacts: apps/storybook-host/.next/**/*                            │
 │                                                                        │
 │  Routes Served:                                                        │
 │  ┌─────────────────────────────────────────────────────────────┐     │
