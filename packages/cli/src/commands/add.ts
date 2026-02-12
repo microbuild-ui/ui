@@ -26,8 +26,6 @@ import {
   resolveSourceFile,
   sourceFileExists,
   type Registry,
-  type FileMapping,
-  type LibModule,
   type ComponentEntry,
 } from '../resolver.js';
 
