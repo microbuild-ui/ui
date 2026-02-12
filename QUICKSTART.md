@@ -87,6 +87,15 @@ npx @microbuild/cli@latest list
 
 # Bootstrap everything at once
 npx @microbuild/cli@latest bootstrap
+
+# Show component details
+npx @microbuild/cli@latest info vform
+
+# Dependency tree visualization
+npx @microbuild/cli@latest tree collection-form
+
+# Check for updates
+npx @microbuild/cli@latest outdated
 ```
 
 ### Option 2: Use from Workspace (Development)
@@ -200,6 +209,32 @@ microbuild list --category input
 microbuild list --json
 ```
 
+### View Component Details
+
+```bash
+# Detailed info about a component
+microbuild info vform
+microbuild info input
+
+# JSON output
+microbuild info vform --json
+```
+
+### Show Dependency Tree
+
+```bash
+# Visualize dependency tree
+microbuild tree collection-form
+microbuild tree vform
+```
+
+### Preview Changes Before Adding
+
+```bash
+# Diff between registry and local version
+microbuild diff input
+```
+
 ### Check Installed Components
 
 ```bash
@@ -234,6 +269,27 @@ The validate command checks for:
 - **Missing CSS files** - CSS required by rich text/block editors
 - **SSR issues** - Components exported without SSR-safe wrappers
 - **Missing API routes** - DaaS integration routes not created
+
+### Auto-Fix Issues
+
+```bash
+# Auto-fix common issues found by validate
+microbuild fix
+```
+
+The fix command auto-repairs:
+- Untransformed `@microbuild/*` imports
+- Broken relative imports
+- Missing CSS files
+- SSR-unsafe exports
+- Duplicate exports
+
+### Check for Component Updates
+
+```bash
+# Check which installed components have newer versions
+microbuild outdated
+```
 
 ## 🧪 Testing the Setup
 
@@ -331,9 +387,10 @@ pnpm storybook:collections   # Collections on port 6008
 pnpm storybook               # Interfaces on port 6005
 
 # Terminal 2: Run Playwright tests
-pnpm test:storybook    # Run VForm Storybook tests
+pnpm test:storybook          # Run VForm Storybook tests
+pnpm test:storybook:table    # Run VTable Storybook tests
 
-# Run VTable Storybook tests
+# Or run VTable tests manually
 SKIP_WEBSERVER=true STORYBOOK_TABLE_URL=http://localhost:6007 \\
   npx playwright test tests/ui-table --project=storybook-table
 ```
@@ -343,6 +400,8 @@ Storybook tests:
 - ✅ **Fast** - Test components with mocked data
 - ✅ **All interface types** - Test any field configuration
 - ✅ **DaaS Playground** - Connect to real DaaS and test live schemas
+
+**All Storybooks have DaaS Playground stories** — VForm, VTable, CollectionForm, and CollectionList all support connecting to a live DaaS instance for real-data testing.
 
 **DaaS Playground with Storybook Host (Recommended):**
 
@@ -409,6 +468,8 @@ tests/
 │   └── vform.spec.ts           # VForm full E2E workflow tests
 └── ui-table/
     └── vtable-storybook.spec.ts # VTable Storybook component tests (22 tests)
+
+playwright.config.ts            # 4 projects: setup, chromium, storybook, storybook-table
 ```
 
 See [docs/TESTING.md](./docs/TESTING.md) for complete testing guide and best practices.

@@ -97,6 +97,7 @@ microbuild validate --json      # JSON output for CI/CD
 | Run Collections Storybook | `pnpm storybook:collections` | [TESTING.md](TESTING.md) |
 | Start Storybook host | `pnpm dev:host` | [DISTRIBUTION.md](DISTRIBUTION.md#hosting-storybook-on-aws-amplify) |
 | Build Storybook host | `pnpm build:host` | [DISTRIBUTION.md](DISTRIBUTION.md#hosting-storybook-on-aws-amplify) |
+| Run VTable Storybook tests | `pnpm test:storybook:table` | [TESTING.md](TESTING.md#vtable-component-testing) |
 | Run VForm with DaaS proxy | See [TESTING.md](TESTING.md#daas-playground-authentication) | [TESTING.md](TESTING.md) |
 | Install Playwright | `pnpm exec playwright install chromium` | [TESTING.md](TESTING.md#prerequisites) |
 
@@ -318,6 +319,16 @@ Microbuild Architecture
 - Check existing documentation first
 
 ## 📝 Changelog
+
+### Version 1.5.0 (February 2026)
+- ✨ VTable DaaS Playground stories (`VTable.daas.stories.tsx`) — connect to real DaaS and test with actual collection data
+- ✨ CollectionForm & CollectionList DaaS Playground stories with mock data interceptors
+- ✨ Storybook Host now serves storybooks via catch-all API route instead of static public/ serving
+- 🔧 Updated Storybook titles and tags for consistency across all packages
+- 🔧 Improved Amplify deployment: removed standalone output, let Amplify handle Next.js natively
+- 🔧 Added `pnpm test:storybook:table` root script
+- 🔧 Playwright config now defines 4 projects: setup, chromium, storybook, storybook-table
+- 🔧 Auto-starts both VForm (6006) and VTable (6007) Storybooks for tests
 
 ### Version 1.4.0 (February 2026)
 - ✨ New `apps/storybook-host` Next.js app — DaaS auth proxy & Storybook host for AWS Amplify

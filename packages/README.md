@@ -12,6 +12,7 @@ A collection of packages for building Directus-compatible content management app
 | [@microbuild/utils](./utils) | Field interface mapper & utilities | [README](./utils/README.md) |
 | [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (40+) | [README](./ui-interfaces/README.md) |
 | [@microbuild/ui-form](./ui-form) | VForm dynamic form component | [README](./ui-form/README.md) |
+| [@microbuild/ui-table](./ui-table) | VTable dynamic table component | [README](./ui-table/README.md) |
 | [@microbuild/ui-collections](./ui-collections) | CollectionForm & CollectionList | [README](./ui-collections/README.md) |
 | [@microbuild/cli](./cli) | CLI for copying components ([npm](https://www.npmjs.com/package/@microbuild/cli)) | [README](./cli/README.md) |
 | [@microbuild/mcp](./mcp-server) | MCP server for AI agents ([npm](https://www.npmjs.com/package/@microbuild/mcp)) | [README](./mcp-server/README.md) |
@@ -26,8 +27,8 @@ A collection of packages for building Directus-compatible content management app
 │  (CollectionForm, CollectionList)                           │
 │          ↓ uses                                             │
 ├─────────────────────────────────────────────────────────────┤
-│  ui-form                                                    │
-│  (VForm - dynamic form rendering)                           │
+│  ui-form                    ui-table                        │
+│  (VForm - dynamic form)     (VTable - dynamic table)        │
 │          ↓ renders                                          │
 ├─────────────────────────────────────────────────────────────┤
 │  ui-interfaces                                              │

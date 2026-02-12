@@ -24,11 +24,16 @@ microbuild-ui-packages/
 ├── docs/                   # Documentation
 │   ├── DOCS_INDEX.md       # Documentation index
 │   ├── ARCHITECTURE.md     # System architecture
+│   ├── CLI.md              # CLI commands & agent reference
+│   ├── COMPONENT_MAP.md    # Quick component lookup table
+│   ├── DESIGN_SYSTEM.md    # Token-based theming architecture
 │   ├── DISTRIBUTION.md     # Distribution guide
+│   ├── PUBLISHING.md       # npm publishing & release workflow
+│   ├── TESTING.md          # Playwright E2E testing guide
 │   └── WINDOWS.md          # Windows setup
 ├── apps/                   # Standalone applications
 │   └── storybook-host/     # Next.js auth proxy & Storybook host (Amplify)
-│       ├── app/api/        # DaaS proxy routes (connect, status, catch-all)
+│       ├── app/api/        # DaaS proxy routes (connect, disconnect, status, catch-all)
 │       ├── lib/cookie.ts   # AES-256-GCM encrypted credential storage
 │       └── public/storybook/ # Built Storybooks served at /storybook/*
 ├── tests/                  # Playwright E2E tests
@@ -117,7 +122,10 @@ Service classes for CRUD operations on Directus collections, plus DaaS API confi
 - `useDaaSContext` - Hook to access DaaS config, user info, and auth helpers
 - `setGlobalDaaSConfig` - Set global config for non-React contexts
 
-**Authentication (follows DaaS architecture):**
+**Authentication Module (`@microbuild/services/auth`):**
+- `configureAuth` / `createAuthenticatedClient` / `getCurrentUser` - Session management
+- `enforcePermission` / `getAccessibleFields` / `filterFields` - Permission enforcement
+- `applyFilterToQuery` / `resolveFilterDynamicValues` - Filter-to-query conversion
 - Cookie-based sessions for browser requests (automatic)
 - Static tokens for programmatic access (Directus-style)
 - JWT Bearer tokens for API clients with Supabase Auth
@@ -459,6 +467,10 @@ import { VTable } from '@microbuild/ui-table';
 />
 ```
 
+**Storybook Stories:**
+- **Basic Stories** (`VTable.stories.tsx`) - Mocked data examples covering all features (sorting, selection, resizing, drag-and-drop, etc.)
+- **DaaS Playground** (`VTable.daas.stories.tsx`) - Connect to a real DaaS instance and test with actual collection data
+
 **Testing:**
 ```bash
 # Run Storybook for VTable development
@@ -591,7 +603,8 @@ See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 | `pnpm lint` | Lint all projects |
 | `pnpm clean` | Remove node_modules and build artifacts |
 | `pnpm test:e2e` | Run Playwright E2E tests against DaaS |
-| `pnpm test:storybook` | Run Playwright tests against Storybook |
+| `pnpm test:storybook` | Run Playwright tests against VForm Storybook |
+| `pnpm test:storybook:table` | Run Playwright tests against VTable Storybook |
 
 ## 📋 Storybook
 
@@ -621,8 +634,8 @@ pnpm storybook:form
 ```
 
 1. Open `http://localhost:3000` and connect with your DaaS URL + static token
-2. Navigate to "Forms/VForm DaaS Playground" in Storybook
-3. Select a collection and test with real fields
+2. Navigate to DaaS Playground stories in any Storybook (VForm, VTable, CollectionForm, CollectionList)
+3. Select a collection and test with real fields and data
 
 Credentials are stored in an AES-256-GCM encrypted httpOnly cookie. All `/api/*` requests from Storybook are proxied through the host app.
 
@@ -644,9 +657,12 @@ pnpm test:storybook          # Run Playwright against Storybook
 - ✅ **DaaS Playground** - Connect to real DaaS API and test with actual schemas
 
 **Test Files:**
-- `tests/ui-form/vform-storybook.spec.ts` - Tests against Storybook stories
-- `packages/ui-form/src/VForm.stories.tsx` - Basic stories with mocked data
-- `packages/ui-form/src/VForm.daas.stories.tsx` - DaaS playground for real API testing
+- `tests/ui-form/vform-storybook.spec.ts` - VForm tests against Storybook stories
+- `tests/ui-table/vtable-storybook.spec.ts` - VTable tests against Storybook stories (22 tests)
+- `packages/ui-form/src/VForm.stories.tsx` - VForm basic stories with mocked data
+- `packages/ui-form/src/VForm.daas.stories.tsx` - VForm DaaS playground for real API testing
+- `packages/ui-table/src/VTable.stories.tsx` - VTable basic stories with mocked data
+- `packages/ui-table/src/VTable.daas.stories.tsx` - VTable DaaS playground for real API testing
 
 ### Tier 2: DaaS E2E Tests (Full Integration Testing)
 ```bash

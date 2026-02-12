@@ -129,6 +129,12 @@ The VTable component is based on Directus v-table and includes comprehensive Sto
 - Inline (bordered) styling
 - Full-featured example
 
+**DaaS Playground** ([packages/ui-table/src/VTable.daas.stories.tsx](../packages/ui-table/src/VTable.daas.stories.tsx)):
+- Connect to real DaaS instance via the storybook-host proxy app
+- Fetch actual collection data from live API
+- Test with real columns, sorting, and selection on real data
+- Works in production on Amplify (same-origin proxy)
+
 ### Running VTable Tests
 
 ```bash
@@ -136,6 +142,9 @@ The VTable component is based on Directus v-table and includes comprehensive Sto
 pnpm storybook:table    # Runs on port 6007
 
 # Terminal 2: Run Playwright tests
+pnpm test:storybook:table
+
+# Or run manually
 SKIP_WEBSERVER=true STORYBOOK_TABLE_URL=http://localhost:6007 \\
   npx playwright test tests/ui-table --project=storybook-table
 ```
@@ -301,25 +310,40 @@ projects: [
     use: { baseURL: DAAS_URL }
   },
   
-  // Storybook tests (no auth needed)
+  // VForm Storybook tests (no auth needed)
   { 
     name: 'storybook', 
-    testMatch: /.*storybook.*/, 
+    testMatch: /ui-form\/.*storybook.*/, 
     use: { baseURL: STORYBOOK_URL }
+  },
+
+  // VTable Storybook tests (no auth needed)
+  { 
+    name: 'storybook-table', 
+    testMatch: /ui-table\/.*storybook.*/, 
+    use: { baseURL: STORYBOOK_TABLE_URL }
   },
 ],
 
-// Auto-start Storybook for component tests
-webServer: {
-  command: 'cd packages/ui-form && pnpm storybook --ci',
-  url: 'http://localhost:6006',
-  reuseExistingServer: !process.env.CI,
-}
+// Auto-start Storybooks for component tests
+webServer: [
+  {
+    command: 'cd packages/ui-form && pnpm storybook --ci',
+    url: 'http://localhost:6006',
+    reuseExistingServer: !process.env.CI,
+  },
+  {
+    command: 'cd packages/ui-table && pnpm storybook --ci',
+    url: 'http://localhost:6007',
+    reuseExistingServer: !process.env.CI,
+  },
+]
 ```
 
 **Features:**
 - ✅ Auto-starts Storybook when running `pnpm test:storybook`
-- ✅ Separates DaaS and Storybook tests by project
+- ✅ Auto-starts VTable Storybook when running `pnpm test:storybook:table`
+- ✅ Separates DaaS and Storybook tests by project (4 projects total)
 - ✅ Authentication setup runs once before DaaS tests
 - ✅ Environment variable configuration for URLs
 
