@@ -135,7 +135,10 @@ export default function HomePage() {
             connect to real DaaS data.
           </p>
           <div className="hero-actions">
-            <a className="btn btn-primary" href="#storybooks">
+            <a className="btn btn-primary" href="/docs">
+              Documentation
+            </a>
+            <a className="btn btn-ghost" href="#storybooks">
               Explore Storybooks
             </a>
             <a className="btn btn-ghost" href="#connect">
