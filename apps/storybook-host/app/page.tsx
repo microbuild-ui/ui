@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from "react";
 
 interface ConnectionStatus {
   connected: boolean;
@@ -18,34 +18,34 @@ interface ConnectionStatus {
 
 const storybooks = [
   {
-    name: '🎨 Interfaces',
-    path: '/storybook/interfaces',
+    name: "🎨 Interfaces",
+    path: "/storybook/interfaces",
     port: 6005,
-    description: '40+ field interface components',
+    description: "40+ field interface components",
   },
   {
-    name: '📝 Form',
-    path: '/storybook/form',
+    name: "📝 Form",
+    path: "/storybook/form",
     port: 6006,
-    description: 'VForm dynamic form builder',
+    description: "VForm dynamic form builder",
   },
   {
-    name: '📊 Table',
-    path: '/storybook/table',
+    name: "📊 Table",
+    path: "/storybook/table",
     port: 6007,
-    description: 'VTable dynamic data table',
+    description: "VTable dynamic data table",
   },
   {
-    name: '📦 Collections',
-    path: '/storybook/collections',
+    name: "📦 Collections",
+    path: "/storybook/collections",
     port: 6008,
-    description: 'CollectionForm & CollectionList',
+    description: "CollectionForm & CollectionList",
   },
 ];
 
 export default function HomePage() {
-  const [url, setUrl] = useState('');
-  const [token, setToken] = useState('');
+  const [url, setUrl] = useState("");
+  const [token, setToken] = useState("");
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
@@ -53,14 +53,14 @@ export default function HomePage() {
   const [isDev, setIsDev] = useState(false);
 
   useEffect(() => {
-    setIsDev(window.location.hostname === 'localhost');
+    setIsDev(window.location.hostname === "localhost");
     checkStatus();
   }, []);
 
   const checkStatus = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/status');
+      const res = await fetch("/api/status");
       const data = await res.json();
       setStatus(data);
       if (data.url) setUrl(data.url);
@@ -79,23 +79,23 @@ export default function HomePage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url, token }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Connection failed');
+        setError(data.error || "Connection failed");
         return;
       }
 
       await checkStatus();
-      setToken(''); // Clear token from UI after successful connect
+      setToken(""); // Clear token from UI after successful connect
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Connection failed');
+      setError(err instanceof Error ? err.message : "Connection failed");
     } finally {
       setConnecting(false);
     }
@@ -103,9 +103,9 @@ export default function HomePage() {
 
   const handleDisconnect = async () => {
     try {
-      await fetch('/api/disconnect', { method: 'POST' });
+      await fetch("/api/disconnect", { method: "POST" });
       setStatus({ connected: false, url: null, user: null });
-      setToken('');
+      setToken("");
       setError(null);
     } catch {
       // Ignore
@@ -114,7 +114,7 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <main className="container">
+      <main className="landing">
         <div className="loading">
           <span className="loading-spinner" />
           Checking connection…
@@ -124,24 +124,142 @@ export default function HomePage() {
   }
 
   return (
-    <main className="container">
-      <header>
-        <h1>🔌 Microbuild Storybook Host</h1>
-        <p>
-          Authentication proxy for Microbuild component Storybooks — connects to
-          your DaaS backend at runtime.
-        </p>
-      </header>
+    <main className="landing">
+      <section className="hero">
+        <div className="hero-content">
+          <span className="hero-badge">Reusable UI Library</span>
+          <h1 className="hero-title">Microbuild UI Packages</h1>
+          <p className="hero-subtitle">
+            A Copy &amp; Own component system for data-heavy apps. Build with
+            Mantine, powered by Microbuild-style schema, and ship Storybooks that
+            connect to real DaaS data.
+          </p>
+          <div className="hero-actions">
+            <a className="btn btn-primary" href="#storybooks">
+              Explore Storybooks
+            </a>
+            <a className="btn btn-ghost" href="#connect">
+              Connect DaaS
+            </a>
+          </div>
+          <div className="hero-meta">
+            <span>40+ field interfaces</span>
+            <span>VForm + VTable</span>
+            <span>MCP + CLI tooling</span>
+          </div>
+        </div>
+        <div className="hero-panel">
+          <div className="code-card">
+            <div className="code-title">Quick Start</div>
+            <pre>{`pnpm install
+pnpm build
+pnpm dev:host
+pnpm storybook:form`}</pre>
+            <div className="code-foot">Launch the host app, then open Storybook.</div>
+          </div>
+          <div className="signal-strip">
+            <div>
+              <strong>Copy &amp; Own</strong>
+              <span>Ship source, not black boxes.</span>
+            </div>
+            <div>
+              <strong>Schema aware</strong>
+              <span>Auto-render fields from DaaS metadata.</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {/* ── Connection Card ─────────────────────────────── */}
-      <section className="card">
+      <section className="feature-grid">
+        <div className="feature-card">
+          <h2>Interfaces</h2>
+          <p>
+            40+ Microbuild-style field components: inputs, selects, relations,
+            files, maps, and workflow-aware UI.
+          </p>
+        </div>
+        <div className="feature-card">
+          <h2>VForm</h2>
+          <p>
+            Dynamic form builder with validation, permissions, and layout
+            grouping. Built for real collections.
+          </p>
+        </div>
+        <div className="feature-card">
+          <h2>VTable</h2>
+          <p>
+            Sortable, resizable data grids with selection, drag ordering, and
+            custom cell rendering.
+          </p>
+        </div>
+        <div className="feature-card">
+          <h2>Collections</h2>
+          <p>
+            CollectionForm + CollectionList compose data fetching and UI into
+            production-ready CRUD.
+          </p>
+        </div>
+      </section>
+
+      <section className="card" id="storybooks">
+        <div className="card-header">
+          <h2>Storybooks</h2>
+          <span className="badge badge-gray">Live component docs</span>
+        </div>
+
+        {!status?.connected && (
+          <div className="alert alert-info alert-mt">
+            Connect to DaaS below to enable live data in Storybook stories.
+          </div>
+        )}
+
+        <div className="storybook-grid">
+          {storybooks.map((sb) => (
+            <a
+              key={sb.name}
+              href={isDev ? `http://localhost:${sb.port}` : sb.path}
+              target={isDev ? "_blank" : undefined}
+              rel={isDev ? "noopener noreferrer" : undefined}
+              className="storybook-card"
+            >
+              <h3>{sb.name}</h3>
+              <p>{sb.description}</p>
+              <small>{isDev ? `localhost:${sb.port}` : sb.path}</small>
+            </a>
+          ))}
+        </div>
+
+        {isDev && (
+          <div className="dev-note">
+            <strong>Local Development</strong>
+            <p className="dev-note-text">
+              Start the host app first, then run Storybooks. They proxy{" "}
+              <code>/api/*</code> to this app automatically.
+            </p>
+            <pre>{`pnpm dev:host          # Start this proxy (port 3000)
+pnpm storybook:form    # Port 6006
+pnpm storybook:table   # Port 6007
+pnpm storybook         # Port 6005 (interfaces)
+pnpm storybook:collections  # Port 6008`}</pre>
+          </div>
+        )}
+      </section>
+
+      <section className="card" id="connect">
         <div className="card-header">
           <h2>DaaS Connection</h2>
           <span
-            className={`badge ${status?.connected ? 'badge-green' : 'badge-gray'}`}
+            className={`badge ${
+              status?.connected ? "badge-green" : "badge-gray"
+            }`}
           >
-            {status?.connected ? '● Connected' : '○ Not Connected'}
+            {status?.connected ? "● Connected" : "○ Not Connected"}
           </span>
+        </div>
+
+        <div className="alert alert-info alert-mt">
+          The host app acts as an authentication proxy so Storybooks can use
+          real DaaS data without CORS issues.
         </div>
 
         {status?.connected && status.user ? (
@@ -215,91 +333,10 @@ export default function HomePage() {
               className="btn btn-primary"
               disabled={connecting || !url || !token}
             >
-              {connecting ? 'Connecting…' : 'Connect'}
+              {connecting ? "Connecting…" : "Connect"}
             </button>
           </form>
         )}
-      </section>
-
-      {/* ── Storybooks Card ─────────────────────────────── */}
-      <section className="card">
-        <h2>📚 Storybooks</h2>
-
-        {!status?.connected && (
-          <div className="alert alert-info alert-mt">
-            Connect to DaaS above to enable live data in Storybook stories.
-          </div>
-        )}
-
-        <div className="storybook-grid">
-          {storybooks.map((sb) => (
-            <a
-              key={sb.name}
-              href={isDev ? `http://localhost:${sb.port}` : sb.path}
-              target={isDev ? '_blank' : undefined}
-              rel={isDev ? 'noopener noreferrer' : undefined}
-              className="storybook-card"
-            >
-              <h3>{sb.name}</h3>
-              <p>{sb.description}</p>
-              <small>
-                {isDev ? `localhost:${sb.port}` : sb.path}
-              </small>
-            </a>
-          ))}
-        </div>
-
-        {isDev && (
-          <div className="dev-note">
-            <strong>💡 Local Development</strong>
-            <p className="dev-note-text">
-              Start the host app first, then run Storybooks. They proxy{' '}
-              <code>/api/*</code> to this app automatically.
-            </p>
-            <pre>{`pnpm dev:host          # Start this proxy (port 3000)
-pnpm storybook:form    # Port 6006
-pnpm storybook:table   # Port 6007
-pnpm storybook         # Port 6005 (interfaces)
-pnpm storybook:collections  # Port 6008`}</pre>
-          </div>
-        )}
-      </section>
-
-      {/* ── Architecture Note ──────────────────────────── */}
-      <section className="card">
-        <h2>🏗️ How It Works</h2>
-        <div className="arch-note">
-          <p>
-            This app is a <strong>Next.js authentication proxy</strong> that
-            sits between your Storybooks and the DaaS backend:
-          </p>
-          <ol className="arch-list">
-            <li>
-              You enter your DaaS URL + static token above → stored in an
-              encrypted <code>httpOnly</code> cookie
-            </li>
-            <li>
-              Storybook stories call <code>fetch(&apos;/api/fields/...&apos;)</code> →
-              hits this app&apos;s API routes
-            </li>
-            <li>
-              The catch-all <code>/api/[...path]</code> route reads the cookie
-              and proxies to DaaS with <code>Bearer</code> auth
-            </li>
-            <li>
-              <strong>No CORS issues</strong> — browser talks to same origin;
-              proxy handles cross-origin server-side
-            </li>
-          </ol>
-          <p className="arch-footer">
-            <strong>Local dev:</strong> Storybooks run on separate ports but
-            their Vite proxy forwards <code>/api/*</code> to{' '}
-            <code>localhost:3000</code> (this app).
-            <br />
-            <strong>Production:</strong> Built Storybooks are served from{' '}
-            <code>/storybook/*</code> on the same origin — no proxy needed.
-          </p>
-        </div>
       </section>
     </main>
   );
