@@ -254,6 +254,10 @@ var CollectionList = ({
         setFields(visibleFields);
       } catch (err) {
         console.error("Error loading fields:", err);
+        setError(
+          "Failed to load collection fields. Make sure the Storybook Host app is running (pnpm dev:host) and connected at http://localhost:3000."
+        );
+        setLoading(false);
       }
     };
     loadFields();

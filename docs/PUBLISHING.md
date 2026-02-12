@@ -102,12 +102,35 @@ npm whoami
 pnpm install
 ```
 
-### 4. Add NPM_TOKEN to GitHub
+### 4. Generate a Granular Access Token
 
-1. Generate a token: [npmjs.com → Access Tokens → Generate](https://www.npmjs.com/settings/~/tokens)
-   - Type: **Automation** (for CI) or **Granular** with publish permissions
-2. Go to your GitHub repo → Settings → Secrets and variables → Actions
-3. Add secret: `NPM_TOKEN` = your token
+npm requires a **granular access token** to publish scoped packages (even with 2FA disabled).
+
+1. Go to [npmjs.com → Access Tokens → Generate New Token](https://www.npmjs.com/settings/~/tokens)
+2. Select **"Granular Access Token"**
+3. Configure:
+   - **Token name**: e.g. `microbuild-publish`
+   - **Expiration**: choose an appropriate duration
+   - **Packages and scopes**: select **"Only select packages and scopes"** → add `@microbuild`
+   - **Permissions**: **Read and write**
+4. Click **Generate token** and copy it
+
+> **Important:** Legacy/Automation tokens may be rejected. Always use a **Granular** token.
+
+#### For local publishing
+
+Create a temporary `.npmrc` in the package directory:
+
+```bash
+echo "//registry.npmjs.org/:_authToken=YOUR_GRANULAR_TOKEN" > .npmrc
+npm publish --access public
+rm .npmrc  # Clean up after publishing
+```
+
+#### For GitHub Actions CI
+
+1. Go to your GitHub repo → Settings → Secrets and variables → Actions
+2. Add secret: `NPM_TOKEN` = your granular token
 
 ---
 
@@ -187,7 +210,7 @@ git push --follow-tags
 
 ### Quick publish (skip changesets)
 
-For a one-off publish without the changeset flow:
+For a one-off publish without the changeset flow, use a granular access token:
 
 ```bash
 # Build
@@ -195,14 +218,20 @@ pnpm build
 
 # Publish CLI
 cd packages/cli
+echo "//registry.npmjs.org/:_authToken=YOUR_GRANULAR_TOKEN" > .npmrc
 npm publish --access public
+rm .npmrc
 
 # Publish MCP server
 cd ../mcp-server
+echo "//registry.npmjs.org/:_authToken=YOUR_GRANULAR_TOKEN" > .npmrc
 npm publish --access public
+rm .npmrc
 ```
 
-> **Note:** The packages are already published as `@microbuild/cli@0.1.0` and `@microbuild/mcp@0.1.0` on npmjs.com under the `@microbuild` organization.
+> **Note:** Always clean up `.npmrc` files after publishing to avoid committing tokens.
+>
+> The packages are published as `@microbuild/cli` and `@microbuild/mcp` on npmjs.com under the `@microbuild` organization.
 
 ---
 
@@ -296,7 +325,8 @@ The CLI and MCP server are **linked** in changeset config — they always publis
 
 - [ ] Replace `microbuild-ui/ui` with actual repo path (if different)
 - [x] Create `@microbuild` org on npmjs.com
-- [ ] Add `NPM_TOKEN` secret to GitHub repo
+- [ ] Generate a **Granular Access Token** on npmjs.com (see "Generate a Granular Access Token" above)
+- [ ] Add `NPM_TOKEN` secret to GitHub repo (using the granular token)
 - [ ] Run `pnpm install` (installs `@changesets/cli`)
 - [ ] Run `pnpm build` — verify CLI + MCP server build cleanly
 - [ ] Test locally: `node packages/cli/dist/index.js list`
