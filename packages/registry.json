@@ -1037,12 +1037,12 @@
     },
     {
       "name": "rich-text-html",
-      "title": "RichTextHtml",
+      "title": "RichTextHTML",
       "description": "WYSIWYG HTML editor powered by TipTap",
       "category": "rich-text",
       "files": [
         {
-          "source": "ui-interfaces/src/rich-text-html/RichTextHtml.tsx",
+          "source": "ui-interfaces/src/rich-text-html/RichTextHTML.tsx",
           "target": "components/ui/rich-text-html.tsx"
         },
         {
