@@ -10,6 +10,10 @@ Quick reference for finding component source files.
 | `vtable` | `microbuild add vtable` | [ui-table/src/VTable.tsx](../packages/ui-table/src/VTable.tsx) | Dynamic table with sorting, selection, drag-drop |
 | `collection-form` | `microbuild add collection-form` | [ui-collections/src/CollectionForm.tsx](../packages/ui-collections/src/CollectionForm.tsx) | CRUD wrapper with data fetching |
 | `collection-list` | `microbuild add collection-list` | [ui-collections/src/CollectionList.tsx](../packages/ui-collections/src/CollectionList.tsx) | Dynamic table with pagination |
+| `content-layout` | `microbuild add content-layout` | [ui-collections/src/ContentLayout.tsx](../packages/ui-collections/src/ContentLayout.tsx) | Shell layout with sidebar and main content |
+| `content-navigation` | `microbuild add content-navigation` | [ui-collections/src/ContentNavigation.tsx](../packages/ui-collections/src/ContentNavigation.tsx) | Hierarchical collection navigation |
+| `filter-panel` | `microbuild add filter-panel` | [ui-collections/src/FilterPanel.tsx](../packages/ui-collections/src/FilterPanel.tsx) | Field-type-aware filter builder |
+| `save-options` | `microbuild add save-options` | [ui-collections/src/SaveOptions.tsx](../packages/ui-collections/src/SaveOptions.tsx) | Save action dropdown menu |
 
 ## Input Components
 

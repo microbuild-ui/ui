@@ -64,6 +64,10 @@
 │         │    ui-collections/                 │                     │
 │         │  - CollectionForm                  │                     │
 │         │  - CollectionList                  │                     │
+│         │  - ContentLayout                   │                     │
+│         │  - ContentNavigation               │                     │
+│         │  - FilterPanel                     │                     │
+│         │  - SaveOptions                     │                     │
 │         └────────────────────────────────────┘                     │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘

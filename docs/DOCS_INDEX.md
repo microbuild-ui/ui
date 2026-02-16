@@ -74,7 +74,7 @@ microbuild validate --json      # JSON output for CI/CD
 | @microbuild/hooks | React hooks (auth, permissions, relations, files, versioning, workflow) | [README](../packages/hooks/README.md) |
 | @microbuild/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
 | @microbuild/ui-interfaces | Field components (40+) | [README](../packages/ui-interfaces/README.md) |
-| @microbuild/ui-collections | Collection components | [README](../packages/ui-collections/README.md) |
+| @microbuild/ui-collections | Collection components (Form, List, Layout, Navigation, Filter, SaveOptions) | [README](../packages/ui-collections/README.md) |
 | @microbuild/ui-form | VForm - Dynamic form with permission enforcement | [README](../packages/ui-form/README.md) |
 | @microbuild/ui-table | VTable - Dynamic table with sorting, selection, drag-drop | [README](../packages/ui-table/README.md) |
 | @microbuild/mcp | MCP server (`@microbuild/mcp` on npm) | [README](../packages/mcp-server/README.md) |
@@ -167,6 +167,10 @@ microbuild validate --json      # JSON output for CI/CD
 ### Collection Components
 - [CollectionForm](../packages/README.md#microbuildui-collections) - CRUD wrapper using VForm
 - [CollectionList](../packages/README.md#microbuildui-collections) - Dynamic list/table
+- [ContentLayout](../packages/ui-collections/README.md) - Shell layout with sidebar and main content
+- [ContentNavigation](../packages/ui-collections/README.md) - Hierarchical collection navigation
+- [FilterPanel](../packages/ui-collections/README.md) - Field-type-aware filter builder
+- [SaveOptions](../packages/ui-collections/README.md) - Save action dropdown menu
 
 ### Form Components
 - [VForm](../packages/ui-form/README.md) - Dynamic form that renders all 40+ interface types

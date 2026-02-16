@@ -406,22 +406,57 @@ pnpm test:e2e
 
 ### @microbuild/ui-collections
 
-Dynamic collection components for forms and lists.
+Dynamic collection components for forms, tables, navigation, and layouts. Inspired by Directus's content module.
 
 **Components:**
 | Component | Description |
 |-----------|-------------|
 | `CollectionForm` | CRUD form wrapper with data fetching - uses VForm for rendering all 40+ interface types |
 | `CollectionList` | Dynamic table with pagination, search, selection, bulk actions |
+| `ContentLayout` | Shell layout with sidebar navigation and main content area |
+| `ContentNavigation` | Hierarchical sidebar navigation for collections with search and bookmarks |
+| `FilterPanel` | Field-type-aware filter builder for collection queries |
+| `SaveOptions` | Dropdown menu with save actions (save & stay, save & add new, etc.) |
 
 **Architecture:**
 - **CollectionForm** = Data layer (fetch fields, load/save items, CRUD operations)
 - **VForm** = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
+- **ContentLayout** + **ContentNavigation** = Complete content module shell (like Directus)
+- **FilterPanel** = Visual filter builder producing Directus-compatible filter objects
 
 When you install `collection-form` via CLI, VForm and all 32 dependent interface components are automatically included.
 
+**Storybook:**
+```bash
+pnpm storybook:collections  # Port 6008
+```
+
 **Usage:**
 ```tsx
+import { 
+  CollectionForm, 
+  CollectionList, 
+  ContentLayout, 
+  ContentNavigation,
+  FilterPanel,
+  SaveOptions 
+} from '@microbuild/ui-collections';
+
+// Complete content module
+<ContentLayout
+  title="Products"
+  navigation={<ContentNavigation collections={collections} onNavigate={setCollection} />}
+>
+  <CollectionList collection="products" filter={filter} />
+</ContentLayout>
+
+// Form with save options
+<CollectionForm collection="products" id={id} />
+<SaveOptions onSaveAndStay={handleSave} onSaveAndAddNew={handleSaveAndNew} />
+
+// Filter builder
+<FilterPanel fields={fields} value={filter} onChange={setFilter} />
+```
 
 ### @microbuild/ui-table
 
@@ -479,27 +514,6 @@ pnpm storybook:table
 # Run Playwright tests against VTable Storybook
 SKIP_WEBSERVER=true STORYBOOK_TABLE_URL=http://localhost:6007 \
   npx playwright test tests/ui-table --project=storybook-table
-```
-import { CollectionForm, CollectionList } from '@microbuild/ui-collections';
-
-// Create/Edit form
-<CollectionForm
-  collection="products"
-  mode="create"
-  defaultValues={{ status: 'draft' }}
-  onSuccess={(data) => console.log('Saved:', data)}
-  excludeFields={['internal_notes']}
-/>
-
-// Dynamic list
-<CollectionList
-  collection="products"
-  enableSelection
-  enableSearch
-  fields={['name', 'status', 'price']}
-  filter={{ status: { _eq: 'published' } }}
-  onItemClick={(item) => router.push(`/products/${item.id}`)}
-/>
 ```
 
 ## 🤖 Distribution & AI Tools

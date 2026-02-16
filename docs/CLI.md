@@ -38,7 +38,7 @@ microbuild outdated                # Check for component updates
 | **ui-interfaces** | `packages/ui-interfaces/src/` | 31 interface components (input, select, datetime, etc.) |
 | **ui-form** | `packages/ui-form/src/` | VForm dynamic form component with permission enforcement |
 | **ui-table** | `packages/ui-table/src/` | VTable dynamic table component with DaaS playground |
-| **ui-collections** | `packages/ui-collections/src/` | CollectionForm, CollectionList |
+| **ui-collections** | `packages/ui-collections/src/` | CollectionForm, CollectionList, ContentLayout, ContentNavigation, FilterPanel, SaveOptions |
 | **types** | `packages/types/src/` | TypeScript type definitions |
 | **services** | `packages/services/src/` | API services (ItemsService, DaaSProvider, etc.) |
 | **hooks** | `packages/hooks/src/` | React hooks (useAuth, usePermissions, useRelationM2M, etc.) |
@@ -53,6 +53,10 @@ microbuild outdated                # Check for component updates
 | `vtable` | `packages/ui-table/src/VTable.tsx` | Dynamic table with sorting, selection, drag-drop |
 | `collection-form` | `packages/ui-collections/src/CollectionForm.tsx` | CRUD wrapper with data fetching (uses VForm) |
 | `collection-list` | `packages/ui-collections/src/CollectionList.tsx` | Dynamic table with pagination |
+| `content-layout` | `packages/ui-collections/src/ContentLayout.tsx` | Shell layout with sidebar and main content |
+| `content-navigation` | `packages/ui-collections/src/ContentNavigation.tsx` | Hierarchical collection navigation |
+| `filter-panel` | `packages/ui-collections/src/FilterPanel.tsx` | Field-type-aware filter builder |
+| `save-options` | `packages/ui-collections/src/SaveOptions.tsx` | Save action dropdown menu |
 
 #### Basic Interface Components (ui-interfaces)
 | Component | Source Path | Category |
