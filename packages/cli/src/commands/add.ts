@@ -702,6 +702,17 @@ export async function add(
       component.dependencies.forEach(dep => allDeps.add(dep));
     }
 
+    // Collect external dependencies from installed lib modules (e.g. @supabase/ssr)
+    for (const libName of config.installedLib) {
+      const libModule = registry.lib[libName];
+      if (libModule?.dependencies) {
+        for (const dep of libModule.dependencies) {
+          // Strip version specifier (e.g. "@supabase/ssr@^0.5" -> "@supabase/ssr")
+          allDeps.add(dep.replace(/@[^@/]*$/, ''));
+        }
+      }
+    }
+
     // Update registry version
     config.registryVersion = registry.version;
 
