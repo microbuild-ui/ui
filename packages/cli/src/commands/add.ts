@@ -306,11 +306,11 @@ async function copyComponent(
     component: component.name,
     files: component.files.map(f => ({ source: f.source, target: f.target })),
     dependencies: component.dependencies,
-    libDependencies: component.internalDependencies,
+    libDependencies: component.internalDependencies ?? [],
   };
 
   // Install internal dependencies first (types, services, hooks)
-  for (const dep of component.internalDependencies) {
+  for (const dep of (component.internalDependencies ?? [])) {
     if (!config.installedLib.includes(dep)) {
       spinner.text = `Installing dependency: ${dep}...`;
       if (!dryRun) {

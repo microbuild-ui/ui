@@ -1246,7 +1246,8 @@
           "target": "components/ui/vtable-types.ts"
         }
       ],
-      "dependencies": ["@mantine/core", "@mantine/hooks", "@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities", "@tabler/icons-react"]
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
       "name": "collection-list",
