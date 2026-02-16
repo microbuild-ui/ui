@@ -1,6 +1,6 @@
 {
   "name": "@microbuild/mcp",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Model Context Protocol server for Microbuild components - enables AI agents to discover and use Microbuild packages",
   "type": "module",
   "main": "dist/index.js",
