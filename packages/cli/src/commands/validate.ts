@@ -480,9 +480,11 @@ async function checkTypeScriptErrors(
     }
     
     // Run tsc with --noEmit on specific files
+    // Use --yes to skip npx install prompts, pipe stdin to prevent interactive hangs,
+    // and set a 60s timeout to avoid indefinite blocking on macOS
     const result = execSync(
-      `npx tsc --noEmit --skipLibCheck --pretty false 2>&1 || true`,
-      { cwd, encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 }
+      `npx --yes tsc --noEmit --skipLibCheck --pretty false 2>&1 || true`,
+      { cwd, encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024, timeout: 60_000, stdio: ['pipe', 'pipe', 'pipe'] }
     );
     
     // Parse TypeScript output
@@ -677,6 +679,7 @@ export async function validate(options: {
     };
     
     if (noExit) {
+      spinner?.stop();
       return result;
     }
 

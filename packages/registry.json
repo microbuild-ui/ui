@@ -261,6 +261,7 @@
     "supabase-auth": {
       "name": "supabase-auth",
       "description": "Supabase authentication clients and middleware for Next.js",
+      "dependencies": ["@supabase/ssr", "@supabase/supabase-js"],
       "files": [
         {
           "source": "cli/templates/supabase/client.ts",

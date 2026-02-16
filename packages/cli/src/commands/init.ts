@@ -141,6 +141,9 @@ export async function init(options: { yes?: boolean; cwd: string }) {
         'react-dom': '^19.0.0',
         '@mantine/core': '^8.0.0',
         '@mantine/hooks': '^8.0.0',
+        '@mantine/modals': '^8.0.0',
+        '@mantine/notifications': '^8.0.0',
+        '@mantine/form': '^8.0.0',
         '@tabler/icons-react': '^3.0.0',
         'clsx': '^2.0.0',
         'tailwind-merge': '^2.0.0'

@@ -75,6 +75,7 @@ export interface LibModule {
   files?: FileMapping[];
   path?: string;
   target?: string;
+  dependencies?: string[];
   internalDependencies?: string[];
 }
 
