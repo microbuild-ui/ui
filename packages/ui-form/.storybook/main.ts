@@ -61,6 +61,7 @@ const config: StorybookConfig = {
           '@microbuild/hooks': path.resolve(__dirname, '../../hooks/src'),
           '@microbuild/utils': path.resolve(__dirname, '../../utils/src'),
           '@microbuild/ui-interfaces': path.resolve(__dirname, '../../ui-interfaces/src'),
+          '@microbuild/ui-table': path.resolve(__dirname, '../../ui-table/src'),
           '@microbuild/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),
           '@microbuild/ui-form': path.resolve(__dirname, '../../ui-form/src'),
         },

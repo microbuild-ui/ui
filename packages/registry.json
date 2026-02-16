@@ -1212,9 +1212,46 @@
       "registryDependencies": ["vform"]
     },
     {
+      "name": "vtable",
+      "title": "VTable",
+      "description": "Presentation table with CSS Grid layout, column sorting, resizing, reordering (dnd-kit), row selection, manual row drag-and-drop, header context menus, and loading/empty states",
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-table/src/VTable.tsx",
+          "target": "components/ui/vtable.tsx"
+        },
+        {
+          "source": "ui-table/src/VTable.css",
+          "target": "components/ui/vtable.css"
+        },
+        {
+          "source": "ui-table/src/components/TableHeader.tsx",
+          "target": "components/ui/table-header.tsx"
+        },
+        {
+          "source": "ui-table/src/components/TableHeader.css",
+          "target": "components/ui/table-header.css"
+        },
+        {
+          "source": "ui-table/src/components/TableRow.tsx",
+          "target": "components/ui/table-row.tsx"
+        },
+        {
+          "source": "ui-table/src/components/TableRow.css",
+          "target": "components/ui/table-row.css"
+        },
+        {
+          "source": "ui-table/src/types.ts",
+          "target": "components/ui/vtable-types.ts"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities", "@tabler/icons-react"]
+    },
+    {
       "name": "collection-list",
       "title": "CollectionList",
-      "description": "Dynamic table with pagination, search, selection, and bulk actions",
+      "description": "Data-connected collection table composing VTable with pagination, search, sorting, column resize/reorder, header context menus, field add/remove, and bulk actions",
       "category": "collection",
       "files": [
         {
@@ -1223,7 +1260,22 @@
         }
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
-      "internalDependencies": ["types", "services"]
+      "internalDependencies": ["types", "services"],
+      "registryDependencies": ["vtable"]
+    },
+    {
+      "name": "filter-panel",
+      "title": "FilterPanel",
+      "description": "Field-type-aware filter builder producing Directus-compatible JSON with AND/OR logic, nested groups, and panel/inline/collapsible display modes",
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-collections/src/FilterPanel.tsx",
+          "target": "components/ui/filter-panel.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": ["types"]
     },
     {
       "name": "content-navigation",

@@ -42,6 +42,7 @@ const preview: Preview = {
             'ContentLayout', ['Docs', '*'],
             'ContentNavigation', ['Docs', '*'],
             'SaveOptions', ['Docs', '*'],
+            'FilterPanel', ['Docs', '*'],
             'CollectionForm', ['Docs', '*', 'Playground'],
             'CollectionList', ['Docs', '*', 'Playground'],
           ],

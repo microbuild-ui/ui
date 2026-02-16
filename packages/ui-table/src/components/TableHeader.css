@@ -176,3 +176,13 @@
 .table-header.reordering .cell {
   pointer-events: none;
 }
+
+/* Context menu popup */
+.header-context-menu {
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-sm);
+  box-shadow: var(--mantine-shadow-md);
+  min-width: 180px;
+  overflow: hidden;
+}

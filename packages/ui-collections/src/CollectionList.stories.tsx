@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
 import { CollectionList } from './CollectionList';
@@ -7,23 +8,26 @@ import { CollectionList } from './CollectionList';
 // ============================================================================
 
 const MOCK_FIELDS = [
-  { field: 'id', type: 'integer', meta: { hidden: false }, schema: { is_primary_key: true } },
-  { field: 'title', type: 'string', meta: { hidden: false, note: 'Title' }, schema: {} },
-  { field: 'status', type: 'string', meta: { hidden: false, note: 'Status' }, schema: {} },
-  { field: 'author', type: 'string', meta: { hidden: false, note: 'Author' }, schema: {} },
-  { field: 'category', type: 'string', meta: { hidden: false, note: 'Category' }, schema: {} },
-  { field: 'published_at', type: 'timestamp', meta: { hidden: false, note: 'Published' }, schema: {} },
+  { field: 'id', type: 'integer', collection: 'posts', meta: { id: 1, collection: 'posts', field: 'id', hidden: false, readonly: true }, schema: { name: 'id', table: 'posts', data_type: 'integer', is_primary_key: true, is_nullable: false, is_unique: true, has_auto_increment: true } },
+  { field: 'title', type: 'string', collection: 'posts', meta: { id: 2, collection: 'posts', field: 'title', hidden: false, readonly: false, note: 'Title' }, schema: { name: 'title', table: 'posts', data_type: 'text', is_primary_key: false, is_nullable: false, is_unique: false, has_auto_increment: false } },
+  { field: 'status', type: 'string', collection: 'posts', meta: { id: 3, collection: 'posts', field: 'status', hidden: false, readonly: false, note: 'Status' }, schema: { name: 'status', table: 'posts', data_type: 'text', is_primary_key: false, is_nullable: false, is_unique: false, has_auto_increment: false } },
+  { field: 'author', type: 'string', collection: 'posts', meta: { id: 4, collection: 'posts', field: 'author', hidden: false, readonly: false, note: 'Author' }, schema: { name: 'author', table: 'posts', data_type: 'text', is_primary_key: false, is_nullable: true, is_unique: false, has_auto_increment: false } },
+  { field: 'category', type: 'string', collection: 'posts', meta: { id: 5, collection: 'posts', field: 'category', hidden: false, readonly: false, note: 'Category' }, schema: { name: 'category', table: 'posts', data_type: 'text', is_primary_key: false, is_nullable: true, is_unique: false, has_auto_increment: false } },
+  { field: 'word_count', type: 'integer', collection: 'posts', meta: { id: 6, collection: 'posts', field: 'word_count', hidden: false, readonly: false, note: 'Word Count' }, schema: { name: 'word_count', table: 'posts', data_type: 'integer', is_primary_key: false, is_nullable: true, is_unique: false, has_auto_increment: false } },
+  { field: 'published_at', type: 'timestamp', collection: 'posts', meta: { id: 7, collection: 'posts', field: 'published_at', hidden: false, readonly: false, note: 'Published' }, schema: { name: 'published_at', table: 'posts', data_type: 'timestamptz', is_primary_key: false, is_nullable: true, is_unique: false, has_auto_increment: false } },
 ];
 
 const MOCK_ITEMS = [
-  { id: 1, title: 'Getting Started with Microbuild', status: 'published', author: 'Jane Smith', category: 'Tutorial', published_at: '2025-06-01' },
-  { id: 2, title: 'Building Dynamic Forms', status: 'published', author: 'John Doe', category: 'Guide', published_at: '2025-06-10' },
-  { id: 3, title: 'Advanced Table Patterns', status: 'draft', author: 'Alice Brown', category: 'Tutorial', published_at: null },
-  { id: 4, title: 'Authentication & Permissions', status: 'published', author: 'Bob Wilson', category: 'Security', published_at: '2025-07-01' },
-  { id: 5, title: 'Relational Interfaces Guide', status: 'review', author: 'Charlie Davis', category: 'Guide', published_at: null },
-  { id: 6, title: 'Deploying to Amplify', status: 'published', author: 'Jane Smith', category: 'DevOps', published_at: '2025-07-15' },
-  { id: 7, title: 'Custom Interface Components', status: 'draft', author: 'John Doe', category: 'Advanced', published_at: null },
-  { id: 8, title: 'File Upload Patterns', status: 'published', author: 'Alice Brown', category: 'Guide', published_at: '2025-08-01' },
+  { id: 1, title: 'Getting Started with Microbuild', status: 'published', author: 'Jane Smith', category: 'Tutorial', word_count: 2400, published_at: '2025-06-01' },
+  { id: 2, title: 'Building Dynamic Forms', status: 'published', author: 'John Doe', category: 'Guide', word_count: 1800, published_at: '2025-06-10' },
+  { id: 3, title: 'Advanced Table Patterns', status: 'draft', author: 'Alice Brown', category: 'Tutorial', word_count: 3100, published_at: null },
+  { id: 4, title: 'Authentication & Permissions', status: 'published', author: 'Bob Wilson', category: 'Security', word_count: 2200, published_at: '2025-07-01' },
+  { id: 5, title: 'Relational Interfaces Guide', status: 'review', author: 'Charlie Davis', category: 'Guide', word_count: 2750, published_at: null },
+  { id: 6, title: 'Deploying to Amplify', status: 'published', author: 'Jane Smith', category: 'DevOps', word_count: 1600, published_at: '2025-07-15' },
+  { id: 7, title: 'Custom Interface Components', status: 'draft', author: 'John Doe', category: 'Advanced', word_count: 4200, published_at: null },
+  { id: 8, title: 'File Upload Patterns', status: 'published', author: 'Alice Brown', category: 'Guide', word_count: 1950, published_at: '2025-08-01' },
+  { id: 9, title: 'Workflow State Machines', status: 'published', author: 'Bob Wilson', category: 'Advanced', word_count: 3600, published_at: '2025-08-15' },
+  { id: 10, title: 'Multitenancy Best Practices', status: 'review', author: 'Charlie Davis', category: 'Architecture', word_count: 2900, published_at: null },
 ];
 
 /**
@@ -55,7 +59,6 @@ const withMockApi: Decorator = (Story) => {
     return originalFetch(input, init);
   };
 
-  // Cleanup on unmount
   React.useEffect(() => {
     return () => { window.fetch = originalFetch; };
   });
@@ -71,30 +74,32 @@ const meta = {
   title: 'Collections/CollectionList',
   component: CollectionList,
   decorators: [withMockApi],
+  tags: ['!autodocs'],
   parameters: {
     layout: 'padded',
     docs: {
       description: {
         component:
-          'A dynamic list/table that fetches items from a collection. ' +
+          'A data-connected list that composes VTable for sorting, resize, reorder, and selection. ' +
+          'Fetches fields & items from FieldsService / ItemsService. ' +
+          'Right-click column headers for sort, align, and hide options. ' +
           'These stories use mock data. For live DaaS data, use the **Playground** story.',
       },
     },
   },
   argTypes: {
-    collection: {
-      control: 'text',
-      description: 'Collection name to display',
-    },
-    enableSelection: {
-      control: 'boolean',
-    },
-    enableSearch: {
-      control: 'boolean',
-    },
-    limit: {
-      control: 'number',
-      description: 'Items per page',
+    collection: { control: 'text', description: 'Collection name to display' },
+    enableSelection: { control: 'boolean' },
+    enableSearch: { control: 'boolean' },
+    enableSort: { control: 'boolean' },
+    enableResize: { control: 'boolean' },
+    enableReorder: { control: 'boolean' },
+    enableHeaderMenu: { control: 'boolean' },
+    enableAddField: { control: 'boolean' },
+    limit: { control: 'number', description: 'Items per page' },
+    tableSpacing: {
+      control: 'select',
+      options: ['compact', 'cozy', 'comfortable'],
     },
   },
 } satisfies Meta<typeof CollectionList>;
@@ -103,25 +108,76 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Basic list displaying collection items with search.
- * Uses mock data — no backend required.
+ * Default list displaying collection items with VTable.
+ * Supports sorting, column resize, and reorder out of the box.
+ * Right-click a column header for sort/align/hide options.
  */
-export const BasicList: Story = {
+export const Default: Story = {
   args: {
     collection: 'posts',
     enableSearch: true,
-    limit: 10,
+    enableSort: true,
+    enableResize: true,
+    enableReorder: true,
+    enableHeaderMenu: true,
+    enableAddField: true,
+    limit: 25,
+    tableSpacing: 'cozy',
   },
 };
 
 /**
- * With selection enabled for bulk actions.
+ * With row selection enabled for bulk actions.
  */
 export const WithSelection: Story = {
   args: {
     collection: 'posts',
     enableSelection: true,
     enableSearch: true,
-    limit: 10,
+    limit: 25,
+    bulkActions: [
+      { label: 'Delete', color: 'red', action: (ids) => alert(`Delete: ${ids.join(', ')}`) },
+      { label: 'Archive', action: (ids) => alert(`Archive: ${ids.join(', ')}`) },
+    ],
+  },
+};
+
+/**
+ * Compact spacing with limited columns.
+ */
+export const CompactSpacing: Story = {
+  args: {
+    collection: 'posts',
+    tableSpacing: 'compact',
+    fields: ['id', 'title', 'status'],
+    limit: 25,
+  },
+};
+
+/**
+ * Comfortable spacing for touch-friendly interfaces.
+ */
+export const ComfortableSpacing: Story = {
+  args: {
+    collection: 'posts',
+    tableSpacing: 'comfortable',
+    limit: 25,
+  },
+};
+
+/**
+ * With all interactive features disabled.
+ */
+export const ReadOnly: Story = {
+  args: {
+    collection: 'posts',
+    enableSort: false,
+    enableResize: false,
+    enableReorder: false,
+    enableHeaderMenu: false,
+    enableAddField: false,
+    enableSearch: false,
+    enableSelection: false,
+    limit: 25,
   },
 };

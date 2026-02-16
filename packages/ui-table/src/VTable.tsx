@@ -102,12 +102,16 @@ export interface VTableProps {
   renderRowAppend?: (item: Item) => React.ReactNode;
   /** Custom header append slot */
   renderHeaderAppend?: () => React.ReactNode;
+  /** Custom header context-menu renderer (right-click on a column header) */
+  renderHeaderContextMenu?: (header: Header) => React.ReactNode;
   /** Footer slot */
   renderFooter?: () => React.ReactNode;
   /** Selection change handler */
   onUpdate?: (value: unknown[]) => void;
   /** Sort change handler */
   onSortChange?: (sort: Sort | null) => void;
+  /** Header right-click handler */
+  onHeaderContextMenu?: (header: Header, event: React.MouseEvent) => void;
   /** Headers change handler (resize/reorder) */
   onHeadersChange?: (headers: HeaderRaw[]) => void;
   /** Items change handler (manual sort) */
@@ -227,9 +231,11 @@ export const VTable: React.FC<VTableProps> = ({
   renderHeader,
   renderRowAppend,
   renderHeaderAppend,
+  renderHeaderContextMenu,
   renderFooter,
   onUpdate,
   onSortChange,
+  onHeaderContextMenu,
   onHeadersChange,
   onItemsChange,
   onRowClick,
@@ -466,10 +472,12 @@ export const VTable: React.FC<VTableProps> = ({
           hasItemAppendSlot={!!renderRowAppend}
           manualSortKey={manualSortKey}
           renderHeader={renderHeader}
+          renderHeaderContextMenu={renderHeaderContextMenu}
           onSortChange={handleSortChange}
           onToggleSelectAll={handleToggleSelectAll}
           onHeadersChange={handleHeadersChange}
           onReorderingChange={setReordering}
+          onHeaderContextMenu={onHeaderContextMenu}
         />
 
         {/* Loading Indicator */}
