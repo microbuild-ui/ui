@@ -197,6 +197,10 @@
           "target": "lib/microbuild/hooks/useWorkflowVersioning.ts"
         },
         {
+          "source": "hooks/src/useCollections.ts",
+          "target": "lib/microbuild/hooks/useCollections.ts"
+        },
+        {
           "source": "cli/templates/lib/hooks/index.ts",
           "target": "lib/microbuild/hooks/index.ts"
         }
@@ -254,9 +258,36 @@
         {
           "source": "cli/templates/api/files-id-route.ts",
           "target": "app/api/files/[id]/route.ts"
+        },
+        {
+          "source": "cli/templates/api/collections-route.ts",
+          "target": "app/api/collections/route.ts"
         }
       ],
       "internalDependencies": ["supabase-auth"]
+    },
+    "content-routes": {
+      "name": "content-routes",
+      "description": "Content module pages with navigation sidebar, collection list, and item edit views",
+      "files": [
+        {
+          "source": "cli/templates/app/content/layout.tsx",
+          "target": "app/content/layout.tsx"
+        },
+        {
+          "source": "cli/templates/app/content/page.tsx",
+          "target": "app/content/page.tsx"
+        },
+        {
+          "source": "cli/templates/app/content/[collection]/page.tsx",
+          "target": "app/content/[collection]/page.tsx"
+        },
+        {
+          "source": "cli/templates/app/content/[collection]/[id]/page.tsx",
+          "target": "app/content/[collection]/[id]/page.tsx"
+        }
+      ],
+      "internalDependencies": ["api-routes", "hooks"]
     },
     "supabase-auth": {
       "name": "supabase-auth",
@@ -1193,6 +1224,49 @@
       ],
       "dependencies": ["@mantine/core", "@tabler/icons-react"],
       "internalDependencies": ["types", "services"]
+    },
+    {
+      "name": "content-navigation",
+      "title": "ContentNavigation",
+      "description": "Hierarchical sidebar navigation for the content module with collection tree, search, bookmarks, and group expand/collapse",
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-collections/src/ContentNavigation.tsx",
+          "target": "components/ui/content-navigation.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": ["types", "hooks"]
+    },
+    {
+      "name": "content-layout",
+      "title": "ContentLayout",
+      "description": "Content module shell layout with responsive sidebar, header bar (breadcrumbs, title, actions), and main content area",
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-collections/src/ContentLayout.tsx",
+          "target": "components/ui/content-layout.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@mantine/hooks", "@tabler/icons-react"],
+      "internalDependencies": [],
+      "registryDependencies": ["content-navigation"]
+    },
+    {
+      "name": "save-options",
+      "title": "SaveOptions",
+      "description": "Dropdown menu for additional save actions (save & stay, save & add new, save as copy, discard)",
+      "category": "collection",
+      "files": [
+        {
+          "source": "ui-collections/src/SaveOptions.tsx",
+          "target": "components/ui/save-options.tsx"
+        }
+      ],
+      "dependencies": ["@mantine/core", "@tabler/icons-react"],
+      "internalDependencies": []
     },
     {
       "name": "map",

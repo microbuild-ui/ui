@@ -39,6 +39,9 @@ const preview: Preview = {
         order: [
           'Collections',
           [
+            'ContentLayout', ['Docs', '*'],
+            'ContentNavigation', ['Docs', '*'],
+            'SaveOptions', ['Docs', '*'],
             'CollectionForm', ['Docs', '*', 'Playground'],
             'CollectionList', ['Docs', '*', 'Playground'],
           ],

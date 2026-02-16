@@ -3,3 +3,13 @@
   max-width: 1000px;
   margin: 0 auto;
 }
+
+.storybook-fullscreen {
+  height: 100vh;
+}
+
+.storybook-nav-wrapper {
+  width: 260px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
