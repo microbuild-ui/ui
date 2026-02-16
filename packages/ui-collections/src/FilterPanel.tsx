@@ -478,17 +478,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                     <Text size="xs" c="dimmed">Match</Text>
                     <Button
                         variant={rootGroup.logical === '_and' ? 'filled' : 'outline'}
-                        size="xs"
+                        size="compact-xs"
                         onClick={() => rootGroup.logical !== '_and' && toggleLogical()}
-                        compact="true"
                     >
                         ALL
                     </Button>
                     <Button
                         variant={rootGroup.logical === '_or' ? 'filled' : 'outline'}
-                        size="xs"
+                        size="compact-xs"
                         onClick={() => rootGroup.logical !== '_or' && toggleLogical()}
-                        compact="true"
                     >
                         ANY
                     </Button>

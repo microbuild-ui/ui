@@ -17,6 +17,7 @@ import { type Config, loadConfig, saveConfig } from './init.js';
 import { 
   transformImports, 
   transformRelativeImports,
+  transformIntraComponentImports,
   transformVFormImports,
   addOriginHeader
 } from './transformer.js';
@@ -306,11 +307,11 @@ async function copyComponent(
     component: component.name,
     files: component.files.map(f => ({ source: f.source, target: f.target })),
     dependencies: component.dependencies,
-    libDependencies: component.internalDependencies,
+    libDependencies: component.internalDependencies ?? [],
   };
 
   // Install internal dependencies first (types, services, hooks)
-  for (const dep of component.internalDependencies) {
+  for (const dep of (component.internalDependencies ?? [])) {
     if (!config.installedLib.includes(dep)) {
       spinner.text = `Installing dependency: ${dep}...`;
       if (!dryRun) {
@@ -355,6 +356,11 @@ async function copyComponent(
 
     // Read and transform
     let content = await resolveSourceFile(file.source);
+    
+    // Transform intra-component relative imports using registry file mappings
+    // (must run BEFORE normalizeImportPaths to avoid partial/incorrect transforms)
+    content = transformIntraComponentImports(content, file.source, file.target, component.files);
+    
     content = transformImports(content, config, file.target);
     
     // Transform relative imports for flattened folder structure

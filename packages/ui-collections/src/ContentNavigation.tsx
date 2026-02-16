@@ -45,6 +45,10 @@ import type { Collection, Bookmark } from '@microbuild/types';
 export interface CollectionTreeNode extends Collection {
   /** Display name (formatted from collection identifier) */
   name?: string;
+  /** Icon identifier (flattened from meta) */
+  icon?: string;
+  /** Color value (flattened from meta) */
+  color?: string;
   children: CollectionTreeNode[];
 }
 

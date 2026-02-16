@@ -14,6 +14,7 @@ import {
   transformImports,
   normalizeImportPaths,
   transformRelativeImports,
+  transformIntraComponentImports,
   transformVFormImports,
   toKebabCase,
   toPascalCase,
@@ -275,5 +276,106 @@ export const Input = () => {};`;
   test('returns null for content without origin', () => {
     const content = 'export const Input = () => {};';
     expect(extractOriginInfo(content)).toBeNull();
+  });
+});
+
+// ─── VTable / Collection-List transform regression tests ─────────
+
+const VTABLE_FILES = [
+  { source: 'ui-table/src/VTable.tsx', target: 'components/ui/vtable.tsx' },
+  { source: 'ui-table/src/VTable.css', target: 'components/ui/vtable.css' },
+  { source: 'ui-table/src/components/TableHeader.tsx', target: 'components/ui/table-header.tsx' },
+  { source: 'ui-table/src/components/TableHeader.css', target: 'components/ui/table-header.css' },
+  { source: 'ui-table/src/components/TableRow.tsx', target: 'components/ui/table-row.tsx' },
+  { source: 'ui-table/src/components/TableRow.css', target: 'components/ui/table-row.css' },
+  { source: 'ui-table/src/types.ts', target: 'components/ui/vtable-types.ts' },
+];
+
+describe('transformIntraComponentImports (vtable)', () => {
+  test('VTable.tsx: ./components/TableHeader → ./table-header', () => {
+    const input = `import { TableHeader } from './components/TableHeader';`;
+    const result = transformIntraComponentImports(
+      input, 'ui-table/src/VTable.tsx', 'components/ui/vtable.tsx', VTABLE_FILES
+    );
+    expect(result).toBe(`import { TableHeader } from './table-header';`);
+  });
+
+  test('VTable.tsx: ./components/TableRow → ./table-row', () => {
+    const input = `import { TableRow } from './components/TableRow';`;
+    const result = transformIntraComponentImports(
+      input, 'ui-table/src/VTable.tsx', 'components/ui/vtable.tsx', VTABLE_FILES
+    );
+    expect(result).toBe(`import { TableRow } from './table-row';`);
+  });
+
+  test('VTable.tsx: ./types → ./vtable-types', () => {
+    const input = `import type { HeaderRaw, Header } from './types';\nimport { HeaderDefaults } from './types';`;
+    const result = transformIntraComponentImports(
+      input, 'ui-table/src/VTable.tsx', 'components/ui/vtable.tsx', VTABLE_FILES
+    );
+    expect(result).toBe(`import type { HeaderRaw, Header } from './vtable-types';\nimport { HeaderDefaults } from './vtable-types';`);
+  });
+
+  test('VTable.tsx: CSS import ./VTable.css → ./vtable.css', () => {
+    const input = `import './VTable.css';`;
+    const result = transformIntraComponentImports(
+      input, 'ui-table/src/VTable.tsx', 'components/ui/vtable.tsx', VTABLE_FILES
+    );
+    expect(result).toBe(`import './vtable.css';`);
+  });
+
+  test('TableHeader.tsx: ../types → ./vtable-types', () => {
+    const input = `import type { Header, Sort, ShowSelect } from '../types';`;
+    const result = transformIntraComponentImports(
+      input, 'ui-table/src/components/TableHeader.tsx', 'components/ui/table-header.tsx', VTABLE_FILES
+    );
+    expect(result).toBe(`import type { Header, Sort, ShowSelect } from './vtable-types';`);
+  });
+
+  test('TableHeader.tsx: CSS import ./TableHeader.css → ./table-header.css', () => {
+    const input = `import './TableHeader.css';`;
+    const result = transformIntraComponentImports(
+      input, 'ui-table/src/components/TableHeader.tsx', 'components/ui/table-header.tsx', VTABLE_FILES
+    );
+    expect(result).toBe(`import './table-header.css';`);
+  });
+
+  test('TableRow.tsx: ../types → ./vtable-types', () => {
+    const input = `import type { Header, Item, ShowSelect } from '../types';`;
+    const result = transformIntraComponentImports(
+      input, 'ui-table/src/components/TableRow.tsx', 'components/ui/table-row.tsx', VTABLE_FILES
+    );
+    expect(result).toBe(`import type { Header, Item, ShowSelect } from './vtable-types';`);
+  });
+
+  test('single-file component is skipped', () => {
+    const input = `import { foo } from './bar';`;
+    const singleFile = [{ source: 'pkg/Foo.tsx', target: 'components/ui/foo.tsx' }];
+    const result = transformIntraComponentImports(input, 'pkg/Foo.tsx', 'components/ui/foo.tsx', singleFile);
+    expect(result).toBe(input);
+  });
+});
+
+describe('transformImports (@microbuild/ui-table)', () => {
+  test('value import → componentsAlias/vtable', () => {
+    const input = `import { VTable } from '@microbuild/ui-table';`;
+    const result = transformImports(input, defaultConfig);
+    expect(result).toBe(`import { VTable } from '@/components/ui/vtable';`);
+  });
+
+  test('type import → componentsAlias/vtable-types', () => {
+    const input = `import type { HeaderRaw, Sort, Alignment, Header } from '@microbuild/ui-table';`;
+    const result = transformImports(input, defaultConfig);
+    expect(result).toBe(`import type { HeaderRaw, Sort, Alignment, Header } from '@/components/ui/vtable-types';`);
+  });
+
+  test('subpath import → componentsAlias/subpath', () => {
+    const input = `import { something } from '@microbuild/ui-table/utils';`;
+    const result = transformImports(input, defaultConfig);
+    expect(result).toBe(`import { something } from '@/components/ui/utils';`);
+  });
+
+  test('hasMicrobuildImports detects @microbuild/ui-table', () => {
+    expect(hasMicrobuildImports(`import { VTable } from '@microbuild/ui-table';`)).toBe(true);
   });
 });
