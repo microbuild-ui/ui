@@ -17,6 +17,7 @@ import { type Config, loadConfig, saveConfig } from './init.js';
 import { 
   transformImports, 
   transformRelativeImports,
+  transformIntraComponentImports,
   transformVFormImports,
   addOriginHeader
 } from './transformer.js';
@@ -355,6 +356,11 @@ async function copyComponent(
 
     // Read and transform
     let content = await resolveSourceFile(file.source);
+    
+    // Transform intra-component relative imports using registry file mappings
+    // (must run BEFORE normalizeImportPaths to avoid partial/incorrect transforms)
+    content = transformIntraComponentImports(content, file.source, file.target, component.files);
+    
     content = transformImports(content, config, file.target);
     
     // Transform relative imports for flattened folder structure

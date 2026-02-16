@@ -5,6 +5,7 @@
  * This is the core of the Copy & Own model - making copied files self-contained.
  */
 
+import path from 'path';
 import type { Config } from './init.js';
 
 /**
@@ -85,6 +86,20 @@ export function getImportMappings(config: Config): ImportMapping[] {
     {
       from: /from ['"]@microbuild\/ui-form\/([^'"]+)['"]/g,
       to: `from '${componentsAlias}/vform/$1'`,
+    },
+    // UI Table (VTable - type-import pattern MUST come before general pattern
+    // so type imports resolve to vtable-types while value imports resolve to vtable)
+    {
+      from: /import type \{([^}]+)\} from ['"]@microbuild\/ui-table['"]/g,
+      to: `import type {$1} from '${componentsAlias}/vtable-types'`,
+    },
+    {
+      from: /from ['"]@microbuild\/ui-table['"]/g,
+      to: `from '${componentsAlias}/vtable'`,
+    },
+    {
+      from: /from ['"]@microbuild\/ui-table\/([^'"]+)['"]/g,
+      to: `from '${componentsAlias}/$1'`,
     },
     // Import type statements
     {
@@ -267,10 +282,86 @@ export function normalizeImportPaths(content: string, targetPath?: string): stri
 }
 
 /**
+ * Transform relative imports within a multi-file component using the registry
+ * file mappings. Resolves each relative import against the source file's location,
+ * looks up the corresponding target path, and rewrites the import to point to
+ * the correct target-relative path.
+ *
+ * Handles both module imports (`from './...'`) and side-effect imports (`import './...'` for CSS).
+ */
+export function transformIntraComponentImports(
+  content: string,
+  sourceFile: string,
+  targetFile: string,
+  fileMappings: Array<{ source: string; target: string }>
+): string {
+  // Only useful for multi-file components
+  if (!fileMappings || fileMappings.length <= 1) return content;
+
+  const sourceDir = path.posix.dirname(sourceFile);
+  const targetDir = path.posix.dirname(targetFile);
+
+  // Build lookup: resolved source path (no extension) → target path (no extension)
+  const sourceToTarget = new Map<string, string>();
+  // Build lookup: resolved source path (with extension) → target path (with extension)
+  const sourceToTargetExt = new Map<string, string>();
+
+  for (const fm of fileMappings) {
+    sourceToTarget.set(fm.source.replace(/\.\w+$/, ''), fm.target.replace(/\.\w+$/, ''));
+    sourceToTargetExt.set(fm.source, fm.target);
+  }
+
+  // Pattern 1: `from './...'` or `from '../...'` (JS/TS module imports)
+  let result = content.replace(
+    /from\s+(['"])(\.[^'"]+)\1/g,
+    (match, _quote, importPath) => {
+      const resolved = path.posix.join(sourceDir, importPath);
+      // Try with and without extension stripping
+      const resolvedNoExt = resolved.replace(/\.\w+$/, '');
+      const mapped = sourceToTarget.get(resolvedNoExt) ?? sourceToTarget.get(resolved);
+      if (mapped) {
+        let rel = path.posix.relative(targetDir, mapped);
+        if (!rel.startsWith('.')) rel = './' + rel;
+        return match.replace(importPath, rel);
+      }
+      return match;
+    }
+  );
+
+  // Pattern 2: `import './...'` (CSS/side-effect imports, no `from`)
+  result = result.replace(
+    /import\s+(['"])(\.[^'"]+)\1/g,
+    (match, _quote, importPath) => {
+      // Skip if it looks like a `from` import (already handled above)
+      // This regex only fires for bare `import '...'` statements
+      const resolved = path.posix.join(sourceDir, importPath);
+      // Try with extension first (CSS files keep extensions)
+      const mappedExt = sourceToTargetExt.get(resolved);
+      if (mappedExt) {
+        let rel = path.posix.relative(targetDir, mappedExt);
+        if (!rel.startsWith('.')) rel = './' + rel;
+        return match.replace(importPath, rel);
+      }
+      // Fallback: try without extension
+      const resolvedNoExt = resolved.replace(/\.\w+$/, '');
+      const mapped = sourceToTarget.get(resolvedNoExt);
+      if (mapped) {
+        let rel = path.posix.relative(targetDir, mapped);
+        if (!rel.startsWith('.')) rel = './' + rel;
+        return match.replace(importPath, rel);
+      }
+      return match;
+    }
+  );
+
+  return result;
+}
+
+/**
  * Check if content has @microbuild/* imports
  */
 export function hasMicrobuildImports(content: string): boolean {
-  return /@microbuild\/(types|services|hooks|utils|ui-interfaces|ui-collections|ui-form)/.test(content);
+  return /@microbuild\/(types|services|hooks|utils|ui-interfaces|ui-collections|ui-form|ui-table)/.test(content);
 }
 
 /**
