@@ -293,7 +293,7 @@ All Storybooks use **Storybook 10** with `@storybook/nextjs-vite`.
 | `/storybook/interfaces/` | `@microbuild/ui-interfaces` | 40+ field interface components |
 | `/storybook/form/` | `@microbuild/ui-form` | VForm dynamic form component |
 | `/storybook/table/` | `@microbuild/ui-table` | VTable dynamic table component |
-| `/storybook/collections/` | `@microbuild/ui-collections` | CollectionForm & CollectionList |
+| `/storybook/collections/` | `@microbuild/ui-collections` | CollectionForm, CollectionList, ContentLayout, ContentNavigation, FilterPanel, SaveOptions |
 | `/api/connect` | storybook-host | Store DaaS credentials (encrypted cookie) |
 | `/api/status` | storybook-host | Check connection status |
 | `/api/[...path]` | storybook-host | Catch-all proxy to DaaS backend |

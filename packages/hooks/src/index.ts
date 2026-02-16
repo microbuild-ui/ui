@@ -118,5 +118,13 @@ export { api, directusAPI, createDirectusAPI, type DirectusAPIConfig, type Query
 // Re-export types for convenience
 export type { Relation, RelationMeta, RelationSchema, RelationCollectionMeta, RelationFieldInfo } from '@microbuild/types';
 
+// Collection navigation hooks
+export {
+    useCollections,
+    type CollectionTreeNode,
+    type UseCollectionsOptions,
+    type UseCollectionsReturn
+} from './useCollections';
+
 // Utility functions
 export { apiRequest, isValidPrimaryKey } from './utils';

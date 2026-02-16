@@ -2,31 +2,46 @@
  * CollectionList Component
  * 
  * A dynamic list/table that fetches items from a collection.
- * Used by ListO2M and ListM2M for selecting existing items.
+ * Composes VTable for presentation (sorting, resize, reorder, selection)
+ * with data fetching from FieldsService/ItemsService.
+ * 
+ * Used by ListO2M and ListM2M for selecting existing items,
+ * and by content module pages for collection list views.
  * 
  * @package @microbuild/ui-collections
  */
 
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-    Paper,
-    Table,
     Group,
     Button,
     Text,
-    Checkbox,
     Stack,
-    LoadingOverlay,
     TextInput,
     Pagination,
     Select,
     Alert,
     ActionIcon,
+    Menu,
 } from '@mantine/core';
-import { IconSearch, IconRefresh, IconAlertCircle } from '@tabler/icons-react';
+import {
+    IconSearch,
+    IconRefresh,
+    IconAlertCircle,
+    IconSortAscending,
+    IconSortDescending,
+    IconAlignLeft,
+    IconAlignCenter,
+    IconAlignRight,
+    IconEyeOff,
+    IconPlus,
+    IconFilter,
+} from '@tabler/icons-react';
 import { FieldsService, ItemsService } from '@microbuild/services';
+import { VTable } from '@microbuild/ui-table';
+import type { HeaderRaw, Sort, Alignment, Header } from '@microbuild/ui-table';
 import type { Field, AnyItem } from '@microbuild/types';
 
 export interface BulkAction {
@@ -41,20 +56,38 @@ export interface CollectionListProps {
     collection: string;
     /** Enable row selection */
     enableSelection?: boolean;
-    /** Filter to apply */
+    /** Filter to apply (Directus-style filter object) */
     filter?: Record<string, unknown>;
     /** Bulk actions for selected items */
     bulkActions?: BulkAction[];
-    /** Fields to display (defaults to first 4 fields) */
+    /** Fields to display (defaults to first 5 visible fields) */
     fields?: string[];
     /** Items per page */
     limit?: number;
     /** Enable search */
     enableSearch?: boolean;
+    /** Enable column sorting */
+    enableSort?: boolean;
+    /** Enable column resize */
+    enableResize?: boolean;
+    /** Enable column reorder (drag headers) */
+    enableReorder?: boolean;
+    /** Enable header context menu (right-click for sort, align, hide) */
+    enableHeaderMenu?: boolean;
+    /** Enable inline "add field" button in header */
+    enableAddField?: boolean;
     /** Primary key field name */
     primaryKeyField?: string;
-    /** Callback when item is clicked */
+    /** Row height in pixels */
+    rowHeight?: number;
+    /** Table spacing preset */
+    tableSpacing?: 'compact' | 'cozy' | 'comfortable';
+    /** Callback when item row is clicked */
     onItemClick?: (item: AnyItem) => void;
+    /** Callback when visible fields change */
+    onFieldsChange?: (fields: string[]) => void;
+    /** Callback when sort changes */
+    onSortChange?: (sort: Sort | null) => void;
 }
 
 // System fields to exclude from default display
@@ -65,8 +98,16 @@ const SYSTEM_FIELDS = [
     'date_updated',
 ];
 
+// Row height per spacing preset
+const SPACING_HEIGHT: Record<string, number> = {
+    compact: 32,
+    cozy: 48,
+    comfortable: 56,
+};
+
 /**
- * CollectionList - Dynamic list for displaying collection items
+ * CollectionList - Dynamic list for displaying collection items.
+ * Composes VTable for sorting, resize, reorder, selection, and context menu.
  */
 export const CollectionList: React.FC<CollectionListProps> = ({
     collection,
@@ -74,39 +115,73 @@ export const CollectionList: React.FC<CollectionListProps> = ({
     filter,
     bulkActions = [],
     fields: displayFields,
-    limit: initialLimit = 15,
+    limit: initialLimit = 25,
     enableSearch = true,
+    enableSort = true,
+    enableResize = true,
+    enableReorder = true,
+    enableHeaderMenu = true,
+    enableAddField = true,
     primaryKeyField = 'id',
+    rowHeight: rowHeightProp,
+    tableSpacing = 'cozy',
     onItemClick,
+    onFieldsChange,
+    onSortChange: onSortChangeProp,
 }) => {
-    const [fields, setFields] = useState<Field[]>([]);
+    // ----- Data state -----
+    const [allFields, setAllFields] = useState<Field[]>([]);
+    const [visibleFieldKeys, setVisibleFieldKeys] = useState<string[]>([]);
     const [items, setItems] = useState<AnyItem[]>([]);
     const [totalCount, setTotalCount] = useState(0);
-    const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
+    const [selectedItems, setSelectedItems] = useState<unknown[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
-    // Pagination state
+
+    // ----- Pagination & search state -----
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(initialLimit);
     const [search, setSearch] = useState('');
 
+    // ----- Sort state -----
+    const [sort, setSort] = useState<Sort>({ by: null, desc: false });
+
+    // ----- Header state (for resize/reorder persistence) -----
+    const [headerOverrides, setHeaderOverrides] = useState<Record<string, Partial<HeaderRaw>>>({});
+
+    // ----- Computed row height -----
+    const rowHeight = rowHeightProp ?? SPACING_HEIGHT[tableSpacing] ?? 48;
+
+    // =========================================================================
     // Load fields for the collection
+    // =========================================================================
     useEffect(() => {
         const loadFields = async () => {
             try {
                 const fieldsService = new FieldsService();
-                const allFields = await fieldsService.readAll(collection);
-                
-                // Filter out system fields and alias fields
-                const visibleFields = allFields.filter((f: Field) => {
+                const result = await fieldsService.readAll(collection);
+
+                // All non-system, non-hidden, non-alias fields
+                const visible = result.filter((f: Field) => {
                     if (SYSTEM_FIELDS.includes(f.field)) return false;
                     if (f.type === 'alias') return false;
                     if (f.meta?.hidden) return false;
                     return true;
                 });
 
-                setFields(visibleFields);
+                setAllFields(visible);
+
+                // Set initial visible columns
+                if (displayFields) {
+                    setVisibleFieldKeys(displayFields);
+                } else {
+                    const initial = visible.slice(0, 5).map((f: Field) => f.field);
+                    // Always include PK
+                    if (!initial.includes(primaryKeyField)) {
+                        initial.unshift(primaryKeyField);
+                    }
+                    setVisibleFieldKeys(initial);
+                }
             } catch (err) {
                 console.error('Error loading fields:', err);
                 setError(
@@ -117,50 +192,49 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         };
 
         loadFields();
-    }, [collection]);
+    }, [collection, displayFields, primaryKeyField]);
 
+    // =========================================================================
     // Load items
+    // =========================================================================
     const loadItems = useCallback(async () => {
+        if (visibleFieldKeys.length === 0) return;
         try {
             setLoading(true);
             setError(null);
 
             const itemsService = new ItemsService(collection);
-            
-            // Build query
             const query: Record<string, unknown> = {
                 limit,
                 page,
                 meta: ['total_count', 'filter_count'],
             };
 
-            // Add fields to fetch
-            const fieldsToFetch = displayFields || fields.slice(0, 5).map((f: Field) => f.field);
-            if (fieldsToFetch.length > 0) {
-                // Always include primary key
-                if (!fieldsToFetch.includes(primaryKeyField)) {
-                    fieldsToFetch.unshift(primaryKeyField);
-                }
-                query.fields = fieldsToFetch;
+            // Fields to fetch — always include PK
+            const fieldsToFetch = [...visibleFieldKeys];
+            if (!fieldsToFetch.includes(primaryKeyField)) {
+                fieldsToFetch.unshift(primaryKeyField);
             }
+            query.fields = fieldsToFetch;
 
-            // Add filter
-            if (filter) {
+            // Filter
+            if (filter && Object.keys(filter).length > 0) {
                 query.filter = filter;
             }
 
-            // Add search
+            // Search
             if (search) {
                 query.search = search;
             }
 
+            // Sort
+            if (sort.by) {
+                query.sort = sort.desc ? `-${sort.by}` : sort.by;
+            }
+
             const result = await itemsService.readByQuery(query);
             setItems(result || []);
-            
-            // Try to get total count from meta or fallback to items length
-            // Note: The API should return meta.total_count
             setTotalCount(result.length || 0);
-            
         } catch (err) {
             console.error('Error loading items:', err);
             setError(err instanceof Error ? err.message : 'Failed to load items');
@@ -168,67 +242,202 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         } finally {
             setLoading(false);
         }
-    }, [collection, fields, displayFields, filter, limit, page, search, primaryKeyField]);
+    }, [collection, visibleFieldKeys, filter, limit, page, search, sort, primaryKeyField]);
 
-    // Load items when dependencies change
     useEffect(() => {
-        if (fields.length > 0 || displayFields) {
+        if (visibleFieldKeys.length > 0) {
             loadItems();
         }
-    }, [loadItems, fields.length, displayFields]);
+    }, [loadItems, visibleFieldKeys.length]);
 
-    // Reset page when search changes
-    useEffect(() => {
-        setPage(1);
-    }, [search]);
+    // Reset page on search/filter change
+    useEffect(() => { setPage(1); }, [search, filter]);
 
-    // Toggle item selection
-    const toggleSelection = (id: string | number) => {
-        setSelectedIds(prev => 
-            prev.includes(id) 
-                ? prev.filter(i => i !== id)
-                : [...prev, id]
-        );
-    };
+    // =========================================================================
+    // Build VTable headers from field metadata
+    // =========================================================================
+    const headers = useMemo<HeaderRaw[]>(() => {
+        return visibleFieldKeys.map((key) => {
+            const fieldMeta = allFields.find((f) => f.field === key);
+            const overrides = headerOverrides[key] || {};
+            const label = fieldMeta?.meta?.note
+                || key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 
-    // Toggle all items
-    const toggleAll = () => {
-        if (selectedIds.length === items.length && items.length > 0) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(items.map(i => i[primaryKeyField] as string | number));
-        }
-    };
+            return {
+                text: label,
+                value: key,
+                sortable: enableSort,
+                align: (overrides.align as Alignment) || 'left',
+                width: overrides.width ?? null,
+                // Attach field metadata for consumers
+                field: fieldMeta,
+                ...overrides,
+            } as HeaderRaw;
+        });
+    }, [visibleFieldKeys, allFields, headerOverrides, enableSort]);
 
-    // Get columns to display
-    const getDisplayColumns = (): string[] => {
-        if (displayFields) return displayFields;
-        // Default: show first 4 non-id fields plus id
-        const cols = fields
-            .filter((f: Field) => f.field !== primaryKeyField)
-            .slice(0, 4)
-            .map((f: Field) => f.field);
-        return [primaryKeyField, ...cols];
-    };
-
-    const columns = getDisplayColumns();
+    // =========================================================================
+    // Derived / computed
+    // =========================================================================
     const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+    const selectedIds = useMemo(() => {
+        return selectedItems.map((item) =>
+            typeof item === 'object' && item !== null ? (item as AnyItem)[primaryKeyField] : item
+        ) as (string | number)[];
+    }, [selectedItems, primaryKeyField]);
 
-    // Format column header
-    const formatHeader = (fieldName: string): string => {
-        const field = fields.find((f: Field) => f.field === fieldName);
-        if (field?.meta?.note) return field.meta.note;
-        return fieldName.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-    };
+    // =========================================================================
+    // Field add/remove helpers
+    // =========================================================================
+    const addField = useCallback((fieldKey: string) => {
+        setVisibleFieldKeys((prev) => {
+            if (prev.includes(fieldKey)) return prev;
+            const next = [...prev, fieldKey];
+            onFieldsChange?.(next);
+            return next;
+        });
+    }, [onFieldsChange]);
 
-    // Format cell value
-    const formatValue = (value: unknown): string => {
-        if (value === null || value === undefined) return '-';
-        if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-        if (typeof value === 'object') return JSON.stringify(value);
-        return String(value);
-    };
+    const removeField = useCallback((fieldKey: string) => {
+        setVisibleFieldKeys((prev) => {
+            const next = prev.filter((k) => k !== fieldKey);
+            onFieldsChange?.(next);
+            return next;
+        });
+    }, [onFieldsChange]);
 
+    // =========================================================================
+    // Header context menu actions
+    // =========================================================================
+    const handleAlignChange = useCallback((fieldKey: string, align: Alignment) => {
+        setHeaderOverrides((prev) => ({
+            ...prev,
+            [fieldKey]: { ...prev[fieldKey], align },
+        }));
+    }, []);
+
+    const handleSortChange = useCallback((newSort: Sort | null) => {
+        const s = newSort ?? { by: null, desc: false };
+        setSort(s);
+        onSortChangeProp?.(s);
+    }, [onSortChangeProp]);
+
+    const handleHeadersChange = useCallback((newHeaders: HeaderRaw[]) => {
+        // Persist width/align overrides
+        const overrides: Record<string, Partial<HeaderRaw>> = {};
+        newHeaders.forEach((h) => {
+            overrides[h.value] = {};
+            if (h.width) overrides[h.value].width = h.width;
+            if (h.align && h.align !== 'left') overrides[h.value].align = h.align;
+        });
+        setHeaderOverrides((prev) => ({ ...prev, ...overrides }));
+        // Update visible field order
+        setVisibleFieldKeys(newHeaders.map((h) => h.value));
+    }, []);
+
+    // =========================================================================
+    // Render header context menu (right-click)
+    // =========================================================================
+    const renderHeaderContextMenu = useCallback((header: Header) => {
+        if (!enableHeaderMenu) return null;
+        return (
+            <div style={{ padding: 4, minWidth: 180 }}>
+                {/* Sort */}
+                <Menu.Label>Sort</Menu.Label>
+                <div
+                    role="menuitem"
+                    className="mantine-Menu-item"
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', cursor: 'pointer' }}
+                    onClick={() => handleSortChange({ by: header.value, desc: false })}
+                >
+                    <IconSortAscending size={14} />
+                    <Text size="sm">Sort ascending</Text>
+                </div>
+                <div
+                    role="menuitem"
+                    className="mantine-Menu-item"
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', cursor: 'pointer' }}
+                    onClick={() => handleSortChange({ by: header.value, desc: true })}
+                >
+                    <IconSortDescending size={14} />
+                    <Text size="sm">Sort descending</Text>
+                </div>
+
+                <div style={{ borderTop: '1px solid var(--mantine-color-default-border)', margin: '4px 0' }} />
+
+                {/* Alignment */}
+                <Menu.Label>Alignment</Menu.Label>
+                {([
+                    { align: 'left' as Alignment, icon: <IconAlignLeft size={14} />, label: 'Align left' },
+                    { align: 'center' as Alignment, icon: <IconAlignCenter size={14} />, label: 'Align center' },
+                    { align: 'right' as Alignment, icon: <IconAlignRight size={14} />, label: 'Align right' },
+                ]).map(({ align, icon, label }) => (
+                    <div
+                        key={align}
+                        role="menuitem"
+                        className="mantine-Menu-item"
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', cursor: 'pointer',
+                            fontWeight: header.align === align ? 600 : 400,
+                            color: header.align === align ? 'var(--mantine-color-primary)' : undefined,
+                        }}
+                        onClick={() => handleAlignChange(header.value, align)}
+                    >
+                        {icon}
+                        <Text size="sm">{label}</Text>
+                    </div>
+                ))}
+
+                <div style={{ borderTop: '1px solid var(--mantine-color-default-border)', margin: '4px 0' }} />
+
+                {/* Hide field */}
+                <div
+                    role="menuitem"
+                    className="mantine-Menu-item"
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', cursor: 'pointer', color: 'var(--mantine-color-red-6)' }}
+                    onClick={() => removeField(header.value)}
+                >
+                    <IconEyeOff size={14} />
+                    <Text size="sm">Hide field</Text>
+                </div>
+            </div>
+        );
+    }, [enableHeaderMenu, handleSortChange, handleAlignChange, removeField]);
+
+    // =========================================================================
+    // "Add field" button for header append slot
+    // =========================================================================
+    const hiddenFields = useMemo(() => {
+        return allFields.filter((f) => !visibleFieldKeys.includes(f.field));
+    }, [allFields, visibleFieldKeys]);
+
+    const renderHeaderAppend = useCallback(() => {
+        if (!enableAddField || hiddenFields.length === 0) return null;
+        return (
+            <Menu position="bottom-end" withArrow shadow="md" closeOnItemClick>
+                <Menu.Target>
+                    <ActionIcon variant="subtle" size="sm" title="Add field">
+                        <IconPlus size={16} />
+                    </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                    <Menu.Label>Add field</Menu.Label>
+                    {hiddenFields.map((f) => (
+                        <Menu.Item
+                            key={f.field}
+                            onClick={() => addField(f.field)}
+                        >
+                            {f.meta?.note || f.field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </Menu.Item>
+                    ))}
+                </Menu.Dropdown>
+            </Menu>
+        );
+    }, [enableAddField, hiddenFields, addField]);
+
+    // =========================================================================
+    // Render
+    // =========================================================================
     return (
         <Stack gap="md" data-testid="collection-list">
             {/* Search and Actions Bar */}
@@ -284,106 +493,64 @@ export const CollectionList: React.FC<CollectionListProps> = ({
                 </Alert>
             )}
 
-            {/* Table */}
-            <Paper withBorder pos="relative">
-                <LoadingOverlay visible={loading} />
-                
-                <Table striped highlightOnHover data-testid="collection-list-table">
-                    <Table.Thead>
-                        <Table.Tr>
-                            {enableSelection && (
-                                <Table.Th style={{ width: 40 }}>
-                                    <Checkbox
-                                        checked={selectedIds.length === items.length && items.length > 0}
-                                        indeterminate={selectedIds.length > 0 && selectedIds.length < items.length}
-                                        onChange={toggleAll}
-                                        data-testid="collection-list-select-all"
-                                    />
-                                </Table.Th>
-                            )}
-                            {columns.map(col => (
-                                <Table.Th key={col}>{formatHeader(col)}</Table.Th>
-                            ))}
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        {items.length === 0 && !loading ? (
-                            <Table.Tr>
-                                <Table.Td colSpan={columns.length + (enableSelection ? 1 : 0)}>
-                                    <Text ta="center" c="dimmed" py="xl">
-                                        No items found
-                                    </Text>
-                                </Table.Td>
-                            </Table.Tr>
-                        ) : (
-                            items.map((item) => {
-                                const itemId = item[primaryKeyField] as string | number;
-                                return (
-                                    <Table.Tr 
-                                        key={itemId}
-                                        bg={selectedIds.includes(itemId) ? 'var(--mantine-color-blue-light)' : undefined}
-                                        style={{ cursor: onItemClick ? 'pointer' : undefined }}
-                                        onClick={() => onItemClick?.(item)}
-                                        data-testid={`collection-list-row-${itemId}`}
-                                    >
-                                        {enableSelection && (
-                                            <Table.Td onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-                                                <Checkbox
-                                                    checked={selectedIds.includes(itemId)}
-                                                    onChange={() => toggleSelection(itemId)}
-                                                    data-testid={`collection-list-select-${itemId}`}
-                                                />
-                                            </Table.Td>
-                                        )}
-                                        {columns.map(col => (
-                                            <Table.Td key={col}>
-                                                <Text size="sm" lineClamp={1}>
-                                                    {formatValue(item[col])}
-                                                </Text>
-                                            </Table.Td>
-                                        ))}
-                                    </Table.Tr>
-                                );
-                            })
-                        )}
-                    </Table.Tbody>
-                </Table>
-            </Paper>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <Group justify="space-between" data-testid="collection-list-pagination">
-                    <Group>
+            {/* VTable */}
+            <VTable
+                headers={headers}
+                items={items}
+                itemKey={primaryKeyField}
+                sort={sort}
+                mustSort={false}
+                showSelect={enableSelection ? 'multiple' : 'none'}
+                showResize={enableResize}
+                allowHeaderReorder={enableReorder}
+                value={selectedItems}
+                fixedHeader
+                loading={loading}
+                loadingText="Loading items..."
+                noItemsText="No items found"
+                rowHeight={rowHeight}
+                selectionUseKeys
+                clickable={!!onItemClick}
+                renderHeaderContextMenu={enableHeaderMenu ? renderHeaderContextMenu : undefined}
+                renderHeaderAppend={enableAddField ? renderHeaderAppend : undefined}
+                renderFooter={() => (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px' }}>
                         <Text size="sm" c="dimmed">
-                            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, totalCount)} of {totalCount}
+                            {loading
+                                ? 'Loading...'
+                                : `Showing ${Math.min(((page - 1) * limit) + 1, totalCount)}–${Math.min(page * limit, totalCount)} of ${totalCount}`
+                            }
                         </Text>
-                    </Group>
-
-                    <Group>
-                        <Text size="sm">Items per page:</Text>
-                        <Select
-                            value={String(limit)}
-                            onChange={(value) => {
-                                if (value) {
-                                    setLimit(Number(value));
-                                    setPage(1);
-                                }
-                            }}
-                            data={['10', '15', '25', '50', '100']}
-                            style={{ width: 80 }}
-                            data-testid="collection-list-per-page"
-                        />
-
-                        <Pagination
-                            value={page}
-                            onChange={setPage}
-                            total={totalPages}
-                            size="sm"
-                            data-testid="collection-list-pagination-control"
-                        />
-                    </Group>
-                </Group>
-            )}
+                        <Group>
+                            <Text size="sm">Per page:</Text>
+                            <Select
+                                value={String(limit)}
+                                onChange={(value) => {
+                                    if (value) { setLimit(Number(value)); setPage(1); }
+                                }}
+                                data={['10', '25', '50', '100']}
+                                size="xs"
+                                style={{ width: 72 }}
+                                data-testid="collection-list-per-page"
+                            />
+                            {totalPages > 1 && (
+                                <Pagination
+                                    value={page}
+                                    onChange={setPage}
+                                    total={totalPages}
+                                    size="sm"
+                                    data-testid="collection-list-pagination-control"
+                                />
+                            )}
+                        </Group>
+                    </div>
+                )}
+                onUpdate={setSelectedItems}
+                onSortChange={handleSortChange}
+                onHeadersChange={handleHeadersChange}
+                onRowClick={onItemClick ? ({ item }) => onItemClick(item as AnyItem) : undefined}
+                data-testid="collection-list-table"
+            />
         </Stack>
     );
 };

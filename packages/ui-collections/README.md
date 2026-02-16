@@ -1,6 +1,17 @@
 # @microbuild/ui-collections
 
-Dynamic collection components for Microbuild projects. `CollectionForm` provides CRUD operations with data fetching, using `VForm` from `@microbuild/ui-form` for rendering all 40+ interface types. `CollectionList` displays collection items with pagination, search, and bulk actions.
+Dynamic collection components for Microbuild projects. Includes CRUD forms, data tables, navigation, layouts, and filter builders — all inspired by Directus's content module.
+
+## Components
+
+| Component | Description |
+|-----------|-------------|
+| `CollectionForm` | CRUD form with auto-field detection (uses VForm for 40+ interface types) |
+| `CollectionList` | Dynamic table with pagination, search, selection, bulk actions |
+| `ContentLayout` | Shell layout with sidebar navigation and main content area |
+| `ContentNavigation` | Hierarchical sidebar navigation for collections |
+| `FilterPanel` | Field-type-aware filter builder for collection queries |
+| `SaveOptions` | Dropdown menu with save actions (save & stay, save & add new, etc.) |
 
 ## Architecture
 
@@ -104,6 +115,138 @@ function ProductList() {
 }
 ```
 
+### ContentLayout
+
+Shell layout providing sidebar navigation and main content area with header:
+
+```tsx
+import { ContentLayout, ContentNavigation } from '@microbuild/ui-collections';
+
+function ContentModule() {
+  const [currentCollection, setCurrentCollection] = useState('products');
+  const collections = useCollections(); // From your data layer
+  
+  return (
+    <ContentLayout
+      title="Products"
+      breadcrumbs={[
+        { label: 'Content', href: '/content' },
+        { label: 'Products' },
+      ]}
+      icon="box"
+      actions={
+        <Button onClick={() => router.push('/content/products/+')}>
+          Create New
+        </Button>
+      }
+      navigation={
+        <ContentNavigation
+          currentCollection={currentCollection}
+          rootCollections={collections}
+          onNavigate={setCurrentCollection}
+          activeGroups={['system']}
+          onToggleGroup={(id) => console.log('Toggle', id)}
+          showSearch
+        />
+      }
+    >
+      {/* Main content area */}
+      <CollectionList collection={currentCollection} />
+    </ContentLayout>
+  );
+}
+```
+
+### ContentNavigation
+
+Hierarchical sidebar navigation with search, grouping, and bookmarks:
+
+```tsx
+import { ContentNavigation } from '@microbuild/ui-collections';
+
+function Sidebar() {
+  const collections = useCollections(); // Build your tree structure
+  
+  return (
+    <ContentNavigation
+      currentCollection="products"
+      rootCollections={collections}
+      activeGroups={['content', 'system']}
+      onToggleGroup={(id) => setExpandedGroups([...groups, id])}
+      onNavigate={(collection) => router.push(`/content/${collection}`)}
+      showSearch
+      showHidden={false}
+      onToggleHidden={() => setShowHidden(!showHidden)}
+      hasHiddenCollections
+      isAdmin
+    />
+  );
+}
+```
+
+### FilterPanel
+
+Build field-type-aware filters for collection queries:
+
+```tsx
+import { FilterPanel } from '@microbuild/ui-collections';
+
+function ProductFilters() {
+  const [filter, setFilter] = useState({});
+  const fields = useFields('products'); // Fetch field definitions
+  
+  return (
+    <FilterPanel
+      collection="products"
+      fields={fields}
+      value={filter}
+      onChange={setFilter}
+      onApply={(filter) => {
+        console.log('Apply filter:', filter);
+        // Pass to CollectionList or ItemsService
+      }}
+      onClear={() => setFilter({})}
+    />
+  );
+}
+
+// Use with CollectionList
+<CollectionList collection="products" filter={filter} />
+```
+
+### SaveOptions
+
+Save action dropdown menu for forms:
+
+```tsx
+import { SaveOptions } from '@microbuild/ui-collections';
+
+function FormActions() {
+  return (
+    <Group>
+      <Button onClick={handleSave}>Save</Button>
+      <SaveOptions
+        onSaveAndStay={() => {
+          handleSave();
+          // Stay on current page
+        }}
+        onSaveAndAddNew={() => {
+          handleSave();
+          router.push('/products/+');
+        }}
+        onSaveAsCopy={() => {
+          handleSaveAsCopy();
+        }}
+        onDiscardAndStay={() => {
+          resetForm();
+        }}
+        disabledOptions={['save-as-copy']}
+      />
+    </Group>
+  );
+}
+```
+
 ## API Reference
 
 ### CollectionFormProps
@@ -144,6 +287,59 @@ interface BulkAction {
 }
 ```
 
+### ContentLayoutProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | - | Page title |
+| `icon` | `string \| ReactNode` | - | Page icon (Tabler icon name or component) |
+| `breadcrumbs` | `BreadcrumbItem[]` | - | Breadcrumb navigation |
+| `actions` | `ReactNode` | - | Header action buttons |
+| `navigation` | `ReactNode` | - | Sidebar navigation component |
+| `children` | `ReactNode` | required | Main content area |
+| `loading` | `boolean` | `false` | Show loading skeleton |
+| `sidebarDefaultOpened` | `boolean` | `true` | Sidebar initially opened |
+
+### ContentNavigationProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `currentCollection` | `string` | - | Active collection |
+| `rootCollections` | `CollectionTreeNode[]` | required | Collection tree structure |
+| `activeGroups` | `string[]` | required | Expanded group IDs |
+| `onToggleGroup` | `(id: string) => void` | required | Toggle group expand/collapse |
+| `onNavigate` | `(collection: string) => void` | required | Navigate to collection |
+| `showHidden` | `boolean` | `false` | Show hidden collections |
+| `onToggleHidden` | `() => void` | - | Toggle hidden visibility |
+| `hasHiddenCollections` | `boolean` | `false` | Whether hidden collections exist |
+| `showSearch` | `boolean` | `false` | Enable search |
+| `isAdmin` | `boolean` | `false` | User is admin |
+| `bookmarks` | `Bookmark[]` | - | Collection bookmarks |
+| `onBookmarkClick` | `(bookmark: Bookmark) => void` | - | Bookmark click handler |
+
+### FilterPanelProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `collection` | `string` | required | Collection name |
+| `fields` | `Field[]` | required | Available fields for filtering |
+| `value` | `object` | `{}` | Current filter value (Directus format) |
+| `onChange` | `(filter: object) => void` | - | Filter change callback |
+| `onApply` | `(filter: object) => void` | - | Apply filter callback |
+| `onClear` | `() => void` | - | Clear filter callback |
+
+### SaveOptionsProps
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSaveAndStay` | `() => void` | - | Save and stay on current item |
+| `onSaveAndAddNew` | `() => void` | - | Save and create new |
+| `onSaveAsCopy` | `() => void` | - | Save as copy |
+| `onDiscardAndStay` | `() => void` | - | Discard changes |
+| `disabledOptions` | `SaveAction[]` | `[]` | Disabled save actions |
+| `disabled` | `boolean` | `false` | Disable all options |
+| `platform` | `'mac' \| 'win'` | auto-detect | Platform for keyboard shortcuts |
+
 ## Features
 
 ### CollectionForm Features
@@ -175,17 +371,78 @@ interface BulkAction {
 - **Loading States**: Shows loading overlay while fetching
 - **Error Handling**: Displays error messages on failure
 
+### ContentLayout Features
+
+- **Responsive**: Sidebar collapses on mobile with burger menu
+- **Breadcrumbs**: Hierarchical navigation trail
+- **Header Actions**: Customizable action buttons in header
+- **Loading States**: Skeleton loaders for header and content
+- **Sidebar Navigation**: Dedicated slot for ContentNavigation
+
+### ContentNavigation Features
+
+- **Hierarchical Tree**: Display collections in nested groups
+- **Search**: Filter collections by name
+- **Hidden Collections**: Toggle visibility of hidden collections
+- **Bookmarks**: Display collection bookmarks
+- **Context Menus**: Right-click for collection settings (admin)
+- **Icon Support**: Collection icons with color customization
+- **Active State**: Highlight current collection
+
+### FilterPanel Features
+
+- **Field-Type Aware**: Operators adapt to field type (string, number, date, etc.)
+- **Visual Builder**: Add/remove filter rules and groups
+- **AND/OR Logic**: Support for complex filter combinations
+- **Directus Compatible**: Produces standard Directus filter format
+- **Type-Safe**: TypeScript types for filter values
+- **Clear/Reset**: Clear all filters or individual rules
+
+### SaveOptions Features
+
+- **Multiple Actions**: Save & stay, save & add new, save as copy, discard
+- **Keyboard Shortcuts**: Display platform-specific shortcuts (⌘S / Ctrl+S)
+- **Disabled States**: Disable individual save actions
+- **Icon Support**: Tabler icons for each action
+- **Dropdown Menu**: Compact dropdown attached to primary save button
+
 ## Architecture
 
-This package follows Directus's v-form pattern:
+This package follows Directus's content module pattern:
 
 | Directus | Microbuild |
 |----------|------------|
 | `v-form` component | `CollectionForm` |
-| `form-field.vue` | Inline field rendering |
 | `v-list` component | `CollectionList` |
+| `private-view` layout | `ContentLayout` |
+| `navigation.vue` | `ContentNavigation` |
+| `system-filter` interface | `FilterPanel` |
+| `save-options.vue` | `SaveOptions` |
 
 The components use:
-- `@microbuild/services` for API calls (`FieldsService`, `ItemsService`)
-- `@microbuild/types` for type definitions (`Field`, `AnyItem`)
-- Mantine v8 for UI components
+- `@microbuild/services` for API calls (`FieldsService`, `ItemsService`, `CollectionsService`)
+- `@microbuild/types` for type definitions (`Field`, `Collection`, `AnyItem`, `Filter`)
+- `@microbuild/ui-form` for form rendering (`VForm` → 40+ interface types)
+- Mantine v8 for UI components (AppShell, NavLink, Menu, etc.)
+
+## Storybook
+
+This package includes comprehensive Storybook documentation on port 6008:
+
+```bash
+# Run Storybook
+pnpm storybook:collections
+
+# Or from workspace root
+pnpm --filter @microbuild/ui-collections storybook
+```
+
+**Available Stories:**
+- **CollectionForm** - Basic and DaaS Playground stories
+- **CollectionList** - Basic and DaaS Playground stories  
+- **ContentLayout** - Layout variations and responsive behavior
+- **ContentNavigation** - Tree structures, search, bookmarks
+- **FilterPanel** - Filter building with various field types
+- **SaveOptions** - Save action menu variations
+
+**DaaS Playground:** Connect to a real DaaS instance to test with actual collections using the Storybook host app authentication proxy. See [QUICKSTART.md](../../QUICKSTART.md#daas-playground-with-storybook-host-recommended) for setup.

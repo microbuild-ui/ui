@@ -43,6 +43,8 @@ export interface TableHeaderProps {
   manualSortKey?: string;
   /** Custom header renderer */
   renderHeader?: (header: Header) => React.ReactNode;
+  /** Custom header context-menu content (rendered inside a positioned popup) */
+  renderHeaderContextMenu?: (header: Header) => React.ReactNode;
   /** Sort change handler */
   onSortChange?: (sort: Sort) => void;
   /** Toggle select all handler */
@@ -51,6 +53,8 @@ export interface TableHeaderProps {
   onHeadersChange?: (headers: Header[]) => void;
   /** Reordering state change handler */
   onReorderingChange?: (reordering: boolean) => void;
+  /** Header right-click handler (alternative to renderHeaderContextMenu) */
+  onHeaderContextMenu?: (header: Header, event: React.MouseEvent) => void;
 }
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
@@ -68,17 +72,62 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   hasItemAppendSlot = false,
   manualSortKey,
   renderHeader,
+  renderHeaderContextMenu,
   onSortChange,
   onToggleSelectAll,
   onHeadersChange,
   onReorderingChange: _onReorderingChange,
+  onHeaderContextMenu,
 }) => {
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    header: Header;
+    x: number;
+    y: number;
+  } | null>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
   const [resizing, setResizing] = useState(false);
   const resizeRef = useRef<{
     header: Header;
     startX: number;
     startWidth: number;
   } | null>(null);
+
+  /**
+   * Handle header right-click (context menu)
+   */
+  const handleContextMenu = useCallback((header: Header, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // If external handler is provided, delegate to it
+    if (onHeaderContextMenu) {
+      onHeaderContextMenu(header, event);
+      return;
+    }
+    // Otherwise show built-in popup if renderer is provided
+    if (renderHeaderContextMenu) {
+      setContextMenu({ header, x: event.clientX, y: event.clientY });
+    }
+  }, [onHeaderContextMenu, renderHeaderContextMenu]);
+
+  // Close context menu on outside click
+  React.useEffect(() => {
+    if (!contextMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+        setContextMenu(null);
+      }
+    };
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setContextMenu(null);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [contextMenu]);
 
   /**
    * Handle column sort
@@ -218,6 +267,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             key={header.value}
             className={getHeaderClasses(header)}
             onClick={() => handleSort(header)}
+            onContextMenu={(e) => handleContextMenu(header, e)}
             style={{ width: header.width ? `${header.width}px` : undefined }}
           >
             <div className="header-content">
@@ -260,6 +310,27 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         {/* Append Column */}
         {hasItemAppendSlot && <th className="cell append" />}
       </tr>
+
+      {/* Context Menu Popup */}
+      {contextMenu && renderHeaderContextMenu && (
+        <tr className="context-menu-row" style={{ display: 'contents' }}>
+          <td colSpan={999} style={{ position: 'relative', padding: 0, border: 'none' }}>
+            <div
+              ref={contextMenuRef}
+              className="header-context-menu"
+              style={{
+                position: 'fixed',
+                top: contextMenu.y,
+                left: contextMenu.x,
+                zIndex: 1000,
+              }}
+              onClick={() => setContextMenu(null)}
+            >
+              {renderHeaderContextMenu(contextMenu.header)}
+            </div>
+          </td>
+        </tr>
+      )}
     </thead>
   );
 };
