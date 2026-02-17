@@ -2,12 +2,12 @@
  * VTable Component
  * Dynamic table that renders rows based on collection data
  * Based on Directus v-table component
- * 
+ *
  * Integrates with:
  * - @microbuild/types for data types
  * - @microbuild/services for ItemsService API calls and DaaS context
  * - @microbuild/hooks for data management hooks
- * 
+ *
  * Features:
  * - Column sorting with ascending/descending toggle
  * - Column resizing via drag handles
@@ -19,37 +19,37 @@
  * - Inline styling option
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
-import { Text, Skeleton, Stack } from '@mantine/core';
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { TableHeader } from './components/TableHeader';
-import { TableRow } from './components/TableRow';
-import type { 
-  HeaderRaw, 
-  Header, 
-  Item, 
-  Sort, 
-  ShowSelect,
+} from "@dnd-kit/sortable";
+import { Skeleton, Stack, Text } from "@mantine/core";
+import React, { useCallback, useMemo, useState } from "react";
+import { TableHeader } from "./components/TableHeader";
+import { TableRow } from "./components/TableRow";
+import type {
+  Header,
+  HeaderRaw,
+  Item,
   ManualSortEvent,
   RowClickEvent,
-} from './types';
-import { HeaderDefaults } from './types';
-import './VTable.css';
+  ShowSelect,
+  Sort,
+} from "./types";
+import { HeaderDefaults } from "./types";
+import "./VTable.css";
 
 export interface VTableProps {
   /** Column header definitions */
@@ -172,9 +172,11 @@ const SortableTableRow: React.FC<SortableTableRowProps> = ({
   } = useSortable({ id, disabled: disabled || !sortedManually });
 
   const style: React.CSSProperties = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
     transition,
-    position: isDragging ? 'relative' : undefined,
+    position: isDragging ? "relative" : undefined,
     zIndex: isDragging ? 1 : undefined,
   };
 
@@ -208,10 +210,10 @@ const SortableTableRow: React.FC<SortableTableRowProps> = ({
 export const VTable: React.FC<VTableProps> = ({
   headers: headersProp,
   items,
-  itemKey = 'id',
+  itemKey = "id",
   sort: sortProp,
   mustSort = false,
-  showSelect = 'none',
+  showSelect = "none",
   showResize = false,
   showManualSort = false,
   manualSortKey,
@@ -219,8 +221,8 @@ export const VTable: React.FC<VTableProps> = ({
   value = [],
   fixedHeader = false,
   loading = false,
-  loadingText = 'Loading...',
-  noItemsText = 'No items',
+  loadingText = "Loading...",
+  noItemsText = "No items",
   rowHeight = 48,
   selectionUseKeys = false,
   inline = false,
@@ -250,7 +252,7 @@ export const VTable: React.FC<VTableProps> = ({
     return headersProp.map((header) => ({
       ...HeaderDefaults,
       ...header,
-      width: header.width && header.width < 24 ? 24 : (header.width ?? null),
+      width: header.width && header.width < 24 ? 24 : header.width ?? null,
     })) as Header[];
   }, [headersProp]);
 
@@ -260,36 +262,44 @@ export const VTable: React.FC<VTableProps> = ({
   }, [sortProp]);
 
   // Calculate grid columns
+  // Matches Directus logic: header columns with an explicit width use 'auto'
+  // so they can flex during resize, while columns without a width use '160px'
+  // in both header and body rows so they stay aligned.
   const columnStyle = useMemo(() => {
-    const generate = (useAuto?: boolean) => {
+    const generate = (useAuto?: "auto") => {
       let cols = internalHeaders
         .map((header) => {
-          if (useAuto) return 'auto';
-          return header.width ? `${header.width}px` : '160px';
+          return header.width ? useAuto ?? `${header.width}px` : "160px";
         })
-        .join(' ');
+        .join(" ");
 
-      if (showSelect !== 'none') cols = '36px ' + cols;
-      if (showManualSort) cols = '36px ' + cols;
-      cols = cols + ' 1fr'; // Spacer
-      if (renderRowAppend || renderHeaderAppend) cols += ' min-content';
+      if (showSelect !== "none") cols = "36px " + cols;
+      if (showManualSort) cols = "36px " + cols;
+      cols = cols + " 1fr"; // Spacer
+      if (renderRowAppend || renderHeaderAppend) cols += " min-content";
 
       return cols;
     };
 
     return {
-      header: generate(true),
+      header: generate("auto"),
       rows: generate(),
     };
-  }, [internalHeaders, showSelect, showManualSort, renderRowAppend, renderHeaderAppend]);
+  }, [
+    internalHeaders,
+    showSelect,
+    showManualSort,
+    renderRowAppend,
+    renderHeaderAppend,
+  ]);
 
-  // Full column span for loading/empty states
+  // Full column span for loading/empty states (CSS grid-column value)
   const fullColSpan = useMemo(() => {
     let length = internalHeaders.length + 1; // +1 for spacer
-    if (showSelect !== 'none') length++;
+    if (showSelect !== "none") length++;
     if (showManualSort) length++;
     if (renderRowAppend) length++;
-    return length;
+    return `1 / span ${length}`;
   }, [internalHeaders.length, showSelect, showManualSort, renderRowAppend]);
 
   // Selection helpers
@@ -302,137 +312,173 @@ export const VTable: React.FC<VTableProps> = ({
   }, [value.length, allItemsSelected]);
 
   // Get item key value
-  const getItemKey = useCallback((item: Item): string => {
-    const keyValue = item[itemKey];
-    if (keyValue !== undefined && keyValue !== null) {
-      return String(keyValue);
-    }
-    // Fallback to $index if no key
-    if (item.$index !== undefined) {
-      return `$index-${item.$index}`;
-    }
-    return `item-${Math.random()}`;
-  }, [itemKey]);
+  const getItemKey = useCallback(
+    (item: Item): string => {
+      const keyValue = item[itemKey];
+      if (keyValue !== undefined && keyValue !== null) {
+        return String(keyValue);
+      }
+      // Fallback to $index if no key
+      if (item.$index !== undefined) {
+        return `$index-${item.$index}`;
+      }
+      return `item-${Math.random()}`;
+    },
+    [itemKey],
+  );
 
   // Check if item is selected
-  const isItemSelected = useCallback((item: Item): boolean => {
-    const itemKeyValue = item[itemKey];
-    
-    if (selectionUseKeys) {
-      return value.includes(itemKeyValue);
-    }
-    
-    // Check by key match
-    return value.some((selected) => {
-      if (typeof selected === 'object' && selected !== null) {
-        return (selected as Item)[itemKey] === itemKeyValue;
+  const isItemSelected = useCallback(
+    (item: Item): boolean => {
+      const itemKeyValue = item[itemKey];
+
+      if (selectionUseKeys) {
+        return value.includes(itemKeyValue);
       }
-      return selected === itemKeyValue;
-    });
-  }, [value, itemKey, selectionUseKeys]);
+
+      // Check by key match
+      return value.some((selected) => {
+        if (typeof selected === "object" && selected !== null) {
+          return (selected as Item)[itemKey] === itemKeyValue;
+        }
+        return selected === itemKeyValue;
+      });
+    },
+    [value, itemKey, selectionUseKeys],
+  );
 
   // Handle item selection
-  const handleItemSelected = useCallback((item: Item, selected: boolean) => {
-    if (disabled) return;
+  const handleItemSelected = useCallback(
+    (item: Item, selected: boolean) => {
+      if (disabled) return;
 
-    onItemSelected?.({ value: selected, item });
+      onItemSelected?.({ value: selected, item });
 
-    let newSelection = [...value];
+      let newSelection = [...value];
 
-    if (selected) {
-      if (selectionUseKeys) {
-        newSelection.push(item[itemKey]);
-      } else {
-        newSelection.push(item);
-      }
-    } else {
-      const itemKeyValue = item[itemKey];
-      newSelection = newSelection.filter((sel) => {
+      if (selected) {
         if (selectionUseKeys) {
+          newSelection.push(item[itemKey]);
+        } else {
+          newSelection.push(item);
+        }
+      } else {
+        const itemKeyValue = item[itemKey];
+        newSelection = newSelection.filter((sel) => {
+          if (selectionUseKeys) {
+            return sel !== itemKeyValue;
+          }
+          if (typeof sel === "object" && sel !== null) {
+            return (sel as Item)[itemKey] !== itemKeyValue;
+          }
           return sel !== itemKeyValue;
-        }
-        if (typeof sel === 'object' && sel !== null) {
-          return (sel as Item)[itemKey] !== itemKeyValue;
-        }
-        return sel !== itemKeyValue;
-      });
-    }
+        });
+      }
 
-    // For single selection, keep only the last selected
-    if (showSelect === 'one') {
-      newSelection = newSelection.slice(-1);
-    }
+      // For single selection, keep only the last selected
+      if (showSelect === "one") {
+        newSelection = newSelection.slice(-1);
+      }
 
-    onUpdate?.(newSelection);
-  }, [disabled, value, itemKey, selectionUseKeys, showSelect, onItemSelected, onUpdate]);
+      onUpdate?.(newSelection);
+    },
+    [
+      disabled,
+      value,
+      itemKey,
+      selectionUseKeys,
+      showSelect,
+      onItemSelected,
+      onUpdate,
+    ],
+  );
 
   // Handle select all toggle
-  const handleToggleSelectAll = useCallback((selectAll: boolean) => {
-    if (disabled) return;
+  const handleToggleSelectAll = useCallback(
+    (selectAll: boolean) => {
+      if (disabled) return;
 
-    if (selectAll) {
-      if (selectionUseKeys) {
-        onUpdate?.(items.map((item) => item[itemKey]));
+      if (selectAll) {
+        if (selectionUseKeys) {
+          onUpdate?.(items.map((item) => item[itemKey]));
+        } else {
+          onUpdate?.([...items]);
+        }
       } else {
-        onUpdate?.([...items]);
+        onUpdate?.([]);
       }
-    } else {
-      onUpdate?.([]);
-    }
-  }, [disabled, items, itemKey, selectionUseKeys, onUpdate]);
+    },
+    [disabled, items, itemKey, selectionUseKeys, onUpdate],
+  );
 
   // Handle sort change
-  const handleSortChange = useCallback((newSort: Sort) => {
-    onSortChange?.(newSort.by ? newSort : null);
-  }, [onSortChange]);
+  const handleSortChange = useCallback(
+    (newSort: Sort) => {
+      onSortChange?.(newSort.by ? newSort : null);
+    },
+    [onSortChange],
+  );
 
   // Handle headers change (resize/reorder)
-  const handleHeadersChange = useCallback((newHeaders: Header[]) => {
-    // Return only non-default values
-    const rawHeaders = newHeaders.map((header) => {
-      const result: HeaderRaw = { text: header.text, value: header.value };
-      if (header.align !== 'left') result.align = header.align;
-      if (!header.sortable) result.sortable = header.sortable;
-      if (header.width) result.width = header.width;
-      if (header.description) result.description = header.description;
-      return result;
-    });
-    onHeadersChange?.(rawHeaders);
-  }, [onHeadersChange]);
+  const handleHeadersChange = useCallback(
+    (newHeaders: Header[]) => {
+      // Return only non-default values
+      const rawHeaders = newHeaders.map((header) => {
+        const result: HeaderRaw = { text: header.text, value: header.value };
+        if (header.align !== "left") result.align = header.align;
+        if (!header.sortable) result.sortable = header.sortable;
+        if (header.width) result.width = header.width;
+        if (header.description) result.description = header.description;
+        return result;
+      });
+      onHeadersChange?.(rawHeaders);
+    },
+    [onHeadersChange],
+  );
 
   // DnD sensors for manual sort
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Handle drag end for manual sort
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
 
-    if (over && active.id !== over.id) {
-      const oldIndex = items.findIndex((item) => getItemKey(item) === active.id);
-      const newIndex = items.findIndex((item) => getItemKey(item) === over.id);
+      if (over && active.id !== over.id) {
+        const oldIndex = items.findIndex(
+          (item) => getItemKey(item) === active.id,
+        );
+        const newIndex = items.findIndex(
+          (item) => getItemKey(item) === over.id,
+        );
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newItems = arrayMove(items, oldIndex, newIndex);
-        onItemsChange?.(newItems);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const newItems = arrayMove(items, oldIndex, newIndex);
+          onItemsChange?.(newItems);
 
-        onManualSort?.({
-          item: items[oldIndex][itemKey],
-          to: items[newIndex][itemKey],
-        });
+          onManualSort?.({
+            item: items[oldIndex][itemKey],
+            to: items[newIndex][itemKey],
+          });
+        }
       }
-    }
-  }, [items, itemKey, getItemKey, onItemsChange, onManualSort]);
+    },
+    [items, itemKey, getItemKey, onItemsChange, onManualSort],
+  );
 
   // Row click handler
-  const handleRowClick = useCallback((item: Item, event: React.MouseEvent) => {
-    if (disabled || !clickable) return;
-    onRowClick?.({ item, event });
-  }, [disabled, clickable, onRowClick]);
+  const handleRowClick = useCallback(
+    (item: Item, event: React.MouseEvent) => {
+      if (disabled || !clickable) return;
+      onRowClick?.({ item, event });
+    },
+    [disabled, clickable, onRowClick],
+  );
 
   // Item IDs for sortable context
   const itemIds = useMemo(() => {
@@ -440,29 +486,33 @@ export const VTable: React.FC<VTableProps> = ({
   }, [items, getItemKey]);
 
   const tableClasses = [
-    'v-table',
-    loading && 'loading',
-    inline && 'inline',
-    disabled && 'disabled',
+    "v-table",
+    loading && "loading",
+    inline && "inline",
+    disabled && "disabled",
     className,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   // Render table content - separate from DndContext wrapper
   const renderTableContent = () => (
-    <div 
+    <div
       className={tableClasses}
-      style={{
-        '--grid-columns-header': columnStyle.header,
-        '--grid-columns-rows': columnStyle.rows,
-      } as React.CSSProperties}
+      style={
+        {
+          "--grid-columns-header": columnStyle.header,
+          "--grid-columns-rows": columnStyle.rows,
+        } as React.CSSProperties
+      }
     >
-      <table summary={internalHeaders.map((h) => h.text).join(', ')}>
+      <table summary={internalHeaders.map((h) => h.text).join(", ")}>
         <TableHeader
           headers={internalHeaders}
           sort={internalSort}
           reordering={reordering}
           allowHeaderReorder={allowHeaderReorder}
-          showSelect={disabled ? 'none' : showSelect}
+          showSelect={disabled ? "none" : showSelect}
           showResize={showResize}
           showManualSort={showManualSort}
           someItemsSelected={someItemsSelected}
@@ -472,6 +522,7 @@ export const VTable: React.FC<VTableProps> = ({
           hasItemAppendSlot={!!renderRowAppend}
           manualSortKey={manualSortKey}
           renderHeader={renderHeader}
+          renderHeaderAppend={renderHeaderAppend}
           renderHeaderContextMenu={renderHeaderContextMenu}
           onSortChange={handleSortChange}
           onToggleSelectAll={handleToggleSelectAll}
@@ -482,9 +533,9 @@ export const VTable: React.FC<VTableProps> = ({
 
         {/* Loading Indicator */}
         {loading && (
-          <thead className={fixedHeader ? 'sticky' : ''}>
+          <thead className={fixedHeader ? "sticky" : ""}>
             <tr className="loading-indicator">
-              <th colSpan={fullColSpan}>
+              <th style={{ gridColumn: fullColSpan }}>
                 <div className="progress-bar" />
               </th>
             </tr>
@@ -495,7 +546,7 @@ export const VTable: React.FC<VTableProps> = ({
         {loading && items.length === 0 && (
           <tbody>
             <tr className="loading-text">
-              <td colSpan={fullColSpan}>
+              <td style={{ gridColumn: fullColSpan }}>
                 <Stack gap="xs" py="md">
                   <Text c="dimmed" ta="center" size="sm">
                     {loadingText}
@@ -513,7 +564,7 @@ export const VTable: React.FC<VTableProps> = ({
         {!loading && items.length === 0 && (
           <tbody>
             <tr className="no-items-text">
-              <td colSpan={fullColSpan}>
+              <td style={{ gridColumn: fullColSpan }}>
                 <Text c="dimmed" ta="center" py="xl">
                   {noItemsText}
                 </Text>
@@ -524,7 +575,10 @@ export const VTable: React.FC<VTableProps> = ({
 
         {/* Data Rows */}
         {items.length > 0 && (
-          <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={itemIds}
+            strategy={verticalListSortingStrategy}
+          >
             <tbody>
               {items.map((item) => {
                 const id = getItemKey(item);
@@ -534,7 +588,7 @@ export const VTable: React.FC<VTableProps> = ({
                     id={id}
                     item={item}
                     headers={internalHeaders}
-                    showSelect={disabled ? 'none' : showSelect}
+                    showSelect={disabled ? "none" : showSelect}
                     showManualSort={!disabled && showManualSort}
                     isSelected={isItemSelected(item)}
                     subdued={loading || reordering}
@@ -545,7 +599,9 @@ export const VTable: React.FC<VTableProps> = ({
                     renderCell={renderCell}
                     renderAppend={renderRowAppend}
                     onClick={(e) => handleRowClick(item, e)}
-                    onSelect={(selected) => handleItemSelected(item, selected)}
+                    onSelect={() =>
+                      handleItemSelected(item, !isItemSelected(item))
+                    }
                   />
                 );
               })}

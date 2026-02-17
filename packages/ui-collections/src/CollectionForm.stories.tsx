@@ -1,6 +1,6 @@
-import React from 'react';
-import type { Meta, StoryObj, Decorator } from '@storybook/react';
-import { CollectionForm } from './CollectionForm';
+import type { Decorator, Meta, StoryObj } from "@storybook/react";
+import React from "react";
+import { CollectionForm } from "./CollectionForm";
 
 // ============================================================================
 // Mock Data — stories work offline without a DaaS backend
@@ -8,49 +8,92 @@ import { CollectionForm } from './CollectionForm';
 
 const MOCK_FIELDS = [
   {
-    field: 'id', type: 'integer',
-    meta: { hidden: true, readonly: true, interface: null, width: 'full' },
+    field: "id",
+    type: "integer",
+    meta: { hidden: true, readonly: true, interface: null, width: "full" },
     schema: { is_primary_key: true, has_auto_increment: true },
   },
   {
-    field: 'title', type: 'string',
-    meta: { hidden: false, readonly: false, interface: 'input', width: 'full', required: true, note: 'Post title' },
+    field: "title",
+    type: "string",
+    meta: {
+      hidden: false,
+      readonly: false,
+      interface: "input",
+      width: "full",
+      required: true,
+      note: "Post title",
+    },
     schema: { max_length: 255, is_nullable: false },
   },
   {
-    field: 'status', type: 'string',
+    field: "status",
+    type: "string",
     meta: {
-      hidden: false, readonly: false, interface: 'select-dropdown', width: 'half',
-      options: { choices: [{ text: 'Draft', value: 'draft' }, { text: 'Published', value: 'published' }, { text: 'Archived', value: 'archived' }] },
+      hidden: false,
+      readonly: false,
+      interface: "select-dropdown",
+      width: "half",
+      options: {
+        choices: [
+          { text: "Draft", value: "draft" },
+          { text: "Published", value: "published" },
+          { text: "Archived", value: "archived" },
+        ],
+      },
     },
-    schema: { default_value: 'draft' },
+    schema: { default_value: "draft" },
   },
   {
-    field: 'category', type: 'string',
+    field: "category",
+    type: "string",
     meta: {
-      hidden: false, readonly: false, interface: 'select-dropdown', width: 'half',
-      options: { choices: [{ text: 'Tutorial', value: 'tutorial' }, { text: 'Guide', value: 'guide' }, { text: 'News', value: 'news' }] },
+      hidden: false,
+      readonly: false,
+      interface: "select-dropdown",
+      width: "half",
+      options: {
+        choices: [
+          { text: "Tutorial", value: "tutorial" },
+          { text: "Guide", value: "guide" },
+          { text: "News", value: "news" },
+        ],
+      },
     },
     schema: {},
   },
   {
-    field: 'content', type: 'text',
-    meta: { hidden: false, readonly: false, interface: 'input-multiline', width: 'full', note: 'Post content' },
+    field: "content",
+    type: "text",
+    meta: {
+      hidden: false,
+      readonly: false,
+      interface: "input-multiline",
+      width: "full",
+      note: "Post content",
+    },
     schema: {},
   },
   {
-    field: 'featured', type: 'boolean',
-    meta: { hidden: false, readonly: false, interface: 'boolean', width: 'half' },
+    field: "featured",
+    type: "boolean",
+    meta: {
+      hidden: false,
+      readonly: false,
+      interface: "boolean",
+      width: "half",
+    },
     schema: { default_value: false },
   },
 ];
 
 const MOCK_ITEM = {
   id: 1,
-  title: 'Getting Started with Microbuild',
-  status: 'published',
-  category: 'tutorial',
-  content: 'This guide covers the basics of building forms and tables with Microbuild UI components.',
+  title: "Getting Started with Microbuild",
+  status: "published",
+  category: "tutorial",
+  content:
+    "This guide covers the basics of building forms and tables with Microbuild UI components.",
   featured: true,
 };
 
@@ -62,13 +105,18 @@ const withMockApi: Decorator = (Story) => {
   const originalFetch = window.fetch;
 
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+        ? input.href
+        : input.url;
 
     // Mock fields endpoint
-    if (url.includes('/api/fields/')) {
+    if (url.includes("/api/fields/")) {
       return new Response(JSON.stringify({ data: MOCK_FIELDS }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -76,23 +124,27 @@ const withMockApi: Decorator = (Story) => {
     if (url.match(/\/api\/items\/\w+\/\d+/)) {
       return new Response(JSON.stringify({ data: MOCK_ITEM }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
     // Mock create/update item endpoint
-    if (url.includes('/api/items/') && init?.method && ['POST', 'PATCH'].includes(init.method)) {
+    if (
+      url.includes("/api/items/") &&
+      init?.method &&
+      ["POST", "PATCH"].includes(init.method)
+    ) {
       return new Response(JSON.stringify({ data: { id: 99 } }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
     // Mock items list endpoint
-    if (url.includes('/api/items/')) {
+    if (url.includes("/api/items/")) {
       return new Response(JSON.stringify({ data: [MOCK_ITEM] }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -101,7 +153,9 @@ const withMockApi: Decorator = (Story) => {
 
   // Cleanup on unmount
   React.useEffect(() => {
-    return () => { window.fetch = originalFetch; };
+    return () => {
+      window.fetch = originalFetch;
+    };
   });
 
   return <Story />;
@@ -112,31 +166,31 @@ const withMockApi: Decorator = (Story) => {
 // ============================================================================
 
 const meta = {
-  title: 'Collections/CollectionForm',
+  title: "Collections/CollectionForm",
   component: CollectionForm,
   decorators: [withMockApi],
   parameters: {
-    layout: 'padded',
+    layout: "padded",
     docs: {
       description: {
         component:
-          'A CRUD wrapper around VForm that handles data fetching and persistence. ' +
-          'These stories use mock data. For live DaaS data, use the **Playground** story.',
+          "A CRUD wrapper around VForm that handles data fetching and persistence. " +
+          "These stories use mock data. For live DaaS data, use the **Playground** story.",
       },
     },
   },
   argTypes: {
     collection: {
-      control: 'text',
-      description: 'Collection name',
+      control: "text",
+      description: "Collection name",
     },
     mode: {
-      control: 'select',
-      options: ['create', 'edit'],
+      control: "select",
+      options: ["create", "edit"],
     },
     id: {
-      control: 'text',
-      description: 'Item ID for edit mode',
+      control: "text",
+      description: "Item ID for edit mode",
     },
   },
 } satisfies Meta<typeof CollectionForm>;
@@ -150,8 +204,8 @@ type Story = StoryObj<typeof meta>;
  */
 export const CreateMode: Story = {
   args: {
-    collection: 'posts',
-    mode: 'create',
+    collection: "posts",
+    mode: "create",
   },
 };
 
@@ -161,8 +215,74 @@ export const CreateMode: Story = {
  */
 export const EditMode: Story = {
   args: {
-    collection: 'posts',
-    mode: 'edit',
-    id: '1',
+    collection: "posts",
+    mode: "edit",
+    id: "1",
+  },
+};
+/**
+ * Create mode with default values pre-filled.
+ */
+export const WithDefaultValues: Story = {
+  args: {
+    collection: "posts",
+    mode: "create",
+    defaultValues: {
+      status: "draft",
+      category: "tutorial",
+      featured: false,
+    },
+  },
+};
+
+/**
+ * Exclude specific fields from the form.
+ * Here we hide "featured" and "category" so only title, status, and content appear.
+ */
+export const WithExcludeFields: Story = {
+  args: {
+    collection: "posts",
+    mode: "create",
+    excludeFields: ["featured", "category"],
+  },
+};
+
+/**
+ * Only include specific fields.
+ * Here the form shows only title and status.
+ */
+export const WithIncludeFields: Story = {
+  args: {
+    collection: "posts",
+    mode: "create",
+    includeFields: ["title", "status"],
+  },
+};
+
+/**
+ * Demonstrating onSuccess and onCancel callbacks.
+ * The last triggered callback is displayed above the form.
+ */
+export const WithCallbacks: Story = {
+  render: () => {
+    const [lastCallback, setLastCallback] = useState<string>("");
+
+    return (
+      <Stack gap="md">
+        <Paper p="sm" withBorder>
+          <Text size="sm" c="dimmed">
+            Last callback: <Code>{lastCallback || "(none)"}</Code>
+          </Text>
+        </Paper>
+        <CollectionForm
+          collection="posts"
+          mode="create"
+          onSuccess={(data) =>
+            setLastCallback(`onSuccess(${JSON.stringify(data)})`)
+          }
+          onCancel={() => setLastCallback("onCancel()")}
+        />
+      </Stack>
+    );
   },
 };
