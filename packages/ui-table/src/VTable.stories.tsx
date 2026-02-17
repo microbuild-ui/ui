@@ -249,14 +249,14 @@ export const WithMultipleSelection: Story = {
 
     return (
       <div>
-        <p style={{ marginBottom: "1rem" }}>
+        <p className="story-selection-info">
           Selected: {selected.length} items
           {selected.length > 0 && (
             <Button
               size="xs"
               variant="subtle"
               onClick={() => setSelected([])}
-              style={{ marginLeft: "1rem" }}
+              className="story-clear-btn"
             >
               Clear
             </Button>
@@ -286,7 +286,7 @@ export const WithSingleSelection: Story = {
 
     return (
       <div>
-        <p style={{ marginBottom: "1rem" }}>
+        <p className="story-selection-info">
           Selected: {selected.length > 0 ? `ID ${selected[0]}` : "None"}
         </p>
         <VTable
@@ -533,7 +533,7 @@ export const FixedHeader: Story = {
     }));
 
     return (
-      <div style={{ height: "400px", overflow: "auto" }}>
+      <div className="story-scroll-container">
         <VTable
           headers={sampleHeaders}
           items={manyItems}
@@ -604,14 +604,7 @@ export const FullFeatured: Story = {
 
     return (
       <div>
-        <div
-          style={{
-            marginBottom: "1rem",
-            display: "flex",
-            gap: "1rem",
-            alignItems: "center",
-          }}
-        >
+        <div className="story-toolbar">
           <span>Selected: {selected.length} items</span>
           {selected.length > 0 && (
             <Button

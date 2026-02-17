@@ -36,7 +36,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Skeleton, Stack, Text } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TableHeader } from "./components/TableHeader";
 import { TableRow } from "./components/TableRow";
 import type {
@@ -246,6 +246,7 @@ export const VTable: React.FC<VTableProps> = ({
 }) => {
   // Local reordering state
   const [reordering, setReordering] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   // Apply defaults to headers
   const internalHeaders = useMemo<Header[]>(() => {
@@ -293,14 +294,19 @@ export const VTable: React.FC<VTableProps> = ({
     renderHeaderAppend,
   ]);
 
-  // Full column span for loading/empty states (CSS grid-column value)
-  const fullColSpan = useMemo(() => {
-    let length = internalHeaders.length + 1; // +1 for spacer
-    if (showSelect !== "none") length++;
-    if (showManualSort) length++;
-    if (renderRowAppend) length++;
-    return `1 / span ${length}`;
-  }, [internalHeaders.length, showSelect, showManualSort, renderRowAppend]);
+  // Set CSS custom properties for grid columns via ref to avoid inline styles
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.style.setProperty(
+        "--grid-columns-header",
+        columnStyle.header,
+      );
+      tableRef.current.style.setProperty(
+        "--grid-columns-rows",
+        columnStyle.rows,
+      );
+    }
+  }, [columnStyle]);
 
   // Selection helpers
   const allItemsSelected = useMemo(() => {
@@ -498,13 +504,8 @@ export const VTable: React.FC<VTableProps> = ({
   // Render table content - separate from DndContext wrapper
   const renderTableContent = () => (
     <div
+      ref={tableRef}
       className={tableClasses}
-      style={
-        {
-          "--grid-columns-header": columnStyle.header,
-          "--grid-columns-rows": columnStyle.rows,
-        } as React.CSSProperties
-      }
     >
       <table summary={internalHeaders.map((h) => h.text).join(", ")}>
         <TableHeader
@@ -535,7 +536,7 @@ export const VTable: React.FC<VTableProps> = ({
         {loading && (
           <thead className={fixedHeader ? "sticky" : ""}>
             <tr className="loading-indicator">
-              <th style={{ gridColumn: fullColSpan }}>
+              <th className="full-colspan">
                 <div className="progress-bar" />
               </th>
             </tr>
@@ -546,7 +547,7 @@ export const VTable: React.FC<VTableProps> = ({
         {loading && items.length === 0 && (
           <tbody>
             <tr className="loading-text">
-              <td style={{ gridColumn: fullColSpan }}>
+              <td className="full-colspan">
                 <Stack gap="xs" py="md">
                   <Text c="dimmed" ta="center" size="sm">
                     {loadingText}
@@ -564,7 +565,7 @@ export const VTable: React.FC<VTableProps> = ({
         {!loading && items.length === 0 && (
           <tbody>
             <tr className="no-items-text">
-              <td style={{ gridColumn: fullColSpan }}>
+              <td className="full-colspan">
                 <Text c="dimmed" ta="center" py="xl">
                   {noItemsText}
                 </Text>

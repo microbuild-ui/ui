@@ -3,3 +3,23 @@
 .v-table-story-container {
   padding: 1rem;
 }
+
+.story-selection-info {
+  margin-bottom: 1rem;
+}
+
+.story-clear-btn {
+  margin-left: 1rem;
+}
+
+.story-scroll-container {
+  height: 400px;
+  overflow: auto;
+}
+
+.story-toolbar {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}

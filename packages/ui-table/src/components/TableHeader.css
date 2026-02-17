@@ -16,6 +16,7 @@
   color: var(--mantine-color-text);
   background-color: var(--mantine-color-gray-0);
   border-bottom: 2px solid var(--mantine-color-default-border);
+  -webkit-user-select: none;
   user-select: none;
   position: relative;
 }
@@ -179,10 +180,23 @@
 
 /* Context menu popup */
 .header-context-menu {
+  position: fixed;
+  z-index: 1000;
   background: var(--mantine-color-body);
   border: 1px solid var(--mantine-color-default-border);
   border-radius: var(--mantine-radius-sm);
   box-shadow: var(--mantine-shadow-md);
   min-width: 180px;
   overflow: hidden;
+}
+
+/* Context menu row */
+.table-header .context-menu-row {
+  display: contents;
+}
+
+.table-header .context-menu-cell {
+  position: relative;
+  padding: 0;
+  border: none;
 }

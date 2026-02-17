@@ -119,6 +119,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   // Close context menu on outside click
   React.useEffect(() => {
     if (!contextMenu) return;
+    // Position context menu via ref to avoid inline styles
+    if (contextMenuRef.current) {
+      contextMenuRef.current.style.top = `${contextMenu.y}px`;
+      contextMenuRef.current.style.left = `${contextMenu.x}px`;
+    }
     const handleClick = (e: MouseEvent) => {
       if (
         contextMenuRef.current &&
@@ -291,7 +296,6 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             className={getHeaderClasses(header)}
             onClick={() => handleSort(header)}
             onContextMenu={(e) => handleContextMenu(header, e)}
-            style={{ width: header.width ? `${header.width}px` : undefined }}
           >
             <div className="header-content">
               {allowHeaderReorder && (
@@ -343,20 +347,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
       {/* Context Menu Popup */}
       {contextMenu && renderHeaderContextMenu && (
-        <tr className="context-menu-row" style={{ display: "contents" }}>
+        <tr className="context-menu-row">
           <td
             colSpan={999}
-            style={{ position: "relative", padding: 0, border: "none" }}
+            className="context-menu-cell"
           >
             <div
               ref={contextMenuRef}
               className="header-context-menu"
-              style={{
-                position: "fixed",
-                top: contextMenu.y,
-                left: contextMenu.x,
-                zIndex: 1000,
-              }}
               onClick={() => setContextMenu(null)}
             >
               {renderHeaderContextMenu(contextMenu.header)}
