@@ -1,6 +1,6 @@
 {
   "name": "@microbuild/ui-interfaces",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "private": true,
   "description": "Shared UI interface components for Microbuild projects - Directus-compatible field interfaces",
   "main": "./src/index.ts",
