@@ -165,3 +165,8 @@
 [data-mantine-color-scheme="dark"] .v-table table .sortable-ghost .cell {
   background-color: var(--mantine-color-dark-5);
 }
+
+/* Full column span for loading/empty states */
+.v-table table .full-colspan {
+  grid-column: 1 / -1;
+}

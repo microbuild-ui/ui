@@ -3,16 +3,16 @@
  * Renders the table header row with sorting, resizing, and selection controls
  */
 
-import React, { useState, useRef, useCallback } from 'react';
-import { Checkbox, Tooltip, Text } from '@mantine/core';
-import { 
-  IconArrowUp, 
-  IconArrowDown, 
+import { Checkbox, Text, Tooltip } from "@mantine/core";
+import {
+  IconArrowDown,
   IconArrowsSort,
-  IconGripVertical 
-} from '@tabler/icons-react';
-import type { Header, Sort, ShowSelect } from '../types';
-import './TableHeader.css';
+  IconArrowUp,
+  IconGripVertical,
+} from "@tabler/icons-react";
+import React, { useCallback, useRef, useState } from "react";
+import type { Header, ShowSelect, Sort } from "../types";
+import "./TableHeader.css";
 
 export interface TableHeaderProps {
   /** Column headers */
@@ -39,6 +39,8 @@ export interface TableHeaderProps {
   mustSort?: boolean;
   /** Whether there's an append slot */
   hasItemAppendSlot?: boolean;
+  /** Custom header append renderer */
+  renderHeaderAppend?: () => React.ReactNode;
   /** Manual sort field key */
   manualSortKey?: string;
   /** Custom header renderer */
@@ -62,7 +64,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   sort,
   reordering = false,
   allowHeaderReorder = false,
-  showSelect = 'none',
+  showSelect = "none",
   showResize = false,
   showManualSort = false,
   someItemsSelected = false,
@@ -70,6 +72,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   fixed = false,
   mustSort = false,
   hasItemAppendSlot = false,
+  renderHeaderAppend,
   manualSortKey,
   renderHeader,
   renderHeaderContextMenu,
@@ -96,59 +99,73 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   /**
    * Handle header right-click (context menu)
    */
-  const handleContextMenu = useCallback((header: Header, event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    // If external handler is provided, delegate to it
-    if (onHeaderContextMenu) {
-      onHeaderContextMenu(header, event);
-      return;
-    }
-    // Otherwise show built-in popup if renderer is provided
-    if (renderHeaderContextMenu) {
-      setContextMenu({ header, x: event.clientX, y: event.clientY });
-    }
-  }, [onHeaderContextMenu, renderHeaderContextMenu]);
+  const handleContextMenu = useCallback(
+    (header: Header, event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      // If external handler is provided, delegate to it
+      if (onHeaderContextMenu) {
+        onHeaderContextMenu(header, event);
+        return;
+      }
+      // Otherwise show built-in popup if renderer is provided
+      if (renderHeaderContextMenu) {
+        setContextMenu({ header, x: event.clientX, y: event.clientY });
+      }
+    },
+    [onHeaderContextMenu, renderHeaderContextMenu],
+  );
 
   // Close context menu on outside click
   React.useEffect(() => {
     if (!contextMenu) return;
+    // Position context menu via ref to avoid inline styles
+    if (contextMenuRef.current) {
+      contextMenuRef.current.style.top = `${contextMenu.y}px`;
+      contextMenuRef.current.style.left = `${contextMenu.x}px`;
+    }
     const handleClick = (e: MouseEvent) => {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(e.target as Node)) {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(e.target as Node)
+      ) {
         setContextMenu(null);
       }
     };
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setContextMenu(null);
+      if (e.key === "Escape") setContextMenu(null);
     };
-    document.addEventListener('mousedown', handleClick);
-    document.addEventListener('keydown', handleEsc);
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleEsc);
     return () => {
-      document.removeEventListener('mousedown', handleClick);
-      document.removeEventListener('keydown', handleEsc);
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleEsc);
     };
   }, [contextMenu]);
 
   /**
    * Handle column sort
    */
-  const handleSort = useCallback((header: Header) => {
-    if (!header.sortable || resizing) return;
+  const handleSort = useCallback(
+    (header: Header) => {
+      if (!header.sortable || resizing) return;
 
-    if (header.value === sort.by) {
-      if (mustSort) {
-        // Toggle direction only
-        onSortChange?.({ by: sort.by, desc: !sort.desc });
-      } else if (!sort.desc) {
-        // First click: asc, second: desc, third: clear
-        onSortChange?.({ by: sort.by, desc: true });
+      if (header.value === sort.by) {
+        if (mustSort) {
+          // Toggle direction only
+          onSortChange?.({ by: sort.by, desc: !sort.desc });
+        } else if (!sort.desc) {
+          // First click: asc, second: desc, third: clear
+          onSortChange?.({ by: sort.by, desc: true });
+        } else {
+          onSortChange?.({ by: null, desc: false });
+        }
       } else {
-        onSortChange?.({ by: null, desc: false });
+        onSortChange?.({ by: header.value, desc: false });
       }
-    } else {
-      onSortChange?.({ by: header.value, desc: false });
-    }
-  }, [sort, mustSort, resizing, onSortChange]);
+    },
+    [sort, mustSort, resizing, onSortChange],
+  );
 
   /**
    * Handle manual sort toggle
@@ -164,42 +181,45 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   /**
    * Start column resize
    */
-  const handleResizeStart = useCallback((header: Header, event: React.PointerEvent) => {
-    const target = event.currentTarget as HTMLElement;
-    const parent = target.parentElement as HTMLElement;
-    
-    setResizing(true);
-    resizeRef.current = {
-      header,
-      startX: event.pageX,
-      startWidth: parent.offsetWidth,
-    };
+  const handleResizeStart = useCallback(
+    (header: Header, event: React.PointerEvent) => {
+      const target = event.currentTarget as HTMLElement;
+      const parent = target.parentElement as HTMLElement;
 
-    // Add global listeners
-    const handleMouseMove = (e: PointerEvent) => {
-      if (!resizeRef.current) return;
-      
-      const deltaX = e.pageX - resizeRef.current.startX;
-      const newWidth = Math.max(32, resizeRef.current.startWidth + deltaX);
-      
-      const newHeaders = headers.map((h) =>
-        h.value === resizeRef.current!.header.value
-          ? { ...h, width: newWidth }
-          : h
-      );
-      onHeadersChange?.(newHeaders);
-    };
+      setResizing(true);
+      resizeRef.current = {
+        header,
+        startX: event.pageX,
+        startWidth: parent.offsetWidth,
+      };
 
-    const handleMouseUp = () => {
-      setResizing(false);
-      resizeRef.current = null;
-      window.removeEventListener('pointermove', handleMouseMove);
-      window.removeEventListener('pointerup', handleMouseUp);
-    };
+      // Add global listeners
+      const handleMouseMove = (e: PointerEvent) => {
+        if (!resizeRef.current) return;
 
-    window.addEventListener('pointermove', handleMouseMove);
-    window.addEventListener('pointerup', handleMouseUp);
-  }, [headers, onHeadersChange]);
+        const deltaX = e.pageX - resizeRef.current.startX;
+        const newWidth = Math.max(32, resizeRef.current.startWidth + deltaX);
+
+        const newHeaders = headers.map((h) =>
+          h.value === resizeRef.current!.header.value
+            ? { ...h, width: newWidth }
+            : h,
+        );
+        onHeadersChange?.(newHeaders);
+      };
+
+      const handleMouseUp = () => {
+        setResizing(false);
+        resizeRef.current = null;
+        window.removeEventListener("pointermove", handleMouseMove);
+        window.removeEventListener("pointerup", handleMouseUp);
+      };
+
+      window.addEventListener("pointermove", handleMouseMove);
+      window.addEventListener("pointerup", handleMouseUp);
+    },
+    [headers, onHeadersChange],
+  );
 
   /**
    * Get sort icon for header
@@ -208,39 +228,47 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
     if (sort.by !== header.value) {
       return <IconArrowsSort size={14} className="sort-icon idle" />;
     }
-    return sort.desc 
-      ? <IconArrowDown size={14} className="sort-icon active" />
-      : <IconArrowUp size={14} className="sort-icon active" />;
+    return sort.desc ? (
+      <IconArrowDown size={14} className="sort-icon active" />
+    ) : (
+      <IconArrowUp size={14} className="sort-icon active" />
+    );
   };
 
   /**
    * Get header classes
    */
   const getHeaderClasses = (header: Header) => {
-    const classes = ['cell', `align-${header.align}`];
-    
+    const classes = ["cell", `align-${header.align}`];
+
     if (header.sortable) {
-      classes.push('sortable');
+      classes.push("sortable");
     }
-    
+
     if (header.width && header.width < 90) {
-      classes.push('small');
+      classes.push("small");
     }
-    
+
     if (sort.by === header.value) {
-      classes.push(sort.desc ? 'sort-desc' : 'sort-asc');
+      classes.push(sort.desc ? "sort-desc" : "sort-asc");
     }
-    
-    return classes.join(' ');
+
+    return classes.join(" ");
   };
 
   return (
-    <thead className={`table-header ${resizing ? 'resizing' : ''} ${reordering ? 'reordering' : ''}`}>
-      <tr className={fixed ? 'fixed' : ''}>
+    <thead
+      className={`table-header ${resizing ? "resizing" : ""} ${
+        reordering ? "reordering" : ""
+      }`}
+    >
+      <tr className={fixed ? "fixed" : ""}>
         {/* Manual Sort Column */}
         {showManualSort && (
           <th
-            className={`cell manual ${sort.by === manualSortKey ? 'sorted-manually' : ''}`}
+            className={`cell manual ${
+              sort.by === manualSortKey ? "sorted-manually" : ""
+            }`}
             onClick={handleManualSortToggle}
           >
             <IconGripVertical size={18} />
@@ -248,9 +276,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         )}
 
         {/* Select All Checkbox */}
-        {showSelect !== 'none' && (
+        {showSelect !== "none" && (
           <th className="cell select">
-            {showSelect === 'multiple' && (
+            {showSelect === "multiple" && (
               <Checkbox
                 checked={allItemsSelected}
                 indeterminate={someItemsSelected && !allItemsSelected}
@@ -268,7 +296,6 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             className={getHeaderClasses(header)}
             onClick={() => handleSort(header)}
             onContextMenu={(e) => handleContextMenu(header, e)}
-            style={{ width: header.width ? `${header.width}px` : undefined }}
           >
             <div className="header-content">
               {allowHeaderReorder && (
@@ -276,11 +303,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                   <IconGripVertical size={14} />
                 </div>
               )}
-              
+
               {renderHeader ? (
                 renderHeader(header)
               ) : (
-                <Tooltip label={header.description} disabled={!header.description}>
+                <Tooltip
+                  label={header.description}
+                  disabled={!header.description}
+                >
                   <Text size="sm" fw={600} truncate="end">
                     {header.text}
                   </Text>
@@ -288,9 +318,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
               )}
 
               {header.sortable && (
-                <span className="sort-indicator">
-                  {getSortIcon(header)}
-                </span>
+                <span className="sort-indicator">{getSortIcon(header)}</span>
               )}
             </div>
 
@@ -308,22 +336,25 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         <th className="cell spacer" />
 
         {/* Append Column */}
-        {hasItemAppendSlot && <th className="cell append" />}
+        {renderHeaderAppend ? (
+          <th className="cell append" onClick={(e) => e.stopPropagation()}>
+            {renderHeaderAppend()}
+          </th>
+        ) : hasItemAppendSlot ? (
+          <th className="cell spacer" />
+        ) : null}
       </tr>
 
       {/* Context Menu Popup */}
       {contextMenu && renderHeaderContextMenu && (
-        <tr className="context-menu-row" style={{ display: 'contents' }}>
-          <td colSpan={999} style={{ position: 'relative', padding: 0, border: 'none' }}>
+        <tr className="context-menu-row">
+          <td
+            colSpan={999}
+            className="context-menu-cell"
+          >
             <div
               ref={contextMenuRef}
               className="header-context-menu"
-              style={{
-                position: 'fixed',
-                top: contextMenu.y,
-                left: contextMenu.x,
-                zIndex: 1000,
-              }}
               onClick={() => setContextMenu(null)}
             >
               {renderHeaderContextMenu(contextMenu.header)}
