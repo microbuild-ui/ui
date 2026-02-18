@@ -228,7 +228,7 @@ import {
 
 /**
  * Icon categories based on Material Design icon categories
- * Adapted from Directus icons.json structure
+ * Adapted from DaaS icons.json structure
  */
 const ICON_CATEGORIES = [
   {
@@ -348,7 +348,7 @@ const ICON_CATEGORIES = [
 ];
 
 /**
- * Format icon name to display title (matching Directus format-title behavior)
+ * Format icon name to display title (matching DaaS format-title behavior)
  */
 const formatTitle = (str: string): string => {
   return str.replace(/[_-]/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
@@ -646,7 +646,7 @@ export interface SelectIconProps {
 /**
  * SelectIcon - Icon selection interface component
  * 
- * Directus-compatible icon picker interface that allows users to search and select
+ * DaaS-compatible icon picker interface that allows users to search and select
  * from a categorized list of Material Design icons. Icons are displayed as Tabler
  * icons for visual consistency with the Mantine design system.
  * 

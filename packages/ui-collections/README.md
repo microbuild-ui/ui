@@ -1,6 +1,6 @@
 # @microbuild/ui-collections
 
-Dynamic collection components for Microbuild projects. Includes CRUD forms, data tables, navigation, layouts, and filter builders — all inspired by Directus's content module.
+Dynamic collection components for Microbuild projects. Includes CRUD forms, data tables, navigation, layouts, and filter builders — all inspired by DaaS's content module.
 
 ## Components
 
@@ -323,7 +323,7 @@ interface BulkAction {
 |------|------|---------|-------------|
 | `collection` | `string` | required | Collection name |
 | `fields` | `Field[]` | required | Available fields for filtering |
-| `value` | `object` | `{}` | Current filter value (Directus format) |
+| `value` | `object` | `{}` | Current filter value (DaaS format) |
 | `onChange` | `(filter: object) => void` | - | Filter change callback |
 | `onApply` | `(filter: object) => void` | - | Apply filter callback |
 | `onClear` | `() => void` | - | Clear filter callback |
@@ -394,7 +394,7 @@ interface BulkAction {
 - **Field-Type Aware**: Operators adapt to field type (string, number, date, etc.)
 - **Visual Builder**: Add/remove filter rules and groups
 - **AND/OR Logic**: Support for complex filter combinations
-- **Directus Compatible**: Produces standard Directus filter format
+- **DaaS Compatible**: Produces standard DaaS filter format
 - **Type-Safe**: TypeScript types for filter values
 - **Clear/Reset**: Clear all filters or individual rules
 
@@ -408,9 +408,9 @@ interface BulkAction {
 
 ## Architecture
 
-This package follows Directus's content module pattern:
+This package follows DaaS's content module pattern:
 
-| Directus | Microbuild |
+| DaaS | Microbuild |
 |----------|------------|
 | `v-form` component | `CollectionForm` |
 | `v-list` component | `CollectionList` |

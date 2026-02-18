@@ -60,7 +60,7 @@ export interface CollectionListProps {
   collection: string;
   /** Enable row selection */
   enableSelection?: boolean;
-  /** Filter to apply (Directus-style filter object) */
+  /** Filter to apply (DaaS-style filter object) */
   filter?: Record<string, unknown>;
   /** Bulk actions for selected items */
   bulkActions?: BulkAction[];
@@ -158,9 +158,9 @@ export const CollectionList: React.FC<CollectionListProps> = ({
   // ----- Computed row height -----
   const rowHeight = rowHeightProp ?? SPACING_HEIGHT[tableSpacing] ?? 48;
 
-  // ----- Permission-aware field filtering (mirrors Directus getFields()) -----
+  // ----- Permission-aware field filtering (mirrors DaaS getFields()) -----
   // Uses DaaS GET /permissions/me endpoint via PermissionsService.
-  // DaaS GET /fields does NOT filter by permissions (unlike Directus server-side),
+  // DaaS GET /fields does NOT filter by permissions (unlike DaaS server-side),
   // so we must apply permission filtering client-side.
   const [readableFields, setReadableFields] = useState<string[] | null>(null);
 

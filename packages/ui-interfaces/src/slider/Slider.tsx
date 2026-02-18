@@ -51,7 +51,7 @@ export interface SliderProps {
 /**
  * Slider Interface Component
  * 
- * A slider input interface that matches the Directus slider interface functionality.
+ * A slider input interface that matches the DaaS slider interface functionality.
  * Supports various numeric types including integers, big integers, decimals, and floats.
  * 
  * Features:

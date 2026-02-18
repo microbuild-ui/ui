@@ -30,7 +30,7 @@ export interface UseEditsGuardReturn {
 
 /**
  * Framework-agnostic hook to guard against navigation when there are unsaved changes
- * Inspired by Directus useEditsGuard composable, ported for React
+ * Inspired by DaaS useEditsGuard composable, ported for React
  * 
  * For Next.js, use with useRouter and usePathname:
  * @example

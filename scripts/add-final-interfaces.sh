@@ -78,7 +78,7 @@ curl -s -X POST "${BASE_URL}/api/fields/${COLLECTION}" \
       "options": {
         "enableCreate": true,
         "enableSelect": true,
-        "allowedCollections": ["interface_showcase_items", "directus_files"]
+        "allowedCollections": ["interface_showcase_items", "daas_files"]
       }
     }
   }' | python3 -c "import json,sys; d=json.load(sys.stdin); print('✅ polymorphic_items' if 'data' in d else '❌', d.get('error',''))" 2>/dev/null || echo "Error"

@@ -4,7 +4,7 @@
  * Client-side authentication hook following DaaS architecture.
  * Supports multiple authentication methods:
  * 1. Cookie-Based Sessions - For browser requests (automatic)
- * 2. Static Tokens - For programmatic access (Directus-style)
+ * 2. Static Tokens - For programmatic access (DaaS-style)
  * 
  * @module @microbuild/hooks/useAuth
  */

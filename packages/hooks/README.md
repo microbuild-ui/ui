@@ -1,6 +1,6 @@
 # @microbuild/hooks
 
-React hooks for Microbuild projects. Includes authentication and permission hooks following DaaS architecture, plus Directus-compatible relation hooks for M2M, M2O, O2M, and M2A relationships.
+React hooks for Microbuild projects. Includes authentication and permission hooks following DaaS architecture, plus DaaS-compatible relation hooks for M2M, M2O, O2M, and M2A relationships.
 
 ## Installation
 
@@ -21,7 +21,7 @@ The hooks follow the DaaS (Data-as-a-Service) authentication architecture:
 ### Authentication Methods Supported
 
 1. **Cookie-Based Sessions** - For browser requests (automatic)
-2. **Static Tokens** - For programmatic access (Directus-style)
+2. **Static Tokens** - For programmatic access (DaaS-style)
 3. **JWT Bearer Tokens** - For API clients with Supabase Auth
 
 ### DaaSProvider
@@ -227,10 +227,10 @@ function PageBlocks({ pageId }: { pageId: string }) {
 
 ### useFiles
 
-Manage file uploads and file selection with DaaS/Directus Files API integration.
+Manage file uploads and file selection with DaaS/DaaS Files API integration.
 
 ```typescript
-import { useFiles, type DirectusFile } from '@microbuild/hooks';
+import { useFiles, type DaaSFile } from '@microbuild/hooks';
 
 function ImageUploader() {
   const { 
@@ -268,14 +268,14 @@ function ImageUploader() {
 }
 ```
 
-### DirectusFile Type
+### DaaSFile Type
 
-The `DirectusFile` interface matches the Directus API response:
+The `DaaSFile` interface matches the DaaS API response:
 
 ```typescript
-import { type DirectusFile } from '@microbuild/hooks';
+import { type DaaSFile } from '@microbuild/hooks';
 
-// DirectusFile fields:
+// DaaSFile fields:
 // - id: string
 // - storage: string
 // - filename_disk: string | null

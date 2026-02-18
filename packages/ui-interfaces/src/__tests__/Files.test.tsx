@@ -5,7 +5,7 @@ import { MantineProvider } from '@mantine/core';
 import { Files } from '../Files';
 
 jest.mock('@/lib/api', () => ({
-  directusAPI: {
+  daasAPI: {
     getFile: jest.fn(async (id: string) => ({
       id,
       filename_disk: `${id}.bin`,

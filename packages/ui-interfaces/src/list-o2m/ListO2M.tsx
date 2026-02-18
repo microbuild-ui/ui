@@ -101,7 +101,7 @@ export interface ListO2MProps {
 /**
  * ListO2M - One-to-Many relationship interface
  * 
- * Similar to Directus list-o2m interface.
+ * Similar to DaaS list-o2m interface.
  * Displays items from a related collection that have a foreign key pointing to this item.
  */
 export const ListO2M: React.FC<ListO2MProps> = ({
@@ -156,7 +156,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     const [internalMockItems, setInternalMockItems] = useState<O2MItem[]>(mockItems || []);
 
     // Staged selections - items selected but not yet persisted (for new parent items)
-    // Following Directus pattern: stage locally, persist when parent saves
+    // Following DaaS pattern: stage locally, persist when parent saves
     const [stagedSelections, setStagedSelections] = useState<O2MItem[]>([]);
 
     // Check if parent item is saved (has valid primary key, not '+' which means new)
@@ -202,10 +202,10 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     const loading = isDemoMode ? false : (relationLoading || itemsLoading);
 
     // Notify parent component when staged selections change
-    // This allows the parent form to include these in the save payload (Directus pattern)
+    // This allows the parent form to include these in the save payload (DaaS pattern)
     useEffect(() => {
         if (!isParentSaved && onChange) {
-            // Build the value in Directus format for O2M
+            // Build the value in DaaS format for O2M
             // Staged selections include the FK field pointing to the (future) parent
             if (stagedSelections.length > 0 && relationInfo?.reverseJunctionField) {
                 const updatePayload = stagedSelections.map(item => ({
@@ -272,7 +272,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     };
 
     // Handle selecting existing items from the related collection
-    // Following Directus pattern: if parent is saved, link immediately via API
+    // Following DaaS pattern: if parent is saved, link immediately via API
     // If parent is new (not saved), stage selections locally
     const handleSelectItems = async (selectedIds: (string | number)[]) => {
         // Clear any previous error
@@ -299,7 +299,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                 setSelectError('Failed to link items. Please try again.');
             }
         } else {
-            // Parent is NOT saved - stage selections locally (Directus pattern)
+            // Parent is NOT saved - stage selections locally (DaaS pattern)
             // These will be persisted when the parent item is saved
             try {
                 // Fetch the selected items to display them
@@ -796,7 +796,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                             enableSelection
                             filter={primaryKey && primaryKey !== '+' ? {
                                 // Filter to show only items not already linked
-                                // Note: primaryKey === '+' is Directus convention for "new item"
+                                // Note: primaryKey === '+' is DaaS convention for "new item"
                                 _or: [
                                     {
                                         [relationInfo.reverseJunctionField.field]: {

@@ -424,7 +424,7 @@ export const ReadOnly: Story = {
 };
 
 /**
- * With a Directus-style filter applied.
+ * With a DaaS-style filter applied.
  * Only items matching the filter are shown (mock data ignores the filter,
  * but the prop is passed through correctly to the API layer).
  */

@@ -2,7 +2,7 @@
  * Interface Types
  * 
  * Type definitions for the Interface Extension System.
- * Mirrors Directus InterfaceConfig but adapted for React.
+ * Mirrors DaaS InterfaceConfig but adapted for React.
  * 
  * @module @microbuild/utils/interface-types
  */

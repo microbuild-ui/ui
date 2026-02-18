@@ -2,7 +2,7 @@
  * VForm DaaS Integration E2E Tests
  * 
  * Tests the VForm component as integrated in the DaaS application.
- * Uses existing collections (directus_users) since custom collections
+ * Uses existing collections (daas_users) since custom collections
  * don't have UI routes in the current DaaS version.
  * 
  * For isolated component testing, use the Storybook tests:
@@ -25,7 +25,7 @@ async function waitForPageLoad(page: Page) {
 }
 
 // ============================================================================
-// Test Suite: VForm in Users Page (directus_users collection)
+// Test Suite: VForm in Users Page (daas_users collection)
 // ============================================================================
 
 test.describe('VForm Integration - Users Collection', () => {

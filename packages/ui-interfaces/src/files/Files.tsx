@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Button, Group, Stack, Text, Paper, Badge, Tooltip, Pagination, Menu, ActionIcon, Modal, TextInput, Loader } from '@mantine/core';
 import { IconTrash, IconDownload, IconExternalLink, IconFolder, IconDotsVertical, IconPhoto, IconUpload, IconFolderOpen } from '@tabler/icons-react';
 import { type FileUpload } from '../upload';
-import { directusAPI, type DirectusFile } from '@microbuild/hooks';
+import { daasAPI, type DaaSFile } from '@microbuild/hooks';
 import { useFiles } from '@microbuild/hooks';
 
 /**
- * Convert DirectusFile to FileUpload type (adds fallback for nullable fields)
+ * Convert DaaSFile to FileUpload type (adds fallback for nullable fields)
  */
-function toFileUpload(file: DirectusFile): FileUpload {
+function toFileUpload(file: DaaSFile): FileUpload {
   return {
     id: file.id,
     filename_download: file.filename_download,
@@ -96,11 +96,11 @@ export const Files: React.FC<FilesProps> = ({
     if (typeof item === 'number') return String(item);
     if (typeof item === 'object') {
       const obj = item as Record<string, unknown>;
-      // Junction table format: { directus_files_id: 'file-id' }
-      if (obj.directus_files_id) {
-        if (typeof obj.directus_files_id === 'string') return obj.directus_files_id;
-        if (typeof obj.directus_files_id === 'object' && obj.directus_files_id) {
-          return (obj.directus_files_id as Record<string, unknown>).id as string;
+      // Junction table format: { daas_files_id: 'file-id' }
+      if (obj.daas_files_id) {
+        if (typeof obj.daas_files_id === 'string') return obj.daas_files_id;
+        if (typeof obj.daas_files_id === 'object' && obj.daas_files_id) {
+          return (obj.daas_files_id as Record<string, unknown>).id as string;
         }
       }
       // Direct format: { id: 'file-id' }
@@ -124,11 +124,11 @@ export const Files: React.FC<FilesProps> = ({
     }
 
     // Try to infer junction config from field name if not provided
-    // Convention: {collection}_directus_files (e.g., interfaces_directus_files)
+    // Convention: {collection}_daas_files (e.g., interfaces_daas_files)
     const jc = junctionConfig || (collection && field ? {
-      junctionCollection: `${collection}_directus_files`,
+      junctionCollection: `${collection}_daas_files`,
       junctionFieldCurrent: `${collection}_id`,
-      junctionFieldRelated: 'directus_files_id',
+      junctionFieldRelated: 'daas_files_id',
     } : null);
 
     if (!jc) return;
@@ -137,7 +137,7 @@ export const Files: React.FC<FilesProps> = ({
       setLoading(true);
       try {
         // Fetch junction table records for this item
-        const junctionData = await directusAPI.getItems<Record<string, unknown>>(jc.junctionCollection, {
+        const junctionData = await daasAPI.getItems<Record<string, unknown>>(jc.junctionCollection, {
           filter: { [jc.junctionFieldCurrent]: { _eq: primaryKey } },
           sort: ['sort'],
           limit: 100,
@@ -164,7 +164,7 @@ export const Files: React.FC<FilesProps> = ({
         const hydratedFiles: FileUpload[] = [];
         for (const fileId of fileIds) {
           try {
-            const file = await directusAPI.getFile(fileId);
+            const file = await daasAPI.getFile(fileId);
             if (file) {
               hydratedFiles.push(toFileUpload(file));
               hydratedIdsRef.current.add(fileId);
@@ -232,9 +232,9 @@ export const Files: React.FC<FilesProps> = ({
           // Check junction table format with nested file object
           if (typeof item === 'object' && item !== null) {
             const obj = item as Record<string, unknown>;
-            if (obj.directus_files_id && isHydratedFile(obj.directus_files_id)) {
-              results.push(obj.directus_files_id as FileUpload);
-              hydratedIdsRef.current.add((obj.directus_files_id as FileUpload).id);
+            if (obj.daas_files_id && isHydratedFile(obj.daas_files_id)) {
+              results.push(obj.daas_files_id as FileUpload);
+              hydratedIdsRef.current.add((obj.daas_files_id as FileUpload).id);
               continue;
             }
           }
@@ -250,7 +250,7 @@ export const Files: React.FC<FilesProps> = ({
             }
 
             try {
-              const file = await directusAPI.getFile(fileId);
+              const file = await daasAPI.getFile(fileId);
               if (!cancelled) {
                 results.push(toFileUpload(file));
                 hydratedIdsRef.current.add(fileId);
@@ -295,9 +295,9 @@ export const Files: React.FC<FilesProps> = ({
     const checkPermissions = async () => {
       try {
         const [canCreate, canRead, canDelete] = await Promise.all([
-          directusAPI.checkPermission('directus_files', 'create'),
-          directusAPI.checkPermission('directus_files', 'read'),
-          directusAPI.checkPermission('directus_files', 'delete'),
+          daasAPI.checkPermission('daas_files', 'create'),
+          daasAPI.checkPermission('daas_files', 'read'),
+          daasAPI.checkPermission('daas_files', 'delete'),
         ]);
         setCreateAllowed(canCreate);
         setSelectAllowed(canRead);
@@ -325,9 +325,9 @@ export const Files: React.FC<FilesProps> = ({
     if (junctionConfig) return junctionConfig;
     if (collection && field) {
       return {
-        junctionCollection: `${collection}_directus_files`,
+        junctionCollection: `${collection}_daas_files`,
         junctionFieldCurrent: `${collection}_id`,
-        junctionFieldRelated: 'directus_files_id',
+        junctionFieldRelated: 'daas_files_id',
       };
     }
     return null;
@@ -356,7 +356,7 @@ export const Files: React.FC<FilesProps> = ({
       // Add new junction records
       for (let i = 0; i < toAdd.length; i++) {
         const file = toAdd[i];
-        await directusAPI.createItem(jc.junctionCollection, {
+        await daasAPI.createItem(jc.junctionCollection, {
           [jc.junctionFieldCurrent]: primaryKey,
           [jc.junctionFieldRelated]: file.id,
           sort: files.length + i + 1,
@@ -366,7 +366,7 @@ export const Files: React.FC<FilesProps> = ({
       // Remove junction records for removed files
       for (const file of toRemove) {
         // Find and delete the junction record
-        const junctionRecords = await directusAPI.getItems<{ id?: string | number }>(jc.junctionCollection, {
+        const junctionRecords = await daasAPI.getItems<{ id?: string | number }>(jc.junctionCollection, {
           filter: {
             [jc.junctionFieldCurrent]: { _eq: primaryKey },
             [jc.junctionFieldRelated]: { _eq: file.id },
@@ -376,7 +376,7 @@ export const Files: React.FC<FilesProps> = ({
         
         for (const record of junctionRecords) {
           if (record.id) {
-            await directusAPI.deleteItem(jc.junctionCollection, record.id);
+            await daasAPI.deleteItem(jc.junctionCollection, record.id);
           }
         }
       }

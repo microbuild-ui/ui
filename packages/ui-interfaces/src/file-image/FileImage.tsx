@@ -16,13 +16,13 @@ import {
 import { IconZoomIn, IconDownload, IconPencil, IconPhoto, IconX, IconInfoCircle, IconAdjustments, IconPhotoOff } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Upload, type UploadProps, type FileUpload } from '../upload';
-import { directusAPI, type DirectusFile } from '@microbuild/hooks';
+import { daasAPI, type DaaSFile } from '@microbuild/hooks';
 import { useFiles } from '@microbuild/hooks';
 
 /**
- * Convert DirectusFile to FileUpload type (adds fallback for nullable fields)
+ * Convert DaaSFile to FileUpload type (adds fallback for nullable fields)
  */
-function toFileUpload(file: DirectusFile): FileUpload {
+function toFileUpload(file: DaaSFile): FileUpload {
   return {
     id: file.id,
     filename_download: file.filename_download,
@@ -58,7 +58,7 @@ export interface FileImageProps extends Omit<UploadProps, 'onInput' | 'multiple'
 
 /**
  * Lightweight image loader that fetches image via API and converts to base64
- * This mirrors Directus v-image component behavior for authenticated image loading
+ * This mirrors DaaS v-image component behavior for authenticated image loading
  */
 function VImageBase64({ 
   src, 
@@ -80,7 +80,7 @@ function VImageBase64({
       return;
     }
     try {
-      const response = await directusAPI.get(src, { responseType: 'arraybuffer' });
+      const response = await daasAPI.get(src, { responseType: 'arraybuffer' });
       const contentType = response.headers['content-type'] || 'image/*';
       const bytes = new Uint8Array(response.data as ArrayBuffer);
       // guard: 5MB
@@ -128,7 +128,7 @@ function VImageBase64({
 }
 
 /**
- * FileImage interface component matching Directus file-image.vue
+ * FileImage interface component matching DaaS file-image.vue
  * 
  * Features:
  * - Image preview with crop/contain options
@@ -201,7 +201,7 @@ export const FileImage: React.FC<FileImageProps> = ({
           setEditTitle((value as FileUpload).title || '');
           setEditDescription((value as FileUpload).description || '');
         } else {
-          const file = await directusAPI.getFile(imageId);
+          const file = await daasAPI.getFile(imageId);
           if (!mounted) {
             return;
           }
@@ -230,8 +230,8 @@ export const FileImage: React.FC<FileImageProps> = ({
     // Check permissions for create/update on files
     const check = async () => {
       try {
-        const canCreate = await directusAPI.checkPermission('directus_files', 'create');
-        const canUpdate = await directusAPI.checkPermission('directus_files', 'update');
+        const canCreate = await daasAPI.checkPermission('daas_files', 'create');
+        const canUpdate = await daasAPI.checkPermission('daas_files', 'update');
         setCreateAllowed(canCreate);
         setUpdateAllowed(canUpdate);
       } catch {
@@ -256,14 +256,14 @@ export const FileImage: React.FC<FileImageProps> = ({
       return `/assets/${image.id}`;
     }
     if (isImage) {
-      const key = `system-large-${fit}`; // mirrors Directus presets
+      const key = `system-large-${fit}`; // mirrors DaaS presets
       const cacheBuster = (image as any).modified_on || image.uploaded_on || '';
       return `/assets/${image.id}?key=${key}&cache-buster=${encodeURIComponent(cacheBuster)}`;
     }
     return null;
   }, [image, fit, isImage, isSvg]);
 
-  // Format metadata string like Directus
+  // Format metadata string like DaaS
   const meta = useMemo(() => {
     if (!image) return null;
     const { filesize, width, height, type } = image;
@@ -307,7 +307,7 @@ export const FileImage: React.FC<FileImageProps> = ({
       return;
     }
     try {
-      const response = await directusAPI.get(`/assets/${image.id}`, {
+      const response = await daasAPI.get(`/assets/${image.id}`, {
         responseType: 'blob',
         params: { download: 'true' },
       });
@@ -333,7 +333,7 @@ export const FileImage: React.FC<FileImageProps> = ({
       return;
     }
     try {
-      const updated = await directusAPI.updateFile(image.id, {
+      const updated = await daasAPI.updateFile(image.id, {
         title: editTitle,
         description: editDescription,
       });
@@ -419,7 +419,7 @@ export const FileImage: React.FC<FileImageProps> = ({
       const file = new File([blob], `edited_${image.filename_download || image.id}.png`, { type: 'image/png' });
 
       const uploader = onUploadFiles || (async (files: File[], opts: { folder?: string; preset?: string }) => {
-        const result = await directusAPI.uploadFiles(files, opts);
+        const result = await daasAPI.uploadFiles(files, opts);
         return result.map(toFileUpload);
       });
       const uploaded = await uploader([file], { folder, preset });

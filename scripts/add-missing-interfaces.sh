@@ -28,7 +28,7 @@ add_field '{"field":"permissions","type":"json","meta":{"interface":"select-mult
 add_field '{"field":"categories","type":"json","meta":{"interface":"select-multiple-dropdown","width":"full","note":"Multiple dropdown selection","special":["cast-json"],"options":{"choices":[{"text":"Technology","value":"tech"},{"text":"Science","value":"science"},{"text":"Art","value":"art"},{"text":"Sports","value":"sports"}],"placeholder":"Select categories..."}}}'
 
 # Collection Item Dropdown
-add_field '{"field":"related_item","type":"string","meta":{"interface":"collection-item-dropdown","width":"full","note":"Select item from another collection","options":{"collection":"directus_users","template":"{{first_name}} {{last_name}}","filter":{}}}}'
+add_field '{"field":"related_item","type":"string","meta":{"interface":"collection-item-dropdown","width":"full","note":"Select item from another collection","options":{"collection":"daas_users","template":"{{first_name}} {{last_name}}","filter":{}}}}'
 
 # Multiple Files
 add_field '{"field":"documents","type":"json","meta":{"interface":"files","width":"full","note":"Multiple file uploads","special":["files","cast-json"]}}'

@@ -9,7 +9,7 @@ const meta: Meta<typeof SelectDropdown> = {
     docs: {
       description: {
         component: `
-SelectDropdown component implementing Directus select-dropdown interface functionality using Mantine's Select component.
+SelectDropdown component implementing DaaS select-dropdown interface functionality using Mantine's Select component.
 
 ## Features
 
@@ -22,12 +22,12 @@ SelectDropdown component implementing Directus select-dropdown interface functio
 - Validation and error states
 - Accessibility compliant
 
-## Directus Compatibility
+## DaaS Compatibility
 
-This component matches the behavior of the Directus \`select-dropdown\` interface:
+This component matches the behavior of the DaaS \`select-dropdown\` interface:
 - Supports the same choice format with text/value pairs
 - Handles allowNone and allowOther options
-- Compatible with all Directus field types (string, integer, float, bigInteger)
+- Compatible with all DaaS field types (string, integer, float, bigInteger)
         `,
       },
     },

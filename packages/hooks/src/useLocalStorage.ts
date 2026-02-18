@@ -35,7 +35,7 @@ function parseJSON<T>(value: string): T | null {
 
 /**
  * Hook for persistent localStorage state
- * Ported from Directus useLocalStorage composable for React
+ * Ported from DaaS useLocalStorage composable for React
  * 
  * @example
  * ```tsx

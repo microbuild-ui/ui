@@ -2,7 +2,7 @@
  * @microbuild/hooks
  * 
  * Shared React hooks for Microbuild projects.
- * Directus-compatible relation hooks for M2M, M2O, O2M relationships.
+ * DaaS-compatible relation hooks for M2M, M2O, O2M relationships.
  * Authentication and permission hooks following DaaS architecture.
  */
 
@@ -53,7 +53,7 @@ export {
     useFiles, 
     type FileUpload, 
     type FileUploadOptions, 
-    type DirectusFile 
+    type DaaSFile 
 } from './useFiles';
 
 // Selection & Preset hooks
@@ -70,7 +70,7 @@ export {
     type Query
 } from './usePreset';
 
-// Navigation guard hooks (Directus-style)
+// Navigation guard hooks (DaaS-style)
 export { 
     useEditsGuard, 
     useHasEdits,
@@ -78,7 +78,7 @@ export {
     type UseEditsGuardReturn 
 } from './useEditsGuard';
 
-// Clipboard and Storage hooks (Directus-style)
+// Clipboard and Storage hooks (DaaS-style)
 export {
     useClipboard,
     type UseClipboardOptions,
@@ -113,7 +113,7 @@ export {
 } from './useWorkflowVersioning';
 
 // API helpers
-export { api, directusAPI, createDirectusAPI, type DirectusAPIConfig, type QueryParams } from './api';
+export { api, daasAPI, createDaaSAPI, type DaaSAPIConfig, type QueryParams } from './api';
 
 // Re-export types for convenience
 export type { Relation, RelationMeta, RelationSchema, RelationCollectionMeta, RelationFieldInfo } from '@microbuild/types';

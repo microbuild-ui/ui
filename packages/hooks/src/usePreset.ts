@@ -62,7 +62,7 @@ export interface UsePresetReturn {
 
 /**
  * Hook to manage collection presets (filters, search, layout options)
- * Similar to Directus usePreset composable
+ * Similar to DaaS usePreset composable
  * 
  * @example
  * ```tsx

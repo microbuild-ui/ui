@@ -42,7 +42,7 @@
     "microbuild",
     "utils",
     "utilities",
-    "directus",
+    "daas",
     "field-interface-mapper"
   ],
   "license": "MIT",

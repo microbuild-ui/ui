@@ -1,6 +1,6 @@
 # @microbuild/ui-form
 
-Dynamic form component system for building Directus-compatible forms with built-in permission enforcement.
+Dynamic form component system for building DaaS-compatible forms with built-in permission enforcement.
 
 ## Exports
 
@@ -25,7 +25,7 @@ import type {
 - 🔐 **Permission Enforcement** - Filter fields based on user permissions (DaaS-compatible)
 - 📝 **FormField Component** - Individual field wrapper with label, validation, and interface rendering
 - 🔌 **Interface Integration** - Automatically loads appropriate interface component based on field type
-- 🎨 **Field Metadata** - Respects meta configuration from `directus_fields` table (interface, options, display)
+- 🎨 **Field Metadata** - Respects meta configuration from `daas_fields` table (interface, options, display)
 - 📊 **Field Groups** - Support for nested field groups and hierarchical organization
 - ✅ **Validation** - Built-in validation error display and handling
 - 🔄 **Change Tracking** - Track edited fields and manage form state

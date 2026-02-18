@@ -28,7 +28,7 @@ export interface UseClipboardReturn {
 
 /**
  * Hook for clipboard operations with notifications
- * Ported from Directus useClipboard composable for React
+ * Ported from DaaS useClipboard composable for React
  * 
  * @example
  * ```tsx

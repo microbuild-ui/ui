@@ -470,7 +470,7 @@ test.describe('VForm Storybook - DaaS Playground', () => {
     
     // Load a collection
     const collectionInput = page.getByLabel(/Collection Name/i);
-    await collectionInput.fill('directus_users');
+    await collectionInput.fill('daas_users');
     
     const loadButton = page.getByRole('button', { name: /Load Fields/i });
     await loadButton.click();

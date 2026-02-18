@@ -38,7 +38,7 @@ export interface DividerProps {
  * - Large styling variant
  * - Customizable colors and thickness
  * 
- * Matches the Directus divider interface functionality.
+ * Matches the DaaS divider interface functionality.
  * 
  * @example
  * // Simple horizontal divider

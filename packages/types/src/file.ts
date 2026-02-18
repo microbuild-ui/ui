@@ -2,14 +2,14 @@
  * File Types
  * 
  * TypeScript type definitions for the Files module,
- * following the Directus v11.12.0 specification.
+ * following the DaaS v11.12.0 specification.
  */
 
 /**
  * File entity representing a file stored in the system.
- * Matches the directus_files table schema.
+ * Matches the daas_files table schema.
  */
-export interface DirectusFile {
+export interface DaaSFile {
   /** Unique identifier for the file */
   id: string;
   
@@ -189,7 +189,7 @@ export interface FileUploadOptions {
  * Response for file list operations
  */
 export interface FileListResponse {
-  data: DirectusFile[];
+  data: DaaSFile[];
   meta?: {
     filter_count?: number;
     total_count?: number;
@@ -200,7 +200,7 @@ export interface FileListResponse {
  * Response for single file operations
  */
 export interface FileResponse {
-  data: DirectusFile;
+  data: DaaSFile;
 }
 
 /**
@@ -374,20 +374,20 @@ export function getAssetUrl(fileId: string, options?: {
 /**
  * Check if file is an image
  */
-export function isImageFile(file: DirectusFile): boolean {
+export function isImageFile(file: DaaSFile): boolean {
   return getFileCategory(file.type) === 'image';
 }
 
 /**
  * Check if file is a video
  */
-export function isVideoFile(file: DirectusFile): boolean {
+export function isVideoFile(file: DaaSFile): boolean {
   return getFileCategory(file.type) === 'video';
 }
 
 /**
  * Check if file is an audio
  */
-export function isAudioFile(file: DirectusFile): boolean {
+export function isAudioFile(file: DaaSFile): boolean {
   return getFileCategory(file.type) === 'audio';
 }

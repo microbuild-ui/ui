@@ -2,7 +2,7 @@
  * VForm Component E2E Tests
  * 
  * Tests the @microbuild/ui-form VForm component integrated with the DaaS application.
- * These tests validate the Directus-inspired form rendering pattern.
+ * These tests validate the DaaS-inspired form rendering pattern.
  * 
  * Prerequisites:
  * 1. Start DaaS app: cd ../nextjs-supabase-daas && pnpm dev
@@ -223,7 +223,7 @@ test.describe('VForm Field Types', () => {
 });
 
 // ============================================================================
-// Test Suite: VForm State Management (Directus Pattern)
+// Test Suite: VForm State Management (DaaS Pattern)
 // ============================================================================
 
 test.describe('VForm State Management', () => {

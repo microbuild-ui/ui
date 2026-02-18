@@ -4,7 +4,7 @@
  * Dropdown menu attached to the primary save button providing
  * additional save actions: save & stay, save & add new, save as copy, discard.
  *
- * Ported from Directus save-options.vue.
+ * Ported from DaaS save-options.vue.
  *
  * @package @microbuild/ui-collections
  */

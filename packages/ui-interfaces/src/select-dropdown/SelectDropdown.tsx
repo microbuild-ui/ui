@@ -3,8 +3,8 @@ import { Select, SelectProps, Group, ColorSwatch, Text, ComboboxItem, ComboboxLi
 import { IconCheck } from '@tabler/icons-react';
 
 /**
- * Interface option type matching Directus select-dropdown interface
- * Supports icon and color properties like Directus
+ * Interface option type matching DaaS select-dropdown interface
+ * Supports icon and color properties like DaaS
  */
 export interface SelectOption {
   text: string;
@@ -54,9 +54,9 @@ export interface SelectDropdownProps {
 }
 
 /**
- * SelectDropdown component implementing Directus select-dropdown interface
+ * SelectDropdown component implementing DaaS select-dropdown interface
  * 
- * This component provides a dropdown selection interface compatible with Directus
+ * This component provides a dropdown selection interface compatible with DaaS
  * select-dropdown interface, built using Mantine's Select component.
  * 
  * Features:
@@ -64,7 +64,7 @@ export interface SelectDropdownProps {
  * - Optional custom value input (allowOther)
  * - Clearable selection (allowNone)
  * - Search functionality
- * - Icon and color support (like Directus)
+ * - Icon and color support (like DaaS)
  * - Validation and error states
  * - Accessibility compliant
  * 
@@ -103,13 +103,13 @@ export const SelectDropdown: React.FC<SelectDropdownProps> = ({
   maxDropdownHeight = 200,
   selectProps = {},
 }) => {
-  // Check if any choice has an icon - used for global icon display logic (like Directus)
+  // Check if any choice has an icon - used for global icon display logic (like DaaS)
   const applyGlobalIcon = React.useMemo(() => 
     choices?.some((choice) => choice.icon), 
     [choices]
   );
 
-  // Apply global icon to choices that don't have one (Directus behavior)
+  // Apply global icon to choices that don't have one (DaaS behavior)
   const processedChoices = React.useMemo(() => {
     if (!choices || choices.length === 0) {
       return [];
@@ -128,7 +128,7 @@ export const SelectDropdown: React.FC<SelectDropdownProps> = ({
     });
   }, [choices, applyGlobalIcon, icon]);
 
-  // Determine if we should show global icon (Directus behavior)
+  // Determine if we should show global icon (DaaS behavior)
   const showGlobalIcon = React.useMemo(() => {
     if (!icon) {
       return false;

@@ -25,13 +25,13 @@ import {
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Upload, type FileUpload } from '../upload';
-import { directusAPI, type DirectusFile } from '@microbuild/hooks';
+import { daasAPI, type DaaSFile } from '@microbuild/hooks';
 import { useFiles } from '@microbuild/hooks';
 
 /**
- * Convert DirectusFile to FileUpload type (adds fallback for nullable fields)
+ * Convert DaaSFile to FileUpload type (adds fallback for nullable fields)
  */
-function toFileUpload(file: DirectusFile): FileUpload {
+function toFileUpload(file: DaaSFile): FileUpload {
   return {
     id: file.id,
     filename_download: file.filename_download,
@@ -50,7 +50,7 @@ function toFileUpload(file: DirectusFile): FileUpload {
 }
 
 /**
- * Token-based styles for file components matching Directus file.vue interface
+ * Token-based styles for file components matching DaaS file.vue interface
  */
 const fileStyles = {
   preview: {
@@ -144,7 +144,7 @@ export interface FileProps {
 }
 
 /**
- * File interface component matching Directus file.vue
+ * File interface component matching DaaS file.vue
  * Provides the same UI and functionality as the Vue component
  */
 export const File: React.FC<FileProps> = ({
@@ -152,7 +152,7 @@ export const File: React.FC<FileProps> = ({
   onChange,
   disabled = false,
   folder,
-  // collection and field are kept for API parity with Directus interfaces
+  // collection and field are kept for API parity with DaaS interfaces
   placeholder = "No file selected",
   readonly = false,
   label,
@@ -193,7 +193,7 @@ export const File: React.FC<FileProps> = ({
           setEditTitle((value as FileUpload).title || '');
           setEditDescription((value as FileUpload).description || '');
         } else {
-          const fetchedFile = await directusAPI.getFile(fileId);
+          const fetchedFile = await daasAPI.getFile(fileId);
           if (!mounted) return;
           setFile(toFileUpload(fetchedFile));
           setEditTitle(fetchedFile.title || '');
@@ -220,8 +220,8 @@ export const File: React.FC<FileProps> = ({
   useEffect(() => {
     const checkPermissions = async () => {
       try {
-        const canCreate = await directusAPI.checkPermission('directus_files', 'create');
-        const canUpdate = await directusAPI.checkPermission('directus_files', 'update');
+        const canCreate = await daasAPI.checkPermission('daas_files', 'create');
+        const canUpdate = await daasAPI.checkPermission('daas_files', 'update');
         setCreateAllowed(canCreate);
         setUpdateAllowed(canUpdate);
       } catch {
@@ -274,7 +274,7 @@ export const File: React.FC<FileProps> = ({
   const handleDownload = useCallback(async () => {
     if (!file) return;
     try {
-      const response = await directusAPI.get(`/assets/${file.id}`, {
+      const response = await daasAPI.get(`/assets/${file.id}`, {
         responseType: 'blob',
         params: { download: 'true' },
       });
@@ -297,7 +297,7 @@ export const File: React.FC<FileProps> = ({
   const handleSaveDetails = useCallback(async () => {
     if (!file) return;
     try {
-      const updated = await directusAPI.updateFile(file.id, {
+      const updated = await daasAPI.updateFile(file.id, {
         title: editTitle,
         description: editDescription,
       });

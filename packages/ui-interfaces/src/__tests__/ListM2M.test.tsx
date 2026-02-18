@@ -3,9 +3,9 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ListM2M } from '@microbuild/ui-interfaces';
 
-// Mock the directusAPI
+// Mock the daasAPI
 jest.mock('@/lib/api', () => ({
-    directusAPI: {
+    daasAPI: {
         getCollectionFields: jest.fn().mockResolvedValue([
             {
                 field: 'tags',
@@ -281,8 +281,8 @@ describe('ListM2M Interface', () => {
 
     it('shows warning when relationship is not configured', async () => {
         // Mock API to return field without proper M2M configuration
-        const { directusAPI } = require('@/lib/api');
-        directusAPI.getCollectionFields.mockResolvedValueOnce([
+        const { daasAPI } = require('@/lib/api');
+        daasAPI.getCollectionFields.mockResolvedValueOnce([
             {
                 field: 'tags',
                 type: 'string',
@@ -304,8 +304,8 @@ describe('ListM2M Interface', () => {
 
     it('displays empty state when no items are present', async () => {
         // Mock API to return empty items
-        const { directusAPI } = require('@/lib/api');
-        directusAPI.getItems.mockResolvedValueOnce({
+        const { daasAPI } = require('@/lib/api');
+        daasAPI.getItems.mockResolvedValueOnce({
             data: [],
             meta: { total_count: 0 }
         });
@@ -341,8 +341,8 @@ describe('ListM2M Interface', () => {
         fireEvent.click(addSelectedButton);
 
         // Verify the API calls
-        const { directusAPI } = require('@/lib/api');
-        expect(directusAPI.createItem).toHaveBeenCalledTimes(2); // For items 1 and 2
+        const { daasAPI } = require('@/lib/api');
+        expect(daasAPI.createItem).toHaveBeenCalledTimes(2); // For items 1 and 2
     });
 
     it('shows ordering controls when sort field is present', async () => {
@@ -425,8 +425,8 @@ describe('ListM2M Accessibility', () => {
 describe('ListM2M Error Handling', () => {
     it('handles API errors gracefully', async () => {
         // Mock API to throw an error
-        const { directusAPI } = require('@/lib/api');
-        directusAPI.getItems.mockRejectedValueOnce(new Error('Network error'));
+        const { daasAPI } = require('@/lib/api');
+        daasAPI.getItems.mockRejectedValueOnce(new Error('Network error'));
 
         render(
             <TestWrapper>

@@ -4,7 +4,7 @@ import { IconCheck, IconX } from '@tabler/icons-react';
 
 /**
  * Props for the Toggle interface component
- * Based on Directus boolean interface with toggle-specific styling
+ * Based on DaaS boolean interface with toggle-specific styling
  */
 export interface ToggleProps {
   /** Current boolean value */
@@ -66,13 +66,13 @@ export interface ToggleProps {
  * Toggle Interface Component
  * 
  * A toggle switch interface that provides a more visual on/off toggle compared to the 
- * standard Boolean component. Matches the Directus toggle interface functionality.
+ * standard Boolean component. Matches the DaaS toggle interface functionality.
  * 
  * Uses Mantine's Switch component with enhanced styling for toggle behavior:
  * - Visual on/off state with icons
  * - Custom colors for states
  * - Optional state labels (On/Off text)
- * - Directus-compatible API
+ * - DaaS-compatible API
  * 
  * Features:
  * - Boolean value handling with null state support
@@ -134,7 +134,7 @@ export const Toggle: React.FC<ToggleProps> = ({
   // null values are treated as unchecked (false)
   const checked = value === true;
   
-  // Default colors based on Directus theme
+  // Default colors based on DaaS theme
   const defaultColorOn = colorOn || theme.colors.green[6];
   const defaultColorOff = colorOff || theme.colors.gray[5];
   

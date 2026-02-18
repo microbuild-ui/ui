@@ -1,11 +1,11 @@
 /**
- * Directus-compatible API helpers
+ * DaaS-compatible API helpers
  * 
  * These provide a typed interface for the DaaS API.
  * Supports both proxy mode (Next.js apps) and direct DaaS mode (Storybook/testing).
  */
 
-export interface DirectusAPIConfig {
+export interface DaaSAPIConfig {
   baseUrl?: string;
   token?: string;
 }
@@ -33,9 +33,9 @@ export interface ListResponse<T> {
 }
 
 /**
- * Directus file representation - matches the actual Directus API response
+ * DaaS file representation - matches the actual DaaS API response
  */
-export interface DirectusFile {
+export interface DaaSFile {
   id: string;
   storage: string;
   filename_disk: string | null;
@@ -56,7 +56,7 @@ export interface DirectusFile {
 /**
  * User representation
  */
-export interface DirectusUser {
+export interface DaaSUser {
   id: string;
   email: string;
   first_name: string | null;
@@ -74,7 +74,7 @@ export interface DirectusUser {
 /**
  * Permission representation
  */
-export interface DirectusPermission {
+export interface DaaSPermission {
   id: string;
   policy: string;
   collection: string;
@@ -97,14 +97,14 @@ export interface CollectionPermissions {
 }
 
 /**
- * Directus API helper class
+ * DaaS API helper class
  * Provides methods for common API operations
  */
-class DirectusAPI {
+class DaaSAPI {
   private baseUrl: string;
   private token: string | null;
 
-  constructor(config: DirectusAPIConfig = {}) {
+  constructor(config: DaaSAPIConfig = {}) {
     this.baseUrl = config.baseUrl || '/api';
     this.token = config.token || null;
   }
@@ -304,20 +304,20 @@ class DirectusAPI {
   /**
    * Get current user
    */
-  async getMe(params?: QueryParams): Promise<DirectusUser> {
+  async getMe(params?: QueryParams): Promise<DaaSUser> {
     const query = new URLSearchParams();
     if (params?.fields) query.set('fields', params.fields.join(','));
     
     const queryString = query.toString();
     const path = `/users/me${queryString ? `?${queryString}` : ''}`;
-    return this.request<DirectusUser>(path);
+    return this.request<DaaSUser>(path);
   }
 
   /**
    * Update current user
    */
-  async updateMe(data: Partial<DirectusUser>): Promise<DirectusUser> {
-    return this.request<DirectusUser>('/users/me', {
+  async updateMe(data: Partial<DaaSUser>): Promise<DaaSUser> {
+    return this.request<DaaSUser>('/users/me', {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
@@ -326,15 +326,15 @@ class DirectusAPI {
   /**
    * Get users
    */
-  async getUsers(params?: QueryParams): Promise<DirectusUser[]> {
-    return this.getItems<DirectusUser>('directus_users', params);
+  async getUsers(params?: QueryParams): Promise<DaaSUser[]> {
+    return this.getItems<DaaSUser>('daas_users', params);
   }
 
   /**
    * Get user by ID
    */
-  async getUser(id: string, params?: QueryParams): Promise<DirectusUser> {
-    return this.getItem<DirectusUser>('directus_users', id, params);
+  async getUser(id: string, params?: QueryParams): Promise<DaaSUser> {
+    return this.getItem<DaaSUser>('daas_users', id, params);
   }
 
   // ==================== Permissions API ====================
@@ -386,14 +386,14 @@ class DirectusAPI {
   /**
    * Get a file by ID
    */
-  async getFile(id: string): Promise<DirectusFile> {
-    return this.request<DirectusFile>(`/files/${id}`);
+  async getFile(id: string): Promise<DaaSFile> {
+    return this.request<DaaSFile>(`/files/${id}`);
   }
 
   /**
    * Get files with optional filtering
    */
-  async getFiles(params?: QueryParams & { folder?: string }): Promise<DirectusFile[]> {
+  async getFiles(params?: QueryParams & { folder?: string }): Promise<DaaSFile[]> {
     const query = new URLSearchParams();
     if (params?.fields) query.set('fields', params.fields.join(','));
     if (params?.filter) query.set('filter', JSON.stringify(params.filter));
@@ -405,14 +405,14 @@ class DirectusAPI {
     
     const queryString = query.toString();
     const path = `/files${queryString ? `?${queryString}` : ''}`;
-    return this.request<DirectusFile[]>(path);
+    return this.request<DaaSFile[]>(path);
   }
 
   /**
    * Update a file's metadata
    */
-  async updateFile(id: string, data: Partial<DirectusFile>): Promise<DirectusFile> {
-    return this.request<DirectusFile>(`/files/${id}`, {
+  async updateFile(id: string, data: Partial<DaaSFile>): Promise<DaaSFile> {
+    return this.request<DaaSFile>(`/files/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
@@ -433,8 +433,8 @@ class DirectusAPI {
   async uploadFiles(
     files: File[],
     options?: { folder?: string; onProgress?: (progress: number) => void }
-  ): Promise<DirectusFile[]> {
-    const results: DirectusFile[] = [];
+  ): Promise<DaaSFile[]> {
+    const results: DaaSFile[] = [];
     
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -466,8 +466,8 @@ class DirectusAPI {
   /**
    * Import file from URL
    */
-  async importFromUrl(url: string, data?: Partial<DirectusFile>): Promise<DirectusFile> {
-    return this.request<DirectusFile>('/files/import', {
+  async importFromUrl(url: string, data?: Partial<DaaSFile>): Promise<DaaSFile> {
+    return this.request<DaaSFile>('/files/import', {
       method: 'POST',
       body: JSON.stringify({ url, data }),
     });
@@ -476,7 +476,7 @@ class DirectusAPI {
   /**
    * Bulk update files
    */
-  async bulkUpdateFiles(keys: string[], data: Partial<DirectusFile>): Promise<{ updated: number; keys: string[] }> {
+  async bulkUpdateFiles(keys: string[], data: Partial<DaaSFile>): Promise<{ updated: number; keys: string[] }> {
     return this.request('/files', {
       method: 'PATCH',
       body: JSON.stringify({ keys, data }),
@@ -516,7 +516,7 @@ class DirectusAPI {
    * Get versions for an item
    */
   async getVersions(collection: string, itemId: string): Promise<unknown[]> {
-    return this.getItems('directus_versions', {
+    return this.getItems('daas_versions', {
       filter: { collection: { _eq: collection }, item: { _eq: itemId } },
       sort: ['-date_updated'],
     });
@@ -673,16 +673,16 @@ class DirectusAPI {
 /**
  * Default API instance
  */
-export const directusAPI = new DirectusAPI();
+export const daasAPI = new DaaSAPI();
 
 /**
- * Generic API helper (alias for directusAPI)
+ * Generic API helper (alias for daasAPI)
  */
-export const api = directusAPI;
+export const api = daasAPI;
 
 /**
  * Create a configured API instance
  */
-export function createDirectusAPI(config: DirectusAPIConfig): DirectusAPI {
-  return new DirectusAPI(config);
+export function createDaaSAPI(config: DaaSAPIConfig): DaaSAPI {
+  return new DaaSAPI(config);
 }

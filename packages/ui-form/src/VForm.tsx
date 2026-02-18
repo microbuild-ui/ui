@@ -1,7 +1,7 @@
 /**
  * VForm Component
  * Dynamic form that renders fields based on collection schema
- * Based on Directus v-form component
+ * Based on DaaS v-form component
  * 
  * Integrates with:
  * - @microbuild/types for Field types

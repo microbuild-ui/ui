@@ -1,7 +1,7 @@
 /**
  * Filter to Query Converter
  * 
- * Converts Directus-style JSONB filters to Supabase PostgREST query filters.
+ * Converts DaaS-style JSONB filters to Supabase PostgREST query filters.
  * This allows permission filters to be applied at the database level.
  * 
  * Supports:
@@ -103,15 +103,15 @@ export function resolveFilterDynamicValues(
 }
 
 /**
- * Apply a Directus-style filter to a Supabase query builder
+ * Apply a DaaS-style filter to a Supabase query builder
  * 
  * @param query - Supabase query builder
- * @param filter - Filter object (Directus format)
+ * @param filter - Filter object (DaaS format)
  * @returns Modified query builder
  * 
  * @example
  * ```typescript
- * let query = supabase.from('directus_users').select('*');
+ * let query = supabase.from('daas_users').select('*');
  * query = applyFilterToQuery(query, { status: { _eq: 'active' } });
  * const { data } = await query;
  * ```

@@ -2,7 +2,7 @@
  * Define Interface Helper
  * 
  * Provides a type-safe way to define and register interface extensions.
- * Similar to Directus's defineInterface() pattern.
+ * Similar to DaaS's defineInterface() pattern.
  * 
  * @module @microbuild/utils/define-interface
  */

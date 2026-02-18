@@ -111,7 +111,7 @@ tests/
 
 ## VTable Component Testing
 
-The VTable component is based on Directus v-table and includes comprehensive Storybook stories and Playwright tests.
+The VTable component is based on DaaS v-table and includes comprehensive Storybook stories and Playwright tests.
 
 ### Storybook Stories
 

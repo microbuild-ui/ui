@@ -198,7 +198,7 @@ interface ColorPreset {
   color: string;
 }
 
-// Default color presets matching Directus
+// Default color presets matching DaaS
 const DEFAULT_PRESETS: ColorPreset[] = [
   { name: 'Purple', color: '#6644FF' },
   { name: 'Blue', color: '#3399FF' },
@@ -249,7 +249,7 @@ export interface ColorProps {
 /**
  * Color Interface Component
  * 
- * A color picker interface that matches the Directus color interface functionality.
+ * A color picker interface that matches the DaaS color interface functionality.
  * 
  * Features:
  * - Color input with visual swatch preview
