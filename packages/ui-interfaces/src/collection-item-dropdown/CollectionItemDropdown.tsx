@@ -67,7 +67,7 @@ interface CollectionInfo {
  * This interface allows selecting a single item from a specific collection
  * and stores both the item key and collection name as a JSON value.
  * 
- * Based on Directus collection-item-dropdown interface.
+ * Based on DaaS collection-item-dropdown interface.
  */
 export interface CollectionItemDropdownProps {
     /** Current value containing key and collection */
@@ -78,7 +78,7 @@ export interface CollectionItemDropdownProps {
     selectedCollection?: string;
     /** Callback fired when collection changes (for collection selection mode) */
     onCollectionChange?: (collection: string) => void;
-    /** Show collection selection UI (like Directus system-collection interface) */
+    /** Show collection selection UI (like DaaS system-collection interface) */
     showCollectionSelect?: boolean;
     /** Include system collections in collection dropdown */
     includeSystemCollections?: boolean;
@@ -123,7 +123,7 @@ export interface CollectionItemDropdownProps {
 /**
  * CollectionItemDropdown - Collection Item Selection Interface
  * 
- * Similar to Directus collection-item-dropdown interface.
+ * Similar to DaaS collection-item-dropdown interface.
  * Allows selecting a single item from a collection and stores
  * both the key and collection name as JSON.
  * 
@@ -242,7 +242,7 @@ export const CollectionItemDropdown: React.FC<CollectionItemDropdownProps> = ({
             if (mockCollections && mockCollections.length > 0) {
                 let filtered = mockCollections;
                 if (!includeSystemCollections) {
-                    filtered = filtered.filter(c => !c.collection.startsWith('directus_'));
+                    filtered = filtered.filter(c => !c.collection.startsWith('daas_'));
                 }
                 if (excludeSingletons) {
                     filtered = filtered.filter(c => !c.meta?.singleton);
@@ -260,7 +260,7 @@ export const CollectionItemDropdown: React.FC<CollectionItemDropdownProps> = ({
                 let collections: CollectionInfo[] = data.data || [];
                 
                 if (!includeSystemCollections) {
-                    collections = collections.filter(c => !c.collection.startsWith('directus_'));
+                    collections = collections.filter(c => !c.collection.startsWith('daas_'));
                 }
                 if (excludeSingletons) {
                     collections = collections.filter(c => !c.meta?.singleton);
@@ -289,8 +289,8 @@ export const CollectionItemDropdown: React.FC<CollectionItemDropdownProps> = ({
     // Separate user and system collections
     const { userCollections, systemCollections } = React.useMemo(() => {
         return {
-            userCollections: availableCollections.filter(c => !c.collection.startsWith('directus_')),
-            systemCollections: availableCollections.filter(c => c.collection.startsWith('directus_')),
+            userCollections: availableCollections.filter(c => !c.collection.startsWith('daas_')),
+            systemCollections: availableCollections.filter(c => c.collection.startsWith('daas_')),
         };
     }, [availableCollections]);
 

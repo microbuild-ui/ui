@@ -118,7 +118,7 @@ async function fetchCollectionsFromDaaS(): Promise<string[]> {
   const data = await response.json();
   return (data.data || [])
     .map((c: any) => c.collection)
-    .filter((name: string) => !name.startsWith('directus_'));
+    .filter((name: string) => !name.startsWith('daas_'));
 }
 
 // ============================================================================

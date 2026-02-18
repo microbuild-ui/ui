@@ -15,7 +15,7 @@ import {
   IconEdit,
 } from '@tabler/icons-react';
 
-// Interface definition matching Directus group-detail
+// Interface definition matching DaaS group-detail
 export interface GroupDetailProps {
   /** Field configuration object */
   field?: {
@@ -99,7 +99,7 @@ const formatTitle = (str: string): string => {
 
 // Helper function to get icon component
 const getIcon = (iconName?: string) => {
-  // Map common Directus icon names to Tabler icons
+  // Map common DaaS icon names to Tabler icons
   switch (iconName) {
     case 'menu_open':
       return <IconEdit size={16} />;

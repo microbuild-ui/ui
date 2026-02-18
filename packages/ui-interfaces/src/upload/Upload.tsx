@@ -24,7 +24,7 @@ import {
 import { notifications } from '@mantine/notifications';
 
 /**
- * File upload type matching Directus file structure
+ * File upload type matching DaaS file structure
  */
 export interface FileUpload {
   id: string;
@@ -75,7 +75,7 @@ export interface UploadProps {
 }
 
 /**
- * Upload component matching Directus v-upload functionality
+ * Upload component matching DaaS v-upload functionality
  * Supports upload from device, import from URL, and library selection
  */
 export const Upload: React.FC<UploadProps> = ({

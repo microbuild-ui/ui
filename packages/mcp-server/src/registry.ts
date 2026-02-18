@@ -130,7 +130,7 @@ export const PACKAGES: PackageMetadata[] = [
       'Collection', 'CollectionMeta',
       'Query', 'Filter',
       'Relation', 'RelationMeta',
-      'DirectusFile', 'PrimaryKey', 'AnyItem'
+      'DaaSFile', 'PrimaryKey', 'AnyItem'
     ]
   },
   {
@@ -158,7 +158,7 @@ export const PACKAGES: PackageMetadata[] = [
       'useRelationM2A',
       'useFiles',
       'api',
-      'directusAPI'
+      'daasAPI'
     ]
   },
   {

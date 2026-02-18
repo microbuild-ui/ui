@@ -120,7 +120,7 @@ export interface M2ARelationInfo {
 /**
  * Custom hook for managing M2A (Many-to-Any) relationship information
  * 
- * Follows Directus useRelationM2A composable pattern.
+ * Follows DaaS useRelationM2A composable pattern.
  * 
  * M2A allows linking to multiple different collections through a junction table
  * that stores both the collection name and item ID.
@@ -404,7 +404,7 @@ export interface M2AQueryParams {
 
 /**
  * Custom hook for managing M2A relationship items (CRUD operations)
- * Similar to Directus useRelationMultiple composable
+ * Similar to DaaS useRelationMultiple composable
  */
 export function useRelationM2AItems(
     relationInfo: M2ARelationInfo | null,

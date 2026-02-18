@@ -2,7 +2,7 @@
  * Permissions Service
  * Fetches field-level permissions from DaaS backend.
  *
- * Uses the standard Directus `GET /permissions/me` endpoint which returns
+ * Uses the standard DaaS `GET /permissions/me` endpoint which returns
  * a CollectionAccess map keyed by collection and action.
  *
  * DaaS response format (per action):
@@ -26,7 +26,7 @@ export interface FieldPermissions {
 
 /**
  * Shape of a single action inside the DaaS CollectionAccess response.
- * Note: DaaS does NOT include an `access` property (unlike internal Directus).
+ * Note: DaaS does NOT include an `access` property (unlike internal DaaS).
  * The presence of the action key itself implies access; `fields` controls scope.
  */
 export interface CollectionActionAccess {
@@ -36,7 +36,7 @@ export interface CollectionActionAccess {
   presets?: Record<string, unknown> | null;
 }
 
-/** Directus `GET /permissions/me` response payload (keyed by collection) */
+/** DaaS `GET /permissions/me` response payload (keyed by collection) */
 export type CollectionAccess = Record<
   string,
   Record<string, CollectionActionAccess>
@@ -53,7 +53,7 @@ const CACHE_TTL = 30_000; // 30 seconds
  */
 export class PermissionsService {
   // ---------------------------------------------------------------------------
-  // Standard Directus endpoint: GET /permissions/me
+  // Standard DaaS endpoint: GET /permissions/me
   // ---------------------------------------------------------------------------
 
   /**
@@ -96,7 +96,7 @@ export class PermissionsService {
   }
 
   /**
-   * Get readable fields for a collection using the standard Directus
+   * Get readable fields for a collection using the standard DaaS
    * `/permissions/me` endpoint.
    *
    * @returns Array of field names, `['*']` for full access, or `[]` if

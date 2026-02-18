@@ -27,7 +27,7 @@ interface ItemsResponse {
 
 /**
  * Custom hook for managing M2M relationship items (CRUD operations)
- * Similar to Directus useRelationMultiple composable
+ * Similar to DaaS useRelationMultiple composable
  */
 export function useRelationM2MItems(
   relationInfo: M2MRelationInfo | null,

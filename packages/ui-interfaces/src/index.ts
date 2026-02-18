@@ -2,7 +2,7 @@
  * @microbuild/ui-interfaces
  * 
  * Shared UI interface components for Microbuild projects.
- * Directus-compatible field interfaces built with Mantine v8.
+ * DaaS-compatible field interfaces built with Mantine v8.
  */
 
 // Boolean / Toggle

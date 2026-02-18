@@ -2,7 +2,7 @@
  * SelectMultipleDropdown Interface Component
  * Dropdown-based multi-select with search support
  * 
- * Based on Directus select-multiple-dropdown interface
+ * Based on DaaS select-multiple-dropdown interface
  * Uses Mantine MultiSelect for dropdown functionality
  */
 

@@ -1,6 +1,6 @@
 /**
  * Type definitions for VForm component
- * Based on Directus v-form types
+ * Based on DaaS v-form types
  */
 
 import type { Field } from '@microbuild/types';

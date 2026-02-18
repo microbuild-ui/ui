@@ -1,6 +1,6 @@
 /**
  * Core type definitions for the Content Module
- * Inspired by Directus types
+ * Inspired by DaaS types
  */
 
 export type PrimaryKey = string | number;

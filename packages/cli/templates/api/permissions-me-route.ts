@@ -19,7 +19,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Query Parameters:
  * - collection=name  Filter to specific collection(s), can be repeated
  *
- * Response format (DaaS / Directus):
+ * Response format (DaaS / DaaS):
  * {
  *   "data": {
  *     "<collection>": {

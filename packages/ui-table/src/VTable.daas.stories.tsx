@@ -118,7 +118,7 @@ async function fetchCollectionsFromDaaS(): Promise<string[]> {
   const data = await response.json();
   return (data.data || [])
     .map((c: { collection: string }) => c.collection)
-    .filter((name: string) => name === 'directus_users' || !name.startsWith('directus_'));
+    .filter((name: string) => name === 'daas_users' || !name.startsWith('daas_'));
 }
 
 async function fetchFieldsFromDaaS(collection: string): Promise<FieldInfo[]> {
@@ -596,7 +596,7 @@ pnpm dev:host
               Select a collection from the dropdown and click &quot;Load Data&quot; to see the table.
             </Text>
             <Text size="sm" mt="xs">
-              <strong>Tip:</strong> The <Code>directus_users</Code> collection has sample data for testing.
+              <strong>Tip:</strong> The <Code>daas_users</Code> collection has sample data for testing.
             </Text>
           </Alert>
         )}

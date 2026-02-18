@@ -82,7 +82,7 @@ export type FilterObject = Record<string, unknown>;
  * @example
  * ```typescript
  * const { user, isAdmin } = await enforcePermission({
- *   collection: 'directus_users',
+ *   collection: 'daas_users',
  *   action: 'read'
  * });
  * ```
@@ -94,7 +94,7 @@ export async function enforcePermission(
   
   // Check admin access first
   const { data: userData, error: userError } = await supabase
-    .from('directus_users')
+    .from('daas_users')
     .select('admin_access')
     .eq('id', user.id)
     .single();
@@ -154,7 +154,7 @@ export async function getUserPermissions(
   
   // Check if admin
   const { data: userData } = await supabase
-    .from('directus_users')
+    .from('daas_users')
     .select('admin_access')
     .eq('id', user.id)
     .single();
@@ -195,7 +195,7 @@ export async function getUserPermissions(
 
   // Get permissions for those policies
   const { data: permissions, error } = await supabase
-    .from('directus_permissions')
+    .from('daas_permissions')
     .select('action, fields, permissions, validation, presets')
     .eq('collection', collection)
     .in('policy', policyIdArray);
@@ -215,7 +215,7 @@ export async function getUserPermissions(
   }
 
   // Group by action and merge permissions from multiple policies
-  // Following Directus's approach: fields are merged with OR logic (union),
+  // Following DaaS's approach: fields are merged with OR logic (union),
   // permission filters are combined with OR logic
   return ((permissions || []) as PermissionRow[]).reduce(
     (acc: Record<string, PermissionDetails>, perm: PermissionRow) => {
@@ -439,7 +439,7 @@ export async function getPermissionFilters(
   
   // Check if admin (admins have no filters)
   const { data: userData } = await supabase
-    .from('directus_users')
+    .from('daas_users')
     .select('admin_access')
     .eq('id', user.id)
     .single();
@@ -462,7 +462,7 @@ export async function getPermissionFilters(
 
   // Get permissions with filters
   const { data: permissions, error } = await supabase
-    .from('directus_permissions')
+    .from('daas_permissions')
     .select('permissions')
     .eq('collection', collection)
     .eq('action', action)

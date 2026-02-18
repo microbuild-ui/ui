@@ -2,7 +2,7 @@
  * Items Collection API Route
  * 
  * Proxies CRUD operations for collection items to the DaaS backend.
- * Supports Directus-compatible query parameters.
+ * Supports DaaS-compatible query parameters.
  * 
  * @microbuild/origin: api-routes/items
  * @microbuild/version: 1.0.0

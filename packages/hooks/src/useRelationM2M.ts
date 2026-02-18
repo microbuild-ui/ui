@@ -85,7 +85,7 @@ export interface M2MRelationInfo {
 /**
  * Custom hook for managing M2M (Many-to-Many) relationship information
  * 
- * Follows Directus useRelationM2M composable pattern:
+ * Follows DaaS useRelationM2M composable pattern:
  * 
  * One1 (current)      Junction Table                  One2 (related)
  * ┌─────────┐         ┌─────────────────────────┐     ┌─────────────────┐

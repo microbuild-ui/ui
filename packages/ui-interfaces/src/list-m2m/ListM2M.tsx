@@ -123,7 +123,7 @@ export const ListM2M: React.FC<ListM2MProps> = ({
     const [sortDirection, _setSortDirection] = useState<"asc" | "desc">("asc");
     
     // Staged selections - items selected but not yet persisted (for new parent items)
-    // Following Directus pattern: stage locally, persist when parent saves
+    // Following DaaS pattern: stage locally, persist when parent saves
     const [stagedSelections, setStagedSelections] = useState<M2MItem[]>([]);
     
     // Check if parent item is saved (has valid primary key, not '+' which means new)
@@ -164,10 +164,10 @@ export const ListM2M: React.FC<ListM2MProps> = ({
     const loading = relationLoading || itemsLoading;
 
     // Notify parent component when staged selections change
-    // This allows the parent form to include these in the save payload (Directus pattern)
+    // This allows the parent form to include these in the save payload (DaaS pattern)
     useEffect(() => {
         if (!isParentSaved && _onChange) {
-            // Build the value in Directus format for M2M
+            // Build the value in DaaS format for M2M
             // For M2M, we need to create junction records when parent is saved
             if (stagedSelections.length > 0 && relationInfo) {
                 const createPayload = stagedSelections.map(item => ({
@@ -234,7 +234,7 @@ export const ListM2M: React.FC<ListM2MProps> = ({
                 setSelectError('Failed to link items. Please try again.');
             }
         } else {
-            // Parent is NOT saved - stage selections locally (Directus pattern)
+            // Parent is NOT saved - stage selections locally (DaaS pattern)
             // These will be persisted when the parent item is saved
             try {
                 // Fetch the selected items to display them

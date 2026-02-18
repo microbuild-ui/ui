@@ -3,7 +3,7 @@ import { Switch, SwitchProps } from '@mantine/core';
 
 /**
  * Props for the Boolean interface component
- * Based on Directus boolean interface configuration
+ * Based on DaaS boolean interface configuration
  */
 export interface BooleanProps {
   /** Current boolean value */
@@ -52,7 +52,7 @@ export interface BooleanProps {
 /**
  * Boolean Interface Component
  * 
- * A toggle switch interface that matches the Directus boolean interface functionality.
+ * A toggle switch interface that matches the DaaS boolean interface functionality.
  * Uses Mantine's Switch component for consistent styling and behavior.
  * 
  * Features:

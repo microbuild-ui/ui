@@ -2,9 +2,9 @@
  * FilterPanel Component
  *
  * A field-type-aware filter builder for collection queries.
- * Inspired by Directus's system-filter interface.
+ * Inspired by DaaS's system-filter interface.
  *
- * Produces Directus-compatible filter objects ({ _and: [...] })
+ * Produces DaaS-compatible filter objects ({ _and: [...] })
  * that can be passed to CollectionList's `filter` prop or
  * used directly with ItemsService.readByQuery().
  *
@@ -61,7 +61,7 @@ export interface FilterGroup {
 export interface FilterPanelProps {
     /** Available fields to filter on */
     fields: Field[];
-    /** Current filter value (Directus-style JSON) */
+    /** Current filter value (DaaS-style JSON) */
     value?: Record<string, unknown> | null;
     /** Called when filter changes */
     onChange?: (filter: Record<string, unknown> | null) => void;
@@ -179,14 +179,14 @@ let _filterId = 0;
 function uid() { return `filter-${++_filterId}`; }
 
 // ============================================================================
-// Convert between internal model and Directus filter JSON
+// Convert between internal model and DaaS filter JSON
 // ============================================================================
 
-function rulesToDirectus(rules: (FilterRule | FilterGroup)[]): Record<string, unknown>[] {
+function rulesToDaaS(rules: (FilterRule | FilterGroup)[]): Record<string, unknown>[] {
     return rules.map((r) => {
         if ('logical' in r) {
             // Sub-group
-            return { [r.logical]: rulesToDirectus(r.rules) };
+            return { [r.logical]: rulesToDaaS(r.rules) };
         }
         // Single rule
         const boolOps = ['_null', '_nnull', '_empty', '_nempty'];
@@ -195,7 +195,7 @@ function rulesToDirectus(rules: (FilterRule | FilterGroup)[]): Record<string, un
     });
 }
 
-function directusToRules(filter: Record<string, unknown>): (FilterRule | FilterGroup)[] {
+function daasToRules(filter: Record<string, unknown>): (FilterRule | FilterGroup)[] {
     const key = Object.keys(filter)[0];
     if (!key) return [];
 
@@ -207,7 +207,7 @@ function directusToRules(filter: Record<string, unknown>): (FilterRule | FilterG
                 return {
                     id: uid(),
                     logical: childKey as '_and' | '_or',
-                    rules: directusToRules(child),
+                    rules: daasToRules(child),
                 } as FilterGroup;
             }
             return parseFieldRule(child);
@@ -363,19 +363,19 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             return {
                 id: uid(),
                 logical,
-                rules: directusToRules(value),
+                rules: daasToRules(value),
             };
         }
         return { id: uid(), logical: '_and', rules: [] };
     });
 
-    // Emit Directus-style filter when rootGroup changes
+    // Emit DaaS-style filter when rootGroup changes
     const emitChange = useCallback((group: FilterGroup) => {
         setRootGroup(group);
         if (group.rules.length === 0) {
             onChange?.(null);
         } else {
-            const nodes = rulesToDirectus(group.rules);
+            const nodes = rulesToDaaS(group.rules);
             onChange?.({ [group.logical]: nodes });
         }
     }, [onChange]);

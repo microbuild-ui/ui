@@ -11,7 +11,7 @@ function renderWithMantine(ui: React.ReactElement) {
 jest.mock('@/lib/api', () => {
   return {
     api: { get: jest.fn() },
-    directusAPI: {
+    daasAPI: {
       getFile: jest.fn(),
       updateItem: jest.fn(),
       uploadFiles: jest.fn(),
@@ -43,7 +43,7 @@ jest.mock('../../Upload', () => {
 });
 
 // Handy accessors
-const { api, directusAPI } = jest.requireMock('@/lib/api');
+const { api, daasAPI } = jest.requireMock('@/lib/api');
 
 // Helpers
 const makeImageFile = (overrides: Partial<any> = {}) => ({
@@ -64,18 +64,18 @@ beforeEach(() => {
   jest.clearAllMocks();
 
   // Default: allow both create + update
-  (directusAPI.checkPermission as jest.Mock)
+  (daasAPI.checkPermission as jest.Mock)
     .mockResolvedValueOnce(true) // create
     .mockResolvedValueOnce(true); // update
 
   // Default file fetch
-  (directusAPI.getFile as jest.Mock).mockResolvedValue(makeImageFile());
+  (daasAPI.getFile as jest.Mock).mockResolvedValue(makeImageFile());
 
   // Update item
-  (directusAPI.updateItem as jest.Mock).mockResolvedValue({ title: 'New Title', description: 'New Desc' });
+  (daasAPI.updateItem as jest.Mock).mockResolvedValue({ title: 'New Title', description: 'New Desc' });
 
   // Upload files
-  (directusAPI.uploadFiles as jest.Mock).mockResolvedValue([makeImageFile({ id: 'uploaded-1' })]);
+  (daasAPI.uploadFiles as jest.Mock).mockResolvedValue([makeImageFile({ id: 'uploaded-1' })]);
 
   // api.get for previews and downloads
   (api.get as jest.Mock).mockImplementation((_url: string, opts: any = {}) => {
@@ -116,7 +116,7 @@ describe('FileImage', () => {
   });
 
   test('loads image by id and shows metadata', async () => {
-    (directusAPI.getFile as jest.Mock).mockResolvedValueOnce(
+    (daasAPI.getFile as jest.Mock).mockResolvedValueOnce(
       makeImageFile({ id: 'abc123', title: 'Loaded Image', filesize: 4096, width: 640, height: 480 })
     );
 
@@ -129,12 +129,12 @@ describe('FileImage', () => {
 
   test('disables edit buttons when update permission is false', async () => {
     // First two calls were consumed in beforeEach default. Override explicitly for this test
-    (directusAPI.checkPermission as jest.Mock).mockReset();
-    (directusAPI.checkPermission as jest.Mock)
+    (daasAPI.checkPermission as jest.Mock).mockReset();
+    (daasAPI.checkPermission as jest.Mock)
       .mockResolvedValueOnce(true) // create
       .mockResolvedValueOnce(false); // update
 
-  (directusAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile());
+  (daasAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile());
   renderWithMantine(<FileImage value="img-1" />);
 
     // Wait until image title shows
@@ -151,12 +151,12 @@ describe('FileImage', () => {
   });
 
   test('edit image stays disabled for non-image file even with update permission', async () => {
-    (directusAPI.checkPermission as jest.Mock).mockReset();
-    (directusAPI.checkPermission as jest.Mock)
+    (daasAPI.checkPermission as jest.Mock).mockReset();
+    (daasAPI.checkPermission as jest.Mock)
       .mockResolvedValueOnce(true) // create
       .mockResolvedValueOnce(true); // update
 
-  (directusAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile({ type: 'application/pdf', title: 'A PDF' }));
+  (daasAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile({ type: 'application/pdf', title: 'A PDF' }));
   renderWithMantine(<FileImage value="img-1" />);
 
     await screen.findByText('A PDF');
@@ -171,7 +171,7 @@ describe('FileImage', () => {
   });
 
   test('can open Edit Details modal and save changes', async () => {
-  (directusAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile());
+  (daasAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile());
   renderWithMantine(<FileImage value="img-1" />);
 
     await screen.findByText('My Image');
@@ -195,14 +195,14 @@ describe('FileImage', () => {
     // Save
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(directusAPI.updateItem).toHaveBeenCalledWith('directus_files', 'img-1', {
+    expect(daasAPI.updateItem).toHaveBeenCalledWith('daas_files', 'img-1', {
       title: 'Brand New',
       description: 'Fancy description',
     });
   });
 
   test('download calls API with download param', async () => {
-  (directusAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile());
+  (daasAPI.getFile as jest.Mock).mockResolvedValueOnce(makeImageFile());
   renderWithMantine(<FileImage value="img-1" />);
 
     await screen.findByText('My Image');
@@ -212,7 +212,7 @@ describe('FileImage', () => {
     const allButtons = container.querySelectorAll('button');
     await userEvent.click(allButtons[1]);
 
-    expect(api.get).toHaveBeenCalledWith('/directus/files/img-1/asset', expect.objectContaining({
+    expect(api.get).toHaveBeenCalledWith('/daas/files/img-1/asset', expect.objectContaining({
       responseType: 'blob',
       params: { download: true },
     }));

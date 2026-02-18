@@ -52,7 +52,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A field-type-aware filter builder. Produces Directus-compatible filter objects ' +
+          'A field-type-aware filter builder. Produces DaaS-compatible filter objects ' +
           '(`{ _and: [...] }`) for use with CollectionList or ItemsService.',
       },
     },

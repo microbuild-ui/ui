@@ -1,6 +1,6 @@
 # @microbuild/types
 
-Shared TypeScript type definitions for Microbuild projects. Directus-compatible types for collections, fields, files, and relations.
+Shared TypeScript type definitions for Microbuild projects. DaaS-compatible types for collections, fields, files, and relations.
 
 ## Installation
 
@@ -17,7 +17,7 @@ import type {
   Query, 
   Filter,
   PrimaryKey,
-  DirectusFile,
+  DaaSFile,
   M2MRelationInfo 
 } from '@microbuild/types';
 ```
@@ -112,11 +112,11 @@ const permission: Permission = {
 ## File Types
 
 ```typescript
-import type { DirectusFile, FileUpload, Folder } from '@microbuild/types';
+import type { DaaSFile, FileUpload, Folder } from '@microbuild/types';
 import { getFileCategory, formatFileSize, getAssetUrl } from '@microbuild/types';
 
 // File metadata
-const file: DirectusFile = {
+const file: DaaSFile = {
   id: 'abc-123',
   storage: 'local',
   filename_disk: 'image.jpg',
@@ -191,7 +191,7 @@ const o2mInfo: O2MRelationInfo = {
 
 | Type | Description |
 |------|-------------|
-| `DirectusFile` | File entity with metadata |
+| `DaaSFile` | File entity with metadata |
 | `FileUpload` | File upload payload |
 | `Folder` | Folder entity |
 

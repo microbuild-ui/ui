@@ -96,7 +96,7 @@ const getTypeColors = (type: NoticeType, theme: ReturnType<typeof useMantineThem
 /**
  * Notice Interface Component
  * 
- * A notice/alert component that matches the Directus v-notice interface functionality.
+ * A notice/alert component that matches the DaaS v-notice interface functionality.
  * Provides visual feedback for information, success, warning, and error states.
  * 
  * Features:
@@ -107,7 +107,7 @@ const getTypeColors = (type: NoticeType, theme: ReturnType<typeof useMantineThem
  * - Content indentation to align with title
  * - Separate title and content slots
  * - Custom color theming
- * - Left border accent following Directus design
+ * - Left border accent following DaaS design
  * - Accessibility support with proper roles
  * 
  * @param props - Notice interface props

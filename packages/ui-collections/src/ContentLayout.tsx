@@ -6,7 +6,7 @@
  * - Main content area with header (title, breadcrumbs, actions)
  * - Responsive: sidebar collapses on mobile
  *
- * Ported from Directus PrivateView + content module shell.
+ * Ported from DaaS PrivateView + content module shell.
  *
  * @package @microbuild/ui-collections
  */

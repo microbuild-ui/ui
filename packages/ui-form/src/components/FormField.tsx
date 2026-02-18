@@ -1,7 +1,7 @@
 /**
  * FormField Component
  * Renders a single field with label, interface component, and validation
- * Based on Directus form-field component
+ * Based on DaaS form-field component
  * 
  * Uses @microbuild/utils for field readonly detection.
  */

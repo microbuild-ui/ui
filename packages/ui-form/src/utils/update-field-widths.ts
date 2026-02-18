@@ -1,6 +1,6 @@
 /**
  * Update field widths based on visibility and layout rules
- * Based on Directus update-field-widths utility
+ * Based on DaaS update-field-widths utility
  */
 
 import type { FormField, FieldWidth } from '../types';

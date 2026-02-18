@@ -585,7 +585,7 @@ Source Code Changes
 │  Authentication Methods (DaaS-Compatible):                            │
 │  ┌──────────────────────────────────────────────────────────────┐    │
 │  │ 1. Cookie-Based Sessions - For browser requests (automatic)   │    │
-│  │ 2. Static Tokens - For programmatic access (Directus-style)   │    │
+│  │ 2. Static Tokens - For programmatic access (DaaS-style)   │    │
 │  │ 3. JWT Bearer Tokens - For API clients with Supabase Auth     │    │
 │  └──────────────────────────────────────────────────────────────┘    │
 │                                                                        │
@@ -890,7 +890,7 @@ Source Code Changes
 │  │ │ (data-testid="dynamic-form")    ││                             │
 │  │ ├─────────────────────────────────┤│                             │
 │  │ │ - Loads fields from /api/fields ││                             │
-│  │ │ - Tracks edits (Directus pattern)│                             │
+│  │ │ - Tracks edits (DaaS pattern)│                             │
 │  │ │ - Shows dirty indicator         ││                             │
 │  │ │ - Renders FormField components  ││                             │
 │  │ └─────────────────────────────────┘│                             │

@@ -1,6 +1,6 @@
 /**
  * Process and sort fields for form display
- * Based on Directus get-form-fields utility
+ * Based on DaaS get-form-fields utility
  */
 
 import type { Field } from '@microbuild/types';

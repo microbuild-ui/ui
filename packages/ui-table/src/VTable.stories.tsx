@@ -27,7 +27,7 @@ import type { Header, HeaderRaw, Item, Sort } from "./types";
  *
  * The VTable component renders tabular data with powerful features like sorting,
  * selection, column resizing, and drag-and-drop row reordering.
- * Based on Directus v-table component.
+ * Based on DaaS v-table component.
  *
  * ## Features
  * - Column sorting (click headers)

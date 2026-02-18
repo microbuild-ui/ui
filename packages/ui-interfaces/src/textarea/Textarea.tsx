@@ -1,6 +1,6 @@
 /**
  * Textarea Interface Component
- * Multi-line text input based on Directus input-multiline interface
+ * Multi-line text input based on DaaS input-multiline interface
  */
 
 import React, { forwardRef, useMemo } from 'react';
@@ -66,7 +66,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
   const charsRemaining = useMemo(() => {
     if (!softLength) return null;
     if (!value) return softLength;
-    // Replace newlines with single char for counting (like Directus)
+    // Replace newlines with single char for counting (like DaaS)
     const realLength = value.replace(/\n/g, ' ').length;
     return softLength - realLength;
   }, [value, softLength]);

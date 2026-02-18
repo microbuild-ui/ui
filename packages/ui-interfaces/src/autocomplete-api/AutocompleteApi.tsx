@@ -6,14 +6,14 @@ import axios from 'axios';
 
 /**
  * Font family type for the autocomplete input
- * Matches Directus font options
+ * Matches DaaS font options
  */
 type FontFamily = 'sans-serif' | 'serif' | 'monospace';
 
 /**
  * AutocompleteAPI Props Interface
- * Based on Directus input-autocomplete-api interface
- * @see https://github.com/directus/directus/blob/main/app/src/interfaces/input-autocomplete-api
+ * Based on DaaS input-autocomplete-api interface
+ * @see https://github.com/daas/daas/blob/main/app/src/interfaces/input-autocomplete-api
  */
 export interface AutocompleteAPIProps {
     /** Current value */
@@ -110,7 +110,7 @@ const getValue = (obj: unknown, path: string): unknown => {
 /**
  * AutocompleteAPI Component
  * 
- * A Directus-compatible autocomplete input that fetches suggestions from an external API.
+ * A DaaS-compatible autocomplete input that fetches suggestions from an external API.
  * Supports debounce/throttle, custom result mapping, font styling, and icons.
  * 
  * Features:
@@ -195,7 +195,7 @@ export const AutocompleteAPI = forwardRef<HTMLInputElement, AutocompleteAPIProps
             const searchUrl = renderTemplate(url, { value: searchValue });
             
             // Use axios for both internal and external URLs
-            // Directus checks if URL starts with '/' for internal API
+            // DaaS checks if URL starts with '/' for internal API
             const response = await axios.get(searchUrl, {
                 signal: abortControllerRef.current.signal,
             });

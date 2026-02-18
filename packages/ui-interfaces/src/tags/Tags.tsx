@@ -75,7 +75,7 @@ const processTag = (
 /**
  * Tags Interface Component
  * 
- * A tag input interface that matches the Directus tags interface functionality.
+ * A tag input interface that matches the DaaS tags interface functionality.
  * Supports preset tags, custom tags, and various text transformation options.
  * 
  * Features:

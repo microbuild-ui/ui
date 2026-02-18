@@ -103,7 +103,7 @@ export interface ListM2AProps {
 /**
  * ListM2A - Many-to-Any relationship interface
  * 
- * Similar to Directus list-m2a interface.
+ * Similar to DaaS list-m2a interface.
  * Displays items from multiple different collections through a junction table.
  */
 export const ListM2A: React.FC<ListM2AProps> = ({

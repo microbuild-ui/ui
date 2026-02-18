@@ -4,7 +4,7 @@
  * This module provides authentication utilities that support multiple auth methods:
  * 1. Cookie-Based Sessions - For browser requests
  * 2. JWT Bearer Tokens - For API clients with Supabase Auth  
- * 3. Static Tokens - For programmatic access (Directus-style)
+ * 3. Static Tokens - For programmatic access (DaaS-style)
  * 
  * @module @microbuild/services/auth/session
  */
@@ -157,7 +157,7 @@ export function getAuthConfig(): AuthClientConfig {
  * ```typescript
  * // Works with both bearer token and cookies
  * const { supabase, user } = await createAuthenticatedClient();
- * const { data } = await supabase.from('directus_users').select('*');
+ * const { data } = await supabase.from('daas_users').select('*');
  * ```
  */
 export async function createAuthenticatedClient(): Promise<AuthenticatedClient> {
@@ -196,7 +196,7 @@ export async function createAuthenticatedClient(): Promise<AuthenticatedClient> 
       // If JWT validation fails, continue to try static token authentication
     }
     
-    // Try static token authentication (Directus-style)
+    // Try static token authentication (DaaS-style)
     // Requires service role key
     if (!config.supabaseServiceKey) {
       throw new AuthenticationError('Static token authentication requires service role key');
@@ -215,7 +215,7 @@ export async function createAuthenticatedClient(): Promise<AuthenticatedClient> 
     
     // Query user by static token
     const { data: userData, error: tokenError } = await serviceClient
-      .from('directus_users')
+      .from('daas_users')
       .select('id, email, first_name, last_name, status, role, admin_access')
       .eq('token', token)
       .single();
@@ -318,7 +318,7 @@ export async function isAdmin(): Promise<boolean> {
   const { supabase, user } = await createAuthenticatedClient();
   
   const { data, error } = await supabase
-    .from('directus_users')
+    .from('daas_users')
     .select('admin_access')
     .eq('id', user.id)
     .single();
@@ -341,7 +341,7 @@ export async function getUserRole(): Promise<string | null> {
   const { supabase, user } = await createAuthenticatedClient();
   
   const { data, error } = await supabase
-    .from('directus_users')
+    .from('daas_users')
     .select('role')
     .eq('id', user.id)
     .single();
@@ -364,7 +364,7 @@ export async function getUserProfile() {
   const { supabase, user } = await createAuthenticatedClient();
   
   const { data, error } = await supabase
-    .from('directus_users')
+    .from('daas_users')
     .select(`
       id,
       email,
@@ -378,7 +378,7 @@ export async function getUserProfile() {
       theme,
       status,
       admin_access,
-      role:directus_roles(id, name, icon)
+      role:daas_roles(id, name, icon)
     `)
     .eq('id', user.id)
     .single();
