@@ -1,6 +1,6 @@
 {
   "name": "@microbuild/ui-table",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Dynamic table component (VTable) for Microbuild projects - inspired by Directus v-table",
   "type": "module",
   "main": "./dist/index.js",

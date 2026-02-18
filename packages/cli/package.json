@@ -1,6 +1,6 @@
 {
   "name": "@microbuild/cli",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "CLI tool for adding Microbuild components to your project - like shadcn/ui",
   "type": "module",
   "main": "dist/index.js",

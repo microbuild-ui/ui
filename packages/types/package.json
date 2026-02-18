@@ -1,6 +1,6 @@
 {
   "name": "@microbuild/types",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "private": true,
   "description": "Shared TypeScript type definitions for Microbuild projects - DaaS-compatible types",
   "main": "./src/index.ts",
