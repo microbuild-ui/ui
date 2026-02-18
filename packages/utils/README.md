@@ -12,7 +12,7 @@ pnpm add @microbuild/utils
 
 ### Field Interface Mapper
 
-Maps database field types to appropriate UI interface components. Supports both explicit interface definitions (from Directus `meta.interface`) and type-based inference.
+Maps database field types to appropriate UI interface components. Supports both explicit interface definitions (from DaaS `meta.interface`) and type-based inference.
 
 ```tsx
 import { 

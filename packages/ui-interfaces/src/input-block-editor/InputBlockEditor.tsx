@@ -2,7 +2,7 @@
  * InputBlockEditor Interface Component
  * Block-based content editor using EditorJS
  * 
- * Based on Directus input-block-editor interface
+ * Based on DaaS input-block-editor interface
  * Uses EditorJS for visual block-based editing
  */
 
@@ -48,7 +48,7 @@ export interface InputBlockEditorProps {
   tools?: string[];
 }
 
-// Default tools like Directus
+// Default tools like DaaS
 const DEFAULT_TOOLS = ['header', 'nestedlist', 'code', 'paragraph', 'checklist', 'quote', 'underline'];
 
 export function InputBlockEditor({

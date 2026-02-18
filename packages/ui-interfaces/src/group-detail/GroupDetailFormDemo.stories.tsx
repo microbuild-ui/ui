@@ -24,7 +24,7 @@ This demo demonstrates:
 - Collapsible groups with different initial states
 - Validation error filtering and display within groups
 - Form state management with Mantine's useForm
-- Proper field grouping that matches Directus behavior
+- Proper field grouping that matches DaaS behavior
 - Change handlers that synchronize group values with parent form
         `,
       },

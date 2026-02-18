@@ -87,12 +87,12 @@ pnpm --filter './packages/**' build
 
 ### @microbuild/types
 
-Shared TypeScript type definitions following Directus conventions.
+Shared TypeScript type definitions following DaaS conventions.
 
 **Key Types:**
 - `PrimaryKey`, `AnyItem`, `Filter`, `Query` - Core data types
 - `Field`, `FieldMeta`, `Collection`, `CollectionMeta` - Schema types
-- `DirectusFile`, `FileUpload`, `Folder` - File system types
+- `DaaSFile`, `FileUpload`, `Folder` - File system types
 - `M2MRelationInfo`, `M2ORelationInfo`, `O2MRelationInfo` - Relation types
 - `Permission`, `Accountability` - Access control types
 
@@ -104,7 +104,7 @@ import { getFileCategory, formatFileSize, getAssetUrl } from '@microbuild/types'
 
 ### @microbuild/services
 
-Service classes for CRUD operations on Directus collections, plus DaaS API configuration and authentication.
+Service classes for CRUD operations on DaaS collections, plus DaaS API configuration and authentication.
 
 **Available Services:**
 - `ItemsService` - Generic CRUD for any collection
@@ -127,7 +127,7 @@ Service classes for CRUD operations on Directus collections, plus DaaS API confi
 - `enforcePermission` / `getAccessibleFields` / `filterFields` - Permission enforcement
 - `applyFilterToQuery` / `resolveFilterDynamicValues` - Filter-to-query conversion
 - Cookie-based sessions for browser requests (automatic)
-- Static tokens for programmatic access (Directus-style)
+- Static tokens for programmatic access (DaaS-style)
 - JWT Bearer tokens for API clients with Supabase Auth
 
 **Usage:**
@@ -153,7 +153,7 @@ import { DaaSProvider } from '@microbuild/services';
 
 ### @microbuild/hooks
 
-React hooks for managing authentication, permissions, Directus relationships, selection, presets, and workflows.
+React hooks for managing authentication, permissions, DaaS relationships, selection, presets, and workflows.
 
 **Authentication Hooks (DaaS-compatible):**
 - `useAuth` - Authentication state (user, isAdmin, isAuthenticated) and methods (refresh, logout, checkPermission)
@@ -238,7 +238,7 @@ When you add components via CLI, the field-interface-mapper is automatically inc
 
 ### @microbuild/ui-interfaces
 
-Directus-compatible field interface components built with Mantine v8.
+DaaS-compatible field interface components built with Mantine v8.
 
 **Core Components:**
 | Component | Description |
@@ -330,7 +330,7 @@ import {
 
 ### @microbuild/ui-form
 
-Dynamic form component system inspired by Directus v-form, with comprehensive Storybook documentation and built-in permission enforcement.
+Dynamic form component system inspired by DaaS v-form, with comprehensive Storybook documentation and built-in permission enforcement.
 
 **Components:**
 | Component | Description |
@@ -406,7 +406,7 @@ pnpm test:e2e
 
 ### @microbuild/ui-collections
 
-Dynamic collection components for forms, tables, navigation, and layouts. Inspired by Directus's content module.
+Dynamic collection components for forms, tables, navigation, and layouts. Inspired by DaaS's content module.
 
 **Components:**
 | Component | Description |
@@ -421,8 +421,8 @@ Dynamic collection components for forms, tables, navigation, and layouts. Inspir
 **Architecture:**
 - **CollectionForm** = Data layer (fetch fields, load/save items, CRUD operations)
 - **VForm** = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
-- **ContentLayout** + **ContentNavigation** = Complete content module shell (like Directus)
-- **FilterPanel** = Visual filter builder producing Directus-compatible filter objects
+- **ContentLayout** + **ContentNavigation** = Complete content module shell (like DaaS)
+- **FilterPanel** = Visual filter builder producing DaaS-compatible filter objects
 
 When you install `collection-form` via CLI, VForm and all 32 dependent interface components are automatically included.
 
@@ -460,7 +460,7 @@ import {
 
 ### @microbuild/ui-table
 
-Dynamic table component inspired by Directus v-table, built with Mantine v8 and @dnd-kit.
+Dynamic table component inspired by DaaS v-table, built with Mantine v8 and @dnd-kit.
 
 **Components:**
 | Component | Description |
@@ -740,15 +740,15 @@ cd my-new-app
 
 See [microbuild-copilot](https://github.com/your-org/microbuild-copilot) for full documentation.
 
-## 🎯 Architecture (Directus-Inspired)
+## 🎯 Architecture (DaaS-Inspired)
 
-This workspace follows patterns from [Directus](https://directus.io/):
+This workspace follows patterns from [DaaS](https://daas.io/):
 
-| Directus Package | Microbuild Equivalent | Purpose |
+| DaaS Package | Microbuild Equivalent | Purpose |
 |-----------------|----------------------|---------|
-| `@directus/types` | `@microbuild/types` | Shared TypeScript types |
-| `@directus/composables` | `@microbuild/hooks` | Reusable React hooks |
-| `@directus/utils` | `@microbuild/services` | Utility services |
+| `@daas/types` | `@microbuild/types` | Shared TypeScript types |
+| `@daas/composables` | `@microbuild/hooks` | Reusable React hooks |
+| `@daas/utils` | `@microbuild/services` | Utility services |
 | Vue interfaces | `@microbuild/ui-interfaces` | Field interface components |
 | `v-form` component | `@microbuild/ui-form` | Dynamic form component (VForm) |
 | Collection views | `@microbuild/ui-collections` | Dynamic form/list components |

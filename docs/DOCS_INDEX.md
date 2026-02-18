@@ -277,14 +277,14 @@ Microbuild Architecture
 - [nextjs-supabase-daas](https://github.com/your-org/nextjs-supabase-daas) - DaaS backend server
 
 ### Related Documentation
-- [Directus Documentation](https://docs.directus.io) - Backend API reference
+- [DaaS Documentation](https://docs.daas.io) - Backend API reference
 - [Mantine Documentation](https://mantine.dev) - UI component library
 - [Model Context Protocol](https://modelcontextprotocol.io) - MCP specification
 - [pnpm Workspaces](https://pnpm.io/workspaces) - Workspace documentation
 
 ### Inspiration
 - [shadcn/ui](https://ui.shadcn.com) - CLI-based component distribution
-- [Directus](https://directus.io) - Headless CMS
+- [DaaS](https://daas.io) - Headless CMS
 - [VS Code Copilot](https://code.visualstudio.com/docs/copilot/overview) - AI assistant
 
 ## 🤝 Contributing
@@ -366,7 +366,7 @@ Microbuild Architecture
 - 🔧 Fixed ESM/CJS type exports in `@microbuild/utils`
 
 ### Version 1.1.0 (January 2026)
-- ✨ New `@microbuild/ui-form` package with VForm component (Directus-inspired)
+- ✨ New `@microbuild/ui-form` package with VForm component (DaaS-inspired)
 - ✅ Playwright E2E testing infrastructure
 - ✅ Authentication setup for tests
 - ✅ 19 comprehensive VForm tests

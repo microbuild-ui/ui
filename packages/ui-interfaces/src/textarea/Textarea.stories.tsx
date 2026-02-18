@@ -8,7 +8,7 @@ const meta: Meta<typeof Textarea> = {
     layout: 'centered',
     docs: {
       description: {
-        component: `A multi-line text input interface based on the Directus input-multiline interface.
+        component: `A multi-line text input interface based on the DaaS input-multiline interface.
 
 ## Features
 - Soft character length limit with counter

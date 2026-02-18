@@ -87,7 +87,7 @@ export function useRelationM2O(collection: string, field: string) {
           (fieldOptions?.relatedCollection as string | undefined) ||
           null;
 
-        // If still not found, try fetching from directus_relations
+        // If still not found, try fetching from daas_relations
         if (!relatedCollectionName) {
           try {
             const relationsData = await apiRequest<{ data: { many_collection: string; many_field: string; one_collection?: string }[] }>(`/api/relations?collection=${collection}&field=${field}`);

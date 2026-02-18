@@ -34,7 +34,7 @@ export interface InputCodeProps extends Omit<React.ComponentPropsWithRef<'textar
 /**
  * InputCode Interface Component
  * 
- * A code input interface that matches the Directus input-code interface functionality.
+ * A code input interface that matches the DaaS input-code interface functionality.
  * Provides a monospace textarea with optional line numbers and template support.
  * 
  * Features:

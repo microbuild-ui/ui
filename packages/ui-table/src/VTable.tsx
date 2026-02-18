@@ -1,7 +1,7 @@
 /**
  * VTable Component
  * Dynamic table that renders rows based on collection data
- * Based on Directus v-table component
+ * Based on DaaS v-table component
  *
  * Integrates with:
  * - @microbuild/types for data types
@@ -263,7 +263,7 @@ export const VTable: React.FC<VTableProps> = ({
   }, [sortProp]);
 
   // Calculate grid columns
-  // Matches Directus logic: header columns with an explicit width use 'auto'
+  // Matches DaaS logic: header columns with an explicit width use 'auto'
   // so they can flex during resize, while columns without a width use '160px'
   // in both header and body rows so they stay aligned.
   const columnStyle = useMemo(() => {

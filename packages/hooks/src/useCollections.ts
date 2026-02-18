@@ -54,7 +54,7 @@ export interface UseCollectionsReturn {
 
 /**
  * Hook to manage collections hierarchy for content navigation.
- * Ported from Directus content module's useNavigation + collectionsStore.
+ * Ported from DaaS content module's useNavigation + collectionsStore.
  *
  * Fetches all collections from the API, organizes them into a tree structure,
  * and manages the expand/collapse state of collection groups.

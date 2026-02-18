@@ -2,7 +2,7 @@
  * Workflow Button Types
  * 
  * Type definitions for the workflow button interface component.
- * Based on the Directus/Visor workflow system.
+ * Based on the DaaS/Visor workflow system.
  */
 
 /**

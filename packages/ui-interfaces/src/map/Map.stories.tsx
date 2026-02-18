@@ -8,7 +8,7 @@ const meta = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A map interface component that matches the Directus map interface functionality. Supports various geometry types and formats with validation.',
+        component: 'A map interface component that matches the DaaS map interface functionality. Supports various geometry types and formats with validation.',
       },
     },
   },

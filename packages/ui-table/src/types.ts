@@ -1,6 +1,6 @@
 /**
  * Type definitions for VTable component
- * Based on Directus v-table types
+ * Based on DaaS v-table types
  */
 
 /**

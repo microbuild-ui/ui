@@ -12,7 +12,7 @@ dayjs.extend(timezone);
 
 /**
  * Props for the DateTime interface component
- * Based on Directus datetime interface configuration
+ * Based on DaaS datetime interface configuration
  */
 export interface DateTimeProps {
   /** Current datetime value as ISO string */
@@ -70,7 +70,7 @@ export interface DateTimeProps {
 /**
  * DateTime Interface Component
  * 
- * A datetime picker interface that matches the Directus datetime interface functionality.
+ * A datetime picker interface that matches the DaaS datetime interface functionality.
  * Uses Mantine's DateTimePicker component for consistent styling and behavior.
  * 
  * Features:

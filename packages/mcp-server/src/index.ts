@@ -1005,7 +1005,7 @@ function handleGetRbacPattern(args: { pattern: string; collections?: string[]; r
           { step: 7 + i * 4, tool: 'permissions', args: { action: 'create', data: { policy: '<policy-id>', collection: c, action: 'delete', permissions: { organization: { _eq: '$CURRENT_USER.organization' } } } } },
         ]),
       ],
-      note: 'Requires "organization" field on directus_users and on each collection',
+      note: 'Requires "organization" field on daas_users and on each collection',
       dynamicVariables: dynamicVariablesRef,
     },
 

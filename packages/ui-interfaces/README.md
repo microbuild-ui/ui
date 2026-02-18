@@ -1,6 +1,6 @@
 # @microbuild/ui-interfaces
 
-Directus-compatible field interface components built with Mantine v8. A complete set of input, selection, file, and relational components for building dynamic forms.
+DaaS-compatible field interface components built with Mantine v8. A complete set of input, selection, file, and relational components for building dynamic forms.
 
 ## Installation
 

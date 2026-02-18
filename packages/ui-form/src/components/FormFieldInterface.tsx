@@ -1,7 +1,7 @@
 /**
  * FormFieldInterface Component
  * Dynamically renders the appropriate interface component for a field
- * Based on Directus form-field-interface component
+ * Based on DaaS form-field-interface component
  * 
  * Uses @microbuild/utils for field interface mapping and
  * @microbuild/ui-interfaces for interface components.

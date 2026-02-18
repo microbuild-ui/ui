@@ -8,7 +8,7 @@ const meta: Meta<typeof SelectMultipleCheckbox> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A multiple checkbox selection interface that matches the Directus select-multiple-checkbox interface functionality.',
+        component: 'A multiple checkbox selection interface that matches the DaaS select-multiple-checkbox interface functionality.',
       },
     },
   },

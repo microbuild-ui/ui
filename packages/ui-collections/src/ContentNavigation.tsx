@@ -5,7 +5,7 @@
  * Displays all collections in a tree structure with search, grouping,
  * bookmarks, context menus, and show/hide hidden collections.
  *
- * Ported from Directus content module's navigation.vue + navigation-item.vue.
+ * Ported from DaaS content module's navigation.vue + navigation-item.vue.
  *
  * @package @microbuild/ui-collections
  */

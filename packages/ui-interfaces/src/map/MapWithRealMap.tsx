@@ -2,7 +2,7 @@
  * MapWithRealMap Interface Component
  * Full-featured map interface using MapLibre GL JS
  * 
- * Based on Directus map interface
+ * Based on DaaS map interface
  * Uses MapLibre GL JS for rendering and MapboxDraw for geometry editing
  * 
  * Peer dependencies required:
@@ -45,7 +45,7 @@ export type { GeometryType, GeometryFormat, BasemapSource, DefaultView };
 
 /**
  * Props for the Map interface component
- * Based on Directus map interface configuration
+ * Based on DaaS map interface configuration
  */
 export interface MapWithRealMapProps {
   /** Current geometry value */
@@ -106,7 +106,7 @@ export interface MapWithRealMapProps {
   onBasemapChange?: (basemap: string) => void;
 }
 
-// Default basemap sources matching Directus
+// Default basemap sources matching DaaS
 const DEFAULT_BASEMAPS: BasemapSource[] = [
   {
     name: 'OpenStreetMap',
@@ -235,7 +235,7 @@ function getDrawOptions(geometryType?: GeometryType): any {
 /**
  * MapWithRealMap Interface Component
  * 
- * A map interface that exactly matches the Directus map interface functionality.
+ * A map interface that exactly matches the DaaS map interface functionality.
  * Includes real MapLibre GL JS map rendering with interactive drawing tools.
  * 
  * Features:
@@ -245,7 +245,7 @@ function getDrawOptions(geometryType?: GeometryType): any {
  * - Basemap switching
  * - Geolocation support
  * - Fit bounds functionality
- * - Full compatibility with Directus map interface
+ * - Full compatibility with DaaS map interface
  */
 export const MapWithRealMap: React.FC<MapWithRealMapProps> = ({
   value,

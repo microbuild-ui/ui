@@ -9,7 +9,7 @@ import './VForm.stories.css';
  * VForm - Dynamic Form Component
  * 
  * The VForm component dynamically renders form fields based on a collection schema,
- * similar to Directus v-form. It supports various interface types, validation,
+ * similar to DaaS v-form. It supports various interface types, validation,
  * field permissions, and responsive layouts.
  * 
  * ## Features

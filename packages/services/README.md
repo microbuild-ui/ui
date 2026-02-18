@@ -1,6 +1,6 @@
 # @microbuild/services
 
-CRUD service classes for Microbuild projects. Directus-compatible services for items, fields, collections, and permissions.
+CRUD service classes for Microbuild projects. DaaS-compatible services for items, fields, collections, and permissions.
 
 ## Installation
 

@@ -37,7 +37,7 @@ export interface DefaultView {
 
 /**
  * Props for the Map interface component
- * Based on Directus map interface configuration
+ * Based on DaaS map interface configuration
  */
 export interface MapProps {
   /** Current geometry value */
@@ -129,7 +129,7 @@ const DEFAULT_BASEMAPS: BasemapSource[] = [
 /**
  * Map Interface Component
  * 
- * A map interface that matches the Directus map interface functionality.
+ * A map interface that matches the DaaS map interface functionality.
  * This is a simplified implementation that provides geometry editing capabilities
  * without requiring external map libraries. For full map visualization, install:
  * - maplibre-gl

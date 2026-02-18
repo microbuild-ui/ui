@@ -20,9 +20,9 @@ export interface FileUploadOptions {
 }
 
 /**
- * Directus file representation
+ * DaaS file representation
  */
-export interface DirectusFile {
+export interface DaaSFile {
   id: string;
   storage: string;
   filename_disk: string | null;
@@ -59,9 +59,9 @@ export interface FileUpload {
 }
 
 /**
- * Convert DirectusFile to FileUpload format
+ * Convert DaaSFile to FileUpload format
  */
-function toFileUpload(file: DirectusFile): FileUpload {
+function toFileUpload(file: DaaSFile): FileUpload {
   return {
     id: file.id,
     filename_download: file.filename_download,
@@ -195,7 +195,7 @@ export function useFiles() {
         queryParams.set('filter', JSON.stringify(filter));
       }
       
-      const result = await apiRequest<{ data: DirectusFile[]; meta?: { total_count?: number } }>(
+      const result = await apiRequest<{ data: DaaSFile[]; meta?: { total_count?: number } }>(
         `/api/files?${queryParams.toString()}`
       );
       
@@ -223,7 +223,7 @@ export function useFiles() {
     setError(null);
     
     try {
-      const result = await apiRequest<{ data: DirectusFile }>('/api/files/import', {
+      const result = await apiRequest<{ data: DaaSFile }>('/api/files/import', {
         method: 'POST',
         body: JSON.stringify({
           url,
@@ -253,7 +253,7 @@ export function useFiles() {
     setError(null);
     
     try {
-      const result = await apiRequest<{ data: DirectusFile }>(`/api/files/${id}`);
+      const result = await apiRequest<{ data: DaaSFile }>(`/api/files/${id}`);
       return toFileUpload(result.data);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch file';
@@ -275,7 +275,7 @@ export function useFiles() {
     setError(null);
     
     try {
-      const result = await apiRequest<{ data: DirectusFile }>(`/api/files/${id}`, {
+      const result = await apiRequest<{ data: DaaSFile }>(`/api/files/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });

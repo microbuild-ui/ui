@@ -10,9 +10,9 @@ const meta: Meta<typeof ListM2M> = {
     docs: {
       description: {
         component: `
-# ListM2M with Real Directus Data
+# ListM2M with Real DaaS Data
 
-This story demonstrates the ListM2M component using actual data structure from Directus 9.
+This story demonstrates the ListM2M component using actual data structure from DaaS 9.
 
 **Real Relationship Structure:**
 - **Collection**: \`xtr_app_interfaces\`
@@ -22,7 +22,7 @@ This story demonstrates the ListM2M component using actual data structure from D
 - **Junction Field**: \`xtr_app_tickets_id\` (points to tickets)
 - **Reverse Junction Field**: \`xtr_app_interfaces_id\` (points to interfaces)
 
-This matches the exact structure found in the production Directus instance.
+This matches the exact structure found in the production DaaS instance.
         `,
       },
     },
@@ -79,7 +79,7 @@ This matches the exact structure found in the production Directus instance.
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const RealDirectusData: Story = {
+export const RealDaaSData: Story = {
   args: {
     collection: 'xtr_app_interfaces',
     field: 'm2m',

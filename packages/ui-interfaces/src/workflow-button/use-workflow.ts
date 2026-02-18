@@ -109,7 +109,7 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
         const userData = (response.data as { user?: { policies?: string[] } })?.user;
         policyIds = userData?.policies || [];
       } catch {
-        // Fall back to /api/users/me (Directus format)
+        // Fall back to /api/users/me (DaaS format)
         try {
           const response = await apiClient.get('/api/users/me');
           const data = response.data.data as { policies?: string[] };
@@ -147,7 +147,7 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
   // Fetch workflow instance
   const fetchWorkflowInstance = useCallback(
     async (versionKey?: string, translationId?: string) => {
-      // Skip for new items ('+' is Directus convention for new records)
+      // Skip for new items ('+' is DaaS convention for new records)
       if (isNewItem(itemId) || !collection) {
         setWorkflowInstance(null);
         setWorkflowInstanceId(null);
@@ -237,7 +237,7 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
 
           // Get commands/transitions for the current state
           // Support both formats:
-          // 1. Array format: states[].commands (Microbuild/Directus default)
+          // 1. Array format: states[].commands (Microbuild/DaaS default)
           // 2. Object format: states[stateName].transitions (DaaS format)
           let workflowCommands: WorkflowCommand[] = [];
 

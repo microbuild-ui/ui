@@ -1,6 +1,6 @@
 # @microbuild/ui-table
 
-Dynamic table component for Microbuild projects, inspired by the Directus v-table component.
+Dynamic table component for Microbuild projects, inspired by the DaaS v-table component.
 
 ## Features
 

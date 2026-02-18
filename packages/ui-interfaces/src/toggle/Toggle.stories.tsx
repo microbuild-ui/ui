@@ -11,13 +11,13 @@ const meta: Meta<typeof Toggle> = {
     docs: {
       description: {
         component: `A toggle switch interface that provides a more visual on/off toggle compared to the 
-standard Boolean component. Matches the Directus toggle interface functionality.
+standard Boolean component. Matches the DaaS toggle interface functionality.
 
 ## Features
 - Visual on/off state with icons
 - Custom colors for states
 - Optional state labels (On/Off text)
-- Directus-compatible API
+- DaaS-compatible API
 - Accessibility support (ARIA)
 
 ## Usage

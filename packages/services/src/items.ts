@@ -1,6 +1,6 @@
 /**
  * ItemsService - Generic service for CRUD operations on any collection
- * Inspired by Directus ItemsService
+ * Inspired by DaaS ItemsService
  * 
  * Uses Next.js API routes to proxy requests to DaaS backend (avoids CORS)
  */

@@ -2,7 +2,7 @@
  * Relation Types
  * 
  * TypeScript type definitions for relationship handling,
- * following the Directus v11.12.0 specification.
+ * following the DaaS v11.12.0 specification.
  */
 
 /**

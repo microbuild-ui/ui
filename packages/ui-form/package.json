@@ -1,7 +1,7 @@
 {
   "name": "@microbuild/ui-form",
   "version": "0.1.0",
-  "description": "Dynamic form component (VForm) for Microbuild projects - inspired by Directus v-form",
+  "description": "Dynamic form component (VForm) for Microbuild projects - inspired by DaaS v-form",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -54,7 +54,7 @@
     "microbuild",
     "form",
     "vform",
-    "directus",
+    "daas",
     "dynamic-form",
     "collection-form"
   ],

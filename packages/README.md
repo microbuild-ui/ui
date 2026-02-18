@@ -1,6 +1,6 @@
 # Microbuild UI Packages
 
-A collection of packages for building Directus-compatible content management applications with React and Mantine v8.
+A collection of packages for building DaaS-compatible content management applications with React and Mantine v8.
 
 ## Packages
 

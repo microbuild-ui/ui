@@ -88,7 +88,7 @@ export interface ListM2OProps {
 /**
  * ListM2O - Many-to-One relationship interface
  * 
- * Similar to Directus list-o2m but for M2O relationships.
+ * Similar to DaaS list-o2m but for M2O relationships.
  * Allows selecting ONE related item from another collection.
  */
 export const ListM2O: React.FC<ListM2OProps> = ({

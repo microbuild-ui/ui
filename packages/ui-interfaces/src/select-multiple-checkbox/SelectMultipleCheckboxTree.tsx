@@ -2,7 +2,7 @@
  * SelectMultipleCheckboxTree Interface Component
  * Tree-based multi-select checkbox with hierarchical choices
  * 
- * Based on Directus select-multiple-checkbox-tree interface
+ * Based on DaaS select-multiple-checkbox-tree interface
  * Supports value combining modes: all, branch, leaf, indeterminate, exclusive
  */
 

@@ -8,7 +8,7 @@ const meta: Meta<typeof File> = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'A file upload interface component that matches Directus file interface functionality. Supports single and multiple file uploads, drag & drop, file type validation, and preview capabilities.',
+        component: 'A file upload interface component that matches DaaS file interface functionality. Supports single and multiple file uploads, drag & drop, file type validation, and preview capabilities.',
       },
     },
   },

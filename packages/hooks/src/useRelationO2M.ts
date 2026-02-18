@@ -103,7 +103,7 @@ export function useRelationO2M(collection: string, field: string) {
           (fieldOptions?.sortField as string | undefined) ||
           undefined;
 
-        // If not found in options, try fetching from directus_relations
+        // If not found in options, try fetching from daas_relations
         if (!relatedCollectionName || !reverseFieldName) {
           try {
             interface RelationData {

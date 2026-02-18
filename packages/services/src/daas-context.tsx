@@ -10,7 +10,7 @@ import { createContext, useContext, useMemo, useState, useEffect, useCallback, t
  * 
  * Authentication Methods Supported (mirrors DaaS architecture):
  * 1. Cookie-Based Sessions - For browser requests (automatic)
- * 2. Static Tokens - For programmatic access (Directus-style)
+ * 2. Static Tokens - For programmatic access (DaaS-style)
  * 3. JWT Bearer Tokens - For API clients with Supabase Auth
  */
 export interface DaaSConfig {
@@ -86,7 +86,7 @@ export interface DaaSProviderProps {
  * instead of using Next.js proxy routes.
  * 
  * Authentication follows DaaS architecture:
- * - Static tokens for programmatic access (Directus-style)
+ * - Static tokens for programmatic access (DaaS-style)
  * - Cookie-based sessions for browser requests
  * - Full RBAC permissions applied at application layer
  * 
