@@ -174,7 +174,7 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
           filter.version_key = requestedVersion;
         }
 
-        const response = await apiClient.get('/api/items/xtr_wf_instance', {
+        const response = await apiClient.get('/api/items/daas_wf_instance', {
           params: {
             filter: JSON.stringify(filter),
             fields:
@@ -206,7 +206,7 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
           
           if (typeof workflowDef === 'string' || typeof workflowDef === 'number' || !workflowDef.workflow_json) {
             // Fetch the workflow definition separately
-            const workflowResponse = await apiClient.get(`/api/items/xtr_wf_definition/${workflowId}`);
+            const workflowResponse = await apiClient.get(`/api/items/daas_wf_definition/${workflowId}`);
             workflowDef = workflowResponse.data.data as WorkflowInstance['workflow'];
           }
 

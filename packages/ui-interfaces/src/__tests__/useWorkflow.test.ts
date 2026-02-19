@@ -93,7 +93,7 @@ describe('useWorkflow', () => {
   describe('Fetching Workflow', () => {
     beforeEach(() => {
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [mockWorkflowInstance] }),
@@ -179,7 +179,7 @@ describe('useWorkflow', () => {
   describe('Version Key Support', () => {
     beforeEach(() => {
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           // Check if version_key is in the filter
           const hasVersionKey = url.includes('version_key');
           if (hasVersionKey) {
@@ -249,7 +249,7 @@ describe('useWorkflow', () => {
 
     it('sets error message when workflow config is missing', async () => {
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({
@@ -301,7 +301,7 @@ describe('useWorkflow', () => {
   describe('Transition Execution', () => {
     beforeEach(() => {
       mockFetch.mockImplementation((url: string, options?: RequestInit) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [mockWorkflowInstance] }),

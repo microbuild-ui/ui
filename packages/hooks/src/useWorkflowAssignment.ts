@@ -58,7 +58,7 @@ export function useWorkflowAssignment(
       });
 
       const response = await apiRequest<{ data: WorkflowAssignment[] }>(
-        `/api/items/xtr_wf_assignment?filter=${encodeURIComponent(filter)}&limit=1`
+        `/api/items/daas_wf_assignment?filter=${encodeURIComponent(filter)}&limit=1`
       );
 
       const assignments = response?.data || [];
