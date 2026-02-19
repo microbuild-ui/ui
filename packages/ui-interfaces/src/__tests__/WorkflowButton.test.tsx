@@ -132,7 +132,7 @@ describe('WorkflowButton', () => {
   describe('With Workflow Instance', () => {
     beforeEach(() => {
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [mockWorkflowInstance] }),
@@ -244,7 +244,7 @@ describe('WorkflowButton', () => {
       const onTransitionMock = jest.fn();
 
       mockFetch.mockImplementation((url: string, options?: RequestInit) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [mockWorkflowInstance] }),
@@ -313,7 +313,7 @@ describe('WorkflowButton', () => {
   describe('Disabled State', () => {
     it('disables button when disabled prop is true', async () => {
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [mockWorkflowInstance] }),
@@ -358,7 +358,7 @@ describe('WorkflowButton', () => {
       };
 
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [terminatedInstance] }),
@@ -396,7 +396,7 @@ describe('WorkflowButton', () => {
   describe('Additional Choices', () => {
     it('merges additional choices with workflow commands', async () => {
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [mockWorkflowInstance] }),
@@ -474,7 +474,7 @@ describe('WorkflowButton', () => {
       };
 
       mockFetch.mockImplementation((url: string) => {
-        if (url.includes('/api/items/xtr_wf_instance')) {
+        if (url.includes('/api/items/daas_wf_instance')) {
           return Promise.resolve({
             ok: true,
             json: async () => ({ data: [invalidInstance] }),
