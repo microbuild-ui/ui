@@ -1,13 +1,20 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Toggle } from './Toggle';
-import { IconSun, IconMoon, IconBell, IconBellOff, IconLock, IconLockOpen } from '@tabler/icons-react';
-import '../stories-shared.css';
+import type { Meta, StoryObj } from "@storybook/react";
+import {
+  IconBell,
+  IconBellOff,
+  IconLock,
+  IconLockOpen,
+  IconMoon,
+  IconSun,
+} from "@tabler/icons-react";
+import "../stories-shared.css";
+import { Toggle } from "./Toggle";
 
 const meta: Meta<typeof Toggle> = {
-  title: 'Interfaces/Toggle',
+  title: "Interfaces/Toggle",
   component: Toggle,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
     docs: {
       description: {
         component: `A toggle switch interface that provides a more visual on/off toggle compared to the 
@@ -36,60 +43,60 @@ import { Toggle } from '@/components/interfaces/toggle';
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     value: {
-      control: { type: 'boolean' },
-      description: 'Current boolean value',
+      control: { type: "boolean" },
+      description: "Current boolean value",
     },
     disabled: {
-      control: { type: 'boolean' },
-      description: 'Whether the toggle is disabled',
+      control: { type: "boolean" },
+      description: "Whether the toggle is disabled",
     },
     readOnly: {
-      control: { type: 'boolean' },
-      description: 'Whether the toggle is readonly',
+      control: { type: "boolean" },
+      description: "Whether the toggle is readonly",
     },
     required: {
-      control: { type: 'boolean' },
-      description: 'Whether the field is required (shows asterisk)',
+      control: { type: "boolean" },
+      description: "Whether the field is required (shows asterisk)",
     },
     label: {
-      control: { type: 'text' },
-      description: 'Label displayed next to the toggle',
+      control: { type: "text" },
+      description: "Label displayed next to the toggle",
     },
     description: {
-      control: { type: 'text' },
-      description: 'Description text displayed below the label',
+      control: { type: "text" },
+      description: "Description text displayed below the label",
     },
     error: {
-      control: { type: 'text' },
-      description: 'Error message to display',
+      control: { type: "text" },
+      description: "Error message to display",
     },
     size: {
-      control: { type: 'select' },
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
-      description: 'Size of the toggle',
+      control: { type: "select" },
+      options: ["xs", "sm", "md", "lg", "xl"],
+      description: "Size of the toggle",
     },
     colorOn: {
-      control: { type: 'color' },
-      description: 'Color when toggle is on',
+      control: { type: "color" },
+      description: "Color when toggle is on",
     },
     colorOff: {
-      control: { type: 'color' },
-      description: 'Color when toggle is off',
+      control: { type: "color" },
+      description: "Color when toggle is off",
     },
     labelOn: {
-      control: { type: 'text' },
-      description: 'Label for the on state',
+      control: { type: "text" },
+      description: "Label for the on state",
     },
     labelOff: {
-      control: { type: 'text' },
-      description: 'Label for the off state',
+      control: { type: "text" },
+      description: "Label for the off state",
     },
     showStateLabels: {
-      control: { type: 'boolean' },
-      description: 'Show state labels (On/Off) beside the toggle',
+      control: { type: "boolean" },
+      description: "Show state labels (On/Off) beside the toggle",
     },
   },
 };
@@ -100,29 +107,29 @@ type Story = StoryObj<typeof meta>;
 // Basic usage
 export const Default: Story = {
   args: {
-    label: 'Enable feature',
+    label: "Enable feature",
     value: false,
   },
 };
 
 export const Checked: Story = {
   args: {
-    label: 'Feature enabled',
+    label: "Feature enabled",
     value: true,
   },
 };
 
 export const WithDescription: Story = {
   args: {
-    label: 'Enable notifications',
-    description: 'Receive email notifications for important updates',
+    label: "Enable notifications",
+    description: "Receive email notifications for important updates",
     value: false,
   },
 };
 
 export const Required: Story = {
   args: {
-    label: 'Accept terms',
+    label: "Accept terms",
     required: true,
     value: false,
   },
@@ -130,15 +137,15 @@ export const Required: Story = {
 
 export const WithError: Story = {
   args: {
-    label: 'Accept terms',
-    error: 'You must accept the terms to continue',
+    label: "Accept terms",
+    error: "You must accept the terms to continue",
     value: false,
   },
 };
 
 export const Disabled: Story = {
   args: {
-    label: 'Disabled option',
+    label: "Disabled option",
     disabled: true,
     value: false,
   },
@@ -146,7 +153,7 @@ export const Disabled: Story = {
 
 export const DisabledChecked: Story = {
   args: {
-    label: 'Disabled option (checked)',
+    label: "Disabled option (checked)",
     disabled: true,
     value: true,
   },
@@ -154,7 +161,7 @@ export const DisabledChecked: Story = {
 
 export const ReadOnly: Story = {
   args: {
-    label: 'Read-only option',
+    label: "Read-only option",
     readOnly: true,
     value: true,
   },
@@ -176,20 +183,20 @@ export const Sizes: Story = {
 // State labels
 export const WithStateLabels: Story = {
   args: {
-    label: 'Toggle with state labels',
+    label: "Toggle with state labels",
     showStateLabels: true,
-    labelOn: 'Active',
-    labelOff: 'Inactive',
+    labelOn: "Active",
+    labelOff: "Inactive",
     value: false,
   },
 };
 
 export const StateLabelsEnabled: Story = {
   args: {
-    label: 'Feature status',
+    label: "Feature status",
     showStateLabels: true,
-    labelOn: 'Enabled',
-    labelOff: 'Disabled',
+    labelOn: "Enabled",
+    labelOff: "Disabled",
     value: true,
   },
 };
@@ -197,7 +204,7 @@ export const StateLabelsEnabled: Story = {
 // Icon examples
 export const DarkModeToggle: Story = {
   args: {
-    label: 'Dark mode',
+    label: "Dark mode",
     iconOn: <IconSun size={14} />,
     iconOff: <IconMoon size={14} />,
     value: false,
@@ -206,21 +213,21 @@ export const DarkModeToggle: Story = {
 
 export const NotificationToggle: Story = {
   args: {
-    label: 'Notifications',
+    label: "Notifications",
     iconOn: <IconBell size={14} />,
     iconOff: <IconBellOff size={14} />,
-    colorOn: '#339af0',
+    colorOn: "#339af0",
     value: true,
   },
 };
 
 export const SecurityToggle: Story = {
   args: {
-    label: 'Lock account',
+    label: "Lock account",
     iconOn: <IconLock size={14} />,
     iconOff: <IconLockOpen size={14} />,
-    colorOn: '#f03e3e',
-    colorOff: '#51cf66',
+    colorOn: "#f03e3e",
+    colorOff: "#51cf66",
     value: false,
   },
 };
@@ -228,18 +235,18 @@ export const SecurityToggle: Story = {
 // Custom colors
 export const CustomColors: Story = {
   args: {
-    label: 'Custom theme toggle',
-    colorOn: '#be4bdb',
-    colorOff: '#868e96',
+    label: "Custom theme toggle",
+    colorOn: "#be4bdb",
+    colorOff: "#868e96",
     value: false,
   },
 };
 
 export const GreenRedToggle: Story = {
   args: {
-    label: 'Status indicator',
-    colorOn: '#51cf66',
-    colorOff: '#ff6b6b',
+    label: "Status indicator",
+    colorOn: "#51cf66",
+    colorOff: "#ff6b6b",
     value: true,
   },
 };
@@ -259,13 +266,13 @@ export const ValueStates: Story = {
 // Complex example with state labels and custom styling
 export const CompleteExample: Story = {
   args: {
-    label: 'Premium subscription',
-    description: 'Enable premium features for your account',
+    label: "Premium subscription",
+    description: "Enable premium features for your account",
     showStateLabels: true,
-    labelOn: 'Active',
-    labelOff: 'Inactive',
-    colorOn: '#fab005',
-    size: 'md',
+    labelOn: "Active",
+    labelOff: "Inactive",
+    colorOn: "#fab005",
+    size: "md",
     value: false,
   },
 };
@@ -276,20 +283,20 @@ export const InFormContext: Story = {
     <div className="story-form-container">
       <h3 className="story-form-heading">System Settings</h3>
       <div className="story-stack">
-        <Toggle 
-          label="Auto-save enabled" 
+        <Toggle
+          label="Auto-save enabled"
           description="Automatically save changes every 30 seconds"
           value={true}
         />
-        <Toggle 
-          label="Dark mode" 
+        <Toggle
+          label="Dark mode"
           description="Use dark theme for the interface"
           iconOn={<IconSun size={14} />}
           iconOff={<IconMoon size={14} />}
           value={false}
         />
-        <Toggle 
-          label="Push notifications" 
+        <Toggle
+          label="Push notifications"
           description="Receive push notifications"
           showStateLabels
           labelOn="Enabled"
@@ -297,8 +304,8 @@ export const InFormContext: Story = {
           colorOn="#339af0"
           value={false}
         />
-        <Toggle 
-          label="Two-factor authentication" 
+        <Toggle
+          label="Two-factor authentication"
           description="Require 2FA for login"
           iconOn={<IconLock size={14} />}
           iconOff={<IconLockOpen size={14} />}
@@ -306,8 +313,8 @@ export const InFormContext: Story = {
           required
           value={false}
         />
-        <Toggle 
-          label="Maintenance mode" 
+        <Toggle
+          label="Maintenance mode"
           description="Site will be unavailable to visitors"
           error="Warning: This will take the site offline"
           colorOn="#f03e3e"
@@ -318,14 +325,49 @@ export const InFormContext: Story = {
   ),
 };
 
+// Backend string icon graceful degradation
+/**
+ * When DaaS stores option values like `{ iconOn: "sun", iconOff: "moon" }`,
+ * the backend sends plain strings rather than ReactNodes.
+ * Toggle now accepts `string | ReactNode` for icon props and silently falls
+ * back to the default check/X icons when a string is received.
+ */
+export const WithStringIconFromBackend: Story = {
+  name: "WithStringIconFromBackend (DaaS compat)",
+  args: {
+    label: "Backend-configured toggle",
+    description:
+      'iconOn="sun" and iconOff="moon" are strings from DaaS — ignored at runtime; default check/X icons are used instead',
+    // @ts-expect-error intentionally passing string to show runtime guard
+    iconOn: "sun",
+    // @ts-expect-error intentionally passing string to show runtime guard
+    iconOff: "moon",
+    showStateLabels: true,
+    labelOn: "On",
+    labelOff: "Off",
+    value: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "DaaS `options.iconOn` / `options.iconOff` are stored as plain strings. " +
+          "The component normalises strings to `undefined`, falling back to the " +
+          "built-in `<IconCheck>` / `<IconX>` defaults rather than rendering raw text.",
+      },
+    },
+  },
+};
+
 // Comparison with Boolean
 export const ComparisonWithBoolean: Story = {
   render: () => (
     <div className="story-form-container-lg">
       <h3 className="story-form-heading">Toggle vs Boolean</h3>
       <p className="story-description">
-        Toggle provides enhanced visual styling with custom colors, icons, and state labels.
-        Use Toggle when you need more visual feedback for on/off states.
+        Toggle provides enhanced visual styling with custom colors, icons, and
+        state labels. Use Toggle when you need more visual feedback for on/off
+        states.
       </p>
       <div className="story-stack-lg">
         <div>
@@ -334,30 +376,30 @@ export const ComparisonWithBoolean: Story = {
         </div>
         <div>
           <p className="story-sub-label">With State Labels:</p>
-          <Toggle 
-            label="With labels" 
-            showStateLabels 
-            labelOn="Yes" 
-            labelOff="No" 
-            value={true} 
+          <Toggle
+            label="With labels"
+            showStateLabels
+            labelOn="Yes"
+            labelOff="No"
+            value={true}
           />
         </div>
         <div>
           <p className="story-sub-label">Custom Colors:</p>
-          <Toggle 
-            label="Custom colors" 
-            colorOn="#be4bdb" 
-            colorOff="#868e96" 
-            value={true} 
+          <Toggle
+            label="Custom colors"
+            colorOn="#be4bdb"
+            colorOff="#868e96"
+            value={true}
           />
         </div>
         <div>
           <p className="story-sub-label">With Icons:</p>
-          <Toggle 
-            label="With icons" 
+          <Toggle
+            label="With icons"
             iconOn={<IconBell size={14} />}
             iconOff={<IconBellOff size={14} />}
-            value={true} 
+            value={true}
           />
         </div>
       </div>
