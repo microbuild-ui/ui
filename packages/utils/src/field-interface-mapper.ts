@@ -2,44 +2,48 @@
  * Field Interface Mapper
  * Maps database field types to appropriate interface components
  * Supports explicit meta.interface from daas_fields table
- * 
+ *
  * Ported from main-nextjs for shared use across Microbuild projects.
  */
 
-import type { Field } from '@microbuild/types';
+import type { Field } from "@microbuild/types";
 
 export type InterfaceType =
-  | 'input'
-  | 'input-code'
-  | 'input-multiline'
-  | 'input-autocomplete-api'
-  | 'input-block-editor'
-  | 'boolean'
-  | 'datetime'
-  | 'select-dropdown'
-  | 'select-radio'
-  | 'select-icon'
-  | 'select-color'
-  | 'slider'
-  | 'textarea'
-  | 'number'
-  | 'uuid'
-  | 'input-rich-text-html'
-  | 'input-rich-text-md'
-  | 'tags'
-  | 'presentation-divider'
-  | 'presentation-notice'
-  | 'list-m2o'
-  | 'select-dropdown-m2o'
-  | 'list-o2m'
-  | 'list-m2m'
-  | 'list-m2a'
-  | 'file'
-  | 'file-image'
-  | 'files'
-  | 'map'
-  | 'collection-item-dropdown'
-  | 'workflow-button';
+  | "input"
+  | "input-code"
+  | "input-multiline"
+  | "input-autocomplete-api"
+  | "input-block-editor"
+  | "boolean"
+  | "datetime"
+  | "select-dropdown"
+  | "select-radio"
+  | "select-icon"
+  | "select-color"
+  | "slider"
+  | "textarea"
+  | "number"
+  | "uuid"
+  | "input-rich-text-html"
+  | "input-rich-text-md"
+  | "tags"
+  | "presentation-divider"
+  | "presentation-notice"
+  | "list-m2o"
+  | "select-dropdown-m2o"
+  | "list-o2m"
+  | "list-m2m"
+  | "list-m2a"
+  | "file"
+  | "file-image"
+  | "files"
+  | "map"
+  | "toggle"
+  | "select-multiple-checkbox"
+  | "select-multiple-dropdown"
+  | "select-multiple-checkbox-tree"
+  | "collection-item-dropdown"
+  | "workflow-button";
 
 export interface InterfaceConfig {
   /** Interface component type */
@@ -59,7 +63,10 @@ export function getFieldInterface(field: Field): InterfaceConfig {
 
   // Priority 1: Check for explicit interface in meta (from daas_fields table)
   if (meta?.interface) {
-    const explicitInterface = getExplicitInterface(meta.interface, meta?.options ?? undefined);
+    const explicitInterface = getExplicitInterface(
+      meta.interface,
+      meta?.options ?? undefined,
+    );
     if (explicitInterface) {
       return explicitInterface;
     }
@@ -74,51 +81,51 @@ export function getFieldInterface(field: Field): InterfaceConfig {
  * Maps DaaS interface IDs to our component types
  */
 function getExplicitInterface(
-  interfaceId: string, 
-  options?: Record<string, unknown>
+  interfaceId: string,
+  options?: Record<string, unknown>,
 ): InterfaceConfig | null {
   switch (interfaceId) {
     // Text inputs
-    case 'input':
+    case "input":
       return {
-        type: 'input',
+        type: "input",
         props: {
-          type: 'string',
+          type: "string",
           ...options,
         },
       };
 
     // Autocomplete API (fetches suggestions from external API)
-    case 'input-autocomplete-api':
+    case "input-autocomplete-api":
       return {
-        type: 'input-autocomplete-api',
+        type: "input-autocomplete-api",
         props: {
           url: options?.url as string,
           resultsPath: options?.resultsPath as string,
           textPath: options?.textPath as string,
           valuePath: options?.valuePath as string,
-          trigger: (options?.trigger as 'debounce' | 'throttle') || 'throttle',
+          trigger: (options?.trigger as "debounce" | "throttle") || "throttle",
           rate: (options?.rate as number) || 500,
           ...options,
         },
       };
 
     // Block Editor (rich block-based content editor)
-    case 'input-block-editor':
+    case "input-block-editor":
       return {
-        type: 'input-block-editor',
+        type: "input-block-editor",
         props: {
           placeholder: options?.placeholder as string,
-          font: (options?.font as string) || 'sans-serif',
+          font: (options?.font as string) || "sans-serif",
           ...options,
         },
       };
 
     // Multiline text / Textarea
-    case 'input-multiline':
-    case 'textarea':
+    case "input-multiline":
+    case "textarea":
       return {
-        type: 'input-multiline',
+        type: "input-multiline",
         props: {
           autosize: true,
           minRows: 3,
@@ -128,21 +135,21 @@ function getExplicitInterface(
       };
 
     // Code editor
-    case 'input-code':
+    case "input-code":
       return {
-        type: 'input-code',
+        type: "input-code",
         props: {
-          language: (options?.language as string) || 'json',
+          language: (options?.language as string) || "json",
           lineNumber: true,
           ...options,
         },
       };
 
     // Rich text HTML (WYSIWYG)
-    case 'input-rich-text-html':
-    case 'wysiwyg':
+    case "input-rich-text-html":
+    case "wysiwyg":
       return {
-        type: 'input-rich-text-html',
+        type: "input-rich-text-html",
         props: {
           toolbar: options?.toolbar,
           ...options,
@@ -150,10 +157,10 @@ function getExplicitInterface(
       };
 
     // Rich text Markdown
-    case 'input-rich-text-md':
-    case 'markdown':
+    case "input-rich-text-md":
+    case "markdown":
       return {
-        type: 'input-rich-text-md',
+        type: "input-rich-text-md",
         props: {
           toolbar: options?.toolbar,
           ...options,
@@ -161,9 +168,9 @@ function getExplicitInterface(
       };
 
     // Tags
-    case 'tags':
+    case "tags":
       return {
-        type: 'tags',
+        type: "tags",
         props: {
           presets: (options?.presets as string[]) || [],
           allowCustom: options?.allowCustom !== false,
@@ -172,37 +179,51 @@ function getExplicitInterface(
       };
 
     // Boolean
-    case 'boolean':
+    case "boolean":
       return {
-        type: 'boolean',
+        type: "boolean",
         props: {
+          ...options,
+        },
+      };
+
+    // Toggle (boolean with state labels, custom colors and icons)
+    case "toggle":
+      return {
+        type: "toggle",
+        props: {
+          colorOn: options?.colorOn as string,
+          colorOff: options?.colorOff as string,
+          labelOn: options?.labelOn as string,
+          labelOff: options?.labelOff as string,
+          showStateLabels: options?.showStateLabels as boolean,
           ...options,
         },
       };
 
     // DateTime
-    case 'datetime':
+    case "datetime":
       return {
-        type: 'datetime',
+        type: "datetime",
         props: {
-          type: (options?.type as string) || 'datetime',
+          type: (options?.type as string) || "datetime",
           ...options,
         },
       };
 
     // Select dropdown
-    case 'select-dropdown':
+    case "select-dropdown":
       return {
-        type: 'select-dropdown',
+        type: "select-dropdown",
         props: {
           ...options,
         },
       };
 
     // Select radio (radio buttons for single selection)
-    case 'select-radio':
+    case "select-radio":
       return {
-        type: 'select-radio',
+        type: "select-radio",
         props: {
           choices: options?.choices,
           allowOther: options?.allowOther,
@@ -213,19 +234,54 @@ function getExplicitInterface(
         },
       };
 
-    // Select icon (icon picker)
-    case 'select-icon':
+    // Multiple checkbox selection
+    case "select-multiple-checkbox":
       return {
-        type: 'select-icon',
+        type: "select-multiple-checkbox",
+        props: {
+          choices: options?.choices,
+          allowOther: options?.allowOther as boolean,
+          color: options?.color as string,
+          itemsShown: options?.itemsShown as number,
+          ...options,
+        },
+      };
+
+    // Multiple dropdown selection
+    case "select-multiple-dropdown":
+      return {
+        type: "select-multiple-dropdown",
+        props: {
+          choices: options?.choices,
+          placeholder: options?.placeholder as string,
+          allowOther: options?.allowOther as boolean,
+          ...options,
+        },
+      };
+
+    // Multiple checkbox tree selection
+    case "select-multiple-checkbox-tree":
+      return {
+        type: "select-multiple-checkbox-tree",
+        props: {
+          choices: options?.choices,
+          ...options,
+        },
+      };
+
+    // Select icon (icon picker)
+    case "select-icon":
+      return {
+        type: "select-icon",
         props: {
           ...options,
         },
       };
 
     // Select color (color picker)
-    case 'select-color':
+    case "select-color":
       return {
-        type: 'select-color',
+        type: "select-color",
         props: {
           presetColors: options?.presetColors as string[],
           opacity: options?.opacity as boolean,
@@ -234,9 +290,9 @@ function getExplicitInterface(
       };
 
     // Slider (numeric range slider)
-    case 'slider':
+    case "slider":
       return {
-        type: 'slider',
+        type: "slider",
         props: {
           minValue: options?.minValue as number,
           maxValue: options?.maxValue as number,
@@ -247,9 +303,9 @@ function getExplicitInterface(
       };
 
     // Presentation Divider (visual section separator, no input)
-    case 'presentation-divider':
+    case "presentation-divider":
       return {
-        type: 'presentation-divider',
+        type: "presentation-divider",
         props: {
           title: options?.title as string,
           icon: options?.icon as string,
@@ -261,9 +317,9 @@ function getExplicitInterface(
       };
 
     // Presentation Notice (visual notice/alert, no input)
-    case 'presentation-notice':
+    case "presentation-notice":
       return {
-        type: 'presentation-notice',
+        type: "presentation-notice",
         props: {
           text: options?.text as string,
           icon: options?.icon as string,
@@ -273,13 +329,13 @@ function getExplicitInterface(
       };
 
     // Many-to-One relationship (select one related item)
-    case 'list-m2o':
-    case 'select-dropdown-m2o':
+    case "list-m2o":
+    case "select-dropdown-m2o":
       return {
-        type: 'list-m2o',
+        type: "list-m2o",
         props: {
-          layout: (options?.layout as 'dropdown' | 'modal') || 'dropdown',
-          fields: (options?.fields as string[]) || ['id', 'name'],
+          layout: (options?.layout as "dropdown" | "modal") || "dropdown",
+          fields: (options?.fields as string[]) || ["id", "name"],
           template: options?.template as string,
           enableCreate: options?.enableCreate !== false,
           enableLink: options?.enableLink === true,
@@ -292,12 +348,12 @@ function getExplicitInterface(
       };
 
     // One-to-Many relationship (display multiple related items)
-    case 'list-o2m':
+    case "list-o2m":
       return {
-        type: 'list-o2m',
+        type: "list-o2m",
         props: {
-          layout: (options?.layout as 'list' | 'table') || 'list',
-          fields: (options?.fields as string[]) || ['id'],
+          layout: (options?.layout as "list" | "table") || "list",
+          fields: (options?.fields as string[]) || ["id"],
           template: options?.template as string,
           enableCreate: options?.enableCreate !== false,
           enableSelect: options?.enableSelect !== false,
@@ -310,13 +366,15 @@ function getExplicitInterface(
       };
 
     // Many-to-Many relationship (junction table)
-    case 'list-m2m':
+    case "list-m2m":
       return {
-        type: 'list-m2m',
+        type: "list-m2m",
         props: {
-          layout: (options?.layout as 'list' | 'table') || 'list',
-          tableSpacing: (options?.tableSpacing as 'compact' | 'cozy' | 'comfortable') || 'cozy',
-          fields: (options?.fields as string[]) || ['id'],
+          layout: (options?.layout as "list" | "table") || "list",
+          tableSpacing:
+            (options?.tableSpacing as "compact" | "cozy" | "comfortable") ||
+            "cozy",
+          fields: (options?.fields as string[]) || ["id"],
           template: options?.template as string,
           enableCreate: options?.enableCreate !== false,
           enableSelect: options?.enableSelect !== false,
@@ -324,7 +382,8 @@ function getExplicitInterface(
           enableSearchFilter: options?.enableSearchFilter === true,
           limit: (options?.limit as number) || 15,
           allowDuplicates: options?.allowDuplicates === true,
-          junctionFieldLocation: (options?.junctionFieldLocation as 'top' | 'bottom') || 'bottom',
+          junctionFieldLocation:
+            (options?.junctionFieldLocation as "top" | "bottom") || "bottom",
           filter: options?.filter as Record<string, unknown>,
           // M2M-specific options from DaaS
           relatedCollection: options?.related_collection as string,
@@ -336,13 +395,15 @@ function getExplicitInterface(
       };
 
     // Many-to-Any relationship (polymorphic, links to items from multiple collections)
-    case 'list-m2a':
+    case "list-m2a":
       return {
-        type: 'list-m2a',
+        type: "list-m2a",
         props: {
-          layout: (options?.layout as 'list' | 'table') || 'list',
-          tableSpacing: (options?.tableSpacing as 'compact' | 'cozy' | 'comfortable') || 'cozy',
-          fields: (options?.fields as string[]) || ['id'],
+          layout: (options?.layout as "list" | "table") || "list",
+          tableSpacing:
+            (options?.tableSpacing as "compact" | "cozy" | "comfortable") ||
+            "cozy",
+          fields: (options?.fields as string[]) || ["id"],
           template: options?.template as string,
           enableCreate: options?.enableCreate !== false,
           enableSelect: options?.enableSelect !== false,
@@ -358,9 +419,9 @@ function getExplicitInterface(
       };
 
     // File upload (single file, any type)
-    case 'file':
+    case "file":
       return {
-        type: 'file',
+        type: "file",
         props: {
           folder: options?.folder as string,
           accept: options?.accept as string,
@@ -372,13 +433,14 @@ function getExplicitInterface(
       };
 
     // File image upload (single image file with preview)
-    case 'file-image':
+    case "file-image":
       return {
-        type: 'file-image',
+        type: "file-image",
         props: {
           folder: options?.folder as string,
           crop: options?.crop !== false,
-          width: (options?.width as 'auto' | 'full' | 'fill' | 'half') || 'auto',
+          width:
+            (options?.width as "auto" | "full" | "fill" | "half") || "auto",
           fromUser: options?.fromUser !== false,
           fromUrl: options?.fromUrl !== false,
           fromLibrary: options?.fromLibrary !== false,
@@ -387,9 +449,9 @@ function getExplicitInterface(
       };
 
     // Files upload (multiple files)
-    case 'files':
+    case "files":
       return {
-        type: 'files',
+        type: "files",
         props: {
           folder: options?.folder as string,
           accept: options?.accept as string,
@@ -399,29 +461,33 @@ function getExplicitInterface(
       };
 
     // Collection Item Dropdown (select single item from any collection)
-    case 'collection-item-dropdown':
+    case "collection-item-dropdown": {
+      // Destructure 'collection' out to prevent it from overwriting the parent field's
+      // collection prop when spreaded in FormFieldInterface
+      const { collection: targetCollection, ...restOptions } = options ?? {};
       return {
-        type: 'collection-item-dropdown',
+        type: "collection-item-dropdown",
         props: {
-          selectedCollection: options?.collection as string,
-          template: options?.template as string,
-          filter: options?.filter as Record<string, unknown>,
-          enableCreate: options?.enableCreate !== false,
-          enableLink: options?.enableLink === true,
-          searchable: options?.searchable !== false,
-          allowNone: options?.allowNone !== false,
-          placeholder: options?.placeholder as string,
-          ...options,
+          selectedCollection: targetCollection as string,
+          template: restOptions.template as string,
+          filter: restOptions.filter as Record<string, unknown>,
+          enableCreate: restOptions.enableCreate !== false,
+          enableLink: restOptions.enableLink === true,
+          searchable: restOptions.searchable !== false,
+          allowNone: restOptions.allowNone !== false,
+          placeholder: restOptions.placeholder as string,
+          ...restOptions,
         },
       };
+    }
 
     // Map / Geometry interface
-    case 'map':
+    case "map":
       return {
-        type: 'map',
+        type: "map",
         props: {
-          geometryType: (options?.geometryType as string) || 'Point',
-          geometryFormat: (options?.geometryFormat as string) || 'geojson',
+          geometryType: (options?.geometryType as string) || "Point",
+          geometryFormat: (options?.geometryFormat as string) || "geojson",
           defaultView: options?.defaultView as Record<string, unknown>,
           basemap: options?.basemap as string,
           ...options,
@@ -430,18 +496,18 @@ function getExplicitInterface(
 
     // Workflow Button (workflow state transitions)
     // Support all xtremax workflow interface IDs
-    case 'workflow-button':
-    case 'xtr-interface-workflow':
-    case 'xtr-interface-workflow-old':
-    case 'xtremax-workflow-button':
-    case 'xtremax-workflow-button-v2':
-    case 'xtremax-workflow-button-scheduled':
+    case "workflow-button":
+    case "xtr-interface-workflow":
+    case "xtr-interface-workflow-old":
+    case "xtremax-workflow-button":
+    case "xtremax-workflow-button-v2":
+    case "xtremax-workflow-button-scheduled":
       return {
-        type: 'workflow-button',
+        type: "workflow-button",
         props: {
           placeholder: options?.placeholder as string,
           alwaysVisible: options?.alwaysVisible !== false,
-          workflowField: (options?.workflowField as string) || 'status',
+          workflowField: (options?.workflowField as string) || "status",
           ...options,
         },
       };
@@ -456,42 +522,41 @@ function getExplicitInterface(
  */
 function getTypeBasedInterface(
   type: string,
-  schema: Field['schema'],
-  dataType?: string
+  schema: Field["schema"],
+  dataType?: string,
 ): InterfaceConfig {
-
   // UUID fields
-  if (type === 'uuid' || dataType?.includes('uuid')) {
+  if (type === "uuid" || dataType?.includes("uuid")) {
     return {
-      type: 'input',
+      type: "input",
       props: {
-        type: 'uuid',
-        font: 'monospace',
-        placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+        type: "uuid",
+        font: "monospace",
+        placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       },
     };
   }
 
   // Boolean fields
-  if (type === 'boolean' || dataType === 'boolean') {
+  if (type === "boolean" || dataType === "boolean") {
     return {
-      type: 'boolean',
+      type: "boolean",
       props: {},
     };
   }
 
   // JSON/JSONB fields
   if (
-    type === 'json' ||
-    dataType === 'json' ||
-    dataType === 'jsonb' ||
-    dataType?.includes('json')
+    type === "json" ||
+    dataType === "json" ||
+    dataType === "jsonb" ||
+    dataType?.includes("json")
   ) {
     return {
-      type: 'input-code',
+      type: "input-code",
       props: {
-        language: 'json',
-        type: 'json',
+        language: "json",
+        type: "json",
         lineNumber: true,
       },
     };
@@ -499,58 +564,63 @@ function getTypeBasedInterface(
 
   // Timestamp/Date/Time fields
   if (
-    type === 'timestamp' ||
-    type === 'datetime' ||
-    type === 'date' ||
-    type === 'time' ||
-    dataType?.includes('timestamp') ||
-    dataType?.includes('date') ||
-    dataType?.includes('time')
+    type === "timestamp" ||
+    type === "datetime" ||
+    type === "date" ||
+    type === "time" ||
+    dataType?.includes("timestamp") ||
+    dataType?.includes("date") ||
+    dataType?.includes("time")
   ) {
-    let dateType: 'datetime' | 'date' | 'time' | 'timestamp' = 'datetime';
-    
-    if (dataType?.includes('date') && !dataType?.includes('time')) {
-      dateType = 'date';
-    } else if (dataType?.includes('time') && !dataType?.includes('date')) {
-      dateType = 'time';
-    } else if (dataType?.includes('timestamp')) {
-      dateType = 'timestamp';
+    let dateType: "datetime" | "date" | "time" | "timestamp" = "datetime";
+
+    if (dataType?.includes("date") && !dataType?.includes("time")) {
+      dateType = "date";
+    } else if (dataType?.includes("time") && !dataType?.includes("date")) {
+      dateType = "time";
+    } else if (dataType?.includes("timestamp")) {
+      dateType = "timestamp";
     }
 
     return {
-      type: 'datetime',
+      type: "datetime",
       props: {
         type: dateType,
-        includeSeconds: dataType?.includes('timestamp'),
+        includeSeconds: dataType?.includes("timestamp"),
       },
     };
   }
 
   // Numeric fields
   if (
-    type === 'integer' ||
-    type === 'bigInteger' ||
-    type === 'float' ||
-    type === 'decimal' ||
-    dataType?.includes('int') ||
-    dataType?.includes('numeric') ||
-    dataType?.includes('decimal') ||
-    dataType?.includes('float') ||
-    dataType?.includes('double')
+    type === "integer" ||
+    type === "bigInteger" ||
+    type === "float" ||
+    type === "decimal" ||
+    dataType?.includes("int") ||
+    dataType?.includes("numeric") ||
+    dataType?.includes("decimal") ||
+    dataType?.includes("float") ||
+    dataType?.includes("double")
   ) {
     return {
-      type: 'input',
+      type: "input",
       props: {
-        type: type === 'bigInteger' ? 'bigInteger' : type === 'integer' ? 'integer' : 'float',
-        step: dataType?.includes('int') ? 1 : 0.01,
+        type:
+          type === "bigInteger"
+            ? "bigInteger"
+            : type === "integer"
+            ? "integer"
+            : "float",
+        step: dataType?.includes("int") ? 1 : 0.01,
       },
     };
   }
 
   // Text/Long text fields - use textarea
-  if (type === 'text' || dataType === 'text') {
+  if (type === "text" || dataType === "text") {
     return {
-      type: 'input-multiline',
+      type: "input-multiline",
       props: {
         autosize: true,
         minRows: 3,
@@ -561,9 +631,9 @@ function getTypeBasedInterface(
 
   // String/Character varying (default fallback)
   return {
-    type: 'input',
+    type: "input",
     props: {
-      type: 'string',
+      type: "string",
       maxLength: schema?.max_length || undefined,
     },
   };
@@ -574,7 +644,7 @@ function getTypeBasedInterface(
  */
 export interface FieldReadOnlyOptions {
   /** Form context (create or edit) */
-  context: 'create' | 'edit';
+  context: "create" | "edit";
   /** Primary key value: '+' for new record, actual value for existing record */
   primaryKey?: string | number;
 }
@@ -585,21 +655,22 @@ export interface FieldReadOnlyOptions {
  * - Auto-increment primary keys are read-only in both create and edit
  * - UUID primary keys with special behavior are read-only when editing (primaryKey !== '+')
  * - Fields with generated defaults (UUID, timestamps) are read-only
- * 
+ *
  * @param field - Field metadata
  * @param contextOrOptions - Either 'create'/'edit' string or FieldReadOnlyOptions object
  */
 export function isFieldReadOnly(
-  field: Field, 
-  contextOrOptions: 'create' | 'edit' | FieldReadOnlyOptions
+  field: Field,
+  contextOrOptions: "create" | "edit" | FieldReadOnlyOptions,
 ): boolean {
-  const options: FieldReadOnlyOptions = typeof contextOrOptions === 'string' 
-    ? { context: contextOrOptions }
-    : contextOrOptions;
-  
+  const options: FieldReadOnlyOptions =
+    typeof contextOrOptions === "string"
+      ? { context: contextOrOptions }
+      : contextOrOptions;
+
   const { context, primaryKey } = options;
   const { schema, meta } = field;
-  
+
   // Check meta.readonly flag first (explicit readonly from backend/permissions)
   if (meta?.readonly === true) {
     return true;
@@ -615,14 +686,15 @@ export function isFieldReadOnly(
   // 1. Editing existing record (primaryKey !== '+' or context === 'edit')
   // 2. AND field has auto-increment OR special includes 'uuid'
   if (schema?.is_primary_key) {
-    const isNewRecord = primaryKey === '+' || context === 'create';
-    const isAutoGenerated = schema?.has_auto_increment || meta?.special?.includes('uuid');
-    
+    const isNewRecord = primaryKey === "+" || context === "create";
+    const isAutoGenerated =
+      schema?.has_auto_increment || meta?.special?.includes("uuid");
+
     // In edit mode, auto-generated primary keys are always read-only
     if (!isNewRecord && isAutoGenerated) {
       return true;
     }
-    
+
     // In create mode, auto-increment PKs are read-only (handled above)
     // UUID PKs with generated default are also read-only
     if (isNewRecord && isUUIDAutoGenerated(field)) {
@@ -631,7 +703,7 @@ export function isFieldReadOnly(
   }
 
   // Fields with generated defaults (UUID, timestamps) are read-only in create mode
-  if (context === 'create' && hasAutoGeneratedDefault(field)) {
+  if (context === "create" && hasAutoGeneratedDefault(field)) {
     return true;
   }
 
@@ -644,33 +716,33 @@ export function isFieldReadOnly(
  */
 export function isUUIDAutoGenerated(field: Field): boolean {
   const { type, schema, meta } = field;
-  const dataType = schema?.data_type?.toLowerCase() || '';
-  const isUUID = type === 'uuid' || dataType.includes('uuid');
-  
+  const dataType = schema?.data_type?.toLowerCase() || "";
+  const isUUID = type === "uuid" || dataType.includes("uuid");
+
   // UUID primary keys are typically auto-generated (DaaS pattern)
   // Even if default_value is not explicitly set, UUIDs as PKs are generated by the database
   if (isUUID && schema?.is_primary_key) {
     return true;
   }
-  
+
   // Check if it's a UUID type with explicit generated default
   if (schema?.default_value) {
     const defaultVal = String(schema.default_value).toLowerCase();
     if (
-      defaultVal.includes('gen_random_uuid') ||
-      defaultVal.includes('uuid_generate') ||
-      defaultVal.includes('uuid-ossp') ||
-      defaultVal.includes('extensions.uuid')
+      defaultVal.includes("gen_random_uuid") ||
+      defaultVal.includes("uuid_generate") ||
+      defaultVal.includes("uuid-ossp") ||
+      defaultVal.includes("extensions.uuid")
     ) {
       return true;
     }
   }
-  
+
   // Check special behavior flags
-  if (meta?.special?.includes('uuid')) {
+  if (meta?.special?.includes("uuid")) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -679,68 +751,79 @@ export function isUUIDAutoGenerated(field: Field): boolean {
  */
 export function hasAutoGeneratedDefault(field: Field): boolean {
   const { type, schema, meta } = field;
-  
+
   // UUID primary keys are auto-generated (even without explicit default_value)
-  const dataType = schema?.data_type?.toLowerCase() || '';
-  const isUUID = type === 'uuid' || dataType.includes('uuid');
+  const dataType = schema?.data_type?.toLowerCase() || "";
+  const isUUID = type === "uuid" || dataType.includes("uuid");
   if (isUUID && schema?.is_primary_key) {
     return true;
   }
-  
+
   if (!schema?.default_value) {
     return false;
   }
-  
+
   const defaultVal = String(schema.default_value).toLowerCase();
-  
+
   // Check for database-generated values
   if (
-    defaultVal.includes('gen_random_uuid') ||
-    defaultVal.includes('uuid_generate') ||
-    defaultVal.includes('now()') ||
-    defaultVal.includes('current_timestamp') ||
-    defaultVal.includes('nextval(') // PostgreSQL sequences
+    defaultVal.includes("gen_random_uuid") ||
+    defaultVal.includes("uuid_generate") ||
+    defaultVal.includes("now()") ||
+    defaultVal.includes("current_timestamp") ||
+    defaultVal.includes("nextval(") // PostgreSQL sequences
   ) {
     return true;
   }
-  
+
   // Check special behavior flags for auto-generated values
-  const autoGeneratedSpecials = ['uuid', 'date-created', 'date-updated', 'user-created', 'user-updated'];
+  const autoGeneratedSpecials = [
+    "uuid",
+    "date-created",
+    "date-updated",
+    "user-created",
+    "user-updated",
+  ];
   if (meta?.special?.some((s: string) => autoGeneratedSpecials.includes(s))) {
     return true;
   }
-  
+
   return false;
 }
 
 /**
  * Get the auto-generation type for display purposes
  */
-export function getAutoGenerationType(field: Field): 'auto-increment' | 'uuid' | 'timestamp' | 'user' | null {
+export function getAutoGenerationType(
+  field: Field,
+): "auto-increment" | "uuid" | "timestamp" | "user" | null {
   const { schema, meta } = field;
-  
+
   if (schema?.has_auto_increment) {
-    return 'auto-increment';
+    return "auto-increment";
   }
-  
+
   if (isUUIDAutoGenerated(field)) {
-    return 'uuid';
+    return "uuid";
   }
-  
-  const defaultVal = String(schema?.default_value || '').toLowerCase();
+
+  const defaultVal = String(schema?.default_value || "").toLowerCase();
   if (
-    defaultVal.includes('now()') ||
-    defaultVal.includes('current_timestamp') ||
-    meta?.special?.includes('date-created') ||
-    meta?.special?.includes('date-updated')
+    defaultVal.includes("now()") ||
+    defaultVal.includes("current_timestamp") ||
+    meta?.special?.includes("date-created") ||
+    meta?.special?.includes("date-updated")
   ) {
-    return 'timestamp';
+    return "timestamp";
   }
-  
-  if (meta?.special?.includes('user-created') || meta?.special?.includes('user-updated')) {
-    return 'user';
+
+  if (
+    meta?.special?.includes("user-created") ||
+    meta?.special?.includes("user-updated")
+  ) {
+    return "user";
   }
-  
+
   return null;
 }
 
@@ -759,8 +842,12 @@ export function getFieldValidation(field: Field): {
   return {
     required: schema?.is_nullable === false && !schema?.default_value,
     maxLength: schema?.max_length || undefined,
-    min: schema?.numeric_precision ? -Math.pow(10, schema.numeric_precision) : undefined,
-    max: schema?.numeric_precision ? Math.pow(10, schema.numeric_precision) : undefined,
+    min: schema?.numeric_precision
+      ? -Math.pow(10, schema.numeric_precision)
+      : undefined,
+    max: schema?.numeric_precision
+      ? Math.pow(10, schema.numeric_precision)
+      : undefined,
   };
 }
 
@@ -778,17 +865,17 @@ export function getFieldDefault(field: Field): unknown {
 
   // Handle function-generated defaults (don't use them as form defaults)
   if (
-    defaultValue.includes('(') ||
-    defaultValue.includes('gen_random_uuid') ||
-    defaultValue.includes('now()') ||
-    defaultValue.includes('CURRENT_TIMESTAMP')
+    defaultValue.includes("(") ||
+    defaultValue.includes("gen_random_uuid") ||
+    defaultValue.includes("now()") ||
+    defaultValue.includes("CURRENT_TIMESTAMP")
   ) {
     return undefined;
   }
 
   // Handle boolean defaults
-  if (defaultValue === 'true') return true;
-  if (defaultValue === 'false') return false;
+  if (defaultValue === "true") return true;
+  if (defaultValue === "false") return false;
 
   // Handle numeric defaults
   if (!isNaN(Number(defaultValue))) {
@@ -808,41 +895,41 @@ export function getFieldDefault(field: Field): unknown {
  */
 export function formatFieldValue(value: unknown, field: Field): string {
   if (value === null || value === undefined) {
-    return '';
+    return "";
   }
 
   const { type, schema } = field;
 
   // UUID - show shortened version
-  if (type === 'uuid' && typeof value === 'string') {
+  if (type === "uuid" && typeof value === "string") {
     return `${value.substring(0, 8)}...`;
   }
 
   // Boolean - show Yes/No
-  if (type === 'boolean' || schema?.data_type === 'boolean') {
-    return value ? 'Yes' : 'No';
+  if (type === "boolean" || schema?.data_type === "boolean") {
+    return value ? "Yes" : "No";
   }
 
   // JSON - show formatted
   if (
-    type === 'json' ||
-    schema?.data_type === 'json' ||
-    schema?.data_type === 'jsonb'
+    type === "json" ||
+    schema?.data_type === "json" ||
+    schema?.data_type === "jsonb"
   ) {
-    if (typeof value === 'object') {
+    if (typeof value === "object") {
       return JSON.stringify(value, null, 2);
     }
   }
 
   // Timestamp/Date - show formatted
   if (
-    type === 'timestamp' ||
-    type === 'datetime' ||
-    type === 'date' ||
-    schema?.data_type?.includes('timestamp') ||
-    schema?.data_type?.includes('date')
+    type === "timestamp" ||
+    type === "datetime" ||
+    type === "date" ||
+    schema?.data_type?.includes("timestamp") ||
+    schema?.data_type?.includes("date")
   ) {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       try {
         return new Date(value).toLocaleString();
       } catch {
@@ -861,8 +948,10 @@ export function formatFieldValue(value: unknown, field: Field): string {
  */
 export function isPresentationField(field: Field): boolean {
   const interfaceType = field.meta?.interface;
-  
-  return interfaceType === 'presentation-divider' || 
-         interfaceType === 'presentation-notice' ||
-         interfaceType === 'presentation-links';
+
+  return (
+    interfaceType === "presentation-divider" ||
+    interfaceType === "presentation-notice" ||
+    interfaceType === "presentation-links"
+  );
 }

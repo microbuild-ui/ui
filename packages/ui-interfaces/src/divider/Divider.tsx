@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Box, Text, useMantineTheme } from '@mantine/core';
+import { Box, Text, useMantineTheme } from "@mantine/core";
+import React from "react";
 
 export interface DividerProps {
   /** Title content for the divider */
   title?: string;
-  /** Icon to display before the title */
-  icon?: React.ReactNode;
+  /** Icon to display before the title (ReactNode for JSX; string values from backend options are ignored) */
+  icon?: string | React.ReactNode;
   /** Whether the divider is vertical */
   vertical?: boolean;
   /** Whether the title is displayed inline with the divider line */
@@ -25,44 +25,44 @@ export interface DividerProps {
   /** Margin around the divider */
   margin?: number | string;
   /** Test ID for testing purposes */
-  'data-testid'?: string;
+  "data-testid"?: string;
 }
 
 /**
  * Divider Interface Component
- * 
+ *
  * A flexible divider component that supports:
  * - Horizontal and vertical orientations
  * - Optional title/label with icon
  * - Inline or stacked title positioning
  * - Large styling variant
  * - Customizable colors and thickness
- * 
+ *
  * Matches the DaaS divider interface functionality.
- * 
+ *
  * @example
  * // Simple horizontal divider
  * <Divider />
- * 
+ *
  * @example
  * // Divider with title
  * <Divider title="Section Title" />
- * 
+ *
  * @example
  * // Inline title with icon
  * <Divider title="Settings" icon={<IconSettings />} inlineTitle />
- * 
+ *
  * @example
  * // Vertical divider
  * <Divider vertical />
- * 
+ *
  * @example
  * // Large styled divider
  * <Divider title="Main Section" large />
  */
 export const Divider: React.FC<DividerProps> = ({
   title,
-  icon,
+  icon: iconProp,
   vertical = false,
   inlineTitle = false,
   large = false,
@@ -71,39 +71,43 @@ export const Divider: React.FC<DividerProps> = ({
   labelColor,
   thickness,
   margin,
-  'data-testid': testId,
+  "data-testid": testId,
 }) => {
   const theme = useMantineTheme();
-  
+
+  // Normalize icon: string values from backend options cannot be rendered as React components
+  const icon = typeof iconProp === "string" ? undefined : iconProp;
+
   // Use title as the text content
   const textContent = title;
   const hasContent = Boolean(textContent || icon);
-  
+
   // Determine colors
   const dividerColor = color || theme.colors.gray[3];
-  const textColor = labelColor || (disabled ? theme.colors.gray[5] : theme.colors.gray[7]);
+  const textColor =
+    labelColor || (disabled ? theme.colors.gray[5] : theme.colors.gray[7]);
   const dividerThickness = thickness || 1;
-  
+
   // Vertical divider styling
   if (vertical) {
     return (
       <Box
         data-testid={testId}
         style={{
-          display: 'inline-flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          alignSelf: 'stretch',
-          height: '100%',
-          margin: typeof margin === 'number' ? margin : undefined,
+          display: "inline-flex",
+          flexDirection: "column",
+          alignItems: "center",
+          alignSelf: "stretch",
+          height: "100%",
+          margin: typeof margin === "number" ? margin : undefined,
         }}
         aria-orientation="vertical"
       >
         {hasContent && (
           <Box
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 4,
               marginBottom: 8,
               color: textColor,
@@ -111,16 +115,16 @@ export const Divider: React.FC<DividerProps> = ({
             data-testid={testId ? `${testId}-wrapper` : undefined}
           >
             {icon && (
-              <Box 
+              <Box
                 data-testid={testId ? `${testId}-icon` : undefined}
-                style={{ display: 'flex', alignItems: 'center' }}
+                style={{ display: "flex", alignItems: "center" }}
               >
                 {icon}
               </Box>
             )}
             {textContent && (
               <Text
-                size={large ? 'xl' : 'sm'}
+                size={large ? "xl" : "sm"}
                 fw={large ? 700 : 600}
                 c={textColor}
                 data-testid={testId ? `${testId}-label` : undefined}
@@ -147,25 +151,25 @@ export const Divider: React.FC<DividerProps> = ({
       </Box>
     );
   }
-  
+
   // Horizontal divider with inline title
   if (inlineTitle && hasContent) {
     return (
       <Box
         data-testid={testId}
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          overflow: 'visible',
-          margin: typeof margin === 'number' ? margin : undefined,
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          overflow: "visible",
+          margin: typeof margin === "number" ? margin : undefined,
         }}
         aria-orientation="horizontal"
       >
         <Box
           style={{
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 4,
             marginRight: 8,
             color: textColor,
@@ -173,12 +177,12 @@ export const Divider: React.FC<DividerProps> = ({
           data-testid={testId ? `${testId}-wrapper` : undefined}
         >
           {icon && (
-            <Box 
+            <Box
               data-testid={testId ? `${testId}-icon` : undefined}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                transform: 'translateY(-1px)',
+              style={{
+                display: "flex",
+                alignItems: "center",
+                transform: "translateY(-1px)",
               }}
             >
               {icon}
@@ -186,13 +190,13 @@ export const Divider: React.FC<DividerProps> = ({
           )}
           {textContent && (
             <Text
-              size={large ? 'xl' : 'sm'}
+              size={large ? "xl" : "sm"}
               fw={large ? 700 : 600}
               c={textColor}
               data-testid={testId ? `${testId}-label` : undefined}
               style={{
                 fontFamily: large ? theme.headings.fontFamily : undefined,
-                transition: 'color 150ms ease',
+                transition: "color 150ms ease",
               }}
             >
               {textContent}
@@ -212,37 +216,37 @@ export const Divider: React.FC<DividerProps> = ({
       </Box>
     );
   }
-  
+
   // Horizontal divider with stacked title (not inline)
   if (!inlineTitle && hasContent) {
     return (
       <Box
         data-testid={testId}
         style={{
-          flex: '1 1 0',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          overflow: 'visible',
-          margin: typeof margin === 'number' ? margin : undefined,
+          flex: "1 1 0",
+          flexWrap: "wrap",
+          alignItems: "center",
+          overflow: "visible",
+          margin: typeof margin === "number" ? margin : undefined,
         }}
         aria-orientation="horizontal"
       >
         <Box
           style={{
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 4,
             color: textColor,
           }}
           data-testid={testId ? `${testId}-wrapper` : undefined}
         >
           {icon && (
-            <Box 
+            <Box
               data-testid={testId ? `${testId}-icon` : undefined}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                transform: 'translateY(-1px)',
+              style={{
+                display: "flex",
+                alignItems: "center",
+                transform: "translateY(-1px)",
               }}
             >
               {icon}
@@ -250,14 +254,14 @@ export const Divider: React.FC<DividerProps> = ({
           )}
           {textContent && (
             <Text
-              size={large ? 'xl' : 'sm'}
+              size={large ? "xl" : "sm"}
               fw={large ? 700 : 600}
               c={textColor}
               data-testid={testId ? `${testId}-label` : undefined}
               style={{
-                width: '100%',
+                width: "100%",
                 fontFamily: large ? theme.headings.fontFamily : undefined,
-                transition: 'color 150ms ease',
+                transition: "color 150ms ease",
               }}
             >
               {textContent}
@@ -268,7 +272,7 @@ export const Divider: React.FC<DividerProps> = ({
           data-testid={testId ? `${testId}-line` : undefined}
           style={{
             flexGrow: 1,
-            maxWidth: '100%',
+            maxWidth: "100%",
             marginTop: 8,
             height: dividerThickness,
             backgroundColor: dividerColor,
@@ -279,21 +283,21 @@ export const Divider: React.FC<DividerProps> = ({
       </Box>
     );
   }
-  
+
   // Simple horizontal divider (no content)
   return (
     <Box
       data-testid={testId}
       style={{
-        width: '100%',
-        margin: typeof margin === 'number' ? margin : undefined,
+        width: "100%",
+        margin: typeof margin === "number" ? margin : undefined,
       }}
       aria-orientation="horizontal"
     >
       <Box
         data-testid={testId ? `${testId}-line` : undefined}
         style={{
-          width: '100%',
+          width: "100%",
           height: dividerThickness,
           backgroundColor: dividerColor,
         }}
