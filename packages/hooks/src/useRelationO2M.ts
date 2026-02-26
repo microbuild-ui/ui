@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FieldsService, ItemsService, apiRequest } from '@microbuild/services';
-import type { Field } from '@microbuild/types';
+import { FieldsService, apiRequest } from "@microbuild/services";
+import type { Field } from "@microbuild/types";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * Information about a One-to-Many relationship
@@ -41,14 +41,16 @@ export interface O2MRelationInfo {
 
 /**
  * Custom hook for managing One-to-Many (O2M) relationship information
- * 
+ *
  * In O2M relationships:
  * - The RELATED collection has a foreign key pointing to the CURRENT collection
  * - MULTIPLE related items can exist for a single parent item
  * - Example: A "category" has MANY "posts" (posts have category_id foreign key)
  */
 export function useRelationO2M(collection: string, field: string) {
-  const [relationInfo, setRelationInfo] = useState<O2MRelationInfo | null>(null);
+  const [relationInfo, setRelationInfo] = useState<O2MRelationInfo | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,16 +80,20 @@ export function useRelationO2M(collection: string, field: string) {
 
         // Check if this is an O2M interface
         const interfaceType = currentField.meta?.interface;
-        if (interfaceType !== 'list-o2m' && interfaceType !== 'one-to-many') {
-          setError(`Field "${field}" is not configured as a list-o2m interface`);
+        if (interfaceType !== "list-o2m" && interfaceType !== "one-to-many") {
+          setError(
+            `Field "${field}" is not configured as a list-o2m interface`,
+          );
           setRelationInfo(null);
           setLoading(false);
           return;
         }
 
         // Get the related collection and reverse field from field options
-        const fieldOptions = currentField.meta?.options as Record<string, unknown> | undefined;
-        let relatedCollectionName: string | null = 
+        const fieldOptions = currentField.meta?.options as
+          | Record<string, unknown>
+          | undefined;
+        let relatedCollectionName: string | null =
           (fieldOptions?.related_collection as string | undefined) ||
           (fieldOptions?.relatedCollection as string | undefined) ||
           null;
@@ -117,23 +123,33 @@ export function useRelationO2M(collection: string, field: string) {
                 many_field?: string;
               };
             }
-            const relationsData = await apiRequest<{ data: RelationData[] }>(`/api/relations`);
-            
-            const o2mRelation = relationsData.data?.find(
-              (r) => r.meta?.one_collection === collection && r.meta?.one_field === field
+            const relationsData = await apiRequest<{ data: RelationData[] }>(
+              `/api/relations`,
             );
-            
+
+            const o2mRelation = relationsData.data?.find(
+              (r) =>
+                r.meta?.one_collection === collection &&
+                r.meta?.one_field === field,
+            );
+
             if (o2mRelation) {
-              relatedCollectionName = relatedCollectionName || o2mRelation.meta?.many_collection || null;
-              reverseFieldName = reverseFieldName || o2mRelation.meta?.many_field || null;
+              relatedCollectionName =
+                relatedCollectionName ||
+                o2mRelation.meta?.many_collection ||
+                null;
+              reverseFieldName =
+                reverseFieldName || o2mRelation.meta?.many_field || null;
             }
-            
+
             // Auto-discover FK field if needed
             if (relatedCollectionName && !reverseFieldName) {
               const m2oRelation = relationsData.data?.find(
-                (r) => r.collection === relatedCollectionName && r.related_collection === collection
+                (r) =>
+                  r.collection === relatedCollectionName &&
+                  r.related_collection === collection,
               );
-              
+
               if (m2oRelation) {
                 reverseFieldName = m2oRelation.field || null;
               }
@@ -165,15 +181,15 @@ export function useRelationO2M(collection: string, field: string) {
           },
           reverseJunctionField: {
             field: reverseFieldName,
-            type: 'uuid',
+            type: "uuid",
           },
           relatedPrimaryKeyField: {
-            field: 'id',
-            type: 'uuid',
+            field: "id",
+            type: "uuid",
           },
           parentPrimaryKeyField: {
-            field: 'id',
-            type: 'uuid',
+            field: "id",
+            type: "uuid",
           },
           sortField: sortFieldName,
           displayTemplate: fieldOptions?.template as string | undefined,
@@ -187,7 +203,10 @@ export function useRelationO2M(collection: string, field: string) {
 
         setRelationInfo(info);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load relationship configuration';
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Failed to load relationship configuration";
         setError(errorMessage);
         setRelationInfo(null);
       } finally {
@@ -211,7 +230,7 @@ export function useRelationO2M(collection: string, field: string) {
 export interface O2MItem {
   id: string | number;
   $index?: number;
-  $type?: 'created' | 'updated' | 'deleted' | 'staged';
+  $type?: "created" | "updated" | "deleted" | "staged";
   $edits?: Record<string, unknown>;
   [key: string]: unknown;
 }
@@ -224,7 +243,7 @@ export interface O2MQueryParams {
   page?: number;
   search?: string;
   sortField?: string;
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: "asc" | "desc";
   fields?: string[];
   filter?: Record<string, unknown>;
 }
@@ -234,7 +253,7 @@ export interface O2MQueryParams {
  */
 export function useRelationO2MItems(
   relationInfo: O2MRelationInfo | null,
-  parentPrimaryKey: string | number | null
+  parentPrimaryKey: string | number | null,
 ) {
   const [items, setItems] = useState<O2MItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -242,191 +261,236 @@ export function useRelationO2MItems(
   const [error, setError] = useState<string | null>(null);
 
   // Load items from the related collection
-  const loadItems = useCallback(async (params?: O2MQueryParams) => {
-    if (!relationInfo || !parentPrimaryKey) {
-      setItems([]);
-      setTotalCount(0);
-      return;
-    }
+  const loadItems = useCallback(
+    async (params?: O2MQueryParams) => {
+      if (!relationInfo || !parentPrimaryKey) {
+        setItems([]);
+        setTotalCount(0);
+        return;
+      }
 
-    try {
-      setLoading(true);
-      setError(null);
+      try {
+        setLoading(true);
+        setError(null);
 
-      const query: Record<string, unknown> = {
-        limit: params?.limit || 15,
-        page: params?.page || 1,
-        filter: {
-          [relationInfo.reverseJunctionField.field]: {
-            _eq: parentPrimaryKey
-          }
-        },
-        meta: ['total_count', 'filter_count'],
-      };
-
-      if (params?.filter) {
-        query.filter = {
-          _and: [
-            query.filter,
-            params.filter
-          ]
+        const query: Record<string, unknown> = {
+          limit: params?.limit || 15,
+          page: params?.page || 1,
+          filter: {
+            [relationInfo.reverseJunctionField.field]: {
+              _eq: parentPrimaryKey,
+            },
+          },
+          meta: ["total_count", "filter_count"],
         };
+
+        if (params?.filter) {
+          query.filter = {
+            _and: [query.filter, params.filter],
+          };
+        }
+
+        if (params?.fields && params.fields.length > 0) {
+          query.fields = params.fields.join(",");
+        }
+
+        if (params?.search) {
+          query.search = params.search;
+        }
+
+        if (params?.sortField) {
+          query.sort =
+            params.sortDirection === "desc"
+              ? `-${params.sortField}`
+              : params.sortField;
+        } else if (relationInfo.sortField) {
+          query.sort = relationInfo.sortField;
+        }
+
+        const queryString = new URLSearchParams(
+          Object.entries(query)
+            .filter(([, v]) => v !== undefined && v !== null)
+            .map(([k, v]) => [
+              k,
+              typeof v === "object" ? JSON.stringify(v) : String(v),
+            ]),
+        ).toString();
+
+        const data = await apiRequest<{
+          data: O2MItem[];
+          meta?: { total_count?: number; filter_count?: number };
+        }>(
+          `/api/items/${relationInfo.relatedCollection.collection}?${queryString}`,
+        );
+
+        setItems(data.data || []);
+        setTotalCount(
+          data.meta?.total_count ||
+            data.meta?.filter_count ||
+            data.data?.length ||
+            0,
+        );
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load related items";
+        setError(errorMessage);
+        setItems([]);
+        setTotalCount(0);
+      } finally {
+        setLoading(false);
       }
-
-      if (params?.fields && params.fields.length > 0) {
-        query.fields = params.fields.join(',');
-      }
-
-      if (params?.search) {
-        query.search = params.search;
-      }
-
-      if (params?.sortField) {
-        query.sort = params.sortDirection === 'desc' 
-          ? `-${params.sortField}` 
-          : params.sortField;
-      } else if (relationInfo.sortField) {
-        query.sort = relationInfo.sortField;
-      }
-
-      const queryString = new URLSearchParams(
-        Object.entries(query)
-          .filter(([, v]) => v !== undefined && v !== null)
-          .map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)])
-      ).toString();
-
-      const data = await apiRequest<{ data: O2MItem[]; meta?: { total_count?: number; filter_count?: number } }>(
-        `/api/items/${relationInfo.relatedCollection.collection}?${queryString}`
-      );
-
-      setItems(data.data || []);
-      setTotalCount(data.meta?.total_count || data.meta?.filter_count || data.data?.length || 0);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load related items';
-      setError(errorMessage);
-      setItems([]);
-      setTotalCount(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [relationInfo, parentPrimaryKey]);
+    },
+    [relationInfo, parentPrimaryKey],
+  );
 
   // Create a new item
-  const createItem = useCallback(async (data: Partial<O2MItem>): Promise<O2MItem | null> => {
-    if (!relationInfo || !parentPrimaryKey) return null;
+  const createItem = useCallback(
+    async (data: Partial<O2MItem>): Promise<O2MItem | null> => {
+      if (!relationInfo || !parentPrimaryKey) return null;
 
-    try {
-      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
-      
+      const collection = relationInfo.relatedCollection.collection;
       const itemData = {
         ...data,
         [relationInfo.reverseJunctionField.field]: parentPrimaryKey,
       };
 
-      const id = await itemsService.createOne(itemData);
-      const createdItem = await itemsService.readOne(id);
-      return createdItem as O2MItem;
-    } catch (err) {
-      throw err;
-    }
-  }, [relationInfo, parentPrimaryKey]);
+      const created = await apiRequest<{ data: O2MItem }>(
+        `/api/items/${collection}`,
+        { method: "POST", body: JSON.stringify(itemData) },
+      );
+      const id = created.data?.id;
+      const fetched = await apiRequest<{ data: O2MItem }>(
+        `/api/items/${collection}/${id}`,
+      );
+      return fetched.data as O2MItem;
+    },
+    [relationInfo, parentPrimaryKey],
+  );
 
   // Update an existing item
-  const updateItem = useCallback(async (id: string | number, data: Partial<O2MItem>): Promise<O2MItem | null> => {
-    if (!relationInfo) return null;
+  const updateItem = useCallback(
+    async (
+      id: string | number,
+      data: Partial<O2MItem>,
+    ): Promise<O2MItem | null> => {
+      if (!relationInfo) return null;
 
-    try {
-      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
-      await itemsService.updateOne(id, data);
-      const updatedItem = await itemsService.readOne(id);
-      return updatedItem as O2MItem;
-    } catch (err) {
-      throw err;
-    }
-  }, [relationInfo]);
+      const collection = relationInfo.relatedCollection.collection;
+      await apiRequest(`/api/items/${collection}/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+      const fetched = await apiRequest<{ data: O2MItem }>(
+        `/api/items/${collection}/${id}`,
+      );
+      return fetched.data as O2MItem;
+    },
+    [relationInfo],
+  );
 
   // Remove (unlink) an item
-  const removeItem = useCallback(async (item: O2MItem): Promise<void> => {
-    if (!relationInfo) return;
+  const removeItem = useCallback(
+    async (item: O2MItem): Promise<void> => {
+      if (!relationInfo) return;
 
-    try {
-      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
-      await itemsService.updateOne(item.id, {
-        [relationInfo.reverseJunctionField.field]: null,
-      });
-      setItems(prev => prev.filter(i => i.id !== item.id));
-      setTotalCount(prev => Math.max(0, prev - 1));
-    } catch (err) {
-      throw err;
-    }
-  }, [relationInfo]);
+      await apiRequest(
+        `/api/items/${relationInfo.relatedCollection.collection}/${item.id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            [relationInfo.reverseJunctionField.field]: null,
+          }),
+        },
+      );
+      setItems((prev) => prev.filter((i) => i.id !== item.id));
+      setTotalCount((prev) => Math.max(0, prev - 1));
+    },
+    [relationInfo],
+  );
 
   // Delete an item completely
-  const deleteItem = useCallback(async (item: O2MItem): Promise<void> => {
-    if (!relationInfo) return;
+  const deleteItem = useCallback(
+    async (item: O2MItem): Promise<void> => {
+      if (!relationInfo) return;
 
-    try {
-      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
-      await itemsService.deleteOne(item.id);
-      setItems(prev => prev.filter(i => i.id !== item.id));
-      setTotalCount(prev => Math.max(0, prev - 1));
-    } catch (err) {
-      throw err;
-    }
-  }, [relationInfo]);
+      await apiRequest(
+        `/api/items/${relationInfo.relatedCollection.collection}/${item.id}`,
+        { method: "DELETE" },
+      );
+      setItems((prev) => prev.filter((i) => i.id !== item.id));
+      setTotalCount((prev) => Math.max(0, prev - 1));
+    },
+    [relationInfo],
+  );
 
   // Link existing items
-  const selectItems = useCallback(async (itemIds: (string | number)[]): Promise<void> => {
-    if (!relationInfo || !parentPrimaryKey) return;
+  const selectItems = useCallback(
+    async (itemIds: (string | number)[]): Promise<void> => {
+      if (!relationInfo || !parentPrimaryKey) return;
 
-    try {
-      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      const collection = relationInfo.relatedCollection.collection;
       await Promise.all(
-        itemIds.map(id => 
-          itemsService.updateOne(id, {
-            [relationInfo.reverseJunctionField.field]: parentPrimaryKey,
-          })
-        )
+        itemIds.map((id) =>
+          apiRequest(`/api/items/${collection}/${id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              [relationInfo.reverseJunctionField.field]: parentPrimaryKey,
+            }),
+          }),
+        ),
       );
-    } catch (err) {
-      throw err;
-    }
-  }, [relationInfo, parentPrimaryKey]);
+    },
+    [relationInfo, parentPrimaryKey],
+  );
 
   // Reorder items
-  const reorderItems = useCallback(async (reorderedItems: O2MItem[]): Promise<void> => {
-    if (!relationInfo?.sortField) return;
+  const reorderItems = useCallback(
+    async (reorderedItems: O2MItem[]): Promise<void> => {
+      if (!relationInfo?.sortField) return;
 
-    try {
-      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
+      const collection = relationInfo.relatedCollection.collection;
       await Promise.all(
-        reorderedItems.map((item, index) => 
-          itemsService.updateOne(item.id, {
-            [relationInfo.sortField!]: index + 1,
-          })
-        )
+        reorderedItems.map((item, index) =>
+          apiRequest(`/api/items/${collection}/${item.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              [relationInfo.sortField!]: index + 1,
+            }),
+          }),
+        ),
       );
       setItems(reorderedItems);
-    } catch (err) {
-      throw err;
-    }
-  }, [relationInfo]);
+    },
+    [relationInfo],
+  );
 
   // Move item up
-  const moveItemUp = useCallback(async (index: number): Promise<void> => {
-    if (index <= 0 || !relationInfo?.sortField) return;
-    const newItems = [...items];
-    [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
-    await reorderItems(newItems);
-  }, [items, relationInfo, reorderItems]);
+  const moveItemUp = useCallback(
+    async (index: number): Promise<void> => {
+      if (index <= 0 || !relationInfo?.sortField) return;
+      const newItems = [...items];
+      [newItems[index - 1], newItems[index]] = [
+        newItems[index],
+        newItems[index - 1],
+      ];
+      await reorderItems(newItems);
+    },
+    [items, relationInfo, reorderItems],
+  );
 
   // Move item down
-  const moveItemDown = useCallback(async (index: number): Promise<void> => {
-    if (index >= items.length - 1 || !relationInfo?.sortField) return;
-    const newItems = [...items];
-    [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
-    await reorderItems(newItems);
-  }, [items, relationInfo, reorderItems]);
+  const moveItemDown = useCallback(
+    async (index: number): Promise<void> => {
+      if (index >= items.length - 1 || !relationInfo?.sortField) return;
+      const newItems = [...items];
+      [newItems[index], newItems[index + 1]] = [
+        newItems[index + 1],
+        newItems[index],
+      ];
+      await reorderItems(newItems);
+    },
+    [items, relationInfo, reorderItems],
+  );
 
   return {
     items,

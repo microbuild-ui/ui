@@ -3,7 +3,7 @@
  *
  * A dynamic list/table that fetches items from a collection.
  * Composes VTable for presentation (sorting, resize, reorder, selection)
- * with data fetching from FieldsService/ItemsService.
+ * with data fetching from FieldsService/apiRequest.
  *
  * Used by ListO2M and ListM2M for selecting existing items,
  * and by content module pages for collection list views.
@@ -27,8 +27,8 @@ import {
 } from "@mantine/core";
 import {
   FieldsService,
-  ItemsService,
   PermissionsService,
+  apiRequest,
 } from "@microbuild/services";
 import type { AnyItem, Field } from "@microbuild/types";
 import type { Alignment, Header, HeaderRaw, Sort } from "@microbuild/ui-table";
@@ -249,7 +249,6 @@ export const CollectionList: React.FC<CollectionListProps> = ({
       setLoading(true);
       setError(null);
 
-      const itemsService = new ItemsService(collection);
       const query: Record<string, unknown> = {
         limit,
         page,
@@ -278,9 +277,26 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         query.sort = sort.desc ? `-${sort.by}` : sort.by;
       }
 
-      const result = await itemsService.readByQuery(query);
-      setItems(result || []);
-      setTotalCount(result.length || 0);
+      const queryString = new URLSearchParams(
+        Object.entries(query)
+          .filter(([, v]) => v !== undefined && v !== null)
+          .map(([k, v]) => [
+            k,
+            typeof v === "object" ? JSON.stringify(v) : String(v),
+          ]),
+      ).toString();
+
+      const response = await apiRequest<{
+        data: Record<string, unknown>[];
+        meta?: { total_count?: number; filter_count?: number };
+      }>(`/api/items/${collection}${queryString ? `?${queryString}` : ""}`);
+      setItems(response.data || []);
+      setTotalCount(
+        response.meta?.total_count ||
+          response.meta?.filter_count ||
+          response.data?.length ||
+          0,
+      );
     } catch (err) {
       console.error("Error loading items:", err);
       setError(err instanceof Error ? err.message : "Failed to load items");
@@ -462,7 +478,9 @@ export const CollectionList: React.FC<CollectionListProps> = ({
             <div
               key={align}
               role="menuitem"
-              className={`mantine-Menu-item collection-list-context-menu-item${header.align === align ? " active" : ""}`}
+              className={`mantine-Menu-item collection-list-context-menu-item${
+                header.align === align ? " active" : ""
+              }`}
               onClick={() => handleAlignChange(header.value, align)}
             >
               {icon}
@@ -608,7 +626,6 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         renderHeaderAppend={enableAddField ? renderHeaderAppend : undefined}
         renderFooter={() => (
           <div className="collection-list-footer">
-
             <Text size="sm" c="dimmed">
               {loading
                 ? "Loading..."

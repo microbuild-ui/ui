@@ -8,7 +8,6 @@
 export { apiRequest, type ApiRequestOptions } from "./api-request";
 export { CollectionsService, createCollectionsService } from "./collections";
 export { FieldsService, createFieldsService } from "./fields";
-export { ItemsService, createItemsService } from "./items";
 export {
   PermissionsService,
   createPermissionsService,
