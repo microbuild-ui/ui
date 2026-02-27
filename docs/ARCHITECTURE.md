@@ -336,7 +336,7 @@ registry.ts
 │   ├── @buildpad/types
 │   │   └── exports: [Field, Collection, ...]
 │   ├── @buildpad/services
-│   │   └── exports: [ItemsService, DaaSProvider, ...]
+│   │   └── exports: [FieldsService, CollectionsService, DaaSProvider, ...]
 │   ├── @buildpad/hooks
 │   │   └── exports: [useAuth, usePermissions, useRelationM2M, ...]
 │   ├── @buildpad/ui-interfaces

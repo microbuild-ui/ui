@@ -5,7 +5,7 @@
  *
  * Integrates with:
  * - @buildpad/types for data types
- * - @buildpad/services for ItemsService API calls and DaaS context
+ * - @buildpad/services for API calls and DaaS context
  * - @buildpad/hooks for data management hooks
  *
  * Features:

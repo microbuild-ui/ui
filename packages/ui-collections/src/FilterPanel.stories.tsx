@@ -53,7 +53,7 @@ const meta = {
       description: {
         component:
           'A field-type-aware filter builder. Produces DaaS-compatible filter objects ' +
-          '(`{ _and: [...] }`) for use with CollectionList or ItemsService.',
+          '(`{ _and: [...] }`) for use with CollectionList or direct API queries.',
       },
     },
   },

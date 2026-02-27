@@ -53,7 +53,7 @@ export default function ArchitecturePage() {
             </tr>
             <tr>
               <td><code>@buildpad/services</code></td>
-              <td>CRUD services (ItemsService, FieldsService) + DaaS API config</td>
+              <td>Services (FieldsService, CollectionsService) + DaaS API config</td>
             </tr>
             <tr>
               <td><code>@buildpad/hooks</code></td>

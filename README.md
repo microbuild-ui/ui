@@ -111,11 +111,10 @@ import {
 
 ### @buildpad/services
 
-Service classes for CRUD operations on DaaS collections, plus DaaS API configuration and authentication.
+Service classes for DaaS API configuration and authentication.
 
 **Available Services:**
 
-- `ItemsService` - Generic CRUD for any collection
 - `FieldsService` - Read field definitions
 - `CollectionsService` - Read collection metadata
 - `PermissionsService` - Field-level permissions
@@ -144,12 +143,7 @@ Service classes for CRUD operations on DaaS collections, plus DaaS API configura
 **Usage:**
 
 ```tsx
-import { ItemsService, FieldsService } from "@buildpad/services";
-
-const itemsService = new ItemsService("products");
-const items = await itemsService.readByQuery({
-  filter: { status: { _eq: "published" } },
-});
+import { FieldsService } from "@buildpad/services";
 
 const fieldsService = new FieldsService();
 const fields = await fieldsService.readAll("products");

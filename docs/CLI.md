@@ -40,7 +40,7 @@ buildpad outdated                # Check for component updates
 | **ui-table** | `packages/ui-table/src/` | VTable dynamic table component with DaaS playground |
 | **ui-collections** | `packages/ui-collections/src/` | CollectionForm, CollectionList, ContentLayout, ContentNavigation, FilterPanel, SaveOptions |
 | **types** | `packages/types/src/` | TypeScript type definitions |
-| **services** | `packages/services/src/` | API services (ItemsService, DaaSProvider, etc.) |
+| **services** | `packages/services/src/` | API services (FieldsService, CollectionsService, DaaSProvider, etc.) |
 | **hooks** | `packages/hooks/src/` | React hooks (useAuth, usePermissions, useRelationM2M, etc.) |
 | **utils** | `packages/utils/src/` | Utility functions (field-interface-mapper) |
 
