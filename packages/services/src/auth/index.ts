@@ -1,10 +1,10 @@
 /**
- * @microbuild/services/auth
+ * @buildpad/services/auth
  * 
  * Authentication and authorization utilities for DaaS applications.
  * Provides reusable session management, permission enforcement, and filter utilities.
  * 
- * @module @microbuild/services/auth
+ * @module @buildpad/services/auth
  */
 
 export {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { buildApiUrl, getApiHeaders, apiRequest } from '@microbuild/services';
+import { buildApiUrl, getApiHeaders, apiRequest } from '@buildpad/services';
 
 /**
  * File upload options

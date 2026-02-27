@@ -1,5 +1,5 @@
-import { FieldsService } from "@microbuild/services";
-import type { Field } from "@microbuild/types";
+import { FieldsService } from "@buildpad/services";
+import type { Field } from "@buildpad/types";
 import { useCallback, useEffect, useState } from "react";
 import { apiRequest } from "./utils";
 

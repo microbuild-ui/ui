@@ -6,8 +6,8 @@
  * 
  * Pattern: Browser → Next.js API Route → DaaS Backend → Supabase Auth
  * 
- * @microbuild/origin: api-routes/auth-login
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/auth-login
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

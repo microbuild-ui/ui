@@ -14,7 +14,7 @@ import { createContext, useContext, useMemo, useState, useEffect, useCallback, t
  * 3. JWT Bearer Tokens - For API clients with Supabase Auth
  */
 export interface DaaSConfig {
-  /** DaaS API base URL (e.g., https://xxx.microbuild-daas.xtremax.com) */
+  /** DaaS API base URL (e.g., https://xxx.buildpad-daas.xtremax.com) */
   url: string;
   /** Static authentication token for API access */
   token: string;
@@ -94,7 +94,7 @@ export interface DaaSProviderProps {
  * ```tsx
  * // In Storybook or testing environment
  * <DaaSProvider 
- *   config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'xxx' }}
+ *   config={{ url: 'https://xxx.buildpad-daas.xtremax.com', token: 'xxx' }}
  *   onAuthenticated={(user) => console.log('Authenticated:', user)}
  * >
  *   <VForm collection="articles" />

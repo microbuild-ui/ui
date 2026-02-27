@@ -19,7 +19,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Microbuild App",
+  title: "Buildpad App",
   description: "DaaS-ready Next.js app with a token-based design system"
 };
 

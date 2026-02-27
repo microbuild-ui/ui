@@ -3,10 +3,10 @@
  * Maps database field types to appropriate interface components
  * Supports explicit meta.interface from daas_fields table
  *
- * Ported from main-nextjs for shared use across Microbuild projects.
+ * Ported from main-nextjs for shared use across Buildpad projects.
  */
 
-import type { Field } from "@microbuild/types";
+import type { Field } from "@buildpad/types";
 
 export type InterfaceType =
   | "input"

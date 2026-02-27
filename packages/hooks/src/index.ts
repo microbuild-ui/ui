@@ -1,7 +1,7 @@
 /**
- * @microbuild/hooks
+ * @buildpad/hooks
  * 
- * Shared React hooks for Microbuild projects.
+ * Shared React hooks for Buildpad projects.
  * DaaS-compatible relation hooks for M2M, M2O, O2M relationships.
  * Authentication and permission hooks following DaaS architecture.
  */
@@ -116,7 +116,7 @@ export {
 export { api, daasAPI, createDaaSAPI, type DaaSAPIConfig, type QueryParams } from './api';
 
 // Re-export types for convenience
-export type { Relation, RelationMeta, RelationSchema, RelationCollectionMeta, RelationFieldInfo } from '@microbuild/types';
+export type { Relation, RelationMeta, RelationSchema, RelationCollectionMeta, RelationFieldInfo } from '@buildpad/types';
 
 // Collection navigation hooks
 export {

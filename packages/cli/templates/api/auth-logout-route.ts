@@ -4,8 +4,8 @@
  * Proxies logout requests through the Next.js server.
  * Clears the Supabase session cookie server-side.
  * 
- * @microbuild/origin: api-routes/auth-logout
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/auth-logout
+ * @buildpad/version: 1.0.0
  */
 
 import { NextResponse } from 'next/server';

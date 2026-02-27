@@ -22,7 +22,7 @@ const meta: Meta<typeof Input> = {
 
 ## Usage
 \`\`\`tsx
-import { Input } from '@microbuild/ui-interfaces';
+import { Input } from '@buildpad/ui-interfaces';
 
 <Input
   label="Username"

@@ -67,7 +67,7 @@ function MockCollectionList() {
       </Table.Thead>
       <Table.Tbody>
         {[
-          { title: 'Getting Started with Microbuild', status: 'published', author: 'Jane Smith', date: '2025-06-01' },
+          { title: 'Getting Started with Buildpad', status: 'published', author: 'Jane Smith', date: '2025-06-01' },
           { title: 'Building Dynamic Forms', status: 'published', author: 'John Doe', date: '2025-06-10' },
           { title: 'Advanced Table Patterns', status: 'draft', author: 'Alice Brown', date: null },
           { title: 'Authentication & Permissions', status: 'published', author: 'Bob Wilson', date: '2025-07-01' },
@@ -92,12 +92,12 @@ function MockFormContent() {
   return (
     <Paper p="md" maw={720}>
       <Stack gap="md">
-        <TextInput label="Title" placeholder="Enter title" defaultValue="Getting Started with Microbuild" />
+        <TextInput label="Title" placeholder="Enter title" defaultValue="Getting Started with Buildpad" />
         <Group grow>
           <TextInput label="Status" defaultValue="published" />
           <TextInput label="Category" defaultValue="tutorial" />
         </Group>
-        <Textarea label="Content" rows={6} defaultValue="This guide covers the basics of building forms and tables with Microbuild UI components." />
+        <Textarea label="Content" rows={6} defaultValue="This guide covers the basics of building forms and tables with Buildpad UI components." />
       </Stack>
     </Paper>
   );
@@ -228,7 +228,7 @@ export const CollectionListView = {
 export const ItemEditView = {
   render: () => (
     <LayoutWrapper
-      title="Getting Started with Microbuild"
+      title="Getting Started with Buildpad"
       breadcrumbs={[
         { label: 'Content', href: '/content' },
         { label: 'Articles', href: '/content/articles' },

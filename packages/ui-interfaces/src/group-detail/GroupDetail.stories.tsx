@@ -25,7 +25,7 @@ const meta: Meta<typeof GroupDetail> = {
 
 ## Usage
 \`\`\`tsx
-import { GroupDetail } from '@microbuild/ui-interfaces';
+import { GroupDetail } from '@buildpad/ui-interfaces';
 
 <GroupDetail
   field={{ name: 'Details', meta: { field: 'details' } }}

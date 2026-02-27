@@ -1,8 +1,8 @@
 {
-  "name": "@microbuild/types",
+  "name": "@buildpad/types",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared TypeScript type definitions for Microbuild projects - DaaS-compatible types",
+  "description": "Shared TypeScript type definitions for Buildpad projects - DaaS-compatible types",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

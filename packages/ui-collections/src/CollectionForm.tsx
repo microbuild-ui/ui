@@ -2,13 +2,13 @@
  * CollectionForm Component
  *
  * A CRUD wrapper around VForm that handles data fetching and persistence.
- * Uses VForm for the actual form rendering with all @microbuild/ui-interfaces components.
+ * Uses VForm for the actual form rendering with all @buildpad/ui-interfaces components.
  *
  * Architecture:
  * - CollectionForm = Data layer (fetch fields, load/save items, CRUD operations)
- * - VForm = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
+ * - VForm = Presentation layer (renders fields with proper interfaces from @buildpad/ui-interfaces)
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 "use client";
@@ -22,9 +22,9 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import { FieldsService, apiRequest } from "@microbuild/services";
-import type { Field } from "@microbuild/types";
-import { VForm } from "@microbuild/ui-form";
+import { FieldsService, apiRequest } from "@buildpad/services";
+import type { Field } from "@buildpad/types";
+import { VForm } from "@buildpad/ui-form";
 import { IconAlertCircle, IconCheck, IconX } from "@tabler/icons-react";
 import React, {
   useCallback,

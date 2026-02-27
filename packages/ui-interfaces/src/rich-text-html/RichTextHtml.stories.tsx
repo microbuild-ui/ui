@@ -23,7 +23,7 @@ const meta: Meta<typeof RichTextHTML> = {
 
 ## Usage
 \`\`\`tsx
-import { RichTextHTML } from '@microbuild/ui-interfaces';
+import { RichTextHTML } from '@buildpad/ui-interfaces';
 
 <RichTextHTML
   label="Content"

@@ -1,4 +1,4 @@
-# Microbuild UI Packages Distribution Architecture
+# Buildpad UI Packages Distribution Architecture
 
 ## System Overview
 
@@ -11,10 +11,10 @@
 │  │   MCP Server             │      │   CLI Tool               │    │
 │  │   (AI Agents)            │      │   (Developers)           │    │
 │  ├──────────────────────────┤      ├──────────────────────────┤    │
-│  │ - List components        │      │ - microbuild init        │    │
-│  │ - Read source code       │      │ - microbuild add         │    │
-│  │ - Generate examples      │      │ - microbuild bootstrap   │    │
-│  │ - Code generation        │      │ - microbuild list        │    │
+│  │ - List components        │      │ - buildpad init        │    │
+│  │ - Read source code       │      │ - buildpad add         │    │
+│  │ - Generate examples      │      │ - buildpad bootstrap   │    │
+│  │ - Code generation        │      │ - buildpad list        │    │
 │  │ - RBAC patterns          │      │ - Copy source files      │    │
 │  └──────────┬───────────────┘      └──────────┬───────────────┘    │
 │             │                                  │                     │
@@ -187,7 +187,7 @@ The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy
                      ▼
   ┌─────────────────────────────────────────────────────┐
   │  DaaS Backend                                       │
-  │  https://xxx.microbuild-daas.xtremax.com            │
+  │  https://xxx.buildpad-daas.xtremax.com            │
   └─────────────────────────────────────────────────────┘
 ```
 
@@ -260,7 +260,7 @@ The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy
 ┌──────────────────────┐
 │   Copilot generates  │
 │   code using         │
-│   Microbuild         │
+│   Buildpad         │
 └──────────────────────┘
 ```
 
@@ -269,7 +269,7 @@ The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy
 ```
 ┌──────────────────┐
 │   Developer      │
-│   $ microbuild   │
+│   $ buildpad   │
 │     add input    │
 └──────┬───────────┘
        │
@@ -305,7 +305,7 @@ The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy
 ┌──────────────────┐
 │   Developer      │
 │   $ npx          │
-│   @microbuild/cli│
+│   @buildpad/cli│
 │   add input      │
 └──────┬───────────┘
        │
@@ -333,25 +333,25 @@ The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy
 ```
 registry.ts
 ├── PACKAGES[]
-│   ├── @microbuild/types
+│   ├── @buildpad/types
 │   │   └── exports: [Field, Collection, ...]
-│   ├── @microbuild/services
+│   ├── @buildpad/services
 │   │   └── exports: [ItemsService, DaaSProvider, ...]
-│   ├── @microbuild/hooks
+│   ├── @buildpad/hooks
 │   │   └── exports: [useAuth, usePermissions, useRelationM2M, ...]
-│   ├── @microbuild/ui-interfaces
+│   ├── @buildpad/ui-interfaces
 │   │   └── components: [
 │   │       { name: 'Input', category: 'input', ... },
 │   │       { name: 'SelectDropdown', category: 'selection', ... },
 │   │       ...30 components
 │   │   ]
-│   ├── @microbuild/ui-form
+│   ├── @buildpad/ui-form
 │   │   └── components: [
 │   │       { name: 'VForm', ... },
 │   │       { name: 'FormField', ... },
 │   │       { name: 'FormFieldLabel', ... }
 │   │   ]
-│   └── @microbuild/ui-collections
+│   └── @buildpad/ui-collections
 │       └── components: [
 │           { name: 'CollectionForm', ... },
 │           { name: 'CollectionList', ... }
@@ -413,10 +413,10 @@ Source Code Changes
 
 ```
 1. User Action
-   $ microbuild add input
+   $ buildpad add input
 
 2. CLI Execution
-   ├── Load config: microbuild.json
+   ├── Load config: buildpad.json
    ├── Query registry: registry.ts
    └── Find component: { name: 'Input', path: '...' }
 
@@ -452,7 +452,7 @@ Source Code Changes
    └── Response: <example code>
 
 4. Copilot Generates
-   import { Input, SelectDropdown } from '@microbuild/ui-interfaces';
+   import { Input, SelectDropdown } from '@buildpad/ui-interfaces';
    
    function MyForm() {
      const [name, setName] = useState('');
@@ -475,7 +475,7 @@ Source Code Changes
 
 ```
 ┌──────────────────────────────────┐
-│  Microbuild (packages/)          │
+│  Buildpad (packages/)          │
 │  ├── registry.json               │
 │  ├── cli/                        │
 │  ├── types/                      │
@@ -484,7 +484,7 @@ Source Code Changes
 │  └── ui-interfaces/              │
 └────────────────┬─────────────────┘
                  │
-                 │ $ npx @microbuild/cli add
+                 │ $ npx @buildpad/cli add
                  │ Copies source files
                  ▼
          ┌───────────────┐
@@ -503,13 +503,13 @@ Source Code Changes
 │  $ npx create-next-app@latest    │
 └────────────────┬─────────────────┘
                  │
-                 │ Initialize Microbuild
-                 │ $ npx @microbuild/cli init
+                 │ Initialize Buildpad
+                 │ $ npx @buildpad/cli init
                  ▼
          ┌───────────────┐
          │  Add components│
          │  $ npx         │
-         │  @microbuild/  │
+         │  @buildpad/  │
          │  cli add input │
          └───────┬───────┘
                  │
@@ -525,7 +525,7 @@ Source Code Changes
 
 ```
 ┌──────────────────────────────────┐
-│  Microbuild Repo                 │
+│  Buildpad Repo                 │
 │  └── packages/mcp-server/        │
 └────────────────┬─────────────────┘
                  │
@@ -716,11 +716,11 @@ Source Code Changes
 │                  Bootstrap Command Flow                               │
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                        │
-│  $ microbuild bootstrap --cwd /path/to/project                       │
+│  $ buildpad bootstrap --cwd /path/to/project                       │
 │                                                                        │
 │  Step 1: Init                                                         │
 │  ┌─────────────────────────────────────────┐                         │
-│  │ • microbuild.json                       │                         │
+│  │ • buildpad.json                       │                         │
 │  │ • package.json + tsconfig               │                         │
 │  │ • Next.js skeleton (layout, page)       │                         │
 │  └─────────────────────┬───────────────────┘                         │
@@ -728,7 +728,7 @@ Source Code Changes
 │  Step 2: Add All Components (non-interactive)                        │
 │  ┌─────────────────────────────────────────┐                         │
 │  │ • 40+ UI components → components/ui/    │                         │
-│  │ • types, services, hooks → lib/microbuild/│                       │
+│  │ • types, services, hooks → lib/buildpad/│                       │
 │  │ • API proxy routes → app/api/            │                         │
 │  │ • Auth routes → app/api/auth/            │                         │
 │  │ • Login page → app/login/page.tsx        │                         │
@@ -873,7 +873,7 @@ Source Code Changes
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                        │
 │  ┌─────────────────────┐                                             │
-│  │ @microbuild/ui-form │                                             │
+│  │ @buildpad/ui-form │                                             │
 │  │ ┌─────────────────┐ │                                             │
 │  │ │ VForm.tsx       │ │                                             │
 │  │ │ FormField.tsx   │ │                                             │

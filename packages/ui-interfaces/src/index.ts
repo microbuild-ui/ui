@@ -1,7 +1,7 @@
 /**
- * @microbuild/ui-interfaces
+ * @buildpad/ui-interfaces
  * 
- * Shared UI interface components for Microbuild projects.
+ * Shared UI interface components for Buildpad projects.
  * DaaS-compatible field interfaces built with Mantine v8.
  */
 
@@ -61,7 +61,7 @@ export type { NoticeProps, NoticeType } from './notice';
 export { GroupDetail } from './group-detail';
 export type { GroupDetailProps } from './group-detail';
 
-// File interfaces - integrate with DaaS Files API via @microbuild/hooks
+// File interfaces - integrate with DaaS Files API via @buildpad/hooks
 export { File, FileInterface } from './file';
 export type { FileProps, FileInterfaceProps } from './file';
 export { FileImage, FileImageInterface } from './file-image';

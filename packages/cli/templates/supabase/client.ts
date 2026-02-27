@@ -2,10 +2,10 @@
  * Supabase Browser Client
  * 
  * Client-side Supabase client for use in React components.
- * This file is copied to your project by the Microbuild CLI.
+ * This file is copied to your project by the Buildpad CLI.
  * 
- * @microbuild/origin: supabase/client
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: supabase/client
+ * @buildpad/version: 1.0.0
  */
 
 import { createBrowserClient } from '@supabase/ssr';

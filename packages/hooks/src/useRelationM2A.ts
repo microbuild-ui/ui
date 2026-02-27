@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { notifications } from '@mantine/notifications';
-import { apiRequest } from '@microbuild/services';
+import { apiRequest } from '@buildpad/services';
 
 interface CollectionMeta {
     display_template?: string;

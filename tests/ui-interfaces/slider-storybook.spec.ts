@@ -1,7 +1,7 @@
 /**
  * Slider Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces Slider component in isolation.
+ * Tests the @buildpad/ui-interfaces Slider component in isolation.
  * Covers all 18 stories: types, ranges, marks, ticks, sizes, colors, states.
  * 
  * Run: pnpm test:storybook:interfaces

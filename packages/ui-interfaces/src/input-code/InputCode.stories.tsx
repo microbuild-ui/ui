@@ -20,7 +20,7 @@ const meta: Meta<typeof InputCode> = {
 
 ## Usage
 \`\`\`tsx
-import { InputCode } from '@microbuild/ui-interfaces';
+import { InputCode } from '@buildpad/ui-interfaces';
 
 <InputCode
   label="Configuration"

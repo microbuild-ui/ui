@@ -24,7 +24,7 @@ const meta: Meta<typeof AutocompleteAPI> = {
 
 ## Usage
 \`\`\`tsx
-import { AutocompleteAPI } from '@microbuild/ui-interfaces';
+import { AutocompleteAPI } from '@buildpad/ui-interfaces';
 
 <AutocompleteAPI
   label="Search Users"

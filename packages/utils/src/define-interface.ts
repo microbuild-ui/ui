@@ -4,7 +4,7 @@
  * Provides a type-safe way to define and register interface extensions.
  * Similar to DaaS's defineInterface() pattern.
  * 
- * @module @microbuild/utils/define-interface
+ * @module @buildpad/utils/define-interface
  */
 
 import type {
@@ -61,7 +61,7 @@ export interface DefineInterfaceConfig<T = unknown> {
  * 
  * @example
  * ```tsx
- * import { defineInterface } from '@microbuild/utils';
+ * import { defineInterface } from '@buildpad/utils';
  * 
  * const textInput = defineInterface({
  *   id: 'text-input',
@@ -131,7 +131,7 @@ export function defineInterface<T = unknown>(
  * 
  * @example
  * ```tsx
- * import { defineInterfaces } from '@microbuild/utils';
+ * import { defineInterfaces } from '@buildpad/utils';
  * 
  * const interfaces = defineInterfaces([
  *   { id: 'text', name: 'Text', icon: 'IconForms', types: ['string'], group: 'standard' },

@@ -32,7 +32,7 @@ const meta: Meta<typeof InputBlockEditor> = {
 
 ## Usage
 \`\`\`tsx
-import { InputBlockEditor } from '@microbuild/ui-interfaces';
+import { InputBlockEditor } from '@buildpad/ui-interfaces';
 
 <InputBlockEditor
   label="Content"
@@ -200,7 +200,7 @@ export const WithCode: Story = {
         },
         {
           type: 'code',
-          data: { code: 'npm install @microbuild/ui-interfaces' },
+          data: { code: 'npm install @buildpad/ui-interfaces' },
         },
         {
           type: 'paragraph',
@@ -208,7 +208,7 @@ export const WithCode: Story = {
         },
         {
           type: 'code',
-          data: { code: "import { InputBlockEditor } from '@microbuild/ui-interfaces';\n\n<InputBlockEditor\n  label=\"Content\"\n  onChange={handleChange}\n/>" },
+          data: { code: "import { InputBlockEditor } from '@buildpad/ui-interfaces';\n\n<InputBlockEditor\n  label=\"Content\"\n  onChange={handleChange}\n/>" },
         },
       ],
       version: '2.28.2',

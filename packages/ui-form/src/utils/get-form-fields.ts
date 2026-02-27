@@ -3,7 +3,7 @@
  * Based on DaaS get-form-fields utility
  */
 
-import type { Field } from '@microbuild/types';
+import type { Field } from '@buildpad/types';
 import type { FormField } from '../types';
 
 /**

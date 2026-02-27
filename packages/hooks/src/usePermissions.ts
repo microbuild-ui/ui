@@ -8,7 +8,7 @@
  * - lib/permissions/enforcer.ts (enforcePermission, getAccessibleFields)
  * - Database functions (check_permission, get_user_permission_fields)
  * 
- * @module @microbuild/hooks/usePermissions
+ * @module @buildpad/hooks/usePermissions
  */
 
 import { useState, useEffect, useCallback } from 'react';

@@ -21,7 +21,7 @@ const meta: Meta<typeof Upload> = {
 
 ## Usage
 \`\`\`tsx
-import { Upload } from '@microbuild/ui-interfaces';
+import { Upload } from '@buildpad/ui-interfaces';
 
 <Upload
   onInput={(files) => console.log('Uploaded:', files)}

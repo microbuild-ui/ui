@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 /**
- * Playwright Configuration for microbuild-ui-packages
+ * Playwright Configuration for buildpad-ui
  * 
  * Supports two testing modes:
  * 1. DaaS E2E Tests - Against the hosted DaaS instance (requires auth)

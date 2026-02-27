@@ -6,7 +6,7 @@
  * 1. Cookie-Based Sessions - For browser requests (automatic)
  * 2. Static Tokens - For programmatic access (DaaS-style)
  * 
- * @module @microbuild/hooks/useAuth
+ * @module @buildpad/hooks/useAuth
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';

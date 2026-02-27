@@ -25,7 +25,7 @@ import {
   IconDatabase,
 } from '@tabler/icons-react';
 import { CollectionForm } from './CollectionForm';
-import { DaaSProvider, useDaaSContext } from '@microbuild/services';
+import { DaaSProvider, useDaaSContext } from '@buildpad/services';
 
 /**
  * CollectionForm - DaaS Connected Playground

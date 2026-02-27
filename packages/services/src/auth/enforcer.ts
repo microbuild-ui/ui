@@ -10,7 +10,7 @@
  * - Item-level filtering via JSONB filters
  * - Automatic field merging with OR logic
  * 
- * @module @microbuild/services/auth/enforcer
+ * @module @buildpad/services/auth/enforcer
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

@@ -1,12 +1,12 @@
 {
-  "name": "@microbuild/cli",
+  "name": "@buildpad/cli",
   "version": "0.1.4",
-  "description": "CLI tool for adding Microbuild components to your project - like shadcn/ui",
+  "description": "CLI tool for adding Buildpad components to your project - like shadcn/ui",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "microbuild": "dist/index.js"
+    "buildpad": "dist/index.js"
   },
   "publishConfig": {
     "access": "public"
@@ -51,11 +51,11 @@
     "components",
     "daas",
     "cms",
-    "microbuild",
+    "buildpad",
     "shadcn",
     "copy-own",
     "ui"
   ],
-  "author": "Microbuild",
+  "author": "Buildpad",
   "license": "MIT"
 }

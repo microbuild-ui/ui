@@ -1,7 +1,7 @@
 /**
  * Input Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces Input component in isolation using Storybook.
+ * Tests the @buildpad/ui-interfaces Input component in isolation using Storybook.
  * Covers all 21 stories: type variants, masked, slug, clear, trim, softLength,
  * font families, numeric min/max/step, readonly, disabled, error states.
  * 

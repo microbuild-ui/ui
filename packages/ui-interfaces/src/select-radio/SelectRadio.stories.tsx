@@ -19,7 +19,7 @@ const meta: Meta<typeof SelectRadio> = {
 
 ## Usage
 \`\`\`tsx
-import { SelectRadio } from '@microbuild/ui-interfaces';
+import { SelectRadio } from '@buildpad/ui-interfaces';
 
 <SelectRadio
   label="Select Priority"

@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 export type LocalStorageValue = string | number | boolean | object | null;
 
 export interface UseLocalStorageOptions<T> {
-  /** Key prefix (default: 'microbuild') */
+  /** Key prefix (default: 'buildpad') */
   prefix?: string;
   /** Serialize function */
   serialize?: (value: T) => string;
@@ -54,7 +54,7 @@ export function useLocalStorage<T extends LocalStorageValue>(
   options: UseLocalStorageOptions<T> = {}
 ): UseLocalStorageReturn<T> {
   const {
-    prefix = 'microbuild',
+    prefix = 'buildpad',
     serialize = JSON.stringify,
     deserialize = parseJSON,
   } = options;

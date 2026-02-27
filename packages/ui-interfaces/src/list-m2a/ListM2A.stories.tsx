@@ -23,7 +23,7 @@ The junction table stores: \`page_id\`, \`collection\` (e.g., "articles"), \`ite
 
 ## Usage
 \`\`\`tsx
-import { ListM2A } from '@microbuild/ui-interfaces';
+import { ListM2A } from '@buildpad/ui-interfaces';
 
 <ListM2A
   collection="pages"

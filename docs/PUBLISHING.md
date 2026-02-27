@@ -1,10 +1,10 @@
 # Publishing & Release Workflow
 
-This guide covers how to publish `@microbuild/cli` and `@microbuild/mcp` to npm so end-users can run:
+This guide covers how to publish `@buildpad/cli` and `@buildpad/mcp` to npm so end-users can run:
 
 ```bash
-npx @microbuild/cli@latest init
-npx @microbuild/cli@latest add button
+npx @buildpad/cli@latest init
+npx @buildpad/cli@latest add button
 ```
 
 ---
@@ -14,15 +14,15 @@ npx @microbuild/cli@latest add button
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │                      npm registry                                │
-│  @microbuild/cli        – binary: npx @microbuild/cli            │
-│  @microbuild/mcp        – binary: npx microbuild-mcp             │
+│  @buildpad/cli        – binary: npx @buildpad/cli            │
+│  @buildpad/mcp        – binary: npx buildpad-mcp             │
 └────────────────┬─────────────────────────────────────────────────┘
                  │
-   User runs:    │  npx @microbuild/cli add input
+   User runs:    │  npx @buildpad/cli add input
                  │
                  ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                    @microbuild/cli (npm)                          │
+│                    @buildpad/cli (npm)                          │
 │                                                                  │
 │  1. Loads registry.json (local if in monorepo, remote otherwise) │
 │  2. Fetches source files from GitHub raw CDN                     │
@@ -44,7 +44,7 @@ npx @microbuild/cli@latest add button
 ## Prerequisites
 
 1. **npm account** — you're already logged in (`npm whoami`)
-2. **npm org** — create `@microbuild` org on [npmjs.com](https://www.npmjs.com/org/create) (free for public packages)
+2. **npm org** — create `@buildpad` org on [npmjs.com](https://www.npmjs.com/org/create) (free for public packages)
 3. **GitHub repo** — push this monorepo to GitHub
 4. **GitHub secret** — add `NPM_TOKEN` to your repo's Actions secrets
 
@@ -82,7 +82,7 @@ main  ←── stable, always publishable
 ### 1. Replace placeholder repository URL
 
 Search for `microbuild-ui/ui` across:
-- [packages/mcp-server/package.json](packages/mcp-server/package.json) → `repository.url` (package name: `@microbuild/mcp`)
+- [packages/mcp-server/package.json](packages/mcp-server/package.json) → `repository.url` (package name: `@buildpad/mcp`)
 - [packages/cli/src/resolver.ts](packages/cli/src/resolver.ts) → `DEFAULT_REGISTRY_URL`
 - [.github/workflows/publish.yml](.github/workflows/publish.yml)
 
@@ -92,8 +92,8 @@ Search for `microbuild-ui/ui` across:
 # Check you're logged in
 npm whoami
 
-# The @microbuild scope must exist. If you haven't created it:
-# Go to https://www.npmjs.com/org/create → org name: microbuild
+# The @buildpad scope must exist. If you haven't created it:
+# Go to https://www.npmjs.com/org/create → org name: buildpad
 ```
 
 ### 3. Install dependencies
@@ -109,9 +109,9 @@ npm requires a **granular access token** to publish scoped packages (even with 2
 1. Go to [npmjs.com → Access Tokens → Generate New Token](https://www.npmjs.com/settings/~/tokens)
 2. Select **"Granular Access Token"**
 3. Configure:
-   - **Token name**: e.g. `microbuild-publish`
+   - **Token name**: e.g. `buildpad-publish`
    - **Expiration**: choose an appropriate duration
-   - **Packages and scopes**: select **"Only select packages and scopes"** → add `@microbuild`
+   - **Packages and scopes**: select **"Only select packages and scopes"** → add `@buildpad`
    - **Permissions**: **Read and write**
 4. Click **Generate token** and copy it
 
@@ -150,7 +150,7 @@ pnpm changeset
 ```
 
 This prompts you to:
-1. Select changed packages (`@microbuild/cli`, `@microbuild/mcp`)
+1. Select changed packages (`@buildpad/cli`, `@buildpad/mcp`)
 2. Pick bump type: `patch` (bug fix), `minor` (new feature), `major` (breaking)
 3. Write a summary
 
@@ -176,7 +176,7 @@ After review, merge the PR. The Changesets GitHub Action will:
 
 When you merge this PR:
 - Changesets publishes to npm automatically
-- Git tags are created (e.g., `@microbuild/cli@0.2.0`)
+- Git tags are created (e.g., `@buildpad/cli@0.2.0`)
 
 ---
 
@@ -231,17 +231,17 @@ rm .npmrc
 
 > **Note:** Always clean up `.npmrc` files after publishing to avoid committing tokens.
 >
-> The packages are published as `@microbuild/cli` and `@microbuild/mcp` on npmjs.com under the `@microbuild` organization.
+> The packages are published as `@buildpad/cli` and `@buildpad/mcp` on npmjs.com under the `@buildpad` organization.
 
 ---
 
 ## What Gets Published
 
-### `@microbuild/cli`
+### `@buildpad/cli`
 
 ```
 dist/
-├── index.js          ← CLI entry point (bin: microbuild)
+├── index.js          ← CLI entry point (bin: buildpad)
 ├── index.d.ts
 ├── templates/        ← scaffold templates (copied at build time)
 │   ├── api/
@@ -256,16 +256,16 @@ dist/
 
 Users run:
 ```bash
-npx @microbuild/cli@latest init        # scaffold project
-npx @microbuild/cli@latest add input   # add component
-npx @microbuild/cli@latest bootstrap   # full setup
+npx @buildpad/cli@latest init        # scaffold project
+npx @buildpad/cli@latest add input   # add component
+npx @buildpad/cli@latest bootstrap   # full setup
 ```
 
-### `@microbuild/mcp`
+### `@buildpad/mcp`
 
 ```
 dist/
-├── index.js          ← MCP server entry (bin: microbuild-mcp)
+├── index.js          ← MCP server entry (bin: buildpad-mcp)
 └── index.d.ts
 ```
 
@@ -274,9 +274,9 @@ Users configure in VS Code:
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "npx",
-        "args": ["@microbuild/mcp@latest"]
+        "args": ["@buildpad/mcp@latest"]
       }
     }
   }
@@ -287,7 +287,7 @@ Users configure in VS Code:
 
 ## How the Remote Registry Works
 
-When `@microbuild/cli` is installed via npm (not running from the monorepo), it:
+When `@buildpad/cli` is installed via npm (not running from the monorepo), it:
 
 1. **Detects remote mode** — no `registry.json` exists next to the built CLI
 2. **Fetches `registry.json`** from GitHub raw URL:
@@ -300,7 +300,7 @@ When `@microbuild/cli` is installed via npm (not running from the monorepo), it:
 ### Overriding the registry URL
 
 ```bash
-MICROBUILD_REGISTRY_URL=https://your-cdn.com/packages npx @microbuild/cli add input
+MICROBUILD_REGISTRY_URL=https://your-cdn.com/packages npx @buildpad/cli add input
 ```
 
 ### Local mode (development)
@@ -324,7 +324,7 @@ The CLI and MCP server are **linked** in changeset config — they always publis
 ## Checklist Before First Publish
 
 - [ ] Replace `microbuild-ui/ui` with actual repo path (if different)
-- [x] Create `@microbuild` org on npmjs.com
+- [x] Create `@buildpad` org on npmjs.com
 - [ ] Generate a **Granular Access Token** on npmjs.com (see "Generate a Granular Access Token" above)
 - [ ] Add `NPM_TOKEN` secret to GitHub repo (using the granular token)
 - [ ] Run `pnpm install` (installs `@changesets/cli`)
@@ -333,5 +333,5 @@ The CLI and MCP server are **linked** in changeset config — they always publis
 - [ ] Push to `main` and verify CI passes
 - [ ] Run `pnpm changeset` → select packages → `patch` → "Initial release"
 - [ ] Merge the resulting version PR
-- [ ] Verify on npmjs.com: `@microbuild/cli` and `@microbuild/mcp` are published
-- [ ] Test: `npx @microbuild/cli@latest init` in a fresh directory
+- [ ] Verify on npmjs.com: `@buildpad/cli` and `@buildpad/mcp` are published
+- [ ] Test: `npx @buildpad/cli@latest init` in a fresh directory

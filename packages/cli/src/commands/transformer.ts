@@ -1,7 +1,7 @@
 /**
  * Import Transformer
  * 
- * Transforms @microbuild/* imports to local path aliases.
+ * Transforms @buildpad/* imports to local path aliases.
  * This is the core of the Copy & Own model - making copied files self-contained.
  */
 
@@ -26,130 +26,130 @@ export function getImportMappings(config: Config): ImportMapping[] {
   return [
     // Types
     {
-      from: /from ['"]@microbuild\/types['"]/g,
+      from: /from ['"]@buildpad\/types['"]/g,
       to: `from '${libAlias}/types'`,
     },
     {
-      from: /from ['"]@microbuild\/types\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/types\/([^'"]+)['"]/g,
       to: `from '${libAlias}/types/$1'`,
     },
     // Services
     {
-      from: /from ['"]@microbuild\/services['"]/g,
+      from: /from ['"]@buildpad\/services['"]/g,
       to: `from '${libAlias}/services'`,
     },
     {
-      from: /from ['"]@microbuild\/services\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/services\/([^'"]+)['"]/g,
       to: `from '${libAlias}/services/$1'`,
     },
     // Hooks
     {
-      from: /from ['"]@microbuild\/hooks['"]/g,
+      from: /from ['"]@buildpad\/hooks['"]/g,
       to: `from '${libAlias}/hooks'`,
     },
     {
-      from: /from ['"]@microbuild\/hooks\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/hooks\/([^'"]+)['"]/g,
       to: `from '${libAlias}/hooks/$1'`,
     },
     // UI Interfaces (component to component imports)
     {
-      from: /from ['"]@microbuild\/ui-interfaces['"]/g,
+      from: /from ['"]@buildpad\/ui-interfaces['"]/g,
       to: `from '${componentsAlias}'`,
     },
     {
-      from: /from ['"]@microbuild\/ui-interfaces\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/ui-interfaces\/([^'"]+)['"]/g,
       to: `from '${componentsAlias}/$1'`,
     },
     // UI Collections (component to component imports)
     {
-      from: /from ['"]@microbuild\/ui-collections['"]/g,
+      from: /from ['"]@buildpad\/ui-collections['"]/g,
       to: `from '${componentsAlias}'`,
     },
     {
-      from: /from ['"]@microbuild\/ui-collections\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/ui-collections\/([^'"]+)['"]/g,
       to: `from '${componentsAlias}/$1'`,
     },
     // Utils
     {
-      from: /from ['"]@microbuild\/utils['"]/g,
+      from: /from ['"]@buildpad\/utils['"]/g,
       to: `from '${libAlias}/utils'`,
     },
     {
-      from: /from ['"]@microbuild\/utils\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/utils\/([^'"]+)['"]/g,
       to: `from '${libAlias}/utils/$1'`,
     },
     // UI Form (VForm and related components)
     {
-      from: /from ['"]@microbuild\/ui-form['"]/g,
+      from: /from ['"]@buildpad\/ui-form['"]/g,
       to: `from '${componentsAlias}/vform'`,
     },
     {
-      from: /from ['"]@microbuild\/ui-form\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/ui-form\/([^'"]+)['"]/g,
       to: `from '${componentsAlias}/vform/$1'`,
     },
     // UI Table (VTable - type-import pattern MUST come before general pattern
     // so type imports resolve to vtable-types while value imports resolve to vtable)
     {
-      from: /import type \{([^}]+)\} from ['"]@microbuild\/ui-table['"]/g,
+      from: /import type \{([^}]+)\} from ['"]@buildpad\/ui-table['"]/g,
       to: `import type {$1} from '${componentsAlias}/vtable-types'`,
     },
     {
-      from: /from ['"]@microbuild\/ui-table['"]/g,
+      from: /from ['"]@buildpad\/ui-table['"]/g,
       to: `from '${componentsAlias}/vtable'`,
     },
     {
-      from: /from ['"]@microbuild\/ui-table\/([^'"]+)['"]/g,
+      from: /from ['"]@buildpad\/ui-table\/([^'"]+)['"]/g,
       to: `from '${componentsAlias}/$1'`,
     },
     // Import type statements
     {
-      from: /import type \{([^}]+)\} from ['"]@microbuild\/types['"]/g,
+      from: /import type \{([^}]+)\} from ['"]@buildpad\/types['"]/g,
       to: `import type {$1} from '${libAlias}/types'`,
     },
     {
-      from: /import type \{([^}]+)\} from ['"]@microbuild\/hooks['"]/g,
+      from: /import type \{([^}]+)\} from ['"]@buildpad\/hooks['"]/g,
       to: `import type {$1} from '${libAlias}/hooks'`,
     },
     {
-      from: /import type \{([^}]+)\} from ['"]@microbuild\/services['"]/g,
+      from: /import type \{([^}]+)\} from ['"]@buildpad\/services['"]/g,
       to: `import type {$1} from '${libAlias}/services'`,
     },
     // Import type for utils
     {
-      from: /import type \{([^}]+)\} from ['"]@microbuild\/utils['"]/g,
+      from: /import type \{([^}]+)\} from ['"]@buildpad\/utils['"]/g,
       to: `import type {$1} from '${libAlias}/utils'`,
     },
     // Import type for ui-form
     {
-      from: /import type \{([^}]+)\} from ['"]@microbuild\/ui-form['"]/g,
+      from: /import type \{([^}]+)\} from ['"]@buildpad\/ui-form['"]/g,
       to: `import type {$1} from '${componentsAlias}/vform'`,
     },
-    // Dynamic imports - import('@microbuild/services') etc.
+    // Dynamic imports - import('@buildpad/services') etc.
     {
-      from: /import\s*\(\s*['"]@microbuild\/services['"]\s*\)/g,
+      from: /import\s*\(\s*['"]@buildpad\/services['"]\s*\)/g,
       to: `import('${libAlias}/services')`,
     },
     {
-      from: /import\s*\(\s*['"]@microbuild\/hooks['"]\s*\)/g,
+      from: /import\s*\(\s*['"]@buildpad\/hooks['"]\s*\)/g,
       to: `import('${libAlias}/hooks')`,
     },
     {
-      from: /import\s*\(\s*['"]@microbuild\/types['"]\s*\)/g,
+      from: /import\s*\(\s*['"]@buildpad\/types['"]\s*\)/g,
       to: `import('${libAlias}/types')`,
     },
     {
-      from: /import\s*\(\s*['"]@microbuild\/utils['"]\s*\)/g,
+      from: /import\s*\(\s*['"]@buildpad\/utils['"]\s*\)/g,
       to: `import('${libAlias}/utils')`,
     },
   ];
 }
 
 /**
- * Transform a file's content by replacing @microbuild/* imports with local paths
+ * Transform a file's content by replacing @buildpad/* imports with local paths
  * Also normalizes import paths to use consistent kebab-case file names
  * 
  * @param content - File content to transform
- * @param config - Microbuild config
+ * @param config - Buildpad config
  * @param targetPath - Optional target path for context-aware transformations
  */
 export function transformImports(content: string, config: Config, targetPath?: string): string {
@@ -168,7 +168,7 @@ export function transformImports(content: string, config: Config, targetPath?: s
 
 /**
  * Transform internal component imports
- * e.g., import { CollectionList } from '@microbuild/ui-collections' 
+ * e.g., import { CollectionList } from '@buildpad/ui-collections' 
  *    -> import { CollectionList } from '@/components/ui/collection-list'
  */
 export function transformComponentImports(
@@ -230,11 +230,11 @@ export function toPascalCase(str: string): string {
  *   ../Upload/Upload → ./upload
  *   dynamic import('./InputBlockEditor') → import('./input-block-editor')
  *   
- * Files marked with @microbuild-preserve-casing are not normalized.
+ * Files marked with @buildpad-preserve-casing are not normalized.
  */
 export function normalizeImportPaths(content: string, targetPath?: string): string {
   // Skip normalization for files that preserve casing
-  if (content.includes('@microbuild-preserve-casing')) {
+  if (content.includes('@buildpad-preserve-casing')) {
     return content;
   }
   
@@ -358,10 +358,10 @@ export function transformIntraComponentImports(
 }
 
 /**
- * Check if content has @microbuild/* imports
+ * Check if content has @buildpad/* imports
  */
-export function hasMicrobuildImports(content: string): boolean {
-  return /@microbuild\/(types|services|hooks|utils|ui-interfaces|ui-collections|ui-form|ui-table)/.test(content);
+export function hasBuildpadImports(content: string): boolean {
+  return /@buildpad\/(types|services|hooks|utils|ui-interfaces|ui-collections|ui-form|ui-table)/.test(content);
 }
 
 /**
@@ -465,22 +465,22 @@ export function transformRelativeImports(
 }
 
 /**
- * Extract which @microbuild/* packages are imported
+ * Extract which @buildpad/* packages are imported
  */
-export function extractMicrobuildDependencies(content: string): string[] {
+export function extractBuildpadDependencies(content: string): string[] {
   const deps: Set<string> = new Set();
   
   const patterns = [
-    /@microbuild\/types/g,
-    /@microbuild\/services/g,
-    /@microbuild\/hooks/g,
-    /@microbuild\/ui-interfaces/g,
-    /@microbuild\/ui-collections/g,
+    /@buildpad\/types/g,
+    /@buildpad\/services/g,
+    /@buildpad\/hooks/g,
+    /@buildpad\/ui-interfaces/g,
+    /@buildpad\/ui-collections/g,
   ];
 
   for (const pattern of patterns) {
     if (pattern.test(content)) {
-      const match = pattern.source.match(/@microbuild\/([^/]+)/);
+      const match = pattern.source.match(/@buildpad\/([^/]+)/);
       if (match) {
         // Map package names to lib names
         const libName = match[1].replace('ui-', '');
@@ -524,14 +524,14 @@ export function generateOriginHeader(
 ): string {
   const timestamp = new Date().toISOString().split('T')[0];
   return `/**
- * @microbuild-origin ${sourcePackage}/${componentName}
- * @microbuild-version ${version}
- * @microbuild-date ${timestamp}
+ * @buildpad-origin ${sourcePackage}/${componentName}
+ * @buildpad-version ${version}
+ * @buildpad-date ${timestamp}
  * 
- * This file was copied from Microbuild UI Packages.
- * To update, run: npx @microbuild/cli add ${componentName} --overwrite
+ * This file was copied from Buildpad UI Packages.
+ * To update, run: npx @buildpad/cli add ${componentName} --overwrite
  * 
- * Docs: https://microbuild.dev/components/${componentName}
+ * Docs: https://buildpad.dev/components/${componentName}
  */
 
 `;
@@ -558,10 +558,10 @@ export function addOriginHeader(
 }
 
 /**
- * Check if file has microbuild origin header
+ * Check if file has buildpad origin header
  */
-export function hasMicrobuildOrigin(content: string): boolean {
-  return content.includes('@microbuild-origin');
+export function hasBuildpadOrigin(content: string): boolean {
+  return content.includes('@buildpad-origin');
 }
 
 /**
@@ -572,9 +572,9 @@ export function extractOriginInfo(content: string): {
   version?: string;
   date?: string;
 } | null {
-  const originMatch = content.match(/@microbuild-origin\s+([^\n*]+)/);
-  const versionMatch = content.match(/@microbuild-version\s+([^\n*]+)/);
-  const dateMatch = content.match(/@microbuild-date\s+([^\n*]+)/);
+  const originMatch = content.match(/@buildpad-origin\s+([^\n*]+)/);
+  const versionMatch = content.match(/@buildpad-version\s+([^\n*]+)/);
+  const dateMatch = content.match(/@buildpad-date\s+([^\n*]+)/);
   
   if (!originMatch) return null;
   

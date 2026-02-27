@@ -1,11 +1,11 @@
-# @microbuild/types
+# @buildpad/types
 
-Shared TypeScript type definitions for Microbuild projects. DaaS-compatible types for collections, fields, files, and relations.
+Shared TypeScript type definitions for Buildpad projects. DaaS-compatible types for collections, fields, files, and relations.
 
 ## Installation
 
 ```bash
-pnpm add @microbuild/types
+pnpm add @buildpad/types
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ import type {
   PrimaryKey,
   DaaSFile,
   M2MRelationInfo 
-} from '@microbuild/types';
+} from '@buildpad/types';
 ```
 
 ## Core Types
@@ -27,7 +27,7 @@ import type {
 ### Query & Filter
 
 ```typescript
-import type { Query, Filter, PrimaryKey, AnyItem } from '@microbuild/types';
+import type { Query, Filter, PrimaryKey, AnyItem } from '@buildpad/types';
 
 // Type-safe query building
 const query: Query = {
@@ -52,7 +52,7 @@ const filter: Filter = {
 ### Collections & Fields
 
 ```typescript
-import type { Collection, CollectionMeta, Field, FieldMeta, FieldSchema } from '@microbuild/types';
+import type { Collection, CollectionMeta, Field, FieldMeta, FieldSchema } from '@buildpad/types';
 
 // Collection with metadata
 const collection: Collection = {
@@ -97,7 +97,7 @@ const field: Field = {
 ### Permissions
 
 ```typescript
-import type { Permission, PermissionAction } from '@microbuild/types';
+import type { Permission, PermissionAction } from '@buildpad/types';
 
 const permission: Permission = {
   id: '1',
@@ -112,8 +112,8 @@ const permission: Permission = {
 ## File Types
 
 ```typescript
-import type { DaaSFile, FileUpload, Folder } from '@microbuild/types';
-import { getFileCategory, formatFileSize, getAssetUrl } from '@microbuild/types';
+import type { DaaSFile, FileUpload, Folder } from '@buildpad/types';
+import { getFileCategory, formatFileSize, getAssetUrl } from '@buildpad/types';
 
 // File metadata
 const file: DaaSFile = {
@@ -144,7 +144,7 @@ import type {
   M2ORelationInfo, 
   O2MRelationInfo,
   M2ARelationInfo 
-} from '@microbuild/types';
+} from '@buildpad/types';
 
 // Many-to-Many: Articles <-> Tags (through article_tags)
 const m2mInfo: M2MRelationInfo = {
@@ -207,6 +207,6 @@ const o2mInfo: O2MRelationInfo = {
 
 ## Related Packages
 
-- [@microbuild/services](../services) - CRUD services using these types
-- [@microbuild/hooks](../hooks) - React hooks for relations
-- [@microbuild/ui-interfaces](../ui-interfaces) - Field interface components
+- [@buildpad/services](../services) - CRUD services using these types
+- [@buildpad/hooks](../hooks) - React hooks for relations
+- [@buildpad/ui-interfaces](../ui-interfaces) - Field interface components

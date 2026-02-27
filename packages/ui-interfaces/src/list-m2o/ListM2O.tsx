@@ -26,8 +26,8 @@ import {
   useRelationM2O,
   useRelationM2OItem,
   type M2OItem,
-} from "@microbuild/hooks";
-import { apiRequest } from "@microbuild/services";
+} from "@buildpad/hooks";
+import { apiRequest } from "@buildpad/services";
 import {
   IconAlertCircle,
   IconEdit,

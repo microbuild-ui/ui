@@ -1,7 +1,7 @@
 #!/bin/bash
 # Add remaining exported interfaces that were missed
 
-BASE_URL="https://6db63358-169b-4d26-a758-4a39f0088d91.microbuild-daas.xtremax.com"
+BASE_URL="https://6db63358-169b-4d26-a758-4a39f0088d91.buildpad-daas.xtremax.com"
 TOKEN="_dVeDC5ilSpRWeyaVyNXUQPX4PKbTr6Q"
 COLLECTION="interface_showcase"
 

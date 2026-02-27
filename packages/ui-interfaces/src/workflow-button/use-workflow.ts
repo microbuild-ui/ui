@@ -237,7 +237,7 @@ export function useWorkflow(options: UseWorkflowOptions): UseWorkflowReturn {
 
           // Get commands/transitions for the current state
           // Support both formats:
-          // 1. Array format: states[].commands (Microbuild/DaaS default)
+          // 1. Array format: states[].commands (Buildpad/DaaS default)
           // 2. Object format: states[stateName].transitions (DaaS format)
           let workflowCommands: WorkflowCommand[] = [];
 

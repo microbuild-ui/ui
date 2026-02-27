@@ -3,7 +3,7 @@
  *
  * Unit tests for the import transformation logic.
  * These tests ensure:
- * - @microbuild/* imports are correctly transformed to local paths
+ * - @buildpad/* imports are correctly transformed to local paths
  * - Relative imports are normalized correctly
  * - VForm-specific transformations work
  * - Edge cases are handled
@@ -14,7 +14,7 @@ import type { Config } from "../src/commands/init.js";
 import {
   addOriginHeader,
   extractOriginInfo,
-  hasMicrobuildImports,
+  hasBuildpadImports,
   normalizeImportPaths,
   toKebabCase,
   toPascalCase,
@@ -30,74 +30,74 @@ const defaultConfig: Config = {
   srcDir: false,
   aliases: {
     components: "@/components/ui",
-    lib: "@/lib/microbuild",
+    lib: "@/lib/buildpad",
   },
   installedLib: [],
   installedComponents: [],
 };
 
 describe("transformImports", () => {
-  test("transforms @microbuild/types imports", () => {
-    const input = `import { Field, Collection } from '@microbuild/types';`;
-    const expected = `import { Field, Collection } from '@/lib/microbuild/types';`;
+  test("transforms @buildpad/types imports", () => {
+    const input = `import { Field, Collection } from '@buildpad/types';`;
+    const expected = `import { Field, Collection } from '@/lib/buildpad/types';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
-  test("transforms @microbuild/types subpath imports", () => {
-    const input = `import type { FileInfo } from '@microbuild/types/file';`;
-    const expected = `import type { FileInfo } from '@/lib/microbuild/types/file';`;
+  test("transforms @buildpad/types subpath imports", () => {
+    const input = `import type { FileInfo } from '@buildpad/types/file';`;
+    const expected = `import type { FileInfo } from '@/lib/buildpad/types/file';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
-  test("transforms @microbuild/services imports", () => {
-    const input = `import { apiRequest } from '@microbuild/services';`;
-    const expected = `import { apiRequest } from '@/lib/microbuild/services';`;
+  test("transforms @buildpad/services imports", () => {
+    const input = `import { apiRequest } from '@buildpad/services';`;
+    const expected = `import { apiRequest } from '@/lib/buildpad/services';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
-  test("transforms @microbuild/hooks imports", () => {
-    const input = `import { useRelationM2M } from '@microbuild/hooks';`;
-    const expected = `import { useRelationM2M } from '@/lib/microbuild/hooks';`;
+  test("transforms @buildpad/hooks imports", () => {
+    const input = `import { useRelationM2M } from '@buildpad/hooks';`;
+    const expected = `import { useRelationM2M } from '@/lib/buildpad/hooks';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
-  test("transforms @microbuild/ui-interfaces imports", () => {
-    const input = `import { Input, Select } from '@microbuild/ui-interfaces';`;
+  test("transforms @buildpad/ui-interfaces imports", () => {
+    const input = `import { Input, Select } from '@buildpad/ui-interfaces';`;
     const expected = `import { Input, Select } from '@/components/ui';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
-  test("transforms @microbuild/ui-form imports", () => {
-    const input = `import { VForm } from '@microbuild/ui-form';`;
+  test("transforms @buildpad/ui-form imports", () => {
+    const input = `import { VForm } from '@buildpad/ui-form';`;
     const expected = `import { VForm } from '@/components/ui/vform';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
-  test("transforms @microbuild/utils imports", () => {
-    const input = `import { cn, formatFileSize } from '@microbuild/utils';`;
-    const expected = `import { cn, formatFileSize } from '@/lib/microbuild/utils';`;
+  test("transforms @buildpad/utils imports", () => {
+    const input = `import { cn, formatFileSize } from '@buildpad/utils';`;
+    const expected = `import { cn, formatFileSize } from '@/lib/buildpad/utils';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
   test("transforms import type statements", () => {
-    const input = `import type { FormField } from '@microbuild/types';`;
-    const expected = `import type { FormField } from '@/lib/microbuild/types';`;
+    const input = `import type { FormField } from '@buildpad/types';`;
+    const expected = `import type { FormField } from '@/lib/buildpad/types';`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
   test("handles multiple imports in one file", () => {
     const input = `
-import { Field } from '@microbuild/types';
-import { apiRequest } from '@microbuild/services';
-import { VForm } from '@microbuild/ui-form';
+import { Field } from '@buildpad/types';
+import { apiRequest } from '@buildpad/services';
+import { VForm } from '@buildpad/ui-form';
 `;
     const result = transformImports(input, defaultConfig);
-    expect(result).toContain("from '@/lib/microbuild/types'");
-    expect(result).toContain("from '@/lib/microbuild/services'");
+    expect(result).toContain("from '@/lib/buildpad/types'");
+    expect(result).toContain("from '@/lib/buildpad/services'");
     expect(result).toContain("from '@/components/ui/vform'");
   });
 
-  test("does not transform non-microbuild imports", () => {
+  test("does not transform non-buildpad imports", () => {
     const input = `import React from 'react';
 import { Button } from '@mantine/core';`;
     expect(transformImports(input, defaultConfig)).toBe(input);
@@ -111,20 +111,20 @@ import { Button } from '@mantine/core';`;
         lib: "~/shared",
       },
     };
-    const input = `import { Field } from '@microbuild/types';`;
+    const input = `import { Field } from '@buildpad/types';`;
     const expected = `import { Field } from '~/shared/types';`;
     expect(transformImports(input, customConfig)).toBe(expected);
   });
 
-  test("transforms dynamic imports for @microbuild/services", () => {
-    const input = `const FieldsService = (await import('@microbuild/services')).FieldsService;`;
-    const expected = `const FieldsService = (await import('@/lib/microbuild/services')).FieldsService;`;
+  test("transforms dynamic imports for @buildpad/services", () => {
+    const input = `const FieldsService = (await import('@buildpad/services')).FieldsService;`;
+    const expected = `const FieldsService = (await import('@/lib/buildpad/services')).FieldsService;`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 
-  test("transforms dynamic imports for @microbuild/hooks", () => {
-    const input = `const hook = await import('@microbuild/hooks');`;
-    const expected = `const hook = await import('@/lib/microbuild/hooks');`;
+  test("transforms dynamic imports for @buildpad/hooks", () => {
+    const input = `const hook = await import('@buildpad/hooks');`;
+    const expected = `const hook = await import('@/lib/buildpad/hooks');`;
     expect(transformImports(input, defaultConfig)).toBe(expected);
   });
 });
@@ -148,7 +148,7 @@ describe("normalizeImportPaths", () => {
   });
 
   test("skips files with preserve-casing directive", () => {
-    const input = `// @microbuild-preserve-casing
+    const input = `// @buildpad-preserve-casing
 import { FormField } from './FormField';`;
     expect(normalizeImportPaths(input)).toBe(input);
   });
@@ -223,22 +223,22 @@ describe("transformRelativeImports", () => {
   });
 });
 
-describe("hasMicrobuildImports", () => {
-  test("returns true for @microbuild imports", () => {
-    expect(hasMicrobuildImports("import { X } from '@microbuild/types'")).toBe(
+describe("hasBuildpadImports", () => {
+  test("returns true for @buildpad imports", () => {
+    expect(hasBuildpadImports("import { X } from '@buildpad/types'")).toBe(
       true,
     );
     expect(
-      hasMicrobuildImports("import { X } from '@microbuild/services'"),
+      hasBuildpadImports("import { X } from '@buildpad/services'"),
     ).toBe(true);
-    expect(hasMicrobuildImports("import { X } from '@microbuild/hooks'")).toBe(
+    expect(hasBuildpadImports("import { X } from '@buildpad/hooks'")).toBe(
       true,
     );
   });
 
-  test("returns false for non-microbuild imports", () => {
-    expect(hasMicrobuildImports("import React from 'react'")).toBe(false);
-    expect(hasMicrobuildImports("import { Button } from '@mantine/core'")).toBe(
+  test("returns false for non-buildpad imports", () => {
+    expect(hasBuildpadImports("import React from 'react'")).toBe(false);
+    expect(hasBuildpadImports("import { Button } from '@mantine/core'")).toBe(
       false,
     );
   });
@@ -250,14 +250,14 @@ describe("addOriginHeader", () => {
     const result = addOriginHeader(
       content,
       "input",
-      "@microbuild/ui-interfaces",
+      "@buildpad/ui-interfaces",
       "1.0.0",
     );
 
     expect(result).toContain(
-      "@microbuild-origin @microbuild/ui-interfaces/input",
+      "@buildpad-origin @buildpad/ui-interfaces/input",
     );
-    expect(result).toContain("@microbuild-version 1.0.0");
+    expect(result).toContain("@buildpad-version 1.0.0");
     expect(result).toContain("export const Component");
   });
 
@@ -266,12 +266,12 @@ describe("addOriginHeader", () => {
     const result = addOriginHeader(
       content,
       "input",
-      "@microbuild/ui-interfaces",
+      "@buildpad/ui-interfaces",
       "1.0.0",
     );
 
     expect(result.startsWith('"use client"')).toBe(true);
-    expect(result).toContain("@microbuild-origin");
+    expect(result).toContain("@buildpad-origin");
     expect(result).toContain("export const Component");
   });
 });
@@ -279,16 +279,16 @@ describe("addOriginHeader", () => {
 describe("extractOriginInfo", () => {
   test("extracts origin info from header", () => {
     const content = `/**
- * @microbuild-origin @microbuild/ui-interfaces/input
- * @microbuild-version 1.0.0
- * @microbuild-date 2024-01-15
+ * @buildpad-origin @buildpad/ui-interfaces/input
+ * @buildpad-version 1.0.0
+ * @buildpad-date 2024-01-15
  */
 export const Input = () => {};`;
 
     const info = extractOriginInfo(content);
 
     expect(info).not.toBeNull();
-    expect(info?.origin).toBe("@microbuild/ui-interfaces/input");
+    expect(info?.origin).toBe("@buildpad/ui-interfaces/input");
     expect(info?.version).toBe("1.0.0");
     expect(info?.date).toBe("2024-01-15");
   });
@@ -422,15 +422,15 @@ describe("transformIntraComponentImports (vtable)", () => {
   });
 });
 
-describe("transformImports (@microbuild/ui-table)", () => {
+describe("transformImports (@buildpad/ui-table)", () => {
   test("value import → componentsAlias/vtable", () => {
-    const input = `import { VTable } from '@microbuild/ui-table';`;
+    const input = `import { VTable } from '@buildpad/ui-table';`;
     const result = transformImports(input, defaultConfig);
     expect(result).toBe(`import { VTable } from '@/components/ui/vtable';`);
   });
 
   test("type import → componentsAlias/vtable-types", () => {
-    const input = `import type { HeaderRaw, Sort, Alignment, Header } from '@microbuild/ui-table';`;
+    const input = `import type { HeaderRaw, Sort, Alignment, Header } from '@buildpad/ui-table';`;
     const result = transformImports(input, defaultConfig);
     expect(result).toBe(
       `import type { HeaderRaw, Sort, Alignment, Header } from '@/components/ui/vtable-types';`,
@@ -438,14 +438,14 @@ describe("transformImports (@microbuild/ui-table)", () => {
   });
 
   test("subpath import → componentsAlias/subpath", () => {
-    const input = `import { something } from '@microbuild/ui-table/utils';`;
+    const input = `import { something } from '@buildpad/ui-table/utils';`;
     const result = transformImports(input, defaultConfig);
     expect(result).toBe(`import { something } from '@/components/ui/utils';`);
   });
 
-  test("hasMicrobuildImports detects @microbuild/ui-table", () => {
+  test("hasBuildpadImports detects @buildpad/ui-table", () => {
     expect(
-      hasMicrobuildImports(`import { VTable } from '@microbuild/ui-table';`),
+      hasBuildpadImports(`import { VTable } from '@buildpad/ui-table';`),
     ).toBe(true);
   });
 });

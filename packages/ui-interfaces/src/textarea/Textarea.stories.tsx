@@ -20,7 +20,7 @@ const meta: Meta<typeof Textarea> = {
 
 ## Usage
 \`\`\`tsx
-import { Textarea } from '@microbuild/ui-interfaces';
+import { Textarea } from '@buildpad/ui-interfaces';
 
 <Textarea
   label="Description"

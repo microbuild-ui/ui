@@ -3,18 +3,18 @@
  * Dynamically renders the appropriate interface component for a field
  * Based on DaaS form-field-interface component
  * 
- * Uses @microbuild/utils for field interface mapping and
- * @microbuild/ui-interfaces for interface components.
+ * Uses @buildpad/utils for field interface mapping and
+ * @buildpad/ui-interfaces for interface components.
  */
 
 import React, { useMemo } from 'react';
 import { Alert, Skeleton, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import type { FormField } from '../types';
-import { getFieldInterface, type InterfaceConfig } from '@microbuild/utils';
+import { getFieldInterface, type InterfaceConfig } from '@buildpad/utils';
 
 // Import interface components
-import * as Interfaces from '@microbuild/ui-interfaces';
+import * as Interfaces from '@buildpad/ui-interfaces';
 
 export interface FormFieldInterfaceProps {
   /** Field definition */
@@ -54,7 +54,7 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
   autofocus = false,
   primaryKey,
 }) => {
-  // Get interface configuration from @microbuild/utils
+  // Get interface configuration from @buildpad/utils
   // Returns InterfaceConfig with type and props
   const interfaceConfig: InterfaceConfig = useMemo(() => {
     return getFieldInterface(field);
@@ -127,7 +127,7 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
     
     // For relational interfaces, prefer the full implementation (ListM2M, ListM2O, ListO2M)
     // over the placeholder *Interface components that require render props.
-    // The full implementations use @microbuild/hooks and @microbuild/ui-collections internally.
+    // The full implementations use @buildpad/hooks and @buildpad/ui-collections internally.
     const relationalFullComponentMap: Record<string, string> = {
       'list-m2o': 'ListM2O',
       'select-dropdown-m2o': 'ListM2O',
@@ -173,7 +173,7 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
   }
 
   // Build props for interface component
-  // Merge interfaceConfig.props (from @microbuild/utils) with runtime props
+  // Merge interfaceConfig.props (from @buildpad/utils) with runtime props
   const interfaceProps: any = {
     value,
     onChange,
@@ -199,7 +199,7 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
     ...interfaceConfig.props,
   };
 
-  // Note: File interfaces (File, FileImage, Files) now use @microbuild/hooks useFiles
+  // Note: File interfaces (File, FileImage, Files) now use @buildpad/hooks useFiles
   // directly and don't need an external upload handler passed in
 
   // Render interface component

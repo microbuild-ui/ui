@@ -1,7 +1,7 @@
 /**
- * @microbuild/services
+ * @buildpad/services
  *
- * Shared service classes for Microbuild projects.
+ * Shared service classes for Buildpad projects.
  * DaaS-compatible CRUD services for items, fields, collections.
  * Authentication follows DaaS architecture with multiple auth methods.
  */

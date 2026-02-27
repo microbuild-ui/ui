@@ -89,11 +89,11 @@ const MOCK_FIELDS = [
 
 const MOCK_ITEM = {
   id: 1,
-  title: "Getting Started with Microbuild",
+  title: "Getting Started with Buildpad",
   status: "published",
   category: "tutorial",
   content:
-    "This guide covers the basics of building forms and tables with Microbuild UI components.",
+    "This guide covers the basics of building forms and tables with Buildpad UI components.",
   featured: true,
 };
 

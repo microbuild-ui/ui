@@ -38,9 +38,9 @@ import {
     useRelationM2AItems, 
     type M2AItem, 
     type M2ARelationInfo 
-} from "@microbuild/hooks";
-import { CollectionList } from "@microbuild/ui-collections";
-import { CollectionForm } from "@microbuild/ui-collections";
+} from "@buildpad/hooks";
+import { CollectionList } from "@buildpad/ui-collections";
+import { CollectionForm } from "@buildpad/ui-collections";
 
 /**
  * Props for the ListM2A component

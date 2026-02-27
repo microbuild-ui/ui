@@ -20,7 +20,7 @@ const meta: Meta<typeof DateTime> = {
 
 ## Usage
 \`\`\`tsx
-import { DateTime } from '@microbuild/ui-interfaces';
+import { DateTime } from '@buildpad/ui-interfaces';
 
 <DateTime
   label="Pick a date"

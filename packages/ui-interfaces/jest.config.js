@@ -3,9 +3,9 @@ const config = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   moduleNameMapper: {
-    '^@microbuild/types$': '<rootDir>/../types/src/index.ts',
-    '^@microbuild/services$': '<rootDir>/../services/src/index.ts',
-    '^@microbuild/hooks$': '<rootDir>/../hooks/src/index.ts',
+    '^@buildpad/types$': '<rootDir>/../types/src/index.ts',
+    '^@buildpad/services$': '<rootDir>/../services/src/index.ts',
+    '^@buildpad/hooks$': '<rootDir>/../hooks/src/index.ts',
   },
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],

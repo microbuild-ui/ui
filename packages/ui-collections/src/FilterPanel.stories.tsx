@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Stack, Text, Code } from '@mantine/core';
 import { FilterPanel } from './FilterPanel';
-import type { Field } from '@microbuild/types';
+import type { Field } from '@buildpad/types';
 
 // ============================================================================
 // Mock fields
@@ -136,7 +136,7 @@ export const Disabled: Story = {
       disabled
       value={{
         _and: [
-          { title: { _contains: 'Microbuild' } },
+          { title: { _contains: 'Buildpad' } },
           { status: { _eq: 'published' } },
         ],
       }}

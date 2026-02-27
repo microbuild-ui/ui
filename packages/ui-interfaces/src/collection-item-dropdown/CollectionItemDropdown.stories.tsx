@@ -49,7 +49,7 @@ const meta: Meta<typeof CollectionItemDropdown> = {
 
 ## Usage
 \`\`\`tsx
-import { CollectionItemDropdown } from '@microbuild/ui-interfaces';
+import { CollectionItemDropdown } from '@buildpad/ui-interfaces';
 
 <CollectionItemDropdown
   label="Related Item"

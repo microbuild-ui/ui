@@ -1,7 +1,7 @@
 /**
- * Microbuild CLI - Status Command
+ * Buildpad CLI - Status Command
  * 
- * Scans project for microbuild-installed files and shows:
+ * Scans project for buildpad-installed files and shows:
  * - Which components are installed
  * - Their versions and install dates
  * - Whether they've been modified
@@ -11,7 +11,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import { loadConfig, resolveAlias } from './init.js';
-import { extractOriginInfo, hasMicrobuildOrigin } from './transformer.js';
+import { extractOriginInfo, hasBuildpadOrigin } from './transformer.js';
 
 interface InstalledFile {
   path: string;
@@ -22,9 +22,9 @@ interface InstalledFile {
 }
 
 /**
- * Recursively find all files with microbuild origin headers
+ * Recursively find all files with buildpad origin headers
  */
-async function findMicrobuildFiles(dir: string): Promise<InstalledFile[]> {
+async function findBuildpadFiles(dir: string): Promise<InstalledFile[]> {
   const files: InstalledFile[] = [];
   
   if (!fs.existsSync(dir)) {
@@ -39,13 +39,13 @@ async function findMicrobuildFiles(dir: string): Promise<InstalledFile[]> {
     if (entry.isDirectory()) {
       // Skip node_modules and hidden directories
       if (entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
-        const subFiles = await findMicrobuildFiles(fullPath);
+        const subFiles = await findBuildpadFiles(fullPath);
         files.push(...subFiles);
       }
     } else if (entry.isFile() && /\.(tsx?|jsx?)$/.test(entry.name)) {
       const content = await fs.readFile(fullPath, 'utf-8');
       
-      if (hasMicrobuildOrigin(content)) {
+      if (hasBuildpadOrigin(content)) {
         const info = extractOriginInfo(content);
         if (info && info.origin) {
           files.push({
@@ -90,15 +90,15 @@ export async function status(options: { cwd: string; json?: boolean }) {
 
   const config = await loadConfig(cwd);
   if (!config) {
-    console.log(chalk.red('\n✗ microbuild.json not found.\n'));
-    console.log('This project may not be initialized with Microbuild.');
-    console.log('Run "npx @microbuild/cli init" to initialize.\n');
+    console.log(chalk.red('\n✗ buildpad.json not found.\n'));
+    console.log('This project may not be initialized with Buildpad.');
+    console.log('Run "npx @buildpad/cli init" to initialize.\n');
     return;
   }
 
   // Scan for installed files
   const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
-  const files = await findMicrobuildFiles(srcDir);
+  const files = await findBuildpadFiles(srcDir);
 
   if (json) {
     console.log(JSON.stringify({
@@ -115,14 +115,14 @@ export async function status(options: { cwd: string; json?: boolean }) {
   }
 
   // Pretty print
-  console.log('\n' + chalk.bold('📦 Microbuild Status\n'));
+  console.log('\n' + chalk.bold('📦 Buildpad Status\n'));
   
-  console.log(chalk.gray('Config file: ') + 'microbuild.json');
+  console.log(chalk.gray('Config file: ') + 'buildpad.json');
   console.log(chalk.gray('Lib modules: ') + (config.installedLib.join(', ') || 'none'));
   console.log(chalk.gray('Components:  ') + (config.installedComponents.join(', ') || 'none'));
   
   if (files.length === 0) {
-    console.log('\n' + chalk.yellow('No files with @microbuild-origin headers found.'));
+    console.log('\n' + chalk.yellow('No files with @buildpad-origin headers found.'));
     console.log(chalk.gray('This may mean components were installed before origin tracking was added.'));
     return;
   }
@@ -141,5 +141,5 @@ export async function status(options: { cwd: string; json?: boolean }) {
     console.log();
   }
 
-  console.log(chalk.gray(`\nTotal: ${files.length} files from Microbuild\n`));
+  console.log(chalk.gray(`\nTotal: ${files.length} files from Buildpad\n`));
 }

@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { ListM2M } from '@microbuild/ui-interfaces';
+import { ListM2M } from '@buildpad/ui-interfaces';
 
 // Mock the daasAPI
 jest.mock('@/lib/api', () => ({
