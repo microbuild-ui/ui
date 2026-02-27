@@ -4,7 +4,7 @@
  * Singleton registry for managing interface definitions.
  * Supports both built-in interfaces and extension-registered interfaces.
  * 
- * @module @microbuild/utils/interface-registry
+ * @module @buildpad/utils/interface-registry
  */
 
 import type {

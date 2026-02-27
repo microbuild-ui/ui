@@ -12,7 +12,7 @@ export interface DaaSConfig {
 function getSecret(): Buffer {
   const secret =
     process.env.COOKIE_SECRET ||
-    'microbuild-storybook-host-default-dev-key!!';
+    'buildpad-storybook-host-default-dev-key!!';
   return crypto.createHash('sha256').update(secret).digest();
 }
 

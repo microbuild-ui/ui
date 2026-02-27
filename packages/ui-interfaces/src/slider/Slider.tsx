@@ -186,7 +186,10 @@ export const Slider: React.FC<SliderProps> = ({
     value: numericValue ?? minValue,
     onChange: handleChange,
     onChangeEnd: handleChangeEnd,
-    disabled: disabled || readOnly,
+    // Don't use Mantine's disabled prop as it hides the thumb (display: none),
+    // removing it from the accessibility tree. Instead, prevent interaction
+    // via onChange handlers and style it visually as disabled.
+    disabled: false,
     min: minValue,
     max: maxValue,
     step: stepInterval,
@@ -200,6 +203,8 @@ export const Slider: React.FC<SliderProps> = ({
     styles: {
       root: {
         marginTop: alwaysShowValue ? '24px' : '12px',
+        opacity: disabled || readOnly ? 0.6 : 1,
+        pointerEvents: disabled || readOnly ? 'none' as const : undefined,
       },
       track: {
         cursor: disabled || readOnly ? 'not-allowed' : 'pointer',

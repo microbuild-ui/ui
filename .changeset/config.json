@@ -4,7 +4,7 @@
   "commit": false,
   "fixed": [],
   "linked": [
-    ["@microbuild/cli", "@microbuild/mcp"]
+    ["@buildpad/cli", "@buildpad/mcp"]
   ],
   "access": "public",
   "baseBranch": "main",

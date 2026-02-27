@@ -20,7 +20,7 @@ const meta: Meta<typeof Slider> = {
 
 ## Usage
 \`\`\`tsx
-import { Slider } from '@microbuild/ui-interfaces';
+import { Slider } from '@buildpad/ui-interfaces';
 
 <Slider
   label="Volume"

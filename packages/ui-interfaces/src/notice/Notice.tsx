@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Box, Text, useMantineTheme } from '@mantine/core';
-import { 
-  IconInfoCircle, 
-  IconCircleCheck, 
-  IconAlertTriangle, 
-  IconCircleX 
-} from '@tabler/icons-react';
+import { Box, Text, useMantineTheme } from "@mantine/core";
+import {
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconCircleX,
+  IconInfoCircle,
+} from "@tabler/icons-react";
+import React from "react";
 
-export type NoticeType = 'info' | 'success' | 'warning' | 'danger';
+export type NoticeType = "info" | "success" | "warning" | "danger";
 
 export interface NoticeProps {
   /** Type of notice that determines the default styling */
   type?: NoticeType;
-  /** Custom icon or false to hide the icon */
-  icon?: React.ReactNode | boolean;
+  /** Custom icon or false to hide the icon (ReactNode for JSX; string values from backend options fall back to the default type icon) */
+  icon?: string | React.ReactNode | boolean;
   /** Whether to center the content */
   center?: boolean;
   /** Whether to allow multiline content with wrapping */
@@ -26,6 +26,8 @@ export interface NoticeProps {
   title?: string;
   /** Content for the notice body */
   children?: React.ReactNode;
+  /** Text content as an alternative to children (maps to backend options.text) */
+  text?: string;
   /** Custom text color */
   color?: string;
   /** Custom background color */
@@ -35,7 +37,7 @@ export interface NoticeProps {
   /** Custom icon color */
   iconColor?: string;
   /** Test ID for testing */
-  'data-testid'?: string;
+  "data-testid"?: string;
 }
 
 /**
@@ -43,15 +45,15 @@ export interface NoticeProps {
  */
 const getDefaultIcon = (type: NoticeType): React.ReactNode => {
   const iconProps = { size: 24 };
-  
+
   switch (type) {
-    case 'success':
+    case "success":
       return <IconCircleCheck {...iconProps} />;
-    case 'warning':
+    case "warning":
       return <IconAlertTriangle {...iconProps} />;
-    case 'danger':
+    case "danger":
       return <IconCircleX {...iconProps} />;
-    case 'info':
+    case "info":
     default:
       return <IconInfoCircle {...iconProps} />;
   }
@@ -60,23 +62,26 @@ const getDefaultIcon = (type: NoticeType): React.ReactNode => {
 /**
  * Get type-based colors from Mantine theme
  */
-const getTypeColors = (type: NoticeType, theme: ReturnType<typeof useMantineTheme>) => {
+const getTypeColors = (
+  type: NoticeType,
+  theme: ReturnType<typeof useMantineTheme>,
+) => {
   switch (type) {
-    case 'success':
+    case "success":
       return {
         iconColor: theme.colors.green[6],
         borderColor: theme.colors.green[6],
         textColor: theme.colors.gray[7],
         backgroundColor: theme.colors.gray[0],
       };
-    case 'warning':
+    case "warning":
       return {
         iconColor: theme.colors.yellow[6],
         borderColor: theme.colors.yellow[6],
         textColor: theme.colors.gray[7],
         backgroundColor: theme.colors.gray[0],
       };
-    case 'danger':
+    case "danger":
       return {
         iconColor: theme.colors.red[6],
         borderColor: theme.colors.red[6],
@@ -95,10 +100,10 @@ const getTypeColors = (type: NoticeType, theme: ReturnType<typeof useMantineThem
 
 /**
  * Notice Interface Component
- * 
+ *
  * A notice/alert component that matches the DaaS v-notice interface functionality.
  * Provides visual feedback for information, success, warning, and error states.
- * 
+ *
  * Features:
  * - Four notice types: info, success, warning, danger
  * - Customizable icons or hide icon completely
@@ -109,27 +114,27 @@ const getTypeColors = (type: NoticeType, theme: ReturnType<typeof useMantineThem
  * - Custom color theming
  * - Left border accent following DaaS design
  * - Accessibility support with proper roles
- * 
+ *
  * @param props - Notice interface props
  * @returns React component
- * 
+ *
  * @example
  * ```tsx
  * // Info notice with title and content
  * <Notice type="info" title="Information">
  *   This is an informational message.
  * </Notice>
- * 
+ *
  * // Success notice with custom icon
  * <Notice type="success" icon={<CustomIcon />}>
  *   Operation completed successfully!
  * </Notice>
- * 
+ *
  * // Warning notice without icon
  * <Notice type="warning" icon={false} title="Warning">
  *   Please review your input.
  * </Notice>
- * 
+ *
  * // Danger notice centered
  * <Notice type="danger" center>
  *   An error has occurred.
@@ -137,36 +142,42 @@ const getTypeColors = (type: NoticeType, theme: ReturnType<typeof useMantineThem
  * ```
  */
 export const Notice: React.FC<NoticeProps> = ({
-  type = 'info',
+  type = "info",
   icon = null,
   center = false,
   multiline = false,
   indentContent = false,
   title,
   children,
+  text,
   color,
   backgroundColor,
   borderColor,
   iconColor,
-  'data-testid': testId,
+  "data-testid": testId,
 }) => {
   const theme = useMantineTheme();
-  
+
   // Get type-based colors
   const typeColors = getTypeColors(type, theme);
-  
+
   // Resolve final colors (custom overrides type defaults)
   const finalIconColor = iconColor || typeColors.iconColor;
   const finalBorderColor = borderColor || typeColors.borderColor;
   const finalTextColor = color || typeColors.textColor;
   const finalBackgroundColor = backgroundColor || typeColors.backgroundColor;
-  
+
+  // Normalize icon: string values from backend options cannot be rendered as React components;
+  // fall back to the default type icon instead.
+  const resolvedIcon = typeof icon === "string" ? null : icon;
+
   // Determine if icon should be shown
-  const showIcon = icon !== false;
-  
+  const showIcon = resolvedIcon !== false;
+
   // Get the icon to display
-  const displayIcon = icon && icon !== true ? icon : getDefaultIcon(type);
-  
+  const displayIcon =
+    resolvedIcon && resolvedIcon !== true ? resolvedIcon : getDefaultIcon(type);
+
   // Calculate indent padding (icon width + icon margin)
   const iconPaddingInlineEnd = 16; // 16px gap
   const iconSizeDefault = 24; // 24px icon
@@ -178,19 +189,19 @@ export const Notice: React.FC<NoticeProps> = ({
       role="alert"
       aria-live="polite"
       style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: center ? 'center' : 'flex-start',
-        justifyContent: center ? 'center' : 'flex-start',
-        flexWrap: multiline ? 'wrap' : 'nowrap',
-        width: 'auto',
-        minHeight: '52px',
-        padding: '12px 16px',
+        position: "relative",
+        display: "flex",
+        alignItems: center ? "center" : "flex-start",
+        justifyContent: center ? "center" : "flex-start",
+        flexWrap: multiline ? "wrap" : "nowrap",
+        width: "auto",
+        minHeight: "52px",
+        padding: "12px 16px",
         color: finalTextColor,
-        lineHeight: '22px',
+        lineHeight: "22px",
         backgroundColor: finalBackgroundColor,
-        borderRadius: 'var(--mantine-radius-md)',
-        overflow: 'hidden',
+        borderRadius: "var(--mantine-radius-md)",
+        overflow: "hidden",
       }}
     >
       {/* Left border accent */}
@@ -198,22 +209,22 @@ export const Notice: React.FC<NoticeProps> = ({
         data-testid={testId ? `${testId}-border` : undefined}
         style={{
           content: '""',
-          display: 'block',
-          position: 'absolute',
+          display: "block",
+          position: "absolute",
           top: 0,
           left: 0,
-          width: '4px',
-          height: '100%',
+          width: "4px",
+          height: "100%",
           backgroundColor: finalBorderColor,
         }}
       />
-      
+
       {/* Title row with icon */}
       <Box
         data-testid={testId ? `${testId}-title` : undefined}
         style={{
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
           fontWeight: 600,
           color: finalTextColor,
         }}
@@ -222,8 +233,8 @@ export const Notice: React.FC<NoticeProps> = ({
           <Box
             data-testid={testId ? `${testId}-icon` : undefined}
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               marginRight: `${iconPaddingInlineEnd}px`,
               color: finalIconColor,
             }}
@@ -241,16 +252,17 @@ export const Notice: React.FC<NoticeProps> = ({
           </Text>
         )}
       </Box>
-      
+
       {/* Content */}
-      {children && (
+      {(children || text) && (
         <Box
           data-testid={testId ? `${testId}-content` : undefined}
           style={{
-            width: multiline ? '100%' : 'auto',
-            paddingLeft: indentContent && showIcon ? `${indentPadding}px` : undefined,
-            marginTop: multiline && (title || showIcon) ? '8px' : undefined,
-            marginLeft: !multiline && (title || showIcon) ? '8px' : undefined,
+            width: multiline ? "100%" : "auto",
+            paddingLeft:
+              indentContent && showIcon ? `${indentPadding}px` : undefined,
+            marginTop: multiline && (title || showIcon) ? "8px" : undefined,
+            marginLeft: !multiline && (title || showIcon) ? "8px" : undefined,
           }}
         >
           <Text
@@ -259,7 +271,7 @@ export const Notice: React.FC<NoticeProps> = ({
               color: finalTextColor,
             }}
           >
-            {children}
+            {children ?? text}
           </Text>
         </Box>
       )}

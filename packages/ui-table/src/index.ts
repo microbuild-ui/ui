@@ -1,5 +1,5 @@
 /**
- * @microbuild/ui-table
+ * @buildpad/ui-table
  * Dynamic table component system
  * 
  * Features:

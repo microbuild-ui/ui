@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ContentNavigation } from './ContentNavigation';
 import type { ContentNavigationProps, CollectionTreeNode } from './ContentNavigation';
-import type { Bookmark } from '@microbuild/types';
+import type { Bookmark } from '@buildpad/types';
 
 // ============================================================================
 // Mock Data — stories work offline without a DaaS backend

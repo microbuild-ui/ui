@@ -1,10 +1,10 @@
 # Testing Guide
 
-Comprehensive testing guide for Microbuild UI Packages.
+Comprehensive testing guide for Buildpad UI Packages.
 
 ## Overview
 
-Microbuild UI Packages uses a **two-tier testing strategy**:
+Buildpad UI Packages uses a **two-tier testing strategy**:
 
 1. **Storybook Component Tests** - Isolated component testing (no auth needed)
 2. **DaaS E2E Tests** - Integration testing against the hosted DaaS application
@@ -21,7 +21,10 @@ pnpm exec playwright install chromium
 # Option 1: Storybook Tests (Recommended for component development)
 pnpm storybook:form          # Start VForm Storybook on port 6006
 pnpm storybook:table         # Start VTable Storybook on port 6007
-pnpm test:storybook          # Run Playwright against Storybook
+pnpm storybook:interfaces    # Start Interfaces Storybook on port 6008
+pnpm test:storybook          # Run Playwright against VForm Storybook
+pnpm test:storybook:table    # Run Playwright against VTable Storybook
+pnpm test:storybook:interfaces # Run Playwright against Interfaces Storybook
 
 # Option 2: DaaS E2E Tests (Full integration testing)
 pnpm test:e2e                # Run against hosted DaaS
@@ -99,6 +102,13 @@ tests/ui-form/
 ├── vform-daas.spec.ts        # DaaS integration tests (real API)
 └── vform.spec.ts             # Full E2E workflow tests (create, edit, validate)
 
+tests/ui-interfaces/
+├── input-storybook.spec.ts       # Input interface tests (23 tests)
+├── textarea-storybook.spec.ts    # Textarea interface tests (15 tests)
+├── input-code-storybook.spec.ts  # InputCode interface tests (18 tests)
+├── slider-storybook.spec.ts      # Slider interface tests (19 tests)
+└── tags-storybook.spec.ts        # Tags interface tests (19 tests)
+
 tests/ui-table/
 └── vtable-storybook.spec.ts  # VTable Storybook component tests (22 tests)
 
@@ -108,6 +118,34 @@ tests/helpers/
 tests/
 └── auth.setup.ts             # Authentication setup (runs once before E2E)
 ```
+
+## UI Interfaces Component Testing
+
+The `@buildpad/ui-interfaces` package contains individual field interface components (Input, Textarea, InputCode, Slider, Tags). Each has comprehensive Storybook stories and Playwright tests covering all configuration options.
+
+### Running Interfaces Tests
+
+```bash
+# Terminal 1: Start Interfaces Storybook
+pnpm storybook:interfaces    # Runs on port 6008
+
+# Terminal 2: Run Playwright tests
+pnpm test:storybook:interfaces
+
+# Or run manually
+SKIP_WEBSERVER=true STORYBOOK_INTERFACES_URL=http://localhost:6008 \
+  npx playwright test tests/ui-interfaces --project=storybook-interfaces
+```
+
+### Test Coverage (94 tests total)
+
+| Interface | Test File | Tests | Coverage |
+|-----------|-----------|-------|----------|
+| Input | `input-storybook.spec.ts` | 23 | Types, masked, slug, clear, trim, softLength, fonts, icons, states |
+| Textarea | `textarea-storybook.spec.ts` | 15 | SoftLength, fonts, autosize, rows, RTL, trim, states |
+| InputCode | `input-code-storybook.spec.ts` | 18 | Languages, line numbers, line wrapping, template, states |
+| Slider | `slider-storybook.spec.ts` | 19 | Types, ranges, marks, ticks, sizes, colors, states |
+| Tags | `tags-storybook.spec.ts` | 19 | Presets, custom tags, transforms, alphabetize, states |
 
 ## VTable Component Testing
 
@@ -260,9 +298,9 @@ pnpm test:storybook    # Run Playwright tests
 
 1. **Hosted DaaS** configured in `.env.local`:
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://xxx.microbuild-supabase.xtremax.com
+   NEXT_PUBLIC_SUPABASE_URL=https://xxx.buildpad-supabase.xtremax.com
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   NEXT_PUBLIC_MICROBUILD_DAAS_URL=https://xxx.microbuild-daas.xtremax.com
+   NEXT_PUBLIC_MICROBUILD_DAAS_URL=https://xxx.buildpad-daas.xtremax.com
    ```
 
 2. **Test credentials** in `.env.local`:

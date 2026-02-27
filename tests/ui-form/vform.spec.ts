@@ -1,7 +1,7 @@
 /**
  * VForm Component E2E Tests
  * 
- * Tests the @microbuild/ui-form VForm component integrated with the DaaS application.
+ * Tests the @buildpad/ui-form VForm component integrated with the DaaS application.
  * These tests validate the DaaS-inspired form rendering pattern.
  * 
  * Prerequisites:

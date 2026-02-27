@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Button, Group, Stack, Text, Paper, Badge, Tooltip, Pagination, Menu, ActionIcon, Modal, TextInput, Loader } from '@mantine/core';
 import { IconTrash, IconDownload, IconExternalLink, IconFolder, IconDotsVertical, IconPhoto, IconUpload, IconFolderOpen } from '@tabler/icons-react';
 import { type FileUpload } from '../upload';
-import { daasAPI, type DaaSFile } from '@microbuild/hooks';
-import { useFiles } from '@microbuild/hooks';
+import { daasAPI, type DaaSFile } from '@buildpad/hooks';
+import { useFiles } from '@buildpad/hooks';
 
 /**
  * Convert DaaSFile to FileUpload type (adds fallback for nullable fields)

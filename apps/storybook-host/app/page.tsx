@@ -128,10 +128,10 @@ export default function HomePage() {
       <section className="hero">
         <div className="hero-content">
           <span className="hero-badge">Reusable UI Library</span>
-          <h1 className="hero-title">Microbuild UI Packages</h1>
+          <h1 className="hero-title">Buildpad UI Packages</h1>
           <p className="hero-subtitle">
             A Copy &amp; Own component system for data-heavy apps. Build with
-            Mantine, powered by Microbuild-style schema, and ship Storybooks that
+            Mantine, powered by Buildpad-style schema, and ship Storybooks that
             connect to real DaaS data.
           </p>
           <div className="hero-actions">
@@ -154,9 +154,9 @@ export default function HomePage() {
         <div className="hero-panel">
           <div className="code-card">
             <div className="code-title">Quick Start</div>
-            <pre>{`npx @microbuild/cli@latest init
-npx @microbuild/cli@latest add collection-form
-npx @microbuild/cli@latest bootstrap`}</pre>
+            <pre>{`npx @buildpad/cli@latest init
+npx @buildpad/cli@latest add collection-form
+npx @buildpad/cli@latest bootstrap`}</pre>
             <div className="code-foot">Add components to any Next.js project.</div>
           </div>
           <div className="signal-strip">
@@ -176,7 +176,7 @@ npx @microbuild/cli@latest bootstrap`}</pre>
         <div className="feature-card">
           <h2>Interfaces</h2>
           <p>
-            40+ Microbuild-style field components: inputs, selects, relations,
+            40+ Buildpad-style field components: inputs, selects, relations,
             files, maps, and workflow-aware UI.
           </p>
         </div>
@@ -308,7 +308,7 @@ pnpm storybook:collections  # Port 6008`}</pre>
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://xxx.microbuild-daas.xtremax.com"
+                placeholder="https://xxx.buildpad-daas.xtremax.com"
                 required
               />
             </div>

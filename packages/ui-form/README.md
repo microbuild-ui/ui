@@ -1,4 +1,4 @@
-# @microbuild/ui-form
+# @buildpad/ui-form
 
 Dynamic form component system for building DaaS-compatible forms with built-in permission enforcement.
 
@@ -6,7 +6,7 @@ Dynamic form component system for building DaaS-compatible forms with built-in p
 
 ```typescript
 // Components
-import { VForm, FormField, FormFieldLabel, FormFieldInterface } from '@microbuild/ui-form';
+import { VForm, FormField, FormFieldLabel, FormFieldInterface } from '@buildpad/ui-form';
 
 // Types
 import type { 
@@ -16,7 +16,7 @@ import type {
   FormFieldInterfaceProps,
   FormField as FormFieldType,
   ValidationError 
-} from '@microbuild/ui-form';
+} from '@buildpad/ui-form';
 ```
 
 ## Features
@@ -34,7 +34,7 @@ import type {
 ## Installation
 
 ```bash
-pnpm add @microbuild/ui-form
+pnpm add @buildpad/ui-form
 ```
 
 ## Usage
@@ -42,7 +42,7 @@ pnpm add @microbuild/ui-form
 ### Basic Form
 
 ```tsx
-import { VForm } from '@microbuild/ui-form';
+import { VForm } from '@buildpad/ui-form';
 
 function MyForm() {
   const [values, setValues] = useState({});
@@ -62,14 +62,14 @@ function MyForm() {
 The form can filter fields based on user permissions, following the DaaS security architecture:
 
 ```tsx
-import { VForm } from '@microbuild/ui-form';
-import { DaaSProvider } from '@microbuild/services';
+import { VForm } from '@buildpad/ui-form';
+import { DaaSProvider } from '@buildpad/services';
 
 function ProtectedForm() {
   const [values, setValues] = useState({});
 
   return (
-    <DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'xxx' }}>
+    <DaaSProvider config={{ url: 'https://xxx.buildpad-daas.xtremax.com', token: 'xxx' }}>
       <VForm
         collection="articles"
         modelValue={values}
@@ -184,11 +184,11 @@ VForm
 
 ## Related Packages
 
-- `@microbuild/ui-interfaces` - Individual interface components (40+ interfaces)
-- `@microbuild/services` - API services for data fetching and DaaSProvider
-- `@microbuild/types` - TypeScript type definitions
-- `@microbuild/utils` - Shared utilities for field interface mapping, readonly detection, and validation
-- `@microbuild/hooks` - Relation hooks used by relational interfaces
+- `@buildpad/ui-interfaces` - Individual interface components (40+ interfaces)
+- `@buildpad/services` - API services for data fetching and DaaSProvider
+- `@buildpad/types` - TypeScript type definitions
+- `@buildpad/utils` - Shared utilities for field interface mapping, readonly detection, and validation
+- `@buildpad/hooks` - Relation hooks used by relational interfaces
 
 ## Storybook Development
 
@@ -219,7 +219,7 @@ All `/api/*` requests from Storybook are proxied through the host app, avoiding 
 
 ## Utility Integration
 
-VForm uses `@microbuild/utils` for core functionality:
+VForm uses `@buildpad/utils` for core functionality:
 
 ```tsx
 import { 
@@ -227,10 +227,10 @@ import {
   isFieldReadOnly,     // Detects readonly fields (auto-increment, UUID PKs, etc.)
   getFieldDefault,     // Gets safe default values (filters DB-generated defaults)
   isPresentationField  // Identifies dividers, notices, etc.
-} from '@microbuild/utils';
+} from '@buildpad/utils';
 ```
 
-These utilities are also re-exported from `@microbuild/ui-form` for convenience.
+These utilities are also re-exported from `@buildpad/ui-form` for convenience.
 
 ## License
 

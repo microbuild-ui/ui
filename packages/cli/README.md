@@ -1,32 +1,32 @@
-# @microbuild/cli
+# @buildpad/cli
 
-A CLI for adding Microbuild components to your project.
+A CLI for adding Buildpad components to your project.
 
-[![npm version](https://img.shields.io/npm/v/@microbuild/cli)](https://www.npmjs.com/package/@microbuild/cli)
+[![npm version](https://img.shields.io/npm/v/@buildpad/cli)](https://www.npmjs.com/package/@buildpad/cli)
 
 ## Usage
 
 Use the `init` command to set up a new project and the `add` command to add components.
 
 ```bash
-npx @microbuild/cli init
-npx @microbuild/cli add input select-dropdown
+npx @buildpad/cli init
+npx @buildpad/cli add input select-dropdown
 ```
 
 ## init
 
 Use the `init` command to initialize configuration and dependencies for a new project.
 
-The `init` command creates a `microbuild.json` file, sets up directory structure, and checks for required dependencies.
+The `init` command creates a `buildpad.json` file, sets up directory structure, and checks for required dependencies.
 
 ```bash
-npx @microbuild/cli init
+npx @buildpad/cli init
 ```
 
 ### Options
 
 ```
-Usage: microbuild init [options]
+Usage: buildpad init [options]
 
 initialize your project and install dependencies
 
@@ -41,13 +41,13 @@ Options:
 Use the `add` command to add components to your project.
 
 ```bash
-npx @microbuild/cli add [component]
+npx @buildpad/cli add [component]
 ```
 
 ### Options
 
 ```
-Usage: microbuild add [options] [components...]
+Usage: buildpad add [options] [components...]
 
 add components to your project
 
@@ -68,17 +68,17 @@ Options:
 
 ```bash
 # Add specific components
-npx @microbuild/cli add input
-npx @microbuild/cli add input select-dropdown datetime
+npx @buildpad/cli add input
+npx @buildpad/cli add input select-dropdown datetime
 
 # Add collection-form (includes VForm + all 32 interface components)
-npx @microbuild/cli add collection-form
+npx @buildpad/cli add collection-form
 
 # Add all components from a category
-npx @microbuild/cli add --category selection
+npx @buildpad/cli add --category selection
 
 # Add all components
-npx @microbuild/cli add --all
+npx @buildpad/cli add --all
 ```
 
 ## list
@@ -86,13 +86,13 @@ npx @microbuild/cli add --all
 Use the `list` command to view all available components.
 
 ```bash
-npx @microbuild/cli list
+npx @buildpad/cli list
 ```
 
 ### Options
 
 ```
-Usage: microbuild list [options]
+Usage: buildpad list [options]
 
 list available components
 
@@ -107,13 +107,13 @@ Options:
 Use the `bootstrap` command for full project setup in a single non-interactive command. Recommended for AI agents and CI/CD pipelines.
 
 ```bash
-npx @microbuild/cli bootstrap
+npx @buildpad/cli bootstrap
 ```
 
 ### Options
 
 ```
-Usage: microbuild bootstrap [options]
+Usage: buildpad bootstrap [options]
 
 Full project setup: init + add --all + install deps + validate (single command for AI agents)
 
@@ -126,9 +126,9 @@ Options:
 
 ### What Bootstrap Does
 
-1. Creates `microbuild.json` and project skeleton (package.json, tsconfig, Next.js layout/page, design tokens)
+1. Creates `buildpad.json` and project skeleton (package.json, tsconfig, Next.js layout/page, design tokens)
 2. Copies all 40+ UI components to `components/ui/`
-3. Copies types, services, hooks to `lib/microbuild/`
+3. Copies types, services, hooks to `lib/buildpad/`
 4. Copies API proxy routes (fields, items, relations, files)
 5. Copies auth proxy routes (login, logout, user, callback) + login page
 6. Copies Supabase auth utilities and middleware
@@ -146,18 +146,18 @@ Options:
 
 ## validate
 
-Use the `validate` command to check your Microbuild installation for common issues.
+Use the `validate` command to check your Buildpad installation for common issues.
 
 ```bash
-npx @microbuild/cli validate
+npx @buildpad/cli validate
 ```
 
 ### Options
 
 ```
-Usage: microbuild validate [options]
+Usage: buildpad validate [options]
 
-validate Microbuild installation (check imports, missing files, SSR issues)
+validate Buildpad installation (check imports, missing files, SSR issues)
 
 Options:
   --json           output as JSON for CI/CD
@@ -167,7 +167,7 @@ Options:
 
 ### What It Checks
 
-- **Untransformed imports** - `@microbuild/*` imports that weren't converted to local paths
+- **Untransformed imports** - `@buildpad/*` imports that weren't converted to local paths
 - **Missing lib files** - Required utility modules not present (types, services, hooks, utils)
 - **Missing CSS files** - CSS required by rich text editors (RichTextHTML.css, InputBlockEditor.css)
 - **SSR issues** - Components like InputBlockEditor exported without SSR-safe wrappers
@@ -179,9 +179,9 @@ Options:
 ✗ Found 2 error(s):
 
   ✗ src/components/ui/input.tsx:5
-    Untransformed import: import { Field } from '@microbuild/types';
+    Untransformed import: import { Field } from '@buildpad/types';
 
-  ✗ lib/microbuild/interface-registry.ts
+  ✗ lib/buildpad/interface-registry.ts
     Missing required file for utils module
 
 ⚠ Found 1 warning(s):
@@ -200,13 +200,13 @@ Options:
 Use the `diff` command to preview changes before adding a component.
 
 ```bash
-npx @microbuild/cli diff [component]
+npx @buildpad/cli diff [component]
 ```
 
 ### Options
 
 ```
-Usage: microbuild diff [options] <component>
+Usage: buildpad diff [options] <component>
 
 preview changes before adding a component
 
@@ -217,18 +217,18 @@ Options:
 
 ## status
 
-Use the `status` command to view all installed Microbuild components and their origins.
+Use the `status` command to view all installed Buildpad components and their origins.
 
 ```bash
-npx @microbuild/cli status
+npx @buildpad/cli status
 ```
 
 ### Options
 
 ```
-Usage: microbuild status [options]
+Usage: buildpad status [options]
 
-show installed Microbuild components and their origins
+show installed Buildpad components and their origins
 
 Options:
   --json           output as JSON
@@ -239,40 +239,40 @@ Options:
 ### Example Output
 
 ```
-📦 Microbuild Status
+📦 Buildpad Status
 
-Config file: microbuild.json
+Config file: buildpad.json
 Lib modules: types, hooks, services
 Components:  input, select-dropdown, list-m2m
 
 Installed Files:
 
-  @microbuild/ui-interfaces/input
+  @buildpad/ui-interfaces/input
     └─ src/components/ui/input.tsx
        v1.0.0 (2026-01-12)
 
-  @microbuild/lib/hooks
-    └─ src/lib/microbuild/hooks/useRelationM2M.ts
+  @buildpad/lib/hooks
+    └─ src/lib/buildpad/hooks/useRelationM2M.ts
        v1.0.0 (2026-01-12)
 
-Total: 15 files from Microbuild
+Total: 15 files from Buildpad
 ```
 
-## microbuild.json
+## buildpad.json
 
-The `microbuild.json` file holds configuration for your project. We use it to understand how your project is set up and how to generate components customized for your project.
+The `buildpad.json` file holds configuration for your project. We use it to understand how your project is set up and how to generate components customized for your project.
 
-You can create a `microbuild.json` file by running the `init` command.
+You can create a `buildpad.json` file by running the `init` command.
 
 ```json
 {
-  "$schema": "https://microbuild.dev/schema.json",
+  "$schema": "https://buildpad.dev/schema.json",
   "model": "copy-own",
   "tsx": true,
   "srcDir": true,
   "aliases": {
     "components": "@/components/ui",
-    "lib": "@/lib/microbuild"
+    "lib": "@/lib/buildpad"
   },
   "installedLib": [],
   "installedComponents": []
@@ -309,7 +309,7 @@ The CLI uses these values to place generated components in the correct location.
 {
   "aliases": {
     "components": "@/components/ui",
-    "lib": "@/lib/microbuild"
+    "lib": "@/lib/buildpad"
   }
 }
 ```
@@ -337,33 +337,33 @@ When you add a component, the CLI:
 
 1. **Copies the component source** to your components directory
 2. **Copies required lib modules** (types, services, hooks) if needed
-3. **Transforms imports** from `@microbuild/*` to local paths
+3. **Transforms imports** from `@buildpad/*` to local paths
 4. **Reports missing dependencies** that need to be installed
 
 ### Example: Adding `list-m2m`
 
 ```bash
-npx @microbuild/cli add list-m2m
+npx @buildpad/cli add list-m2m
 ```
 
 This copies:
 - `components/ui/list-m2m.tsx` - The component
-- `lib/microbuild/types/` - Type definitions
-- `lib/microbuild/services/` - CRUD services
-- `lib/microbuild/hooks/` - React hooks
+- `lib/buildpad/types/` - Type definitions
+- `lib/buildpad/services/` - CRUD services
+- `lib/buildpad/hooks/` - React hooks
 
 ### Import Transformation
 
 Original (in source):
 ```tsx
-import { useRelationM2M } from '@microbuild/hooks';
-import type { M2MItem } from '@microbuild/types';
+import { useRelationM2M } from '@buildpad/hooks';
+import type { M2MItem } from '@buildpad/types';
 ```
 
 Transformed (in your project):
 ```tsx
-import { useRelationM2M } from '@/lib/microbuild/hooks';
-import type { M2MItem } from '@/lib/microbuild/types';
+import { useRelationM2M } from '@/lib/buildpad/hooks';
+import type { M2MItem } from '@/lib/buildpad/types';
 ```
 
 ## Component Categories
@@ -443,7 +443,7 @@ your-project/
 │   │       ├── select-dropdown.tsx
 │   │       └── datetime.tsx
 │   └── lib/
-│       ├── microbuild/
+│       ├── buildpad/
 │       │   ├── utils.ts
 │       │   ├── types/
 │       │   │   ├── index.ts
@@ -466,7 +466,7 @@ your-project/
 │           ├── server.ts
 │           └── client.ts
 ├── middleware.ts                         # Auth middleware
-├── microbuild.json
+├── buildpad.json
 └── package.json
 ```
 
@@ -474,46 +474,46 @@ your-project/
 
 ```bash
 # Initialize project
-microbuild init [--yes] [--cwd <path>]
+buildpad init [--yes] [--cwd <path>]
 
 # Bootstrap full project (init + add all + deps + validate)
-microbuild bootstrap [--cwd <path>] [--skip-deps] [--skip-validate]
+buildpad bootstrap [--cwd <path>] [--skip-deps] [--skip-validate]
 
 # Add components
-microbuild add [components...] [--all] [--category <name>] [--overwrite] [--cwd <path>]
+buildpad add [components...] [--all] [--category <name>] [--overwrite] [--cwd <path>]
 
 # List components
-microbuild list [--category <name>] [--json]
+buildpad list [--category <name>] [--json]
 
 # Preview changes
-microbuild diff <component> [--cwd <path>]
+buildpad diff <component> [--cwd <path>]
 
 # Validate installation
-microbuild validate [--json] [--cwd <path>]
+buildpad validate [--json] [--cwd <path>]
 
 # Check installed components
-microbuild status [--json] [--cwd <path>]
+buildpad status [--json] [--cwd <path>]
 
 # Component info and dependency tree
-microbuild info <component> [--json]
-microbuild tree <component> [--json] [--depth <n>]
+buildpad info <component> [--json]
+buildpad tree <component> [--json] [--depth <n>]
 
 # Auto-fix common issues
-microbuild fix [--dry-run] [--yes] [--cwd <path>]
+buildpad fix [--dry-run] [--yes] [--cwd <path>]
 
 # Check for component updates
-microbuild outdated [--json] [--cwd <path>]
+buildpad outdated [--json] [--cwd <path>]
 ```
 
 ## Troubleshooting
 
 ### "Registry file not found"
 
-Make sure you're running the CLI from within the Microbuild workspace or have the registry properly configured.
+Make sure you're running the CLI from within the Buildpad workspace or have the registry properly configured.
 
-### "microbuild.json not found"
+### "buildpad.json not found"
 
-Run `npx @microbuild/cli init` first to initialize your project.
+Run `npx @buildpad/cli init` first to initialize your project.
 
 ### Import errors after adding components
 

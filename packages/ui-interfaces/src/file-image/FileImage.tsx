@@ -16,8 +16,8 @@ import {
 import { IconZoomIn, IconDownload, IconPencil, IconPhoto, IconX, IconInfoCircle, IconAdjustments, IconPhotoOff } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Upload, type UploadProps, type FileUpload } from '../upload';
-import { daasAPI, type DaaSFile } from '@microbuild/hooks';
-import { useFiles } from '@microbuild/hooks';
+import { daasAPI, type DaaSFile } from '@buildpad/hooks';
+import { useFiles } from '@buildpad/hooks';
 
 /**
  * Convert DaaSFile to FileUpload type (adds fallback for nullable fields)

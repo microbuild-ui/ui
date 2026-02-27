@@ -1,6 +1,6 @@
 /**
  * Component Registry
- * 
+ *
  * Loads component metadata from the embedded registry (bundled at build time).
  * Used by the MCP server to expose components to AI agents.
  */
@@ -86,8 +86,9 @@ export function getAllComponents(): ComponentMetadata[] {
  */
 export function getComponent(name: string): ComponentMetadata | undefined {
   return getRegistry().components.find(
-    c => c.name.toLowerCase() === name.toLowerCase() ||
-         c.title.toLowerCase() === name.toLowerCase()
+    (c) =>
+      c.name.toLowerCase() === name.toLowerCase() ||
+      c.title.toLowerCase() === name.toLowerCase(),
   );
 }
 
@@ -95,7 +96,7 @@ export function getComponent(name: string): ComponentMetadata | undefined {
  * Get components by category
  */
 export function getComponentsByCategory(category: string): ComponentMetadata[] {
-  return getRegistry().components.filter(c => c.category === category);
+  return getRegistry().components.filter((c) => c.category === category);
 }
 
 /**
@@ -122,59 +123,68 @@ export function getAllLibModules(): LibModule[] {
 // Legacy PACKAGES export for backwards compatibility with MCP server
 export const PACKAGES: PackageMetadata[] = [
   {
-    name: '@microbuild/types',
-    description: 'TypeScript type definitions for collections, fields, files, and relations',
-    path: 'packages/types',
+    name: "@buildpad/types",
+    description:
+      "TypeScript type definitions for collections, fields, files, and relations",
+    path: "packages/types",
     exports: [
-      'Field', 'FieldMeta', 'FieldSchema',
-      'Collection', 'CollectionMeta',
-      'Query', 'Filter',
-      'Relation', 'RelationMeta',
-      'DaaSFile', 'PrimaryKey', 'AnyItem'
-    ]
+      "Field",
+      "FieldMeta",
+      "FieldSchema",
+      "Collection",
+      "CollectionMeta",
+      "Query",
+      "Filter",
+      "Relation",
+      "RelationMeta",
+      "DaaSFile",
+      "PrimaryKey",
+      "AnyItem",
+    ],
   },
   {
-    name: '@microbuild/services',
-    description: 'CRUD service classes for items, fields, and collections',
-    path: 'packages/services',
+    name: "@buildpad/services",
+    description: "CRUD service classes for items, fields, and collections",
+    path: "packages/services",
+    exports: ["FieldsService", "CollectionsService", "apiRequest"],
+  },
+  {
+    name: "@buildpad/hooks",
+    description: "React hooks for managing relational data",
+    path: "packages/hooks",
     exports: [
-      'ItemsService',
-      'FieldsService',
-      'CollectionsService',
-      'apiRequest'
-    ]
+      "useRelationM2M",
+      "useRelationM2MItems",
+      "useRelationM2O",
+      "useRelationM2OItem",
+      "useRelationO2M",
+      "useRelationO2MItems",
+      "useRelationM2A",
+      "useFiles",
+      "api",
+      "daasAPI",
+    ],
   },
   {
-    name: '@microbuild/hooks',
-    description: 'React hooks for managing relational data',
-    path: 'packages/hooks',
-    exports: [
-      'useRelationM2M',
-      'useRelationM2MItems',
-      'useRelationM2O',
-      'useRelationM2OItem',
-      'useRelationO2M',
-      'useRelationO2MItems',
-      'useRelationM2A',
-      'useFiles',
-      'api',
-      'daasAPI'
-    ]
+    name: "@buildpad/ui-interfaces",
+    description:
+      "Field interface components (inputs, selects, file uploads, etc.)",
+    path: "packages/ui-interfaces",
+    exports: [],
   },
   {
-    name: '@microbuild/ui-interfaces',
-    description: 'Field interface components (inputs, selects, file uploads, etc.)',
-    path: 'packages/ui-interfaces',
-    exports: []
+    name: "@buildpad/ui-collections",
+    description:
+      "Dynamic collection components (CollectionForm, CollectionList)",
+    path: "packages/ui-collections",
+    exports: [],
   },
-  {
-    name: '@microbuild/ui-collections',
-    description: 'Dynamic collection components (CollectionForm, CollectionList)',
-    path: 'packages/ui-collections',
-    exports: []
-  }
 ];
 
 // Populate components on package references
-PACKAGES[3].components = getAllComponents().filter(c => c.category !== 'collection');
-PACKAGES[4].components = getAllComponents().filter(c => c.category === 'collection');
+PACKAGES[3].components = getAllComponents().filter(
+  (c) => c.category !== "collection",
+);
+PACKAGES[4].components = getAllComponents().filter(
+  (c) => c.category === "collection",
+);

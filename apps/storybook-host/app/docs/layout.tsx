@@ -47,7 +47,7 @@ export default function DocsLayout({
       <aside className="docs-sidebar">
         <div className="docs-sidebar-header">
           <Link href="/" className="docs-logo">
-            Microbuild UI
+            Buildpad UI
           </Link>
         </div>
         <nav className="docs-nav">

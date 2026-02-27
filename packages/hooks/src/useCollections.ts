@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { Collection } from '@microbuild/types';
+import type { Collection } from '@buildpad/types';
 
 export interface CollectionTreeNode extends Collection {
   /** Display name (formatted from collection identifier) */

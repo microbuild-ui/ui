@@ -1,5 +1,5 @@
-import React from 'react';
-import { Switch, SwitchProps } from '@mantine/core';
+import { Switch, SwitchProps } from "@mantine/core";
+import React from "react";
 
 /**
  * Props for the Boolean interface component
@@ -8,53 +8,56 @@ import { Switch, SwitchProps } from '@mantine/core';
 export interface BooleanProps {
   /** Current boolean value */
   value?: boolean | null;
-  
+
   /** Whether the switch is disabled */
   disabled?: boolean;
-  
+
   /** Whether the switch is readonly */
   readOnly?: boolean;
-  
+
   /** Whether the field is required */
   required?: boolean;
-  
+
   /** Label displayed next to the switch */
   label?: string;
-  
+
   /** Description text displayed below the label */
   description?: string;
-  
+
   /** Error message to display */
   error?: string;
-  
-  /** Icon to show when switch is on */
-  iconOn?: React.ReactNode;
-  
-  /** Icon to show when switch is off */
-  iconOff?: React.ReactNode;
-  
+
+  /** Icon to show when switch is on (ReactNode for JSX; string values from backend options are ignored) */
+  iconOn?: string | React.ReactNode;
+
+  /** Icon to show when switch is off (ReactNode for JSX; string values from backend options are ignored) */
+  iconOff?: string | React.ReactNode;
+
   /** Color when switch is on */
   colorOn?: string;
-  
+
   /** Color when switch is off */
   colorOff?: string;
-  
+
   /** Size of the switch */
-  size?: SwitchProps['size'];
-  
+  size?: SwitchProps["size"];
+
   /** Callback fired when value changes */
   onChange?: (value: boolean) => void;
-  
+
   /** Additional props to pass to the Switch component */
-  switchProps?: Omit<SwitchProps, 'checked' | 'onChange' | 'disabled' | 'label' | 'size'>;
+  switchProps?: Omit<
+    SwitchProps,
+    "checked" | "onChange" | "disabled" | "label" | "size"
+  >;
 }
 
 /**
  * Boolean Interface Component
- * 
+ *
  * A toggle switch interface that matches the DaaS boolean interface functionality.
  * Uses Mantine's Switch component for consistent styling and behavior.
- * 
+ *
  * Features:
  * - Boolean value handling with null state support
  * - Custom icons for on/off states
@@ -62,7 +65,7 @@ export interface BooleanProps {
  * - Disabled and readonly states
  * - Error handling
  * - Accessibility support
- * 
+ *
  * @param props - Boolean interface props
  * @returns React component
  */
@@ -78,7 +81,7 @@ export const Boolean: React.FC<BooleanProps> = ({
   iconOff,
   colorOn,
   colorOff,
-  size = 'sm',
+  size = "sm",
   onChange,
   switchProps = {},
   ...rest
@@ -88,7 +91,7 @@ export const Boolean: React.FC<BooleanProps> = ({
     if (disabled || readOnly) {
       return;
     }
-    
+
     const newValue = event.currentTarget.checked;
     onChange?.(newValue);
   };
@@ -102,11 +105,15 @@ export const Boolean: React.FC<BooleanProps> = ({
     ...switchProps,
     checked,
     onChange: handleChange,
-    disabled: disabled || readOnly,
+    disabled,
     label: label ? (required ? `${label} *` : label) : undefined,
     description,
     error,
     size,
+    ...(readOnly && {
+      style: { pointerEvents: 'none' as const, opacity: 0.8 },
+      'aria-readonly': true,
+    }),
     ...rest,
   };
 
@@ -120,28 +127,33 @@ export const Boolean: React.FC<BooleanProps> = ({
         }),
       },
     };
-    
+
     // Apply styles to the component props
-    switchComponentProps.styles = typeof switchComponentProps.styles === 'function' 
-      ? switchComponentProps.styles 
-      : { ...switchComponentProps.styles, ...customStyles };
-      
+    switchComponentProps.styles =
+      typeof switchComponentProps.styles === "function"
+        ? switchComponentProps.styles
+        : { ...switchComponentProps.styles, ...customStyles };
+
     // Use CSS custom properties for checked state styling
     if (colorOn) {
       switchComponentProps.style = {
         ...switchComponentProps.style,
-        '--mantine-color-primary-filled': colorOn,
+        "--mantine-color-primary-filled": colorOn,
       };
     }
   }
 
   // Add icon labels if provided
-  if (iconOn || iconOff) {
-    if (iconOn) {
-      switchComponentProps.onLabel = iconOn;
+  // String values from backend options are ignored since we cannot resolve icon names
+  // to React components at runtime — the components use their built-in defaults instead.
+  const resolvedIconOn = typeof iconOn === "string" ? undefined : iconOn;
+  const resolvedIconOff = typeof iconOff === "string" ? undefined : iconOff;
+  if (resolvedIconOn || resolvedIconOff) {
+    if (resolvedIconOn) {
+      switchComponentProps.onLabel = resolvedIconOn;
     }
-    if (iconOff) {
-      switchComponentProps.offLabel = iconOff;
+    if (resolvedIconOff) {
+      switchComponentProps.offLabel = resolvedIconOff;
     }
   }
 

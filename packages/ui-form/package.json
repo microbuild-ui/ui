@@ -1,7 +1,7 @@
 {
-  "name": "@microbuild/ui-form",
-  "version": "0.2.0",
-  "description": "Dynamic form component (VForm) for Microbuild projects - inspired by Directus v-form",
+  "name": "@buildpad/ui-form",
+  "version": "0.1.0",
+  "description": "Dynamic form component (VForm) for Buildpad projects - inspired by DaaS v-form",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -28,10 +28,10 @@
   "peerDependencies": {
     "@mantine/core": "^8.0.0",
     "@mantine/hooks": "^8.0.0",
-    "@microbuild/services": "workspace:*",
-    "@microbuild/types": "workspace:*",
-    "@microbuild/ui-interfaces": "workspace:*",
-    "@microbuild/utils": "workspace:*",
+    "@buildpad/services": "workspace:*",
+    "@buildpad/types": "workspace:*",
+    "@buildpad/ui-interfaces": "workspace:*",
+    "@buildpad/utils": "workspace:*",
     "@tabler/icons-react": "^3.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
@@ -51,7 +51,7 @@
     "vite": "^6.0.0"
   },
   "keywords": [
-    "microbuild",
+    "buildpad",
     "form",
     "vform",
     "daas",

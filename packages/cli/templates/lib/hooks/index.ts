@@ -1,5 +1,5 @@
 /**
- * Microbuild Hooks
+ * Buildpad Hooks
  * 
  * Re-exports all React hooks.
  * This file is copied to your project and can be customized.
@@ -92,7 +92,7 @@ export type {
   RelationSchema, 
   RelationCollectionMeta, 
   RelationFieldInfo 
-} from '@/lib/microbuild/types';
+} from '@/lib/buildpad/types';
 
 // Utility functions
 export { apiRequest, isValidPrimaryKey } from './utils';

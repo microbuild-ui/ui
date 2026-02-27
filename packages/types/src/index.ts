@@ -1,7 +1,7 @@
 /**
- * @microbuild/types
+ * @buildpad/types
  * 
- * Shared TypeScript type definitions for Microbuild projects.
+ * Shared TypeScript type definitions for Buildpad projects.
  * DaaS-compatible types for collections, fields, files, and more.
  */
 

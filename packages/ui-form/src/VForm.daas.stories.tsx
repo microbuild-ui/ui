@@ -25,9 +25,9 @@ import {
   IconExternalLink,
 } from '@tabler/icons-react';
 import { VForm } from './VForm';
-import type { Field } from '@microbuild/types';
+import type { Field } from '@buildpad/types';
 import type { FieldValues } from './types';
-import { DaaSProvider, useDaaSContext } from '@microbuild/services';
+import { DaaSProvider, useDaaSContext } from '@buildpad/services';
 
 /**
  * VForm - DaaS Connected Playground

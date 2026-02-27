@@ -6,7 +6,7 @@ export default function CliPage() {
       </div>
       <h1 className="docs-title">CLI</h1>
       <p className="docs-lead">
-        The Microbuild CLI copies component source code directly into your
+        The Buildpad CLI copies component source code directly into your
         project with imports transformed to local paths.
       </p>
 
@@ -16,10 +16,10 @@ export default function CliPage() {
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
         <pre className="docs-pre">{`# Use via npx (recommended)
-npx @microbuild/cli@latest --help
+npx @buildpad/cli@latest --help
 
 # Or install globally
-npm install -g @microbuild/cli`}</pre>
+npm install -g @buildpad/cli`}</pre>
       </div>
 
       <h2 className="docs-heading" id="commands">
@@ -35,47 +35,47 @@ npm install -g @microbuild/cli`}</pre>
           </thead>
           <tbody>
             <tr>
-              <td><code>microbuild init</code></td>
-              <td>Initialize Microbuild in your project</td>
+              <td><code>buildpad init</code></td>
+              <td>Initialize Buildpad in your project</td>
             </tr>
             <tr>
-              <td><code>microbuild bootstrap</code></td>
+              <td><code>buildpad bootstrap</code></td>
               <td>Full setup: init + add all + deps + validate</td>
             </tr>
             <tr>
-              <td><code>microbuild add &lt;component&gt;</code></td>
+              <td><code>buildpad add &lt;component&gt;</code></td>
               <td>Add component(s) to your project</td>
             </tr>
             <tr>
-              <td><code>microbuild list</code></td>
+              <td><code>buildpad list</code></td>
               <td>List all available components</td>
             </tr>
             <tr>
-              <td><code>microbuild info &lt;component&gt;</code></td>
+              <td><code>buildpad info &lt;component&gt;</code></td>
               <td>Get detailed info about a component</td>
             </tr>
             <tr>
-              <td><code>microbuild tree &lt;component&gt;</code></td>
+              <td><code>buildpad tree &lt;component&gt;</code></td>
               <td>Show dependency tree</td>
             </tr>
             <tr>
-              <td><code>microbuild diff &lt;component&gt;</code></td>
+              <td><code>buildpad diff &lt;component&gt;</code></td>
               <td>Preview changes before adding</td>
             </tr>
             <tr>
-              <td><code>microbuild status</code></td>
+              <td><code>buildpad status</code></td>
               <td>Show installed components</td>
             </tr>
             <tr>
-              <td><code>microbuild validate</code></td>
+              <td><code>buildpad validate</code></td>
               <td>Validate installation for common issues</td>
             </tr>
             <tr>
-              <td><code>microbuild fix</code></td>
+              <td><code>buildpad fix</code></td>
               <td>Auto-fix common issues</td>
             </tr>
             <tr>
-              <td><code>microbuild outdated</code></td>
+              <td><code>buildpad outdated</code></td>
               <td>Check for component updates</td>
             </tr>
           </tbody>
@@ -88,22 +88,22 @@ npm install -g @microbuild/cli`}</pre>
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
         <pre className="docs-pre">{`# Add single component
-microbuild add input
+buildpad add input
 
 # Add multiple components
-microbuild add input select-dropdown datetime
+buildpad add input select-dropdown datetime
 
 # Add collection-form (includes VForm + all 32 interface components)
-microbuild add collection-form
+buildpad add collection-form
 
 # Add all components from a category
-microbuild add --category selection
+buildpad add --category selection
 
 # Add all components (non-interactive)
-microbuild add --all
+buildpad add --all
 
 # Interactive selection
-microbuild add`}</pre>
+buildpad add`}</pre>
       </div>
 
       <h2 className="docs-heading" id="import-transformation">
@@ -115,13 +115,13 @@ microbuild add`}</pre>
       </p>
       <div className="docs-code-block">
         <div className="docs-code-title">Before (source)</div>
-        <pre className="docs-pre">{`import { useRelationM2M } from '@microbuild/hooks';
-import type { M2MItem } from '@microbuild/types';`}</pre>
+        <pre className="docs-pre">{`import { useRelationM2M } from '@buildpad/hooks';
+import type { M2MItem } from '@buildpad/types';`}</pre>
       </div>
       <div className="docs-code-block">
         <div className="docs-code-title">After (in your project)</div>
-        <pre className="docs-pre">{`import { useRelationM2M } from '@/lib/microbuild/hooks';
-import type { M2MItem } from '@/lib/microbuild/types';`}</pre>
+        <pre className="docs-pre">{`import { useRelationM2M } from '@/lib/buildpad/hooks';
+import type { M2MItem } from '@/lib/buildpad/types';`}</pre>
       </div>
 
       <h2 className="docs-heading" id="validation">
@@ -131,7 +131,7 @@ import type { M2MItem } from '@/lib/microbuild/types';`}</pre>
         The <code>validate</code> command checks for common issues:
       </p>
       <ul className="docs-list">
-        <li><strong>Untransformed imports</strong> — <code>@microbuild/*</code> imports that weren&apos;t converted</li>
+        <li><strong>Untransformed imports</strong> — <code>@buildpad/*</code> imports that weren&apos;t converted</li>
         <li><strong>Missing lib files</strong> — Required utility modules not installed</li>
         <li><strong>Missing CSS files</strong> — CSS required by rich text/block editors</li>
         <li><strong>SSR issues</strong> — Components exported without SSR-safe wrappers</li>
@@ -140,10 +140,10 @@ import type { M2MItem } from '@/lib/microbuild/types';`}</pre>
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
         <pre className="docs-pre">{`# Validate your installation
-microbuild validate
+buildpad validate
 
 # Auto-fix found issues
-microbuild fix`}</pre>
+buildpad fix`}</pre>
       </div>
 
       <div className="docs-footer-nav">

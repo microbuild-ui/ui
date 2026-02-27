@@ -1,5 +1,5 @@
 /**
- * Microbuild CLI - Info Command
+ * Buildpad CLI - Info Command
  * 
  * Show detailed information about a specific component including:
  * - Source files and locations
@@ -163,7 +163,7 @@ export async function info(componentName: string, options: { json?: boolean }) {
       console.log();
     }
     
-    console.log(chalk.dim('Run "microbuild list" to see all available components.\n'));
+    console.log(chalk.dim('Run "buildpad list" to see all available components.\n'));
     process.exit(1);
   }
   
@@ -234,6 +234,6 @@ export async function info(componentName: string, options: { json?: boolean }) {
   
   // Usage
   console.log(chalk.bold('\n💡 Usage'));
-  console.log(chalk.dim(`   microbuild add ${component.name}`));
-  console.log(chalk.dim(`   microbuild tree ${component.name}\n`));
+  console.log(chalk.dim(`   buildpad add ${component.name}`));
+  console.log(chalk.dim(`   buildpad tree ${component.name}\n`));
 }

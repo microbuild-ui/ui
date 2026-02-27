@@ -3,8 +3,8 @@
  * 
  * Proxies single item CRUD operations to the DaaS backend.
  * 
- * @microbuild/origin: api-routes/items-id
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/items-id
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

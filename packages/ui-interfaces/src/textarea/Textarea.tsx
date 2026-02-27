@@ -129,7 +129,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
         onBlur={handleBlur}
         label={label}
         placeholder={placeholder}
-        disabled={disabled || readOnly}
+        disabled={disabled}
+        readOnly={readOnly}
         required={required}
         error={error}
         description={description}
@@ -141,6 +142,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({
           input: {
             fontFamily: getFontFamily(),
             paddingBottom: softLength ? '24px' : undefined,
+            cursor: readOnly ? 'default' : undefined,
           },
         }}
       />

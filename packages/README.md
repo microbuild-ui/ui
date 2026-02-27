@@ -1,4 +1,4 @@
-# Microbuild UI Packages
+# Buildpad UI Packages
 
 A collection of packages for building DaaS-compatible content management applications with React and Mantine v8.
 
@@ -6,16 +6,16 @@ A collection of packages for building DaaS-compatible content management applica
 
 | Package | Description | Documentation |
 |---------|-------------|---------------|
-| [@microbuild/types](./types) | TypeScript type definitions | [README](./types/README.md) |
-| [@microbuild/services](./services) | CRUD service classes + DaaS context | [README](./services/README.md) |
-| [@microbuild/hooks](./hooks) | React hooks for relations, selection, presets, workflows | [README](./hooks/README.md) |
-| [@microbuild/utils](./utils) | Field interface mapper & utilities | [README](./utils/README.md) |
-| [@microbuild/ui-interfaces](./ui-interfaces) | Field interface components (40+) | [README](./ui-interfaces/README.md) |
-| [@microbuild/ui-form](./ui-form) | VForm dynamic form component | [README](./ui-form/README.md) |
-| [@microbuild/ui-table](./ui-table) | VTable dynamic table component | [README](./ui-table/README.md) |
-| [@microbuild/ui-collections](./ui-collections) | CollectionForm & CollectionList | [README](./ui-collections/README.md) |
-| [@microbuild/cli](./cli) | CLI for copying components ([npm](https://www.npmjs.com/package/@microbuild/cli)) | [README](./cli/README.md) |
-| [@microbuild/mcp](./mcp-server) | MCP server for AI agents ([npm](https://www.npmjs.com/package/@microbuild/mcp)) | [README](./mcp-server/README.md) |
+| [@buildpad/types](./types) | TypeScript type definitions | [README](./types/README.md) |
+| [@buildpad/services](./services) | CRUD service classes + DaaS context | [README](./services/README.md) |
+| [@buildpad/hooks](./hooks) | React hooks for relations, selection, presets, workflows | [README](./hooks/README.md) |
+| [@buildpad/utils](./utils) | Field interface mapper & utilities | [README](./utils/README.md) |
+| [@buildpad/ui-interfaces](./ui-interfaces) | Field interface components (40+) | [README](./ui-interfaces/README.md) |
+| [@buildpad/ui-form](./ui-form) | VForm dynamic form component | [README](./ui-form/README.md) |
+| [@buildpad/ui-table](./ui-table) | VTable dynamic table component | [README](./ui-table/README.md) |
+| [@buildpad/ui-collections](./ui-collections) | CollectionForm & CollectionList | [README](./ui-collections/README.md) |
+| [@buildpad/cli](./cli) | CLI for copying components ([npm](https://www.npmjs.com/package/@buildpad/cli)) | [README](./cli/README.md) |
+| [@buildpad/mcp](./mcp-server) | MCP server for AI agents ([npm](https://www.npmjs.com/package/@buildpad/mcp)) | [README](./mcp-server/README.md) |
 
 ## Architecture
 
@@ -54,20 +54,20 @@ The CLI is published on npm. No local build required.
 
 ```bash
 # Initialize in your project
-npx @microbuild/cli@latest init
+npx @buildpad/cli@latest init
 
 # Add components
-npx @microbuild/cli@latest add input select-dropdown datetime
+npx @buildpad/cli@latest add input select-dropdown datetime
 
 # List available components
-npx @microbuild/cli@latest list
+npx @buildpad/cli@latest list
 ```
 
 ### Traditional Package Installation
 
 ```bash
-pnpm add @microbuild/types @microbuild/services @microbuild/hooks
-pnpm add @microbuild/ui-interfaces @microbuild/ui-collections
+pnpm add @buildpad/types @buildpad/services @buildpad/hooks
+pnpm add @buildpad/ui-interfaces @buildpad/ui-collections
 ```
 
 ### Peer Dependencies
@@ -81,7 +81,7 @@ pnpm add @mantine/core @mantine/hooks @mantine/dates @tabler/icons-react react r
 ### Using Services
 
 ```typescript
-import { ItemsService } from '@microbuild/services';
+import { ItemsService } from '@buildpad/services';
 
 const productsService = new ItemsService('products');
 const products = await productsService.readByQuery({ 
@@ -93,7 +93,7 @@ const products = await productsService.readByQuery({
 ### Using Hooks
 
 ```typescript
-import { useRelationM2M, useRelationM2MItems } from '@microbuild/hooks';
+import { useRelationM2M, useRelationM2MItems } from '@buildpad/hooks';
 
 function ProductTags({ productId }) {
   const { relationInfo } = useRelationM2M('products', 'tags');
@@ -105,8 +105,8 @@ function ProductTags({ productId }) {
 ### Using UI Components
 
 ```tsx
-import { Input, SelectDropdown, DateTime } from '@microbuild/ui-interfaces';
-import { CollectionForm } from '@microbuild/ui-collections';
+import { Input, SelectDropdown, DateTime } from '@buildpad/ui-interfaces';
+import { CollectionForm } from '@buildpad/ui-collections';
 
 // Individual components
 <Input field="title" value={title} onChange={setTitle} />
@@ -118,7 +118,7 @@ import { CollectionForm } from '@microbuild/ui-collections';
 
 ## Distribution
 
-Microbuild supports two distribution models:
+Buildpad supports two distribution models:
 
 1. **Copy & Own (CLI)** - Components are copied as source code to your project
 2. **Package Installation** - Traditional npm package dependencies

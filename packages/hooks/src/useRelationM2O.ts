@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FieldsService, ItemsService } from '@microbuild/services';
-import type { Field } from '@microbuild/types';
-import { apiRequest } from './utils';
+import { FieldsService } from "@buildpad/services";
+import type { Field } from "@buildpad/types";
+import { useCallback, useEffect, useState } from "react";
+import { apiRequest } from "./utils";
 
 /**
  * Information about a Many-to-One relationship
@@ -35,14 +35,16 @@ export interface M2ORelationInfo {
 
 /**
  * Custom hook for managing Many-to-One (M2O) relationship information
- * 
+ *
  * In M2O relationships:
  * - The current collection has a foreign key pointing to another collection
  * - Only ONE related item can be selected
  * - Example: A "posts" item belongs to ONE "category"
  */
 export function useRelationM2O(collection: string, field: string) {
-  const [relationInfo, setRelationInfo] = useState<M2ORelationInfo | null>(null);
+  const [relationInfo, setRelationInfo] = useState<M2ORelationInfo | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,16 +74,23 @@ export function useRelationM2O(collection: string, field: string) {
 
         // Check if this is a M2O interface
         const interfaceType = currentField.meta?.interface;
-        if (interfaceType !== 'list-m2o' && interfaceType !== 'select-dropdown-m2o') {
-          setError(`Field "${field}" is not configured as a list-m2o or select-dropdown-m2o interface`);
+        if (
+          interfaceType !== "list-m2o" &&
+          interfaceType !== "select-dropdown-m2o"
+        ) {
+          setError(
+            `Field "${field}" is not configured as a list-m2o or select-dropdown-m2o interface`,
+          );
           setRelationInfo(null);
           setLoading(false);
           return;
         }
 
         // Get the related collection from multiple sources
-        const fieldOptions = currentField.meta?.options as Record<string, unknown> | undefined;
-        let relatedCollectionName: string | null = 
+        const fieldOptions = currentField.meta?.options as
+          | Record<string, unknown>
+          | undefined;
+        let relatedCollectionName: string | null =
           (currentField.schema?.foreign_key_table as string | undefined) ||
           (fieldOptions?.related_collection as string | undefined) ||
           (fieldOptions?.relatedCollection as string | undefined) ||
@@ -90,9 +99,15 @@ export function useRelationM2O(collection: string, field: string) {
         // If still not found, try fetching from daas_relations
         if (!relatedCollectionName) {
           try {
-            const relationsData = await apiRequest<{ data: { many_collection: string; many_field: string; one_collection?: string }[] }>(`/api/relations?collection=${collection}&field=${field}`);
+            const relationsData = await apiRequest<{
+              data: {
+                many_collection: string;
+                many_field: string;
+                one_collection?: string;
+              }[];
+            }>(`/api/relations?collection=${collection}&field=${field}`);
             const relation = relationsData.data?.find(
-              (r) => r.many_collection === collection && r.many_field === field
+              (r) => r.many_collection === collection && r.many_field === field,
             );
             if (relation?.one_collection) {
               relatedCollectionName = relation.one_collection;
@@ -117,11 +132,11 @@ export function useRelationM2O(collection: string, field: string) {
           },
           foreignKeyField: {
             field: field,
-            type: currentField.schema?.data_type || 'uuid',
+            type: currentField.schema?.data_type || "uuid",
           },
           relatedPrimaryKeyField: {
-            field: currentField.schema?.foreign_key_column || 'id',
-            type: 'uuid',
+            field: currentField.schema?.foreign_key_column || "id",
+            type: "uuid",
           },
           displayTemplate: fieldOptions?.template as string | undefined,
           relation: {
@@ -134,7 +149,10 @@ export function useRelationM2O(collection: string, field: string) {
 
         setRelationInfo(info);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load relationship configuration';
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Failed to load relationship configuration";
         setError(errorMessage);
         setRelationInfo(null);
       } finally {
@@ -172,40 +190,45 @@ export interface M2OQueryParams {
  */
 export function useRelationM2OItem(
   relationInfo: M2ORelationInfo | null,
-  value: string | number | null
+  value: string | number | null,
 ) {
   const [item, setItem] = useState<M2OItem | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load the related item
-  const loadItem = useCallback(async (params?: M2OQueryParams) => {
-    if (!relationInfo || !value) {
-      setItem(null);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const itemsService = new ItemsService(relationInfo.relatedCollection.collection);
-      
-      const query: Record<string, unknown> = {};
-      if (params?.fields && params.fields.length > 0) {
-        query.fields = params.fields;
+  const loadItem = useCallback(
+    async (params?: M2OQueryParams) => {
+      if (!relationInfo || !value) {
+        setItem(null);
+        return;
       }
 
-      const loadedItem = await itemsService.readOne(value, query);
-      setItem(loadedItem as M2OItem);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load related item';
-      setError(errorMessage);
-      setItem(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [relationInfo, value]);
+      try {
+        setLoading(true);
+        setError(null);
+
+        const collection = relationInfo.relatedCollection.collection;
+        const queryParams = new URLSearchParams();
+        if (params?.fields && params.fields.length > 0) {
+          queryParams.set("fields", params.fields.join(","));
+        }
+        const qs = queryParams.toString();
+        const path = `/api/items/${collection}/${value}${qs ? `?${qs}` : ""}`;
+
+        const response = await apiRequest<{ data: M2OItem }>(path);
+        setItem(response.data as M2OItem);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load related item";
+        setError(errorMessage);
+        setItem(null);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [relationInfo, value],
+  );
 
   // Clear the selected item
   const clearItem = useCallback(() => {

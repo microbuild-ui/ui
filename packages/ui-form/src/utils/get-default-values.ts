@@ -1,11 +1,11 @@
 /**
  * Get default values from field definitions
- * Uses @microbuild/utils getFieldDefault for proper handling of
+ * Uses @buildpad/utils getFieldDefault for proper handling of
  * database-generated defaults (now(), gen_random_uuid, etc.)
  */
 
-import type { Field } from '@microbuild/types';
-import { getFieldDefault } from '@microbuild/utils';
+import type { Field } from '@buildpad/types';
+import { getFieldDefault } from '@buildpad/utils';
 import type { FieldValues } from '../types';
 
 /**

@@ -1,7 +1,7 @@
 /**
  * Interface Registry Unit Tests
  * 
- * Tests for the Interface Registry system in @microbuild/utils.
+ * Tests for the Interface Registry system in @buildpad/utils.
  * These are unit tests using Vitest that can run without a browser.
  */
 

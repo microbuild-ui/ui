@@ -1,13 +1,18 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { Divider } from './Divider';
-import { IconSettings, IconUser, IconFolder, IconStar } from '@tabler/icons-react';
-import '../stories-shared.css';
+import type { Meta, StoryObj } from "@storybook/react";
+import {
+  IconFolder,
+  IconSettings,
+  IconStar,
+  IconUser,
+} from "@tabler/icons-react";
+import "../stories-shared.css";
+import { Divider } from "./Divider";
 
 const meta: Meta<typeof Divider> = {
-  title: 'Interfaces/Divider',
+  title: "Interfaces/Divider",
   component: Divider,
   parameters: {
-    layout: 'padded',
+    layout: "padded",
     docs: {
       description: {
         component: `A flexible divider component that supports horizontal and vertical orientations, optional titles, and icons.
@@ -21,54 +26,57 @@ const meta: Meta<typeof Divider> = {
 
 ## Usage
 \`\`\`tsx
-import { Divider } from '@microbuild/ui-interfaces';
+import { Divider } from '@buildpad/ui-interfaces';
 
 <Divider title="Section Title" icon={<IconSettings />} />
 \`\`\``,
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     title: {
-      control: 'text',
-      description: 'Title content for the divider',
+      control: "text",
+      description: "Title content for the divider",
     },
     icon: {
       control: false,
-      description: 'Icon to display before the title',
+      description:
+        "Icon to display before the title. Accepts a ReactNode. " +
+        "String values (e.g. from DaaS backend options) are safely ignored — the title still renders without an icon.",
     },
     vertical: {
-      control: 'boolean',
-      description: 'Whether the divider is vertical',
+      control: "boolean",
+      description: "Whether the divider is vertical",
     },
     inlineTitle: {
-      control: 'boolean',
-      description: 'Whether the title is displayed inline with the divider line',
+      control: "boolean",
+      description:
+        "Whether the title is displayed inline with the divider line",
     },
     large: {
-      control: 'boolean',
-      description: 'Whether to use larger styling',
+      control: "boolean",
+      description: "Whether to use larger styling",
     },
     disabled: {
-      control: 'boolean',
-      description: 'Whether the divider is disabled (affects text color)',
+      control: "boolean",
+      description: "Whether the divider is disabled (affects text color)",
     },
     color: {
-      control: 'color',
-      description: 'Color of the divider line',
+      control: "color",
+      description: "Color of the divider line",
     },
     labelColor: {
-      control: 'color',
-      description: 'Color of the label text',
+      control: "color",
+      description: "Color of the label text",
     },
     thickness: {
-      control: 'number',
-      description: 'Thickness of the divider line',
+      control: "number",
+      description: "Thickness of the divider line",
     },
     margin: {
-      control: 'text',
-      description: 'Margin around the divider',
+      control: "text",
+      description: "Margin around the divider",
     },
   },
 };
@@ -82,27 +90,27 @@ export const Default: Story = {
 
 export const WithTitle: Story = {
   args: {
-    title: 'Section Title',
+    title: "Section Title",
   },
 };
 
 export const InlineTitle: Story = {
   args: {
-    title: 'Inline Title',
+    title: "Inline Title",
     inlineTitle: true,
   },
 };
 
 export const WithIcon: Story = {
   args: {
-    title: 'Settings',
+    title: "Settings",
     icon: <IconSettings size={16} />,
   },
 };
 
 export const InlineTitleWithIcon: Story = {
   args: {
-    title: 'User Profile',
+    title: "User Profile",
     icon: <IconUser size={16} />,
     inlineTitle: true,
   },
@@ -110,14 +118,14 @@ export const InlineTitleWithIcon: Story = {
 
 export const Large: Story = {
   args: {
-    title: 'Main Section',
+    title: "Main Section",
     large: true,
   },
 };
 
 export const LargeWithIcon: Story = {
   args: {
-    title: 'Featured',
+    title: "Featured",
     icon: <IconStar size={20} />,
     large: true,
   },
@@ -125,22 +133,22 @@ export const LargeWithIcon: Story = {
 
 export const Disabled: Story = {
   args: {
-    title: 'Disabled Section',
+    title: "Disabled Section",
     disabled: true,
   },
 };
 
 export const CustomColor: Story = {
   args: {
-    title: 'Custom Colors',
-    color: '#6644FF',
-    labelColor: '#6644FF',
+    title: "Custom Colors",
+    color: "#6644FF",
+    labelColor: "#6644FF",
   },
 };
 
 export const ThickDivider: Story = {
   args: {
-    title: 'Thick Divider',
+    title: "Thick Divider",
     thickness: 3,
   },
 };
@@ -163,7 +171,7 @@ export const Vertical: Story = {
 export const VerticalWithTitle: Story = {
   args: {
     vertical: true,
-    title: 'OR',
+    title: "OR",
   },
   decorators: [
     (Story) => (
@@ -178,8 +186,8 @@ export const VerticalWithTitle: Story = {
 
 export const WithMargin: Story = {
   args: {
-    title: 'With Margin',
-    margin: '20px',
+    title: "With Margin",
+    margin: "20px",
   },
   decorators: [
     (Story) => (
@@ -192,24 +200,45 @@ export const WithMargin: Story = {
 
 export const FolderSection: Story = {
   args: {
-    title: 'Documents',
+    title: "Documents",
     icon: <IconFolder size={16} />,
     inlineTitle: true,
-    color: '#2196F3',
-    labelColor: '#2196F3',
+    color: "#2196F3",
+    labelColor: "#2196F3",
+  },
+};
+
+// Backend string icon graceful degradation
+export const WithStringIconFromBackend: Story = {
+  name: "WithStringIconFromBackend (DaaS compat)",
+  args: {
+    title: "Section with backend icon",
+    // @ts-expect-error intentionally passing string to show runtime guard
+    icon: "settings",
+    inlineTitle: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'DaaS `options.icon` is stored as a plain string (e.g. `"settings"`). ' +
+          "The component accepts `string | ReactNode` and normalises strings to `undefined`, " +
+          "so the title renders correctly without an icon rather than printing raw text.",
+      },
+    },
   },
 };
 
 export const FormSection: Story = {
   args: {
-    title: 'Personal Information',
+    title: "Personal Information",
     large: true,
     icon: <IconUser size={20} />,
   },
   parameters: {
     docs: {
       description: {
-        story: 'Ideal for separating sections in a form',
+        story: "Ideal for separating sections in a form",
       },
     },
   },

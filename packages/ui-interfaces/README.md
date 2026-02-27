@@ -1,11 +1,11 @@
-# @microbuild/ui-interfaces
+# @buildpad/ui-interfaces
 
 DaaS-compatible field interface components built with Mantine v8. A complete set of input, selection, file, and relational components for building dynamic forms.
 
 ## Installation
 
 ```bash
-pnpm add @microbuild/ui-interfaces
+pnpm add @buildpad/ui-interfaces
 ```
 
 ## Peer Dependencies
@@ -26,7 +26,7 @@ pnpm add maplibre-gl @mapbox/mapbox-gl-draw
 ## Quick Start
 
 ```tsx
-import { Input, SelectDropdown, DateTime, Toggle, Color } from '@microbuild/ui-interfaces';
+import { Input, SelectDropdown, DateTime, Toggle, Color } from '@buildpad/ui-interfaces';
 
 function ProductForm() {
   const [values, setValues] = useState({});
@@ -82,7 +82,7 @@ function ProductForm() {
 ### Boolean / Toggle
 
 ```tsx
-import { Boolean, Toggle } from '@microbuild/ui-interfaces';
+import { Boolean, Toggle } from '@buildpad/ui-interfaces';
 
 // Simple switch
 <Boolean field="active" value={active} onChange={setActive} />
@@ -102,7 +102,7 @@ import { Boolean, Toggle } from '@microbuild/ui-interfaces';
 ### Text Inputs
 
 ```tsx
-import { Input, Textarea, InputCode } from '@microbuild/ui-interfaces';
+import { Input, Textarea, InputCode } from '@buildpad/ui-interfaces';
 
 // Single line
 <Input field="title" value={title} onChange={setTitle} placeholder="Title" />
@@ -123,7 +123,7 @@ import { Input, Textarea, InputCode } from '@microbuild/ui-interfaces';
 ### DateTime
 
 ```tsx
-import { DateTime } from '@microbuild/ui-interfaces';
+import { DateTime } from '@buildpad/ui-interfaces';
 
 // Date only
 <DateTime field="birth_date" type="date" value={date} onChange={setDate} />
@@ -150,7 +150,7 @@ import {
   Tags,
   AutocompleteAPI,
   CollectionItemDropdown 
-} from '@microbuild/ui-interfaces';
+} from '@buildpad/ui-interfaces';
 
 // Dropdown
 <SelectDropdown
@@ -225,7 +225,7 @@ import {
 ### Layout / Presentation
 
 ```tsx
-import { Divider, Notice, GroupDetail, Slider } from '@microbuild/ui-interfaces';
+import { Divider, Notice, GroupDetail, Slider } from '@buildpad/ui-interfaces';
 
 // Section divider
 <Divider title="Product Details" icon={IconInfoCircle} />
@@ -254,7 +254,7 @@ import { Divider, Notice, GroupDetail, Slider } from '@microbuild/ui-interfaces'
 ### Color
 
 ```tsx
-import { Color } from '@microbuild/ui-interfaces';
+import { Color } from '@buildpad/ui-interfaces';
 
 // Basic color picker
 <Color field="color" value={color} onChange={setColor} />
@@ -273,10 +273,10 @@ import { Color } from '@microbuild/ui-interfaces';
 
 ### File Components
 
-File interfaces integrate with DaaS Files API via `@microbuild/hooks`. They handle uploads, library selection, and file metadata automatically.
+File interfaces integrate with DaaS Files API via `@buildpad/hooks`. They handle uploads, library selection, and file metadata automatically.
 
 ```tsx
-import { File, FileImage, Files, Upload } from '@microbuild/ui-interfaces';
+import { File, FileImage, Files, Upload } from '@buildpad/ui-interfaces';
 
 // Single file with full DaaS integration
 <File
@@ -317,7 +317,7 @@ import { File, FileImage, Files, Upload } from '@microbuild/ui-interfaces';
 ### Relational Components
 
 ```tsx
-import { ListM2M, ListM2O, ListO2M, ListM2A } from '@microbuild/ui-interfaces';
+import { ListM2M, ListM2O, ListO2M, ListM2A } from '@buildpad/ui-interfaces';
 
 // Many-to-Many (with hooks integration)
 <ListM2M
@@ -358,7 +358,7 @@ import { ListM2M, ListM2O, ListO2M, ListM2A } from '@microbuild/ui-interfaces';
 ### Rich Text Editors
 
 ```tsx
-import { InputBlockEditor, RichTextHTML, RichTextMarkdown } from '@microbuild/ui-interfaces';
+import { InputBlockEditor, RichTextHTML, RichTextMarkdown } from '@buildpad/ui-interfaces';
 
 // Block-based editor (EditorJS style)
 <InputBlockEditor
@@ -390,7 +390,7 @@ import { InputBlockEditor, RichTextHTML, RichTextMarkdown } from '@microbuild/ui
 ### Map / Geometry
 
 ```tsx
-import { Map, MapWithRealMap } from '@microbuild/ui-interfaces';
+import { Map, MapWithRealMap } from '@buildpad/ui-interfaces';
 
 // Geometry input with map
 <Map
@@ -414,7 +414,7 @@ import { Map, MapWithRealMap } from '@microbuild/ui-interfaces';
 ### Workflow Button
 
 ```tsx
-import { WorkflowButton } from '@microbuild/ui-interfaces';
+import { WorkflowButton } from '@buildpad/ui-interfaces';
 
 <WorkflowButton
   itemId={articleId}
@@ -525,6 +525,6 @@ All field components share these common props:
 
 ## Related Packages
 
-- [@microbuild/types](../types) - TypeScript types
-- [@microbuild/hooks](../hooks) - Relation hooks used by List* components
-- [@microbuild/ui-collections](../ui-collections) - CollectionForm & CollectionList
+- [@buildpad/types](../types) - TypeScript types
+- [@buildpad/hooks](../hooks) - Relation hooks used by List* components
+- [@buildpad/ui-collections](../ui-collections) - CollectionForm & CollectionList

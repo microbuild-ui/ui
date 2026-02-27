@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Text, Stack, Alert, Paper, Group, ActionIcon, Button } from '@mantine/core';
 import { IconAlertCircle, IconPlus, IconTrash, IconList } from '@tabler/icons-react';
-import type { O2MRelationInfo, O2MItem } from '@microbuild/hooks';
+import type { O2MRelationInfo, O2MItem } from '@buildpad/hooks';
 
 /**
  * Render function types for customizing ListO2M display
@@ -66,8 +66,8 @@ export interface ListO2MInterfaceProps extends ListO2MRenderProps {
  * 
  * This is a placeholder component for the One-to-Many list interface.
  * 
- * @see useRelationO2M from @microbuild/hooks for relation info
- * @see useRelationO2MItems from @microbuild/hooks for items management
+ * @see useRelationO2M from @buildpad/hooks for relation info
+ * @see useRelationO2MItems from @buildpad/hooks for items management
  * 
  * @param props - ListO2MInterface props
  */

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Box, Text, TextInput, TagsInput, Chip, Group } from '@mantine/core';
 import { IconTag, IconChevronRight } from '@tabler/icons-react';
 
@@ -129,7 +129,6 @@ export function Tags({
   'data-testid': testId,
 }: TagsProps) {
   const [inputValue, setInputValue] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>(value || []);
 
   // Process tags array with configured options
   const processArray = (tags: string[]): string[] => {
@@ -146,6 +145,11 @@ export function Tags({
     
     return processed;
   };
+
+  // Initialize selectedTags with transforms applied to the initial value
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => 
+    processArray(value || [])
+  );
 
   // Get preset tags that are available
   const processedPresets = presets.length > 0 ? processArray(presets) : [];

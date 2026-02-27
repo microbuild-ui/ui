@@ -20,7 +20,7 @@ const meta: Meta<typeof Files> = {
 
 ## Usage
 \`\`\`tsx
-import { Files } from '@microbuild/ui-interfaces';
+import { Files } from '@buildpad/ui-interfaces';
 
 <Files
   label="Attachments"

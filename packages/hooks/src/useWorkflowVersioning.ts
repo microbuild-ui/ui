@@ -209,7 +209,7 @@ export function useWorkflowVersioning({
         });
 
         const response = await apiRequest<{ data: WorkflowInstance[] }>(
-          `/api/items/xtr_wf_instance?filter=${encodeURIComponent(
+          `/api/items/daas_wf_instance?filter=${encodeURIComponent(
             filter
           )}&fields=id,terminated,current_state,workflow.*`
         );

@@ -22,7 +22,7 @@ Example: A "post" belongs to ONE "category". The post has a \`category_id\` fore
 
 ## Usage
 \`\`\`tsx
-import { ListM2O } from '@microbuild/ui-interfaces';
+import { ListM2O } from '@buildpad/ui-interfaces';
 
 <ListM2O
   collection="posts"

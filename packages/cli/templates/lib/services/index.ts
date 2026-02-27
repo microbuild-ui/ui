@@ -1,5 +1,5 @@
 /**
- * Microbuild Services
+ * Buildpad Services
  *
  * Re-exports all service classes.
  * This file is copied to your project and can be customized.
@@ -8,7 +8,6 @@
 export { apiRequest, type ApiRequestOptions } from "./api-request";
 export { CollectionsService, createCollectionsService } from "./collections";
 export { FieldsService, createFieldsService } from "./fields";
-export { ItemsService, createItemsService } from "./items";
 export {
   PermissionsService,
   createPermissionsService,

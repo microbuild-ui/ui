@@ -25,7 +25,7 @@ import {
   IconList,
 } from '@tabler/icons-react';
 import { CollectionList } from './CollectionList';
-import { DaaSProvider, useDaaSContext } from '@microbuild/services';
+import { DaaSProvider, useDaaSContext } from '@buildpad/services';
 
 /**
  * CollectionList - DaaS Connected Playground

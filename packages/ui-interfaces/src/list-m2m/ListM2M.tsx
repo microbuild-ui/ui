@@ -29,9 +29,9 @@ import {
     IconAlertCircle,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { useRelationM2M, useRelationM2MItems, type M2MItem } from "@microbuild/hooks";
-import { CollectionList } from "@microbuild/ui-collections";
-import { CollectionForm } from "@microbuild/ui-collections";
+import { useRelationM2M, useRelationM2MItems, type M2MItem } from "@buildpad/hooks";
+import { CollectionList } from "@buildpad/ui-collections";
+import { CollectionForm } from "@buildpad/ui-collections";
 
 /**
  * Props for the ListM2M component

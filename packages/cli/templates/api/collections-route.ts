@@ -4,8 +4,8 @@
  * Proxies collection metadata requests to the DaaS backend.
  * Required for ContentNavigation and useCollections hook.
  *
- * @microbuild/origin: api-routes/collections
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/collections
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

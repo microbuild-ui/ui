@@ -6,7 +6,7 @@ export default function ArchitecturePage() {
       </div>
       <h1 className="docs-title">Architecture</h1>
       <p className="docs-lead">
-        Microbuild UI Packages is organized into three layers: Distribution,
+        Buildpad UI Packages is organized into three layers: Distribution,
         Source, and Consumer.
       </p>
 
@@ -22,8 +22,8 @@ export default function ArchitecturePage() {
           Claude Code). Lists components, reads source code, generates examples.
         </li>
         <li>
-          <strong>CLI Tool</strong> — For developers. <code>microbuild init</code>,{" "}
-          <code>microbuild add</code>, <code>microbuild bootstrap</code>.
+          <strong>CLI Tool</strong> — For developers. <code>buildpad init</code>,{" "}
+          <code>buildpad add</code>, <code>buildpad bootstrap</code>.
         </li>
       </ul>
       <p className="docs-paragraph">
@@ -48,35 +48,35 @@ export default function ArchitecturePage() {
           </thead>
           <tbody>
             <tr>
-              <td><code>@microbuild/types</code></td>
+              <td><code>@buildpad/types</code></td>
               <td>Shared TypeScript type definitions (Field, Collection, Query, etc.)</td>
             </tr>
             <tr>
-              <td><code>@microbuild/services</code></td>
+              <td><code>@buildpad/services</code></td>
               <td>CRUD services (ItemsService, FieldsService) + DaaS API config</td>
             </tr>
             <tr>
-              <td><code>@microbuild/hooks</code></td>
+              <td><code>@buildpad/hooks</code></td>
               <td>React hooks for auth, permissions, relations, selection, presets</td>
             </tr>
             <tr>
-              <td><code>@microbuild/utils</code></td>
+              <td><code>@buildpad/utils</code></td>
               <td>Field interface mapper, validation, formatting utilities</td>
             </tr>
             <tr>
-              <td><code>@microbuild/ui-interfaces</code></td>
+              <td><code>@buildpad/ui-interfaces</code></td>
               <td>40+ field interface components built with Mantine v8</td>
             </tr>
             <tr>
-              <td><code>@microbuild/ui-form</code></td>
+              <td><code>@buildpad/ui-form</code></td>
               <td>VForm dynamic form component with permission enforcement</td>
             </tr>
             <tr>
-              <td><code>@microbuild/ui-table</code></td>
+              <td><code>@buildpad/ui-table</code></td>
               <td>VTable dynamic data table with sorting, selection, drag-drop</td>
             </tr>
             <tr>
-              <td><code>@microbuild/ui-collections</code></td>
+              <td><code>@buildpad/ui-collections</code></td>
               <td>CollectionForm (CRUD wrapper) + CollectionList (paginated table)</td>
             </tr>
           </tbody>
@@ -105,7 +105,7 @@ services (CRUD + DaaS)    hooks (auth + relations)
         Consumer Layer
       </h2>
       <p className="docs-paragraph">
-        Projects consume Microbuild components via the CLI (Copy &amp; Own model)
+        Projects consume Buildpad components via the CLI (Copy &amp; Own model)
         or through AI agents via MCP. Components are copied as source code with
         imports transformed to local paths.
       </p>

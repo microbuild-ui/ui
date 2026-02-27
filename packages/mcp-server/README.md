@@ -1,16 +1,16 @@
-# @microbuild/mcp
+# @buildpad/mcp
 
-Model Context Protocol (MCP) server for Microbuild components. Enables AI agents like VS Code Copilot to discover, understand, and generate code using the **Copy & Own** distribution model.
+Model Context Protocol (MCP) server for Buildpad components. Enables AI agents like VS Code Copilot to discover, understand, and generate code using the **Copy & Own** distribution model.
 
-[![npm version](https://img.shields.io/npm/v/@microbuild/mcp)](https://www.npmjs.com/package/@microbuild/mcp)
+[![npm version](https://img.shields.io/npm/v/@buildpad/mcp)](https://www.npmjs.com/package/@buildpad/mcp)
 
 ## What is MCP?
 
-The [Model Context Protocol](https://modelcontextprotocol.io) is an open standard that enables AI assistants to securely access external data sources and tools. This MCP server exposes the Microbuild component library to AI agents.
+The [Model Context Protocol](https://modelcontextprotocol.io) is an open standard that enables AI assistants to securely access external data sources and tools. This MCP server exposes the Buildpad component library to AI agents.
 
 ## Copy & Own Model
 
-Microbuild uses the **Copy & Own** distribution model (similar to shadcn/ui):
+Buildpad uses the **Copy & Own** distribution model (similar to shadcn/ui):
 
 - ✅ Components are copied as source code to your project
 - ✅ Full customization - components become your application code
@@ -20,7 +20,7 @@ Microbuild uses the **Copy & Own** distribution model (similar to shadcn/ui):
 
 ## Features
 
-- 📦 **Component Discovery** - List all available Microbuild components
+- 📦 **Component Discovery** - List all available Buildpad components
 - 📖 **Source Code Access** - Read component source code and documentation
 - 🛠️ **Code Generation** - Generate components, forms, and interfaces
 - 🔧 **CLI Integration** - Get CLI commands to install components
@@ -38,9 +38,9 @@ Add to your VS Code `settings.json` or `.vscode/mcp.json`:
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "npx",
-        "args": ["@microbuild/mcp@latest"]
+        "args": ["@buildpad/mcp@latest"]
       }
     }
   }
@@ -65,10 +65,10 @@ pnpm build:mcp
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "node",
         "args": [
-          "/absolute/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"
+          "/absolute/path/to/buildpad-ui/packages/mcp-server/dist/index.js"
         ]
       }
     }
@@ -88,7 +88,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 
 const transport = new StdioClientTransport({
   command: "node",
-  args: ["/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"],
+  args: ["/path/to/buildpad-ui/packages/mcp-server/dist/index.js"],
 });
 
 const client = new Client({
@@ -105,19 +105,19 @@ await client.connect(transport);
 
 ### Packages
 
-- `microbuild://packages/types` - TypeScript type definitions
-- `microbuild://packages/services` - CRUD service classes
-- `microbuild://packages/hooks` - React hooks for relations
-- `microbuild://packages/ui-interfaces` - Field interface components
-- `microbuild://packages/ui-collections` - Dynamic collection components
+- `buildpad://packages/types` - TypeScript type definitions
+- `buildpad://packages/services` - CRUD service classes
+- `buildpad://packages/hooks` - React hooks for relations
+- `buildpad://packages/ui-interfaces` - Field interface components
+- `buildpad://packages/ui-collections` - Dynamic collection components
 
 ### Components
 
-- `microbuild://components/Input` - Text input component
-- `microbuild://components/SelectDropdown` - Dropdown select
-- `microbuild://components/DateTime` - Date/time picker
-- `microbuild://components/FileImage` - Image upload
-- `microbuild://components/CollectionForm` - Dynamic form
+- `buildpad://components/Input` - Text input component
+- `buildpad://components/SelectDropdown` - Dropdown select
+- `buildpad://components/DateTime` - Date/time picker
+- `buildpad://components/FileImage` - Image upload
+- `buildpad://components/CollectionForm` - Dynamic form
 - ... and many more
 
 ## Available Tools
@@ -138,7 +138,7 @@ Get detailed information and source code for a specific component.
 
 ### `list_packages`
 
-List all Microbuild packages with their exports.
+List all Buildpad packages with their exports.
 
 ### `get_install_command`
 
@@ -245,7 +245,7 @@ Get RBAC (Role-Based Access Control) setup patterns for DaaS applications. Retur
 
 Once configured, you can ask Copilot:
 
-- "How do I install Microbuild components?" (uses `get_copy_own_info`)
+- "How do I install Buildpad components?" (uses `get_copy_own_info`)
 - "Add the Input and SelectDropdown components to my project" (uses `get_install_command`)
 - "Show me how to use the Input component" (uses `get_usage_example`)
 - "Generate a form for a products collection" (uses `generate_form`)
@@ -277,7 +277,7 @@ pnpm typecheck
 └────────────────┬────────────────────────┘
                  │ MCP Protocol
 ┌────────────────▼────────────────────────┐
-│       @microbuild/mcp                   │
+│       @buildpad/mcp                   │
 │  ┌──────────────────────────────────┐   │
 │  │  Resource Handlers               │   │
 │  │  - List components               │   │
@@ -302,8 +302,8 @@ pnpm typecheck
 └─────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────┐
-│         @microbuild/cli (npm)           │
-│  npx @microbuild/cli@latest add <comp>  │
+│         @buildpad/cli (npm)           │
+│  npx @buildpad/cli@latest add <comp>  │
 │  - Fetches source from GitHub CDN       │
 │  - Transforms imports                   │
 │  - Resolves dependencies                │

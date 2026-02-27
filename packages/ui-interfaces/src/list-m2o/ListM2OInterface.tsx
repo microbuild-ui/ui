@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Text, Stack, Alert, Paper, Group, ActionIcon, Button } from '@mantine/core';
 import { IconAlertCircle, IconPlus, IconTrash, IconList, IconX } from '@tabler/icons-react';
-import type { M2ORelationInfo, M2OItem } from '@microbuild/hooks';
+import type { M2ORelationInfo, M2OItem } from '@buildpad/hooks';
 
 /**
  * Render function types for customizing ListM2O display
@@ -62,7 +62,7 @@ export interface ListM2OInterfaceProps extends ListM2ORenderProps {
  * 
  * This is a placeholder component for the Many-to-One list interface.
  * 
- * @see useRelationM2O from @microbuild/hooks for relation info
+ * @see useRelationM2O from @buildpad/hooks for relation info
  * 
  * @param props - ListM2OInterface props
  */

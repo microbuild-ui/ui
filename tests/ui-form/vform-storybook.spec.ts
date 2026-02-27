@@ -1,7 +1,7 @@
 /**
  * VForm Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-form VForm component in isolation using Storybook.
+ * Tests the @buildpad/ui-form VForm component in isolation using Storybook.
  * No authentication required - components are tested with mocked data.
  * 
  * Prerequisites:

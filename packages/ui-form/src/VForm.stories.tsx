@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { VForm } from './VForm';
-import type { Field, FieldMeta, FieldSchema } from '@microbuild/types';
+import type { Field, FieldMeta, FieldSchema } from '@buildpad/types';
 import type { FieldValues } from './types';
 import './VForm.stories.css';
 

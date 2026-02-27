@@ -5,8 +5,8 @@
  * Required for CollectionList permission-aware column filtering via
  * PermissionsService.getReadableFields().
  *
- * @microbuild/origin: api-routes/permissions-me
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/permissions-me
+ * @buildpad/version: 1.0.0
  */
 
 import { getAuthHeaders, getDaasUrl } from "@/lib/api/auth-headers";

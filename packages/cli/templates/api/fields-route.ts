@@ -4,8 +4,8 @@
  * Proxies field schema requests to the DaaS backend.
  * Required for CollectionForm, VForm, and dynamic field rendering.
  * 
- * @microbuild/origin: api-routes/fields
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/fields
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

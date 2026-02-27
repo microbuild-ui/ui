@@ -167,7 +167,7 @@ const MOCK_FIELDS = [
 const MOCK_ITEMS = [
   {
     id: 1,
-    title: "Getting Started with Microbuild",
+    title: "Getting Started with Buildpad",
     status: "published",
     author: "Jane Smith",
     category: "Tutorial",

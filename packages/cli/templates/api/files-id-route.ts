@@ -3,8 +3,8 @@
  * 
  * Proxies single file operations to the DaaS backend.
  * 
- * @microbuild/origin: api-routes/files-id
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/files-id
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

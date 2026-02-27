@@ -21,7 +21,7 @@ const meta: Meta<typeof FileImage> = {
 
 ## Usage
 \`\`\`tsx
-import { FileImage } from '@microbuild/ui-interfaces';
+import { FileImage } from '@buildpad/ui-interfaces';
 
 <FileImage
   label="Profile Picture"

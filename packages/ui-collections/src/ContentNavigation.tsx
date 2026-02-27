@@ -7,7 +7,7 @@
  *
  * Ported from DaaS content module's navigation.vue + navigation-item.vue.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 "use client";
@@ -39,7 +39,7 @@ import {
   IconDatabase,
   IconBox,
 } from '@tabler/icons-react';
-import type { Collection, Bookmark } from '@microbuild/types';
+import type { Collection, Bookmark } from '@buildpad/types';
 
 /** Node in the collection tree */
 export interface CollectionTreeNode extends Collection {
@@ -343,8 +343,8 @@ function NavigationItem({
  *
  * @example
  * ```tsx
- * import { ContentNavigation } from '@microbuild/ui-collections';
- * import { useCollections } from '@microbuild/hooks';
+ * import { ContentNavigation } from '@buildpad/ui-collections';
+ * import { useCollections } from '@buildpad/hooks';
  *
  * function Sidebar() {
  *   const {

@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Microbuild Utils
+ * Buildpad Utils
  * 
  * Re-exports all utility functions.
  * This file is copied to your project and can be customized.
@@ -9,7 +9,7 @@
 // Basic utilities
 export { cn, formatFileSize, getFileCategory, getAssetUrl, slugify, slugify as generateSlug, debounce, isValidPrimaryKey, deepMerge, generateId } from '../common-utils';
 
-// Field interface mapping (from @microbuild/utils)
+// Field interface mapping (from @buildpad/utils)
 export { 
   getFieldInterface,
   getFieldDefault,

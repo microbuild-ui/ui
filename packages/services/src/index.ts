@@ -1,7 +1,7 @@
 /**
- * @microbuild/services
+ * @buildpad/services
  *
- * Shared service classes for Microbuild projects.
+ * Shared service classes for Buildpad projects.
  * DaaS-compatible CRUD services for items, fields, collections.
  * Authentication follows DaaS architecture with multiple auth methods.
  */
@@ -9,7 +9,6 @@
 export { apiRequest, type ApiRequestOptions } from "./api-request";
 export { CollectionsService, createCollectionsService } from "./collections";
 export { FieldsService, createFieldsService } from "./fields";
-export { ItemsService, createItemsService } from "./items";
 export {
   PermissionsService,
   createPermissionsService,

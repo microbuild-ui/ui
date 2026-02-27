@@ -4,8 +4,8 @@
  * Proxies CRUD operations for collection items to the DaaS backend.
  * Supports DaaS-compatible query parameters.
  * 
- * @microbuild/origin: api-routes/items
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/items
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

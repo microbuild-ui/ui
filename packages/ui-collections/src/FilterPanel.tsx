@@ -8,7 +8,7 @@
  * that can be passed to CollectionList's `filter` prop or
  * used directly with ItemsService.readByQuery().
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 "use client";
@@ -37,7 +37,7 @@ import {
     IconChevronUp,
     IconX,
 } from '@tabler/icons-react';
-import type { Field } from '@microbuild/types';
+import type { Field } from '@buildpad/types';
 
 // ============================================================================
 // Types
