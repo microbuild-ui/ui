@@ -30,6 +30,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:storybook": "playwright test --project=storybook",
     "test:storybook:table": "playwright test --project=storybook-table",
+    "test:storybook:interfaces": "playwright test --project=storybook-interfaces",
     "version-packages": "changeset version"
   },
   "devDependencies": {

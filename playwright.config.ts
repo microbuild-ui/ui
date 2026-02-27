@@ -18,6 +18,7 @@ dotenv.config({ path: '.env.local' });
 const DAAS_URL = process.env.NEXT_PUBLIC_MICROBUILD_DAAS_URL || 'http://localhost:3000';
 const STORYBOOK_URL = process.env.STORYBOOK_URL || 'http://localhost:6006';
 const STORYBOOK_TABLE_URL = process.env.STORYBOOK_TABLE_URL || 'http://localhost:6007';
+const STORYBOOK_INTERFACES_URL = process.env.STORYBOOK_INTERFACES_URL || 'http://localhost:6008';
 
 export default defineConfig({
   testDir: './tests',
@@ -79,6 +80,17 @@ export default defineConfig({
       testMatch: /ui-table\/.*storybook.*\.spec\.ts/,
       // No setup dependency - Storybook tests don't need auth
     },
+
+    // Storybook Interfaces Component Tests - no auth needed
+    {
+      name: 'storybook-interfaces',
+      use: { 
+        ...devices['Desktop Chrome'],
+        baseURL: STORYBOOK_INTERFACES_URL,
+      },
+      testMatch: /ui-interfaces\/.*storybook.*\.spec\.ts/,
+      // No setup dependency - Storybook tests don't need auth
+    },
   ],
 
   /* 
@@ -96,6 +108,12 @@ export default defineConfig({
     {
       command: 'cd packages/ui-table && npx storybook dev -p 6007 --ci',
       url: STORYBOOK_TABLE_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000, // 2 minutes to start Storybook
+    },
+    {
+      command: 'cd packages/ui-interfaces && npx storybook dev -p 6008 --ci',
+      url: STORYBOOK_INTERFACES_URL,
       reuseExistingServer: !process.env.CI,
       timeout: 120000, // 2 minutes to start Storybook
     },
