@@ -1,7 +1,7 @@
 {
   "name": "@microbuild/mcp",
   "version": "0.1.4",
-  "description": "Model Context Protocol server for Microbuild components - enables AI agents to discover and use Microbuild packages",
+  "description": "Model Context Protocol server for Buildpad components - enables AI agents to discover and use Buildpad packages",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -45,6 +45,6 @@
     "cms",
     "components"
   ],
-  "author": "Microbuild",
+  "author": "Buildpad",
   "license": "MIT"
 }

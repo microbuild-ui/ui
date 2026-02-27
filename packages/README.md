@@ -1,4 +1,4 @@
-# Microbuild UI Packages
+# Buildpad UI Packages
 
 A collection of packages for building DaaS-compatible content management applications with React and Mantine v8.
 
@@ -118,7 +118,7 @@ import { CollectionForm } from '@microbuild/ui-collections';
 
 ## Distribution
 
-Microbuild supports two distribution models:
+Buildpad supports two distribution models:
 
 1. **Copy & Own (CLI)** - Components are copied as source code to your project
 2. **Package Installation** - Traditional npm package dependencies

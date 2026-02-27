@@ -1,5 +1,5 @@
 /**
- * Microbuild CLI - Fix Command
+ * Buildpad CLI - Fix Command
  * 
  * Automatically applies fixes for common issues detected by validate.
  * Fixes include:
@@ -584,7 +584,7 @@ export async function fix(options: {
 }) {
   const { cwd, dryRun = false, yes = false } = options;
   
-  console.log(chalk.bold('\n🔧 Microbuild Fix\n'));
+  console.log(chalk.bold('\n🔧 Buildpad Fix\n'));
   
   if (dryRun) {
     console.log(chalk.yellow('Dry run mode - no changes will be made\n'));

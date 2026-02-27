@@ -1,6 +1,6 @@
 # @microbuild/ui-table
 
-Dynamic table component for Microbuild projects, inspired by the DaaS v-table component.
+Dynamic table component for Buildpad projects, inspired by the DaaS v-table component.
 
 ## Features
 
@@ -11,7 +11,7 @@ Dynamic table component for Microbuild projects, inspired by the DaaS v-table co
 - **Row Selection**: Single or multiple row selection modes
 - **Manual Sort**: Drag-and-drop row reordering
 - **Loading States**: Built-in loading skeleton and empty states
-- **DaaS Integration**: Connect to Microbuild DaaS for real data
+- **DaaS Integration**: Connect to Buildpad DaaS for real data
 
 ## Installation
 

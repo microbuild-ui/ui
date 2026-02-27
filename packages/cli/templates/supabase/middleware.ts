@@ -2,7 +2,7 @@
  * Supabase Auth Middleware
  * 
  * Refreshes auth tokens and protects routes.
- * This file is copied to your project by the Microbuild CLI.
+ * This file is copied to your project by the Buildpad CLI.
  * 
  * @microbuild/origin: supabase/middleware
  * @microbuild/version: 1.0.0

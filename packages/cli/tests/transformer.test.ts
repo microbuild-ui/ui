@@ -14,7 +14,7 @@ import type { Config } from "../src/commands/init.js";
 import {
   addOriginHeader,
   extractOriginInfo,
-  hasMicrobuildImports,
+  hasBuildpadImports,
   normalizeImportPaths,
   toKebabCase,
   toPascalCase,
@@ -223,22 +223,22 @@ describe("transformRelativeImports", () => {
   });
 });
 
-describe("hasMicrobuildImports", () => {
+describe("hasBuildpadImports", () => {
   test("returns true for @microbuild imports", () => {
-    expect(hasMicrobuildImports("import { X } from '@microbuild/types'")).toBe(
+    expect(hasBuildpadImports("import { X } from '@microbuild/types'")).toBe(
       true,
     );
     expect(
-      hasMicrobuildImports("import { X } from '@microbuild/services'"),
+      hasBuildpadImports("import { X } from '@microbuild/services'"),
     ).toBe(true);
-    expect(hasMicrobuildImports("import { X } from '@microbuild/hooks'")).toBe(
+    expect(hasBuildpadImports("import { X } from '@microbuild/hooks'")).toBe(
       true,
     );
   });
 
   test("returns false for non-microbuild imports", () => {
-    expect(hasMicrobuildImports("import React from 'react'")).toBe(false);
-    expect(hasMicrobuildImports("import { Button } from '@mantine/core'")).toBe(
+    expect(hasBuildpadImports("import React from 'react'")).toBe(false);
+    expect(hasBuildpadImports("import { Button } from '@mantine/core'")).toBe(
       false,
     );
   });
@@ -443,9 +443,9 @@ describe("transformImports (@microbuild/ui-table)", () => {
     expect(result).toBe(`import { something } from '@/components/ui/utils';`);
   });
 
-  test("hasMicrobuildImports detects @microbuild/ui-table", () => {
+  test("hasBuildpadImports detects @microbuild/ui-table", () => {
     expect(
-      hasMicrobuildImports(`import { VTable } from '@microbuild/ui-table';`),
+      hasBuildpadImports(`import { VTable } from '@microbuild/ui-table';`),
     ).toBe(true);
   });
 });

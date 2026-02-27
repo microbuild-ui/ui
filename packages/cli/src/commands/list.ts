@@ -31,7 +31,7 @@ export async function list(options: { category?: string; json?: boolean; cwd?: s
     return;
   }
 
-  console.log(chalk.bold('\n📦 Microbuild Components (Copy & Own)\n'));
+  console.log(chalk.bold('\n📦 Buildpad Components (Copy & Own)\n'));
   console.log(chalk.dim('Components are copied to your project as source files.\n'));
 
   // Group by category

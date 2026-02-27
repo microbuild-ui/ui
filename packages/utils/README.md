@@ -1,6 +1,6 @@
 # @microbuild/utils
 
-Utility functions for Microbuild UI packages. Includes field interface mapping, value formatting, and validation helpers.
+Utility functions for Buildpad UI packages. Includes field interface mapping, value formatting, and validation helpers.
 
 ## Installation
 

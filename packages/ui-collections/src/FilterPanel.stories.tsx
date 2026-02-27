@@ -136,7 +136,7 @@ export const Disabled: Story = {
       disabled
       value={{
         _and: [
-          { title: { _contains: 'Microbuild' } },
+          { title: { _contains: 'Buildpad' } },
           { status: { _eq: 'published' } },
         ],
       }}

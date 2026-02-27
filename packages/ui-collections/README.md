@@ -1,6 +1,6 @@
 # @microbuild/ui-collections
 
-Dynamic collection components for Microbuild projects. Includes CRUD forms, data tables, navigation, layouts, and filter builders — all inspired by DaaS's content module.
+Dynamic collection components for Buildpad projects. Includes CRUD forms, data tables, navigation, layouts, and filter builders — all inspired by DaaS's content module.
 
 ## Components
 
@@ -410,7 +410,7 @@ interface BulkAction {
 
 This package follows DaaS's content module pattern:
 
-| DaaS | Microbuild |
+| DaaS | Buildpad |
 |----------|------------|
 | `v-form` component | `CollectionForm` |
 | `v-list` component | `CollectionList` |

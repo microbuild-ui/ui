@@ -1,7 +1,7 @@
 {
   "name": "@microbuild/utils",
   "version": "0.1.0",
-  "description": "Utility functions for Microbuild UI packages",
+  "description": "Utility functions for Buildpad UI packages",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",

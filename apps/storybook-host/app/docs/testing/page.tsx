@@ -6,7 +6,7 @@ export default function TestingPage() {
       </div>
       <h1 className="docs-title">Testing Guide</h1>
       <p className="docs-lead">
-        Microbuild uses Playwright for E2E testing with a two-tier strategy:
+        Buildpad uses Playwright for E2E testing with a two-tier strategy:
         Storybook component tests and DaaS integration tests.
       </p>
 

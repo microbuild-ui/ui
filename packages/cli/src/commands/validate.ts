@@ -1,7 +1,7 @@
 /**
- * Microbuild CLI - Validate Command
+ * Buildpad CLI - Validate Command
  * 
- * Validates the Microbuild installation in a project:
+ * Validates the Buildpad installation in a project:
  * - Checks for untransformed @microbuild/* imports
  * - Checks for broken relative imports (file not found)
  * - Verifies all component files exist
@@ -637,7 +637,7 @@ export async function validate(options: {
     process.exit(1);
   }
   
-  const spinner = json ? null : ora('Validating Microbuild installation...').start();
+  const spinner = json ? null : ora('Validating Buildpad installation...').start();
   
   try {
     // Run all checks (TypeScript check is separate as it's slower)
@@ -690,7 +690,7 @@ export async function validate(options: {
     
     // Display results
     if (errors.length === 0 && warnings.length === 0) {
-      spinner?.succeed(chalk.green('Microbuild installation is valid! ✓'));
+      spinner?.succeed(chalk.green('Buildpad installation is valid! ✓'));
       console.log(chalk.dim(`\n  ${config.installedComponents.length} components installed`));
       console.log(chalk.dim(`  ${config.installedLib.length} lib modules installed\n`));
       return result;

@@ -1,16 +1,16 @@
 # @microbuild/mcp
 
-Model Context Protocol (MCP) server for Microbuild components. Enables AI agents like VS Code Copilot to discover, understand, and generate code using the **Copy & Own** distribution model.
+Model Context Protocol (MCP) server for Buildpad components. Enables AI agents like VS Code Copilot to discover, understand, and generate code using the **Copy & Own** distribution model.
 
 [![npm version](https://img.shields.io/npm/v/@microbuild/mcp)](https://www.npmjs.com/package/@microbuild/mcp)
 
 ## What is MCP?
 
-The [Model Context Protocol](https://modelcontextprotocol.io) is an open standard that enables AI assistants to securely access external data sources and tools. This MCP server exposes the Microbuild component library to AI agents.
+The [Model Context Protocol](https://modelcontextprotocol.io) is an open standard that enables AI assistants to securely access external data sources and tools. This MCP server exposes the Buildpad component library to AI agents.
 
 ## Copy & Own Model
 
-Microbuild uses the **Copy & Own** distribution model (similar to shadcn/ui):
+Buildpad uses the **Copy & Own** distribution model (similar to shadcn/ui):
 
 - ✅ Components are copied as source code to your project
 - ✅ Full customization - components become your application code
@@ -20,7 +20,7 @@ Microbuild uses the **Copy & Own** distribution model (similar to shadcn/ui):
 
 ## Features
 
-- 📦 **Component Discovery** - List all available Microbuild components
+- 📦 **Component Discovery** - List all available Buildpad components
 - 📖 **Source Code Access** - Read component source code and documentation
 - 🛠️ **Code Generation** - Generate components, forms, and interfaces
 - 🔧 **CLI Integration** - Get CLI commands to install components
@@ -138,7 +138,7 @@ Get detailed information and source code for a specific component.
 
 ### `list_packages`
 
-List all Microbuild packages with their exports.
+List all Buildpad packages with their exports.
 
 ### `get_install_command`
 
@@ -245,7 +245,7 @@ Get RBAC (Role-Based Access Control) setup patterns for DaaS applications. Retur
 
 Once configured, you can ask Copilot:
 
-- "How do I install Microbuild components?" (uses `get_copy_own_info`)
+- "How do I install Buildpad components?" (uses `get_copy_own_info`)
 - "Add the Input and SelectDropdown components to my project" (uses `get_install_command`)
 - "Show me how to use the Input component" (uses `get_usage_example`)
 - "Generate a form for a products collection" (uses `generate_form`)

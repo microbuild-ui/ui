@@ -18,7 +18,7 @@ export interface ComponentVersion {
 }
 
 /**
- * Microbuild Configuration File
+ * Buildpad Configuration File
  * 
  * Copy & Own Model:
  * - Components are copied to your project as source files
@@ -83,7 +83,7 @@ async function copyTemplateFile(sourceRelativePath: string, targetPath: string, 
 export async function init(options: { yes?: boolean; cwd: string }) {
   const { cwd, yes } = options;
 
-  console.log(chalk.bold('\n🚀 Welcome to Microbuild!\n'));
+  console.log(chalk.bold('\n🚀 Welcome to Buildpad!\n'));
   console.log(chalk.dim('Copy & Own Model - Components become part of your codebase.\n'));
 
   // Check if already initialized

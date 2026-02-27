@@ -1,6 +1,6 @@
 # Windows Development Guide
 
-This guide covers how to set up and run **Microbuild UI Packages** on Windows.
+This guide covers how to set up and run **Buildpad UI Packages** on Windows.
 
 ## Prerequisites
 

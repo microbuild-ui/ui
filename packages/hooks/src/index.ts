@@ -1,7 +1,7 @@
 /**
  * @microbuild/hooks
  * 
- * Shared React hooks for Microbuild projects.
+ * Shared React hooks for Buildpad projects.
  * DaaS-compatible relation hooks for M2M, M2O, O2M relationships.
  * Authentication and permission hooks following DaaS architecture.
  */

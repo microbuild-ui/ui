@@ -1,7 +1,7 @@
 /**
  * @microbuild/ui-collections
  * 
- * Dynamic collection components (Form, List, Navigation, Layout, Filter) for Microbuild projects.
+ * Dynamic collection components (Form, List, Navigation, Layout, Filter) for Buildpad projects.
  * Built with Mantine v8 and using @microbuild/services for data fetching.
  */
 

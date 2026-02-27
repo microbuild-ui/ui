@@ -1,5 +1,5 @@
 /**
- * Microbuild CLI - Bootstrap Command
+ * Buildpad CLI - Bootstrap Command
  * 
  * Single atomic command that combines:
  * 1. init (create microbuild.json, package.json, Next.js skeleton)
@@ -33,7 +33,7 @@ export async function bootstrap(options: {
   const { cwd, skipDeps = false, skipValidate = false } = options;
   const startTime = Date.now();
 
-  console.log(chalk.bold.blue('\n🚀 Microbuild Bootstrap - Full Project Setup\n'));
+  console.log(chalk.bold.blue('\n🚀 Buildpad Bootstrap - Full Project Setup\n'));
   console.log(chalk.dim(`Target: ${cwd}\n`));
 
   // ── Step 1: Init ───────────────────────────────────────────────

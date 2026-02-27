@@ -1,6 +1,6 @@
-# Microbuild CLI - Agent Reference
+# Buildpad CLI - Agent Reference
 
-> **For AI Agents**: This document provides complete information about the Microbuild CLI structure, component locations, and how to help users add components.
+> **For AI Agents**: This document provides complete information about the Buildpad CLI structure, component locations, and how to help users add components.
 
 ## Quick Reference
 
@@ -90,7 +90,7 @@ microbuild outdated                # Check for component updates
 
 1. **`dependencies`** - External npm packages (e.g., `@mantine/core`, `dayjs`)
 2. **`internalDependencies`** - Lib modules (`types`, `services`, `hooks`, `utils`)
-3. **`registryDependencies`** - Other Microbuild components
+3. **`registryDependencies`** - Other Buildpad components
 
 ### VForm Dependency Tree (Most Complex)
 ```

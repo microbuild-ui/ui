@@ -1,10 +1,10 @@
 # Testing Guide
 
-Comprehensive testing guide for Microbuild UI Packages.
+Comprehensive testing guide for Buildpad UI Packages.
 
 ## Overview
 
-Microbuild UI Packages uses a **two-tier testing strategy**:
+Buildpad UI Packages uses a **two-tier testing strategy**:
 
 1. **Storybook Component Tests** - Isolated component testing (no auth needed)
 2. **DaaS E2E Tests** - Integration testing against the hosted DaaS application

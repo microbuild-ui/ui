@@ -6,7 +6,7 @@ export default function CliPage() {
       </div>
       <h1 className="docs-title">CLI</h1>
       <p className="docs-lead">
-        The Microbuild CLI copies component source code directly into your
+        The Buildpad CLI copies component source code directly into your
         project with imports transformed to local paths.
       </p>
 
@@ -36,7 +36,7 @@ npm install -g @microbuild/cli`}</pre>
           <tbody>
             <tr>
               <td><code>microbuild init</code></td>
-              <td>Initialize Microbuild in your project</td>
+              <td>Initialize Buildpad in your project</td>
             </tr>
             <tr>
               <td><code>microbuild bootstrap</code></td>

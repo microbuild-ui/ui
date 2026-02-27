@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Microbuild CLI
+ * Buildpad CLI
  * 
- * Copy & Own CLI tool for adding Microbuild components to your project.
+ * Copy & Own CLI tool for adding Buildpad components to your project.
  * 
  * Benefits:
  * ✅ No dependency on external packages for component code
@@ -28,12 +28,12 @@ const program = new Command();
 
 program
   .name('microbuild')
-  .description('Copy & Own CLI - Add Microbuild components to your project')
+  .description('Copy & Own CLI - Add Buildpad components to your project')
   .version('1.0.0');
 
 program
   .command('init')
-  .description('Initialize Microbuild in your project (creates microbuild.json)')
+  .description('Initialize Buildpad in your project (creates microbuild.json)')
   .option('-y, --yes', 'Skip prompts and use defaults')
   .option('-c, --cwd <path>', 'Project directory', process.cwd())
   .action(init);
@@ -67,7 +67,7 @@ program
 
 program
   .command('status')
-  .description('Show installed Microbuild components and their origins')
+  .description('Show installed Buildpad components and their origins')
   .option('--json', 'Output as JSON')
   .option('--cwd <path>', 'Project directory', process.cwd())
   .action(status);
@@ -89,7 +89,7 @@ program
 
 program
   .command('validate')
-  .description('Validate Microbuild installation (check imports, missing files, SSR issues)')
+  .description('Validate Buildpad installation (check imports, missing files, SSR issues)')
   .option('--json', 'Output as JSON')
   .option('--cwd <path>', 'Project directory', process.cwd())
   .action(async (options) => { await validate(options); });

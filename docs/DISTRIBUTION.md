@@ -1,6 +1,6 @@
 # Distribution
 
-Microbuild UI Packages is a code distribution system. It defines a schema for components and a CLI to distribute them.
+Buildpad UI Packages is a code distribution system. It defines a schema for components and a CLI to distribute them.
 
 - **Schema**: A flat-file structure (`registry.json`) that defines the components, their dependencies, and properties
 - **CLI**: A command-line tool to distribute and install components with cross-framework support
@@ -102,11 +102,11 @@ import type { M2MItem } from '@/lib/microbuild/types';
 
 ## AI-Ready
 
-The design of Microbuild makes it easy for AI tools to work with your code. Its open code and consistent API allow AI models to read, understand, and generate new components.
+The design of Buildpad makes it easy for AI tools to work with your code. Its open code and consistent API allow AI models to read, understand, and generate new components.
 
 ### MCP Server
 
-The MCP (Model Context Protocol) server exposes Microbuild components to AI assistants like VS Code Copilot.
+The MCP (Model Context Protocol) server exposes Buildpad components to AI assistants like VS Code Copilot.
 
 The MCP server is published as [`@microbuild/mcp`](https://www.npmjs.com/package/@microbuild/mcp) on npm.
 
@@ -151,7 +151,7 @@ pnpm build:mcp
 
 **Usage with Copilot:**
 
-- "List all Microbuild components"
+- "List all Buildpad components"
 - "Show me how to use the Input component"
 - "Generate a CollectionForm for products"
 - "Get the install command for input and datetime"

@@ -1,5 +1,5 @@
 /**
- * Microbuild Hooks
+ * Buildpad Hooks
  * 
  * Re-exports all React hooks.
  * This file is copied to your project and can be customized.

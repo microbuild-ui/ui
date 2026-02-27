@@ -1,4 +1,4 @@
-# Microbuild UI Packages Distribution Architecture
+# Buildpad UI Packages Distribution Architecture
 
 ## System Overview
 
@@ -260,7 +260,7 @@ The `apps/storybook-host` Next.js app serves as both a DaaS authentication proxy
 ┌──────────────────────┐
 │   Copilot generates  │
 │   code using         │
-│   Microbuild         │
+│   Buildpad         │
 └──────────────────────┘
 ```
 
@@ -475,7 +475,7 @@ Source Code Changes
 
 ```
 ┌──────────────────────────────────┐
-│  Microbuild (packages/)          │
+│  Buildpad (packages/)          │
 │  ├── registry.json               │
 │  ├── cli/                        │
 │  ├── types/                      │
@@ -503,7 +503,7 @@ Source Code Changes
 │  $ npx create-next-app@latest    │
 └────────────────┬─────────────────┘
                  │
-                 │ Initialize Microbuild
+                 │ Initialize Buildpad
                  │ $ npx @microbuild/cli init
                  ▼
          ┌───────────────┐
@@ -525,7 +525,7 @@ Source Code Changes
 
 ```
 ┌──────────────────────────────────┐
-│  Microbuild Repo                 │
+│  Buildpad Repo                 │
 │  └── packages/mcp-server/        │
 └────────────────┬─────────────────┘
                  │

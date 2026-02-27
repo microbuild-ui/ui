@@ -1,6 +1,6 @@
 # Quick Start: Using MCP Server & CLI
 
-This guide will help you set up and use the Microbuild UI Packages distribution tools.
+This guide will help you set up and use the Buildpad UI Packages distribution tools.
 
 ## 🤖 Setup MCP Server for VS Code Copilot
 
@@ -56,7 +56,7 @@ Then configure VS Code:
 }
 ```
 
-**Important:** Replace `/absolute/path/to/microbuild-ui-packages` with the actual absolute path to your Microbuild directory.
+**Important:** Replace `/absolute/path/to/microbuild-ui-packages` with the actual absolute path to your Buildpad directory.
 
 Reload VS Code for the changes to take effect (`Cmd+Shift+P` → "Developer: Reload Window").
 
@@ -64,8 +64,8 @@ Reload VS Code for the changes to take effect (`Cmd+Shift+P` → "Developer: Rel
 
 Ask Copilot:
 
-- "List all Microbuild components"
-- "Show me how to use the Input component from Microbuild"
+- "List all Buildpad components"
+- "Show me how to use the Input component from Buildpad"
 - "Generate a CollectionForm for a products collection"
 - "Create a form with Input, SelectDropdown, and DateTime fields"
 
@@ -331,7 +331,7 @@ microbuild outdated
    cd /tmp/test-microbuild
    npm init -y
    
-   # Initialize Microbuild
+   # Initialize Buildpad
    node /path/to/microbuild-ui-packages/packages/cli/dist/index.js init --yes
    
    # Or bootstrap everything at once
@@ -375,7 +375,7 @@ pnpm cli list
 
 ## 🧪 Testing
 
-Microbuild uses Playwright for E2E testing with a two-tier strategy.
+Buildpad uses Playwright for E2E testing with a two-tier strategy.
 
 ### Storybook Component Tests (Recommended for development)
 
@@ -478,7 +478,7 @@ See [docs/TESTING.md](./docs/TESTING.md) for complete testing guide and best pra
 
 ### MCP Server Issues
 
-**VS Code doesn't show Microbuild MCP:**
+**VS Code doesn't show Buildpad MCP:**
 - Check absolute path in settings.json
 - Ensure server is built: `pnpm build:mcp`
 - Check Output panel for MCP errors

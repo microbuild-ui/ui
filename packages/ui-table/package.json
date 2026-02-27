@@ -1,7 +1,7 @@
 {
   "name": "@microbuild/ui-table",
   "version": "0.1.0",
-  "description": "Dynamic table component (VTable) for Microbuild projects - inspired by DaaS v-table",
+  "description": "Dynamic table component (VTable) for Buildpad projects - inspired by DaaS v-table",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

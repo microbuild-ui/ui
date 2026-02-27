@@ -1,6 +1,6 @@
-# Microbuild UI Packages Documentation Index
+# Buildpad UI Packages Documentation Index
 
-Complete guide to Microbuild UI Packages and distribution tools.
+Complete guide to Buildpad UI Packages and distribution tools.
 
 ## 📚 Documentation Overview
 
@@ -234,7 +234,7 @@ microbuild validate --json      # JSON output for CI/CD
 ## 🏗️ Architecture
 
 ```
-Microbuild Architecture
+Buildpad Architecture
 
 ┌─────────────────────────────────────┐
 │      Distribution Layer             │

@@ -1,5 +1,5 @@
 /**
- * Microbuild Utils - Barrel Export
+ * Buildpad Utils - Barrel Export
  * 
  * This file re-exports all utilities from the utils folder.
  * It exists to support both import patterns:

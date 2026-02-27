@@ -1,7 +1,7 @@
 /**
- * Microbuild Utilities
+ * Buildpad Utilities
  * 
- * Shared utility functions for Microbuild components.
+ * Shared utility functions for Buildpad components.
  * This file is copied to your project and can be customized.
  */
 

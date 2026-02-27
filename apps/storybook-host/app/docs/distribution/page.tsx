@@ -6,7 +6,7 @@ export default function DistributionPage() {
       </div>
       <h1 className="docs-title">Distribution</h1>
       <p className="docs-lead">
-        Microbuild UI uses the Copy &amp; Own distribution model — components
+        Buildpad UI uses the Copy &amp; Own distribution model — components
         are copied as source code to your project.
       </p>
 
@@ -14,7 +14,7 @@ export default function DistributionPage() {
         Copy &amp; Own
       </h2>
       <p className="docs-paragraph">
-        Unlike traditional npm packages, Microbuild components are distributed
+        Unlike traditional npm packages, Buildpad components are distributed
         as source code. When you add a component, the CLI:
       </p>
       <ol className="docs-list docs-list-ordered">
@@ -71,7 +71,7 @@ export default function DistributionPage() {
               services, hooks, utils)
             </li>
             <li>
-              <strong>registryDependencies</strong> — Other Microbuild
+              <strong>registryDependencies</strong> — Other Buildpad
               components
             </li>
           </ul>

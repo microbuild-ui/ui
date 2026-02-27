@@ -1,7 +1,7 @@
 /**
  * @microbuild/ui-interfaces
  * 
- * Shared UI interface components for Microbuild projects.
+ * Shared UI interface components for Buildpad projects.
  * DaaS-compatible field interfaces built with Mantine v8.
  */
 

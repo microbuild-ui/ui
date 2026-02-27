@@ -6,7 +6,7 @@ export default function InstallationPage() {
       </div>
       <h1 className="docs-title">Installation</h1>
       <p className="docs-lead">
-        How to install and set up Microbuild UI components in your Next.js
+        How to install and set up Buildpad UI components in your Next.js
         project.
       </p>
 
@@ -23,7 +23,7 @@ export default function InstallationPage() {
         Bootstrap (Recommended)
       </h2>
       <p className="docs-paragraph">
-        The fastest way to set up Microbuild UI is with the{" "}
+        The fastest way to set up Buildpad UI is with the{" "}
         <code>bootstrap</code> command. It combines init + add all components +
         install deps + validate into a single non-interactive command.
       </p>

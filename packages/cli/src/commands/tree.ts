@@ -1,5 +1,5 @@
 /**
- * Microbuild CLI - Tree Command
+ * Buildpad CLI - Tree Command
  * 
  * Display dependency tree for a component showing:
  * - Lib module dependencies (types, services, hooks, utils)

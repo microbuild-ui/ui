@@ -1,6 +1,6 @@
 # @microbuild/types
 
-Shared TypeScript type definitions for Microbuild projects. DaaS-compatible types for collections, fields, files, and relations.
+Shared TypeScript type definitions for Buildpad projects. DaaS-compatible types for collections, fields, files, and relations.
 
 ## Installation
 

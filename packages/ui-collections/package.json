@@ -1,7 +1,7 @@
 {
   "name": "@microbuild/ui-collections",
   "version": "0.1.0",
-  "description": "Dynamic collection components (Form, List) for Microbuild projects",
+  "description": "Dynamic collection components (Form, List) for Buildpad projects",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

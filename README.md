@@ -1,4 +1,4 @@
-# Microbuild UI Packages
+# Buildpad UI Packages
 
 A pnpm workspace containing reusable components distributed via Copy & Own model.
 
@@ -562,11 +562,11 @@ SKIP_WEBSERVER=true STORYBOOK_TABLE_URL=http://localhost:6007 \
 
 ## 🤖 Distribution & AI Tools
 
-Microbuild includes two powerful distribution tools:
+Buildpad includes two powerful distribution tools:
 
 ### MCP Server - For AI Agents
 
-Expose Microbuild components to AI assistants like VS Code Copilot.
+Expose Buildpad components to AI assistants like VS Code Copilot.
 
 The MCP server is published on npm as [`@microbuild/mcp`](https://www.npmjs.com/package/@microbuild/mcp).
 
@@ -586,7 +586,7 @@ The MCP server is published on npm as [`@microbuild/mcp`](https://www.npmjs.com/
 
 ```bash
 # Use with Copilot:
-# "Show me how to use the Input component from Microbuild"
+# "Show me how to use the Input component from Buildpad"
 # "Generate a CollectionForm for products"
 # "Get RBAC pattern for own_items on articles collection"
 ```
@@ -652,7 +652,7 @@ See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 | `pnpm dev`                   | Run all apps in dev mode                         |
 | `pnpm mcp:dev`               | Run MCP server in watch mode                     |
 | `pnpm cli`                   | Run CLI tool locally                             |
-| `pnpm cli validate`          | Validate Microbuild installation in a project    |
+| `pnpm cli validate`          | Validate Buildpad installation in a project    |
 | `pnpm storybook`             | Run Storybook for ui-interfaces (port 6005)      |
 | `pnpm storybook:form`        | Run VForm Storybook (port 6006)                  |
 | `pnpm storybook:table`       | Run VTable Storybook (port 6007)                 |
@@ -702,7 +702,7 @@ Credentials are stored in an AES-256-GCM encrypted httpOnly cookie. All `/api/*`
 
 ## 🧪 Testing
 
-Microbuild uses a **two-tier testing strategy** for comprehensive validation:
+Buildpad uses a **two-tier testing strategy** for comprehensive validation:
 
 ### Tier 1: Storybook Tests (Isolated Component Testing)
 
@@ -773,7 +773,7 @@ See [docs/TESTING.md](docs/TESTING.md) for complete testing guide and best pract
 
 ## RAD Platform Integration
 
-Microbuild integrates with the **microbuild-copilot** RAD (Rapid Application Development) platform for AI-assisted development.
+Buildpad integrates with the **microbuild-copilot** RAD (Rapid Application Development) platform for AI-assisted development.
 
 ### Setup with microbuild-copilot
 
@@ -782,7 +782,7 @@ Microbuild integrates with the **microbuild-copilot** RAD (Rapid Application Dev
 git clone https://github.com/your-org/microbuild-copilot.git my-new-app
 cd my-new-app
 
-# The .vscode/mcp.json is pre-configured for Microbuild MCP server
+# The .vscode/mcp.json is pre-configured for Buildpad MCP server
 # Just update the path to your microbuild-ui-packages installation
 ```
 
@@ -799,7 +799,7 @@ See [microbuild-copilot](https://github.com/your-org/microbuild-copilot) for ful
 
 This workspace follows patterns from [DaaS](https://daas.io/):
 
-| DaaS Package        | Microbuild Equivalent        | Purpose                        |
+| DaaS Package        | Buildpad Equivalent        | Purpose                        |
 | ------------------- | ---------------------------- | ------------------------------ |
 | `@daas/types`       | `@microbuild/types`          | Shared TypeScript types        |
 | `@daas/composables` | `@microbuild/hooks`          | Reusable React hooks           |

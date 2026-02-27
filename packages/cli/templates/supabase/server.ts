@@ -2,7 +2,7 @@
  * Supabase Server Client
  * 
  * Server-side Supabase client for use in Server Components, API routes, and Server Actions.
- * This file is copied to your project by the Microbuild CLI.
+ * This file is copied to your project by the Buildpad CLI.
  * 
  * @microbuild/origin: supabase/server
  * @microbuild/version: 1.0.0

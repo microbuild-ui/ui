@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Microbuild MCP Server
+ * Buildpad MCP Server
  * 
- * Exposes Microbuild components to AI agents via the Model Context Protocol.
+ * Exposes Buildpad components to AI agents via the Model Context Protocol.
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -292,7 +292,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'list_components',
-        description: 'List all available Microbuild components with metadata',
+        description: 'List all available Buildpad components with metadata',
         inputSchema: {
           type: 'object',
           properties: {
@@ -380,7 +380,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'list_packages',
-        description: 'List all Microbuild packages with their exports',
+        description: 'List all Buildpad packages with their exports',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -654,7 +654,7 @@ function Example() {
       
       if (all) {
         command += ' --all --project /path/to/your-project';
-        explanation = 'This will install all Microbuild components to your project.';
+        explanation = 'This will install all Buildpad components to your project.';
       } else if (category) {
         command += ` --category ${category} --project /path/to/your-project`;
         explanation = `This will install all components from the ${category} category.`;
@@ -727,9 +727,9 @@ pnpm cli init --project /path/to/your-project
     }
 
     case 'get_copy_own_info': {
-      const info = `## Microbuild Copy & Own Distribution Model
+      const info = `## Buildpad Copy & Own Distribution Model
 
-Microbuild uses the **Copy & Own** model (like shadcn/ui) instead of traditional npm packages.
+Buildpad uses the **Copy & Own** model (like shadcn/ui) instead of traditional npm packages.
 
 ⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm.
 You must clone microbuild-ui-packages locally and use the CLI from there.
@@ -1058,7 +1058,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   
-  console.error('Microbuild MCP Server running on stdio');
+  console.error('Buildpad MCP Server running on stdio');
 }
 
 main().catch((error) => {

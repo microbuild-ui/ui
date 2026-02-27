@@ -2,7 +2,7 @@
  * API Auth Headers Helper
  * 
  * Forwards authentication tokens from Supabase session to DaaS backend.
- * This file is copied to your project by the Microbuild CLI.
+ * This file is copied to your project by the Buildpad CLI.
  * 
  * @microbuild/origin: api-routes/auth-headers
  * @microbuild/version: 1.0.0

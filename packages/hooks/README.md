@@ -1,6 +1,6 @@
 # @microbuild/hooks
 
-React hooks for Microbuild projects. Includes authentication and permission hooks following DaaS architecture, plus DaaS-compatible relation hooks for M2M, M2O, O2M, and M2A relationships.
+React hooks for Buildpad projects. Includes authentication and permission hooks following DaaS architecture, plus DaaS-compatible relation hooks for M2M, M2O, O2M, and M2A relationships.
 
 ## Installation
 

@@ -1,6 +1,6 @@
 # @microbuild/cli
 
-A CLI for adding Microbuild components to your project.
+A CLI for adding Buildpad components to your project.
 
 [![npm version](https://img.shields.io/npm/v/@microbuild/cli)](https://www.npmjs.com/package/@microbuild/cli)
 
@@ -146,7 +146,7 @@ Options:
 
 ## validate
 
-Use the `validate` command to check your Microbuild installation for common issues.
+Use the `validate` command to check your Buildpad installation for common issues.
 
 ```bash
 npx @microbuild/cli validate
@@ -157,7 +157,7 @@ npx @microbuild/cli validate
 ```
 Usage: microbuild validate [options]
 
-validate Microbuild installation (check imports, missing files, SSR issues)
+validate Buildpad installation (check imports, missing files, SSR issues)
 
 Options:
   --json           output as JSON for CI/CD
@@ -217,7 +217,7 @@ Options:
 
 ## status
 
-Use the `status` command to view all installed Microbuild components and their origins.
+Use the `status` command to view all installed Buildpad components and their origins.
 
 ```bash
 npx @microbuild/cli status
@@ -228,7 +228,7 @@ npx @microbuild/cli status
 ```
 Usage: microbuild status [options]
 
-show installed Microbuild components and their origins
+show installed Buildpad components and their origins
 
 Options:
   --json           output as JSON
@@ -239,7 +239,7 @@ Options:
 ### Example Output
 
 ```
-📦 Microbuild Status
+📦 Buildpad Status
 
 Config file: microbuild.json
 Lib modules: types, hooks, services
@@ -255,7 +255,7 @@ Installed Files:
     └─ src/lib/microbuild/hooks/useRelationM2M.ts
        v1.0.0 (2026-01-12)
 
-Total: 15 files from Microbuild
+Total: 15 files from Buildpad
 ```
 
 ## microbuild.json
@@ -509,7 +509,7 @@ microbuild outdated [--json] [--cwd <path>]
 
 ### "Registry file not found"
 
-Make sure you're running the CLI from within the Microbuild workspace or have the registry properly configured.
+Make sure you're running the CLI from within the Buildpad workspace or have the registry properly configured.
 
 ### "microbuild.json not found"
 

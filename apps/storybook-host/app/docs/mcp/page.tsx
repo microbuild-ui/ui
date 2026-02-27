@@ -6,11 +6,11 @@ export default function McpPage() {
       </div>
       <h1 className="docs-title">MCP Server</h1>
       <p className="docs-lead">
-        Use the Microbuild MCP server to browse, search, and install components
+        Use the Buildpad MCP server to browse, search, and install components
         from the registry using natural language.
       </p>
       <p className="docs-paragraph">
-        The Microbuild MCP Server allows AI assistants to interact with the
+        The Buildpad MCP Server allows AI assistants to interact with the
         component registry. You can browse available components, search for
         specific ones, and install them directly into your project using natural
         language.
@@ -30,7 +30,7 @@ export default function McpPage() {
       </h2>
       <p className="docs-paragraph">
         Select your MCP client and follow the instructions to configure the
-        Microbuild MCP server. If you&apos;d like to do it manually, see the{" "}
+        Buildpad MCP server. If you&apos;d like to do it manually, see the{" "}
         <a href="#configuration">Configuration</a> section.
       </p>
       <div className="docs-code-block">
@@ -43,7 +43,7 @@ npx @microbuild/mcp@latest`}</pre>
       </p>
       <ul className="docs-list">
         <li>
-          <em>&quot;List all available Microbuild components&quot;</em>
+          <em>&quot;List all available Buildpad components&quot;</em>
         </li>
         <li>
           <em>
@@ -70,7 +70,7 @@ npx @microbuild/mcp@latest`}</pre>
           Model Context Protocol (MCP)
         </a>{" "}
         is an open protocol that enables AI assistants to securely connect to
-        external data sources and tools. With the Microbuild MCP server, your AI
+        external data sources and tools. With the Buildpad MCP server, your AI
         assistant gains direct access to:
       </p>
       <ul className="docs-list">
@@ -101,11 +101,11 @@ npx @microbuild/mcp@latest`}</pre>
       </h2>
       <p className="docs-paragraph">
         The MCP server acts as a bridge between your AI assistant, the component
-        registry, and the Microbuild CLI.
+        registry, and the Buildpad CLI.
       </p>
       <ol className="docs-list docs-list-ordered">
         <li>
-          <strong>Registry Connection</strong> — MCP connects to the Microbuild
+          <strong>Registry Connection</strong> — MCP connects to the Buildpad
           component registry (<code>registry.json</code>)
         </li>
         <li>
@@ -158,7 +158,7 @@ npx @microbuild/mcp@latest`}</pre>
               <td>
                 <code>list_packages</code>
               </td>
-              <td>List all Microbuild packages with their exports</td>
+              <td>List all Buildpad packages with their exports</td>
             </tr>
             <tr>
               <td>
@@ -223,7 +223,7 @@ npx @microbuild/mcp@latest`}</pre>
         Configuration
       </h2>
       <p className="docs-paragraph">
-        You can use any MCP client to interact with the Microbuild MCP server.
+        You can use any MCP client to interact with the Buildpad MCP server.
         Here are the instructions for the most popular ones.
       </p>
 
@@ -231,7 +231,7 @@ npx @microbuild/mcp@latest`}</pre>
         VS Code (GitHub Copilot)
       </h3>
       <p className="docs-paragraph">
-        To configure MCP in VS Code with GitHub Copilot, add the Microbuild
+        To configure MCP in VS Code with GitHub Copilot, add the Buildpad
         server to your project&apos;s <code>.vscode/mcp.json</code> configuration
         file:
       </p>
@@ -248,7 +248,7 @@ npx @microbuild/mcp@latest`}</pre>
       </div>
       <p className="docs-paragraph">
         After adding the configuration, open <code>.vscode/mcp.json</code> and
-        click <strong>Start</strong> next to the Microbuild server.
+        click <strong>Start</strong> next to the Buildpad server.
       </p>
       <p className="docs-paragraph">
         Or add to your VS Code <code>settings.json</code>:
@@ -289,9 +289,9 @@ npx @microbuild/mcp@latest`}</pre>
 }`}</pre>
       </div>
       <p className="docs-paragraph">
-        After adding the configuration, enable the Microbuild MCP server in
+        After adding the configuration, enable the Buildpad MCP server in
         Cursor Settings. Once enabled, you should see a green dot next to the
-        Microbuild server in the MCP server list.
+        Buildpad server in the MCP server list.
       </p>
 
       <h3 className="docs-subheading" id="claude-code">
@@ -312,7 +312,7 @@ npx @microbuild/mcp@latest`}</pre>
 }`}</pre>
       </div>
       <p className="docs-paragraph">
-        Restart Claude Code and run <code>/mcp</code> to verify the Microbuild
+        Restart Claude Code and run <code>/mcp</code> to verify the Buildpad
         server is connected.
       </p>
 
@@ -415,7 +415,7 @@ pnpm build:mcp`}</pre>
       <h3 className="docs-subheading">Browse &amp; Search</h3>
       <ul className="docs-list">
         <li>
-          <em>&quot;Show me all available components in Microbuild&quot;</em>
+          <em>&quot;Show me all available components in Buildpad&quot;</em>
         </li>
         <li>
           <em>&quot;List all selection components&quot;</em>
@@ -440,7 +440,7 @@ pnpm build:mcp`}</pre>
         </li>
         <li>
           <em>
-            &quot;Bootstrap my project with all Microbuild components&quot;
+            &quot;Bootstrap my project with all Buildpad components&quot;
           </em>
         </li>
       </ul>
@@ -471,7 +471,7 @@ pnpm build:mcp`}</pre>
         Copy &amp; Own Model
       </h2>
       <p className="docs-paragraph">
-        Microbuild uses the <strong>Copy &amp; Own</strong> distribution model
+        Buildpad uses the <strong>Copy &amp; Own</strong> distribution model
         (similar to shadcn/ui):
       </p>
       <ul className="docs-list">
@@ -537,7 +537,7 @@ pnpm build:mcp`}</pre>
       <ul className="docs-list">
         <li>
           <a href="/docs/cli">CLI Documentation</a> — Complete guide to the
-          Microbuild CLI
+          Buildpad CLI
         </li>
         <li>
           <a href="/docs/distribution">Distribution</a> — How the Copy &amp;

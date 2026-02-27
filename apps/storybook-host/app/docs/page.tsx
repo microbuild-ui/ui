@@ -4,7 +4,7 @@ export default function DocsPage() {
       <div className="docs-breadcrumb">Docs</div>
       <h1 className="docs-title">Introduction</h1>
       <p className="docs-lead">
-        Microbuild UI is a set of beautifully-designed, schema-aware components
+        Buildpad UI is a set of beautifully-designed, schema-aware components
         and a code distribution platform. Works with Next.js, Mantine v8, and AI
         models. Open Source. Open Code.
       </p>
@@ -27,7 +27,7 @@ export default function DocsPage() {
         incompatible APIs.
       </p>
       <p className="docs-paragraph">
-        This is what Microbuild UI aims to solve. It is built around the
+        This is what Buildpad UI aims to solve. It is built around the
         following principles:
       </p>
       <ul className="docs-list">
@@ -57,7 +57,7 @@ export default function DocsPage() {
         Open Code
       </h2>
       <p className="docs-paragraph">
-        Microbuild UI hands you the actual component code. You have full control
+        Buildpad UI hands you the actual component code. You have full control
         to customize and extend the components to your needs. This means:
       </p>
       <ul className="docs-list">
@@ -77,7 +77,7 @@ export default function DocsPage() {
       </ul>
       <p className="docs-paragraph">
         In a typical library, if you need to change a form field&apos;s behavior,
-        you have to override styles or wrap the component. With Microbuild UI,
+        you have to override styles or wrap the component. With Buildpad UI,
         you simply edit the component code directly.
       </p>
 
@@ -85,7 +85,7 @@ export default function DocsPage() {
         Schema-Driven
       </h2>
       <p className="docs-paragraph">
-        Every component in Microbuild UI is designed to work with DaaS
+        Every component in Buildpad UI is designed to work with DaaS
         (Data-as-a-Service) collection schemas. VForm reads field metadata and
         automatically renders the correct interface — text inputs, selects,
         date pickers, relational selectors, file uploaders, and more.
@@ -101,7 +101,7 @@ export default function DocsPage() {
         Distribution
       </h2>
       <p className="docs-paragraph">
-        Microbuild UI is also a code distribution system. It defines a schema
+        Buildpad UI is also a code distribution system. It defines a schema
         for components and a CLI to distribute them.
       </p>
       <ul className="docs-list">
@@ -130,7 +130,7 @@ npx @microbuild/cli@latest bootstrap`}</pre>
         Permission-Aware
       </h2>
       <p className="docs-paragraph">
-        Microbuild UI integrates deeply with DaaS RBAC. VForm automatically
+        Buildpad UI integrates deeply with DaaS RBAC. VForm automatically
         filters fields based on user permissions for create, update, and read
         actions. The <code>usePermissions</code> hook provides field-level and
         action-level permission checking.
@@ -154,7 +154,7 @@ npx @microbuild/cli@latest bootstrap`}</pre>
         AI-Ready
       </h2>
       <p className="docs-paragraph">
-        The design of Microbuild UI makes it easy for AI tools to work with your
+        The design of Buildpad UI makes it easy for AI tools to work with your
         code. Its open code and consistent API allow AI models to read,
         understand, and even generate new components.
       </p>
@@ -173,7 +173,7 @@ npx @microbuild/cli@latest bootstrap`}</pre>
         Component Library
       </h2>
       <p className="docs-paragraph">
-        Microbuild UI provides a comprehensive set of components organized by
+        Buildpad UI provides a comprehensive set of components organized by
         category:
       </p>
 

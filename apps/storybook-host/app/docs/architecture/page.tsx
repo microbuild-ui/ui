@@ -6,7 +6,7 @@ export default function ArchitecturePage() {
       </div>
       <h1 className="docs-title">Architecture</h1>
       <p className="docs-lead">
-        Microbuild UI Packages is organized into three layers: Distribution,
+        Buildpad UI Packages is organized into three layers: Distribution,
         Source, and Consumer.
       </p>
 
@@ -105,7 +105,7 @@ services (CRUD + DaaS)    hooks (auth + relations)
         Consumer Layer
       </h2>
       <p className="docs-paragraph">
-        Projects consume Microbuild components via the CLI (Copy &amp; Own model)
+        Projects consume Buildpad components via the CLI (Copy &amp; Own model)
         or through AI agents via MCP. Components are copied as source code with
         imports transformed to local paths.
       </p>

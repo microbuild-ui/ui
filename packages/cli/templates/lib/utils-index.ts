@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Microbuild Utils
+ * Buildpad Utils
  * 
  * Re-exports all utility functions.
  * This file is copied to your project and can be customized.

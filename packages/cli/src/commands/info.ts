@@ -1,5 +1,5 @@
 /**
- * Microbuild CLI - Info Command
+ * Buildpad CLI - Info Command
  * 
  * Show detailed information about a specific component including:
  * - Source files and locations

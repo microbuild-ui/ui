@@ -2,7 +2,7 @@
  * Next.js Middleware
  * 
  * Root middleware file that handles auth session refresh.
- * This file is copied to your project by the Microbuild CLI.
+ * This file is copied to your project by the Buildpad CLI.
  * 
  * @microbuild/origin: middleware
  * @microbuild/version: 1.0.0

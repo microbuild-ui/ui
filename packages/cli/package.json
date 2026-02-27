@@ -1,7 +1,7 @@
 {
   "name": "@microbuild/cli",
   "version": "0.1.4",
-  "description": "CLI tool for adding Microbuild components to your project - like shadcn/ui",
+  "description": "CLI tool for adding Buildpad components to your project - like shadcn/ui",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -56,6 +56,6 @@
     "copy-own",
     "ui"
   ],
-  "author": "Microbuild",
+  "author": "Buildpad",
   "license": "MIT"
 }

@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Microbuild Storybook Host',
+  title: 'Buildpad Storybook Host',
   description:
-    'Authentication proxy and hosting for Microbuild Storybooks — connects to DaaS backend',
+    'Authentication proxy and hosting for Buildpad Storybooks — connects to DaaS backend',
 };
 
 export default function RootLayout({

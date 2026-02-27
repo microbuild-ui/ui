@@ -1,5 +1,5 @@
 /**
- * Microbuild CLI - Outdated Command
+ * Buildpad CLI - Outdated Command
  * 
  * Checks for component updates by comparing installed versions
  * to the current registry version.

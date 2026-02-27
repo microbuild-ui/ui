@@ -1,5 +1,5 @@
 /**
- * Microbuild Types
+ * Buildpad Types
  * 
  * Re-exports all type definitions.
  * This file is copied to your project and can be customized.

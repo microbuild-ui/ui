@@ -149,7 +149,7 @@ export function getImportMappings(config: Config): ImportMapping[] {
  * Also normalizes import paths to use consistent kebab-case file names
  * 
  * @param content - File content to transform
- * @param config - Microbuild config
+ * @param config - Buildpad config
  * @param targetPath - Optional target path for context-aware transformations
  */
 export function transformImports(content: string, config: Config, targetPath?: string): string {
@@ -360,7 +360,7 @@ export function transformIntraComponentImports(
 /**
  * Check if content has @microbuild/* imports
  */
-export function hasMicrobuildImports(content: string): boolean {
+export function hasBuildpadImports(content: string): boolean {
   return /@microbuild\/(types|services|hooks|utils|ui-interfaces|ui-collections|ui-form|ui-table)/.test(content);
 }
 
@@ -467,7 +467,7 @@ export function transformRelativeImports(
 /**
  * Extract which @microbuild/* packages are imported
  */
-export function extractMicrobuildDependencies(content: string): string[] {
+export function extractBuildpadDependencies(content: string): string[] {
   const deps: Set<string> = new Set();
   
   const patterns = [
@@ -528,7 +528,7 @@ export function generateOriginHeader(
  * @microbuild-version ${version}
  * @microbuild-date ${timestamp}
  * 
- * This file was copied from Microbuild UI Packages.
+ * This file was copied from Buildpad UI Packages.
  * To update, run: npx @microbuild/cli add ${componentName} --overwrite
  * 
  * Docs: https://microbuild.dev/components/${componentName}
@@ -560,7 +560,7 @@ export function addOriginHeader(
 /**
  * Check if file has microbuild origin header
  */
-export function hasMicrobuildOrigin(content: string): boolean {
+export function hasBuildpadOrigin(content: string): boolean {
   return content.includes('@microbuild-origin');
 }
 
