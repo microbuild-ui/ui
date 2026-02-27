@@ -29,16 +29,16 @@ export default function InstallationPage() {
       </p>
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
-        <pre className="docs-pre">{`npx @microbuild/cli@latest bootstrap --cwd /path/to/project`}</pre>
+        <pre className="docs-pre">{`npx @buildpad/cli@latest bootstrap --cwd /path/to/project`}</pre>
       </div>
       <p className="docs-paragraph">This installs:</p>
       <ul className="docs-list">
         <li>
-          <code>microbuild.json</code> configuration + Next.js skeleton
+          <code>buildpad.json</code> configuration + Next.js skeleton
         </li>
         <li>40+ UI components in <code>components/ui/</code></li>
         <li>
-          Types, services, hooks in <code>lib/microbuild/</code>
+          Types, services, hooks in <code>lib/buildpad/</code>
         </li>
         <li>API proxy routes (fields, items, relations, files)</li>
         <li>
@@ -58,20 +58,20 @@ export default function InstallationPage() {
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
         <pre className="docs-pre">{`cd your-nextjs-app
-npx @microbuild/cli@latest init`}</pre>
+npx @buildpad/cli@latest init`}</pre>
       </div>
 
       <h3 className="docs-subheading">2. Add Components</h3>
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
         <pre className="docs-pre">{`# Add individual components
-npx @microbuild/cli@latest add input select-dropdown datetime
+npx @buildpad/cli@latest add input select-dropdown datetime
 
 # Add collection-form (includes VForm + all 32 interface components)
-npx @microbuild/cli@latest add collection-form
+npx @buildpad/cli@latest add collection-form
 
 # Add by category
-npx @microbuild/cli@latest add --category selection`}</pre>
+npx @buildpad/cli@latest add --category selection`}</pre>
       </div>
 
       <h3 className="docs-subheading">3. Use in Your Code</h3>
@@ -117,12 +117,12 @@ export default function MyPage() {
 │   ├── components/
 │   │   └── ui/            # UI components (copied source)
 │   └── lib/
-│       └── microbuild/    # Lib modules (auto-resolved)
+│       └── buildpad/    # Lib modules (auto-resolved)
 │           ├── types/
 │           ├── services/
 │           ├── hooks/
 │           └── utils/
-└── microbuild.json        # Configuration`}</pre>
+└── buildpad.json        # Configuration`}</pre>
       </div>
 
       <div className="docs-footer-nav">

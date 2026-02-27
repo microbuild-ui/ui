@@ -3,7 +3,7 @@
  * Based on DaaS v-form types
  */
 
-import type { Field } from '@microbuild/types';
+import type { Field } from '@buildpad/types';
 
 /**
  * Extended field type with display properties

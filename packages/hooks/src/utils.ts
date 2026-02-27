@@ -4,7 +4,7 @@
 
 // Re-export apiRequest from services which respects DaaS configuration
 // This ensures hooks work in both Next.js (proxy mode) and Storybook (direct mode)
-export { apiRequest } from '@microbuild/services';
+export { apiRequest } from '@buildpad/services';
 
 /**
  * Check if the primary key is valid for API operations

@@ -22,8 +22,8 @@ import {
   useRelationO2M,
   useRelationO2MItems,
   type O2MItem,
-} from "@microbuild/hooks";
-import { CollectionForm, CollectionList } from "@microbuild/ui-collections";
+} from "@buildpad/hooks";
+import { CollectionForm, CollectionList } from "@buildpad/ui-collections";
 import {
   IconAlertCircle,
   IconChevronDown,
@@ -343,7 +343,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
       // These will be persisted when the parent item is saved
       try {
         // Fetch the selected items to display them
-        const { apiRequest } = await import("@microbuild/services");
+        const { apiRequest } = await import("@buildpad/services");
         if (relationInfo?.relatedCollection?.collection) {
           const collection = relationInfo.relatedCollection.collection;
           const queryParams = new URLSearchParams();

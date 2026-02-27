@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
-import type { Field, Relation as BaseRelation, RelationMeta as BaseRelationMeta } from '@microbuild/types';
+import type { Field, Relation as BaseRelation, RelationMeta as BaseRelationMeta } from '@buildpad/types';
 import { apiRequest } from './utils';
 
 interface CollectionMeta {

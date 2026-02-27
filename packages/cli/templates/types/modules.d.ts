@@ -4,7 +4,7 @@
  * This file provides TypeScript declarations for packages that don't have
  * official type definitions. It is copied to your project by the Buildpad CLI.
  * 
- * @microbuild-origin @microbuild/cli/templates
+ * @buildpad-origin @buildpad/cli/templates
  */
 
 // =============================================================================

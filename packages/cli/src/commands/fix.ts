@@ -3,7 +3,7 @@
  * 
  * Automatically applies fixes for common issues detected by validate.
  * Fixes include:
- * - Untransformed @microbuild/* imports
+ * - Untransformed @buildpad/* imports
  * - Broken relative imports
  * - Missing CSS files
  * - SSR-unsafe exports
@@ -28,7 +28,7 @@ interface FixResult {
 }
 
 /**
- * Fix untransformed @microbuild/* imports
+ * Fix untransformed @buildpad/* imports
  */
 async function fixUntransformedImports(
   cwd: string,
@@ -40,7 +40,7 @@ async function fixUntransformedImports(
   const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
   const patterns = [
     path.join(srcDir, 'components/**/*.{ts,tsx,js,jsx}'),
-    path.join(srcDir, 'lib/microbuild/**/*.{ts,tsx,js,jsx}'),
+    path.join(srcDir, 'lib/buildpad/**/*.{ts,tsx,js,jsx}'),
   ];
   
   for (const pattern of patterns) {
@@ -49,8 +49,8 @@ async function fixUntransformedImports(
     for (const file of files) {
       const content = await fs.readFile(file, 'utf-8');
       
-      // Check if file has @microbuild/* imports
-      if (content.includes("from '@microbuild/") || content.includes('from "@microbuild/')) {
+      // Check if file has @buildpad/* imports
+      if (content.includes("from '@buildpad/") || content.includes('from "@buildpad/')) {
         const transformed = transformImports(content, config);
         
         if (transformed !== content) {
@@ -287,7 +287,7 @@ async function fixMissingCss(
       } else {
         // Note: In real implementation, you'd copy from source registry
         console.log(chalk.yellow(`  Missing CSS: ${info.cssFile}`));
-        console.log(chalk.dim(`    Reinstall component: npx microbuild add ${info.component} --overwrite`));
+        console.log(chalk.dim(`    Reinstall component: npx buildpad add ${info.component} --overwrite`));
         result.skipped++;
       }
     }
@@ -375,7 +375,7 @@ function collectTypeScriptErrors(cwd: string, config: Config): TsError[] {
     while ((match = pattern.exec(output)) !== null) {
       const [, file, line, col, code, message] = match;
       const rel = path.relative(cwd, file);
-      if (rel.includes('components/ui') || rel.includes('lib/microbuild')) {
+      if (rel.includes('components/ui') || rel.includes('lib/buildpad')) {
         errors.push({ file, line: parseInt(line, 10), col: parseInt(col, 10), code, message });
       }
     }
@@ -418,8 +418,8 @@ async function fixTypeScriptErrors(
         const moduleSpec = moduleMatch[1];
         // Skip relative imports (handled by fixBrokenImports)
         if (moduleSpec.startsWith('.')) continue;
-        // Skip @microbuild/* (handled by fixUntransformedImports)
-        if (moduleSpec.startsWith('@microbuild/')) continue;
+        // Skip @buildpad/* (handled by fixUntransformedImports)
+        if (moduleSpec.startsWith('@buildpad/')) continue;
 
         const pkgName = extractPackageName(moduleSpec);
         missingModules.add(moduleSpec);
@@ -593,7 +593,7 @@ export async function fix(options: {
   // Load config
   const config = await loadConfig(cwd);
   if (!config) {
-    console.log(chalk.red('✗ microbuild.json not found. Run "npx microbuild init" first.\n'));
+    console.log(chalk.red('✗ buildpad.json not found. Run "npx buildpad init" first.\n'));
     process.exit(1);
   }
   
@@ -673,7 +673,7 @@ export async function fix(options: {
       console.log(chalk.dim('\n  Run without --dry-run to apply fixes\n'));
     } else {
       console.log(chalk.green('\n✨ Fixes applied!\n'));
-      console.log(chalk.dim('Run "npx microbuild validate" to verify.\n'));
+      console.log(chalk.dim('Run "npx buildpad validate" to verify.\n'));
     }
     
   } catch (error) {

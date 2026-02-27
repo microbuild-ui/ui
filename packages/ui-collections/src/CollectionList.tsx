@@ -8,7 +8,7 @@
  * Used by ListO2M and ListM2M for selecting existing items,
  * and by content module pages for collection list views.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 "use client";
@@ -29,10 +29,10 @@ import {
   FieldsService,
   PermissionsService,
   apiRequest,
-} from "@microbuild/services";
-import type { AnyItem, Field } from "@microbuild/types";
-import type { Alignment, Header, HeaderRaw, Sort } from "@microbuild/ui-table";
-import { VTable } from "@microbuild/ui-table";
+} from "@buildpad/services";
+import type { AnyItem, Field } from "@buildpad/types";
+import type { Alignment, Header, HeaderRaw, Sort } from "@buildpad/ui-table";
+import { VTable } from "@buildpad/ui-table";
 import {
   IconAlertCircle,
   IconAlignCenter,

@@ -18,7 +18,7 @@ A pnpm workspace containing reusable components distributed via Copy & Own model
 ## 🏗️ Structure
 
 ```
-microbuild-ui-packages/
+buildpad-ui/
 ├── pnpm-workspace.yaml     # Workspace configuration (packages/* + apps/*)
 ├── package.json            # Root scripts
 ├── docs/                   # Documentation
@@ -42,8 +42,8 @@ microbuild-ui-packages/
 │   └── ui-table/           # VTable component tests
 └── packages/               # Component library (source of truth)
     ├── registry.json       # Component registry schema
-    ├── cli/                # CLI tool for developers (@microbuild/cli)
-    ├── mcp-server/         # MCP server for AI agents (@microbuild/mcp)
+    ├── cli/                # CLI tool for developers (@buildpad/cli)
+    ├── mcp-server/         # MCP server for AI agents (@buildpad/mcp)
     ├── ui-interfaces/      # Field interface components (Storybook port 6005)
     ├── ui-form/            # VForm dynamic form component (Storybook port 6006)
     ├── ui-table/           # VTable dynamic table component (Storybook port 6007)
@@ -78,7 +78,7 @@ pnpm build
 
 ```bash
 # Run Storybook for UI component development
-pnpm --filter @microbuild/ui-interfaces storybook
+pnpm --filter @buildpad/ui-interfaces storybook
 
 # Build shared packages first
 pnpm --filter './packages/**' build
@@ -86,7 +86,7 @@ pnpm --filter './packages/**' build
 
 ## 📦 Shared Packages
 
-### @microbuild/types
+### @buildpad/types
 
 Shared TypeScript type definitions following DaaS conventions.
 
@@ -101,15 +101,15 @@ Shared TypeScript type definitions following DaaS conventions.
 **Usage:**
 
 ```tsx
-import type { Field, Collection, Query, PrimaryKey } from "@microbuild/types";
+import type { Field, Collection, Query, PrimaryKey } from "@buildpad/types";
 import {
   getFileCategory,
   formatFileSize,
   getAssetUrl,
-} from "@microbuild/types";
+} from "@buildpad/types";
 ```
 
-### @microbuild/services
+### @buildpad/services
 
 Service classes for CRUD operations on DaaS collections, plus DaaS API configuration and authentication.
 
@@ -132,7 +132,7 @@ Service classes for CRUD operations on DaaS collections, plus DaaS API configura
 - `useDaaSContext` - Hook to access DaaS config, user info, and auth helpers
 - `setGlobalDaaSConfig` - Set global config for non-React contexts
 
-**Authentication Module (`@microbuild/services/auth`):**
+**Authentication Module (`@buildpad/services/auth`):**
 
 - `configureAuth` / `createAuthenticatedClient` / `getCurrentUser` - Session management
 - `enforcePermission` / `getAccessibleFields` / `filterFields` - Permission enforcement
@@ -144,7 +144,7 @@ Service classes for CRUD operations on DaaS collections, plus DaaS API configura
 **Usage:**
 
 ```tsx
-import { ItemsService, FieldsService } from "@microbuild/services";
+import { ItemsService, FieldsService } from "@buildpad/services";
 
 const itemsService = new ItemsService("products");
 const items = await itemsService.readByQuery({
@@ -158,12 +158,12 @@ const fields = await fieldsService.readAll("products");
 **Direct DaaS Mode (Storybook/Testing):**
 
 ```tsx
-import { DaaSProvider } from "@microbuild/services";
+import { DaaSProvider } from "@buildpad/services";
 
 // Wrap components to enable direct DaaS API access
 <DaaSProvider
   config={{
-    url: "https://xxx.microbuild-daas.xtremax.com",
+    url: "https://xxx.buildpad-daas.xtremax.com",
     token: "your-token",
   }}
 >
@@ -171,7 +171,7 @@ import { DaaSProvider } from "@microbuild/services";
 </DaaSProvider>;
 ```
 
-### @microbuild/hooks
+### @buildpad/hooks
 
 React hooks for managing authentication, permissions, DaaS relationships, selection, presets, and workflows.
 
@@ -209,7 +209,7 @@ React hooks for managing authentication, permissions, DaaS relationships, select
 **Usage:**
 
 ```tsx
-import { useAuth, usePermissions, useRelationM2M } from "@microbuild/hooks";
+import { useAuth, usePermissions, useRelationM2M } from "@buildpad/hooks";
 
 // Authentication
 function UserProfile() {
@@ -237,7 +237,7 @@ function ProductTags({ productId }: { productId: string }) {
 }
 ```
 
-### @microbuild/utils
+### @buildpad/utils
 
 Utility functions for field interface mapping and validation. The field interface mapper is the core logic that VForm uses to determine which UI component to render for each field type.
 
@@ -252,7 +252,7 @@ Utility functions for field interface mapping and validation. The field interfac
 **Usage:**
 
 ```tsx
-import { getFieldInterface, isFieldReadOnly } from "@microbuild/utils";
+import { getFieldInterface, isFieldReadOnly } from "@buildpad/utils";
 
 const interfaceConfig = getFieldInterface(field);
 // Returns: { type: 'input', props: { type: 'string' } }
@@ -264,9 +264,9 @@ const readOnly = isFieldReadOnly(field, "edit");
 ```
 
 **CLI Installation:**
-When you add components via CLI, the field-interface-mapper is automatically included in `lib/microbuild/` allowing VForm and CollectionForm to correctly render all 40+ interface types.
+When you add components via CLI, the field-interface-mapper is automatically included in `lib/buildpad/` allowing VForm and CollectionForm to correctly render all 40+ interface types.
 
-### @microbuild/ui-interfaces
+### @buildpad/ui-interfaces
 
 DaaS-compatible field interface components built with Mantine v8.
 
@@ -341,7 +341,7 @@ DaaS-compatible field interface components built with Mantine v8.
 ```tsx
 import {
   Boolean, DateTime, SelectDropdown, Color, Notice, Tags, WorkflowButton
-} from '@microbuild/ui-interfaces';
+} from '@buildpad/ui-interfaces';
 
 // Basic components
 <DateTime value={date} onChange={setDate} type="datetime" label="Pick a date" />
@@ -359,7 +359,7 @@ import {
 />
 ```
 
-### @microbuild/ui-form
+### @buildpad/ui-form
 
 Dynamic form component system inspired by DaaS v-form, with comprehensive Storybook documentation and built-in permission enforcement.
 
@@ -391,8 +391,8 @@ Dynamic form component system inspired by DaaS v-form, with comprehensive Storyb
 **Usage:**
 
 ```tsx
-import { VForm } from "@microbuild/ui-form";
-import { DaaSProvider } from "@microbuild/services";
+import { VForm } from "@buildpad/ui-form";
+import { DaaSProvider } from "@buildpad/services";
 
 // Basic usage
 function MyForm() {
@@ -413,7 +413,7 @@ function MyForm() {
 function ProtectedForm() {
   return (
     <DaaSProvider
-      config={{ url: "https://xxx.microbuild-daas.xtremax.com", token: "xxx" }}
+      config={{ url: "https://xxx.buildpad-daas.xtremax.com", token: "xxx" }}
     >
       <VForm
         collection="articles"
@@ -441,7 +441,7 @@ pnpm test:storybook
 pnpm test:e2e
 ```
 
-### @microbuild/ui-collections
+### @buildpad/ui-collections
 
 Dynamic collection components for forms, tables, navigation, and layouts. Inspired by DaaS's content module.
 
@@ -458,7 +458,7 @@ Dynamic collection components for forms, tables, navigation, and layouts. Inspir
 **Architecture:**
 
 - **CollectionForm** = Data layer (fetch fields, load/save items, CRUD operations)
-- **VForm** = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
+- **VForm** = Presentation layer (renders fields with proper interfaces from @buildpad/ui-interfaces)
 - **ContentLayout** + **ContentNavigation** = Complete content module shell (like DaaS)
 - **FilterPanel** = Visual filter builder producing DaaS-compatible filter objects
 
@@ -480,7 +480,7 @@ import {
   ContentNavigation,
   FilterPanel,
   SaveOptions
-} from '@microbuild/ui-collections';
+} from '@buildpad/ui-collections';
 
 // Complete content module
 <ContentLayout
@@ -498,7 +498,7 @@ import {
 <FilterPanel fields={fields} value={filter} onChange={setFilter} />
 ```
 
-### @microbuild/ui-table
+### @buildpad/ui-table
 
 Dynamic table component inspired by DaaS v-table, built with Mantine v8 and @dnd-kit.
 
@@ -526,7 +526,7 @@ Dynamic table component inspired by DaaS v-table, built with Mantine v8 and @dnd
 **Usage:**
 
 ```tsx
-import { VTable } from "@microbuild/ui-table";
+import { VTable } from "@buildpad/ui-table";
 
 <VTable
   headers={[
@@ -568,16 +568,16 @@ Buildpad includes two powerful distribution tools:
 
 Expose Buildpad components to AI assistants like VS Code Copilot.
 
-The MCP server is published on npm as [`@microbuild/mcp`](https://www.npmjs.com/package/@microbuild/mcp).
+The MCP server is published on npm as [`@buildpad/mcp`](https://www.npmjs.com/package/@buildpad/mcp).
 
 ```json
 // Add to VS Code settings.json or .vscode/mcp.json:
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "npx",
-        "args": ["@microbuild/mcp@latest"]
+        "args": ["@buildpad/mcp@latest"]
       }
     }
   }
@@ -607,25 +607,25 @@ The MCP server is published on npm as [`@microbuild/mcp`](https://www.npmjs.com/
 
 Copy components directly to your project (like shadcn/ui).
 
-The CLI is published on npm as [`@microbuild/cli`](https://www.npmjs.com/package/@microbuild/cli).
+The CLI is published on npm as [`@buildpad/cli`](https://www.npmjs.com/package/@buildpad/cli).
 
 ```bash
 # Use in any project (no local build needed)
-npx @microbuild/cli@latest init
-npx @microbuild/cli@latest add input select-dropdown
-npx @microbuild/cli@latest list
-npx @microbuild/cli@latest add --category selection
-npx @microbuild/cli@latest add --all
+npx @buildpad/cli@latest init
+npx @buildpad/cli@latest add input select-dropdown
+npx @buildpad/cli@latest list
+npx @buildpad/cli@latest add --category selection
+npx @buildpad/cli@latest add --all
 
 # Bootstrap entire project in one command (recommended for AI agents)
-npx @microbuild/cli@latest bootstrap
+npx @buildpad/cli@latest bootstrap
 ```
 
 **What `bootstrap` does:**
 
-1. Creates `microbuild.json` and project skeleton
+1. Creates `buildpad.json` and project skeleton
 2. Copies all 40+ UI components to `components/ui/`
-3. Copies types, services, hooks to `lib/microbuild/`
+3. Copies types, services, hooks to `lib/buildpad/`
 4. Copies API proxy routes (fields, items, relations, files)
 5. Copies auth proxy routes (login, logout, user, callback) + login page
 6. Copies Supabase auth utilities and middleware
@@ -637,7 +637,7 @@ npx @microbuild/cli@latest bootstrap
 - ✅ Source code remains private
 - ✅ AI agents can discover and use components
 - ✅ Developers get full control over copied code
-- ✅ Published on npm (`@microbuild/cli`, `@microbuild/mcp`)
+- ✅ Published on npm (`@buildpad/cli`, `@buildpad/mcp`)
 
 See [QUICKSTART.md](./QUICKSTART.md) for detailed setup guide.
 
@@ -773,27 +773,27 @@ See [docs/TESTING.md](docs/TESTING.md) for complete testing guide and best pract
 
 ## RAD Platform Integration
 
-Buildpad integrates with the **microbuild-copilot** RAD (Rapid Application Development) platform for AI-assisted development.
+Buildpad integrates with the **buildpad-copilot** RAD (Rapid Application Development) platform for AI-assisted development.
 
-### Setup with microbuild-copilot
+### Setup with buildpad-copilot
 
 ```bash
 # Clone the RAD platform boilerplate
-git clone https://github.com/your-org/microbuild-copilot.git my-new-app
+git clone https://github.com/your-org/buildpad-copilot.git my-new-app
 cd my-new-app
 
 # The .vscode/mcp.json is pre-configured for Buildpad MCP server
-# Just update the path to your microbuild-ui-packages installation
+# Just update the path to your buildpad-ui installation
 ```
 
-### What microbuild-copilot provides:
+### What buildpad-copilot provides:
 
 - **Custom Agents**: `@architect`, `@planner`, `@scaffold`, `@implement`, `@reviewer`, `@tester`, `@database`
-- **Prompt Templates**: `/create-project`, `/create-feature`, `/add-microbuild`, etc.
+- **Prompt Templates**: `/create-project`, `/create-feature`, `/add-buildpad`, etc.
 - **Project Templates**: minimal, standard, enterprise
 - **VS Code Configuration**: MCP servers, settings, launch configs
 
-See [microbuild-copilot](https://github.com/your-org/microbuild-copilot) for full documentation.
+See [buildpad-copilot](https://github.com/your-org/buildpad-copilot) for full documentation.
 
 ## 🎯 Architecture (DaaS-Inspired)
 
@@ -801,12 +801,12 @@ This workspace follows patterns from [DaaS](https://daas.io/):
 
 | DaaS Package        | Buildpad Equivalent        | Purpose                        |
 | ------------------- | ---------------------------- | ------------------------------ |
-| `@daas/types`       | `@microbuild/types`          | Shared TypeScript types        |
-| `@daas/composables` | `@microbuild/hooks`          | Reusable React hooks           |
-| `@daas/utils`       | `@microbuild/services`       | Utility services               |
-| Vue interfaces      | `@microbuild/ui-interfaces`  | Field interface components     |
-| `v-form` component  | `@microbuild/ui-form`        | Dynamic form component (VForm) |
-| Collection views    | `@microbuild/ui-collections` | Dynamic form/list components   |
+| `@daas/types`       | `@buildpad/types`          | Shared TypeScript types        |
+| `@daas/composables` | `@buildpad/hooks`          | Reusable React hooks           |
+| `@daas/utils`       | `@buildpad/services`       | Utility services               |
+| Vue interfaces      | `@buildpad/ui-interfaces`  | Field interface components     |
+| `v-form` component  | `@buildpad/ui-form`        | Dynamic form component (VForm) |
+| Collection views    | `@buildpad/ui-collections` | Dynamic form/list components   |
 
 **Key Principles:**
 

@@ -16,7 +16,7 @@ npm install -g pnpm
 
 # Clone and install
 git clone https://github.com/microbuild-ui/ui.git
-cd microbuild-ui-packages
+cd buildpad-ui
 pnpm install
 
 # Build all packages
@@ -57,7 +57,7 @@ wsl --install
 
 # In WSL, follow the standard Linux setup
 git clone https://github.com/microbuild-ui/ui.git
-cd microbuild-ui-packages
+cd buildpad-ui
 pnpm install
 ```
 

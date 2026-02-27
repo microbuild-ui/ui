@@ -123,7 +123,7 @@ export function getAllLibModules(): LibModule[] {
 // Legacy PACKAGES export for backwards compatibility with MCP server
 export const PACKAGES: PackageMetadata[] = [
   {
-    name: "@microbuild/types",
+    name: "@buildpad/types",
     description:
       "TypeScript type definitions for collections, fields, files, and relations",
     path: "packages/types",
@@ -143,13 +143,13 @@ export const PACKAGES: PackageMetadata[] = [
     ],
   },
   {
-    name: "@microbuild/services",
+    name: "@buildpad/services",
     description: "CRUD service classes for items, fields, and collections",
     path: "packages/services",
     exports: ["FieldsService", "CollectionsService", "apiRequest"],
   },
   {
-    name: "@microbuild/hooks",
+    name: "@buildpad/hooks",
     description: "React hooks for managing relational data",
     path: "packages/hooks",
     exports: [
@@ -166,14 +166,14 @@ export const PACKAGES: PackageMetadata[] = [
     ],
   },
   {
-    name: "@microbuild/ui-interfaces",
+    name: "@buildpad/ui-interfaces",
     description:
       "Field interface components (inputs, selects, file uploads, etc.)",
     path: "packages/ui-interfaces",
     exports: [],
   },
   {
-    name: "@microbuild/ui-collections",
+    name: "@buildpad/ui-collections",
     description:
       "Dynamic collection components (CollectionForm, CollectionList)",
     path: "packages/ui-collections",

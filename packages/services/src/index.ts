@@ -1,5 +1,5 @@
 /**
- * @microbuild/services
+ * @buildpad/services
  *
  * Shared service classes for Buildpad projects.
  * DaaS-compatible CRUD services for items, fields, collections.

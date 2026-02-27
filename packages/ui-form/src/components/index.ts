@@ -5,7 +5,7 @@
  * Do NOT convert these to kebab-case - VForm folder preserves original casing.
  */
 
-// @microbuild-preserve-casing
+// @buildpad-preserve-casing
 export { FormField } from './FormField';
 export { FormFieldLabel } from './FormFieldLabel';
 export { FormFieldInterface } from './FormFieldInterface';

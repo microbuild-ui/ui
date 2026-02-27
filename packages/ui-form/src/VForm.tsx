@@ -4,10 +4,10 @@
  * Based on DaaS v-form component
  * 
  * Integrates with:
- * - @microbuild/types for Field types
- * - @microbuild/services for FieldsService API calls and DaaS context
- * - @microbuild/utils for field interface mapping and utilities
- * - @microbuild/ui-interfaces (via FormFieldInterface) for interface components
+ * - @buildpad/types for Field types
+ * - @buildpad/services for FieldsService API calls and DaaS context
+ * - @buildpad/utils for field interface mapping and utilities
+ * - @buildpad/ui-interfaces (via FormFieldInterface) for interface components
  * 
  * Security Features (following DaaS architecture):
  * - Field-level permissions filtering (show only accessible fields)
@@ -19,9 +19,9 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import './VForm.css';
 import { Stack, Box, Alert, Text, Skeleton } from '@mantine/core';
 import { IconInfoCircle, IconLock } from '@tabler/icons-react';
-import type { Field } from '@microbuild/types';
-import { FieldsService, useDaaSContext } from '@microbuild/services';
-// isPresentationField is available from @microbuild/utils if needed for filtering
+import type { Field } from '@buildpad/types';
+import { FieldsService, useDaaSContext } from '@buildpad/services';
+// isPresentationField is available from @buildpad/utils if needed for filtering
 import type { ValidationError, FieldValues } from './types';
 import { FormField } from './components/FormField';
 import {

@@ -1,17 +1,17 @@
-# @microbuild/hooks
+# @buildpad/hooks
 
 React hooks for Buildpad projects. Includes authentication and permission hooks following DaaS architecture, plus DaaS-compatible relation hooks for M2M, M2O, O2M, and M2A relationships.
 
 ## Installation
 
 ```bash
-pnpm add @microbuild/hooks
+pnpm add @buildpad/hooks
 ```
 
 ## Peer Dependencies
 
-- `@microbuild/types` workspace:*
-- `@microbuild/services` workspace:*
+- `@buildpad/types` workspace:*
+- `@buildpad/services` workspace:*
 - `react` ^18.0.0 || ^19.0.0
 
 ## Authentication Architecture
@@ -29,12 +29,12 @@ The hooks follow the DaaS (Data-as-a-Service) authentication architecture:
 Wrap your app with `DaaSProvider` to enable direct DaaS API access:
 
 ```tsx
-import { DaaSProvider } from '@microbuild/hooks';
+import { DaaSProvider } from '@buildpad/hooks';
 
 // In Storybook or testing environment
 <DaaSProvider 
   config={{ 
-    url: 'https://xxx.microbuild-daas.xtremax.com', 
+    url: 'https://xxx.buildpad-daas.xtremax.com', 
     token: 'your-static-token' 
   }}
   onAuthenticated={(user) => console.log('Authenticated:', user)}
@@ -53,7 +53,7 @@ import { DaaSProvider } from '@microbuild/hooks';
 Get authentication state and methods:
 
 ```tsx
-import { useAuth } from '@microbuild/hooks';
+import { useAuth } from '@buildpad/hooks';
 
 function UserProfile() {
   const { 
@@ -83,7 +83,7 @@ function UserProfile() {
 Check field-level and action-level permissions:
 
 ```tsx
-import { usePermissions } from '@microbuild/hooks';
+import { usePermissions } from '@buildpad/hooks';
 
 function ArticleEditor({ articleId }: { articleId: string }) {
   const { 
@@ -111,7 +111,7 @@ function ArticleEditor({ articleId }: { articleId: string }) {
 
 ## API Request Handling
 
-All hooks use the centralized `apiRequest` from `@microbuild/services`, which automatically:
+All hooks use the centralized `apiRequest` from `@buildpad/services`, which automatically:
 - Uses local `/api/*` routes in Next.js apps (proxy mode)
 - Makes direct API calls with Bearer token in Storybook/testing (direct mode via `DaaSProvider`)
 
@@ -124,7 +124,7 @@ This means hooks work seamlessly in both environments without code changes.
 Manage Many-to-Many relationships.
 
 ```typescript
-import { useRelationM2M, useRelationM2MItems } from '@microbuild/hooks';
+import { useRelationM2M, useRelationM2MItems } from '@buildpad/hooks';
 
 function ProductTags({ productId }: { productId: string }) {
   // Get relation info
@@ -161,7 +161,7 @@ function ProductTags({ productId }: { productId: string }) {
 Manage Many-to-One relationships.
 
 ```typescript
-import { useRelationM2O, useRelationM2OItem } from '@microbuild/hooks';
+import { useRelationM2O, useRelationM2OItem } from '@buildpad/hooks';
 
 function ArticleAuthor({ articleId }: { articleId: string }) {
   const { relationInfo } = useRelationM2O('articles', 'author');
@@ -182,7 +182,7 @@ function ArticleAuthor({ articleId }: { articleId: string }) {
 Manage One-to-Many relationships.
 
 ```typescript
-import { useRelationO2M, useRelationO2MItems } from '@microbuild/hooks';
+import { useRelationO2M, useRelationO2MItems } from '@buildpad/hooks';
 
 function AuthorArticles({ authorId }: { authorId: string }) {
   const { relationInfo } = useRelationO2M('users', 'articles');
@@ -206,7 +206,7 @@ function AuthorArticles({ authorId }: { authorId: string }) {
 Manage Many-to-Any (polymorphic) relationships.
 
 ```typescript
-import { useRelationM2A, useRelationM2AItems } from '@microbuild/hooks';
+import { useRelationM2A, useRelationM2AItems } from '@buildpad/hooks';
 
 function PageBlocks({ pageId }: { pageId: string }) {
   const { relationInfo } = useRelationM2A('pages', 'blocks');
@@ -230,7 +230,7 @@ function PageBlocks({ pageId }: { pageId: string }) {
 Manage file uploads and file selection with DaaS/DaaS Files API integration.
 
 ```typescript
-import { useFiles, type DaaSFile } from '@microbuild/hooks';
+import { useFiles, type DaaSFile } from '@buildpad/hooks';
 
 function ImageUploader() {
   const { 
@@ -273,7 +273,7 @@ function ImageUploader() {
 The `DaaSFile` interface matches the DaaS API response:
 
 ```typescript
-import { type DaaSFile } from '@microbuild/hooks';
+import { type DaaSFile } from '@buildpad/hooks';
 
 // DaaSFile fields:
 // - id: string
@@ -299,7 +299,7 @@ import { type DaaSFile } from '@microbuild/hooks';
 Manage item selection state.
 
 ```typescript
-import { useSelection } from '@microbuild/hooks';
+import { useSelection } from '@buildpad/hooks';
 
 function ProductList({ products }) {
   const { 
@@ -335,7 +335,7 @@ function ProductList({ products }) {
 Manage collection presets (filters, search, layout).
 
 ```typescript
-import { usePreset } from '@microbuild/hooks';
+import { usePreset } from '@buildpad/hooks';
 
 function ProductFilters() {
   const { 
@@ -373,7 +373,7 @@ function ProductFilters() {
 Prevent navigation when there are unsaved changes.
 
 ```typescript
-import { useEditsGuard, useHasEdits } from '@microbuild/hooks';
+import { useEditsGuard, useHasEdits } from '@buildpad/hooks';
 
 function EditForm({ initialData }) {
   const [data, setData] = useState(initialData);
@@ -400,7 +400,7 @@ function EditForm({ initialData }) {
 Clipboard operations with notifications.
 
 ```typescript
-import { useClipboard } from '@microbuild/hooks';
+import { useClipboard } from '@buildpad/hooks';
 
 function CopyButton({ text }) {
   const { copy, copied } = useClipboard();
@@ -418,7 +418,7 @@ function CopyButton({ text }) {
 Persistent localStorage state.
 
 ```typescript
-import { useLocalStorage } from '@microbuild/hooks';
+import { useLocalStorage } from '@buildpad/hooks';
 
 function ThemeToggle() {
   const [theme, setTheme] = useLocalStorage('theme', 'light');
@@ -440,7 +440,7 @@ function ThemeToggle() {
 Manage content versions.
 
 ```typescript
-import { useVersions } from '@microbuild/hooks';
+import { useVersions } from '@buildpad/hooks';
 
 function VersionManager({ collection, itemId }) {
   const { 
@@ -471,7 +471,7 @@ function VersionManager({ collection, itemId }) {
 Check if a collection has workflow assignment.
 
 ```typescript
-import { useWorkflowAssignment } from '@microbuild/hooks';
+import { useWorkflowAssignment } from '@buildpad/hooks';
 
 function CollectionHeader({ collection }) {
   const { hasWorkflow, workflowId, loading } = useWorkflowAssignment(collection);
@@ -489,7 +489,7 @@ function CollectionHeader({ collection }) {
 Combined workflow + versioning integration.
 
 ```typescript
-import { useWorkflowVersioning } from '@microbuild/hooks';
+import { useWorkflowVersioning } from '@buildpad/hooks';
 
 function ArticleEditor({ articleId }) {
   const {
@@ -552,6 +552,6 @@ function ArticleEditor({ articleId }) {
 
 ## Related Packages
 
-- [@microbuild/types](../types) - TypeScript types for relations
-- [@microbuild/services](../services) - Services used by hooks
-- [@microbuild/ui-interfaces](../ui-interfaces) - UI components that use these hooks
+- [@buildpad/types](../types) - TypeScript types for relations
+- [@buildpad/services](../services) - Services used by hooks
+- [@buildpad/ui-interfaces](../ui-interfaces) - UI components that use these hooks

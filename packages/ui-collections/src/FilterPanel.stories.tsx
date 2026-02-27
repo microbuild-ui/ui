@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Stack, Text, Code } from '@mantine/core';
 import { FilterPanel } from './FilterPanel';
-import type { Field } from '@microbuild/types';
+import type { Field } from '@buildpad/types';
 
 // ============================================================================
 // Mock fields

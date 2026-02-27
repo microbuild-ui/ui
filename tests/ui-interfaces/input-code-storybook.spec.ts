@@ -1,7 +1,7 @@
 /**
  * InputCode Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces InputCode component in isolation.
+ * Tests the @buildpad/ui-interfaces InputCode component in isolation.
  * Covers all 16 stories: languages, line numbers, line wrapping, template, states.
  * 
  * Run: pnpm test:storybook:interfaces

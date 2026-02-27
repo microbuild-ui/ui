@@ -121,7 +121,7 @@ tests/
 
 ## UI Interfaces Component Testing
 
-The `@microbuild/ui-interfaces` package contains individual field interface components (Input, Textarea, InputCode, Slider, Tags). Each has comprehensive Storybook stories and Playwright tests covering all configuration options.
+The `@buildpad/ui-interfaces` package contains individual field interface components (Input, Textarea, InputCode, Slider, Tags). Each has comprehensive Storybook stories and Playwright tests covering all configuration options.
 
 ### Running Interfaces Tests
 
@@ -298,9 +298,9 @@ pnpm test:storybook    # Run Playwright tests
 
 1. **Hosted DaaS** configured in `.env.local`:
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://xxx.microbuild-supabase.xtremax.com
+   NEXT_PUBLIC_SUPABASE_URL=https://xxx.buildpad-supabase.xtremax.com
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   NEXT_PUBLIC_MICROBUILD_DAAS_URL=https://xxx.microbuild-daas.xtremax.com
+   NEXT_PUBLIC_MICROBUILD_DAAS_URL=https://xxx.buildpad-daas.xtremax.com
    ```
 
 2. **Test credentials** in `.env.local`:

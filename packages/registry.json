@@ -1,7 +1,7 @@
 {
-  "$schema": "https://microbuild.dev/registry.schema.json",
+  "$schema": "https://buildpad.dev/registry.schema.json",
   "version": "1.0.0",
-  "name": "microbuild",
+  "name": "buildpad",
   "description": "A collection of copy-and-own components for building DaaS-compatible CMS frontends",
   "license": "MIT",
   "repository": "https://github.com/microbuild-ui/ui",
@@ -12,7 +12,7 @@
     "typescript": true
   },
   "aliases": {
-    "@/lib/microbuild": "./lib/microbuild",
+    "@/lib/buildpad": "./lib/buildpad",
     "@/components/ui": "./components/ui"
   },
   "dependencies": {
@@ -86,31 +86,31 @@
       "files": [
         {
           "source": "cli/templates/lib/common-utils.ts",
-          "target": "lib/microbuild/common-utils.ts"
+          "target": "lib/buildpad/common-utils.ts"
         },
         {
           "source": "utils/src/field-interface-mapper.ts",
-          "target": "lib/microbuild/field-interface-mapper.ts"
+          "target": "lib/buildpad/field-interface-mapper.ts"
         },
         {
           "source": "utils/src/interface-types.ts",
-          "target": "lib/microbuild/interface-types.ts"
+          "target": "lib/buildpad/interface-types.ts"
         },
         {
           "source": "utils/src/define-interface.ts",
-          "target": "lib/microbuild/define-interface.ts"
+          "target": "lib/buildpad/define-interface.ts"
         },
         {
           "source": "utils/src/interface-registry.ts",
-          "target": "lib/microbuild/interface-registry.ts"
+          "target": "lib/buildpad/interface-registry.ts"
         },
         {
           "source": "cli/templates/lib/utils-index.ts",
-          "target": "lib/microbuild/utils/index.ts"
+          "target": "lib/buildpad/utils/index.ts"
         },
         {
           "source": "cli/templates/lib/utils.ts",
-          "target": "lib/microbuild/utils.ts"
+          "target": "lib/buildpad/utils.ts"
         },
         {
           "source": "cli/templates/types/modules.d.ts",
@@ -127,19 +127,19 @@
       "files": [
         {
           "source": "types/src/core.ts",
-          "target": "lib/microbuild/types/core.ts"
+          "target": "lib/buildpad/types/core.ts"
         },
         {
           "source": "types/src/file.ts",
-          "target": "lib/microbuild/types/file.ts"
+          "target": "lib/buildpad/types/file.ts"
         },
         {
           "source": "types/src/relations.ts",
-          "target": "lib/microbuild/types/relations.ts"
+          "target": "lib/buildpad/types/relations.ts"
         },
         {
           "source": "cli/templates/lib/types/index.ts",
-          "target": "lib/microbuild/types/index.ts"
+          "target": "lib/buildpad/types/index.ts"
         }
       ]
     },
@@ -149,31 +149,31 @@
       "files": [
         {
           "source": "services/src/api-request.ts",
-          "target": "lib/microbuild/services/api-request.ts"
+          "target": "lib/buildpad/services/api-request.ts"
         },
         {
           "source": "services/src/items.ts",
-          "target": "lib/microbuild/services/items.ts"
+          "target": "lib/buildpad/services/items.ts"
         },
         {
           "source": "services/src/fields.ts",
-          "target": "lib/microbuild/services/fields.ts"
+          "target": "lib/buildpad/services/fields.ts"
         },
         {
           "source": "services/src/collections.ts",
-          "target": "lib/microbuild/services/collections.ts"
+          "target": "lib/buildpad/services/collections.ts"
         },
         {
           "source": "services/src/permissions.ts",
-          "target": "lib/microbuild/services/permissions.ts"
+          "target": "lib/buildpad/services/permissions.ts"
         },
         {
           "source": "services/src/daas-context.tsx",
-          "target": "lib/microbuild/services/daas-context.tsx"
+          "target": "lib/buildpad/services/daas-context.tsx"
         },
         {
           "source": "cli/templates/lib/services/index.ts",
-          "target": "lib/microbuild/services/index.ts"
+          "target": "lib/buildpad/services/index.ts"
         }
       ],
       "internalDependencies": [
@@ -186,75 +186,75 @@
       "files": [
         {
           "source": "hooks/src/api.ts",
-          "target": "lib/microbuild/hooks/api.ts"
+          "target": "lib/buildpad/hooks/api.ts"
         },
         {
           "source": "hooks/src/utils.ts",
-          "target": "lib/microbuild/hooks/utils.ts"
+          "target": "lib/buildpad/hooks/utils.ts"
         },
         {
           "source": "hooks/src/useFiles.ts",
-          "target": "lib/microbuild/hooks/useFiles.ts"
+          "target": "lib/buildpad/hooks/useFiles.ts"
         },
         {
           "source": "hooks/src/useRelationM2M.ts",
-          "target": "lib/microbuild/hooks/useRelationM2M.ts"
+          "target": "lib/buildpad/hooks/useRelationM2M.ts"
         },
         {
           "source": "hooks/src/useRelationM2MItems.ts",
-          "target": "lib/microbuild/hooks/useRelationM2MItems.ts"
+          "target": "lib/buildpad/hooks/useRelationM2MItems.ts"
         },
         {
           "source": "hooks/src/useRelationM2O.ts",
-          "target": "lib/microbuild/hooks/useRelationM2O.ts"
+          "target": "lib/buildpad/hooks/useRelationM2O.ts"
         },
         {
           "source": "hooks/src/useRelationO2M.ts",
-          "target": "lib/microbuild/hooks/useRelationO2M.ts"
+          "target": "lib/buildpad/hooks/useRelationO2M.ts"
         },
         {
           "source": "hooks/src/useRelationM2A.ts",
-          "target": "lib/microbuild/hooks/useRelationM2A.ts"
+          "target": "lib/buildpad/hooks/useRelationM2A.ts"
         },
         {
           "source": "hooks/src/useSelection.ts",
-          "target": "lib/microbuild/hooks/useSelection.ts"
+          "target": "lib/buildpad/hooks/useSelection.ts"
         },
         {
           "source": "hooks/src/usePreset.ts",
-          "target": "lib/microbuild/hooks/usePreset.ts"
+          "target": "lib/buildpad/hooks/usePreset.ts"
         },
         {
           "source": "hooks/src/useEditsGuard.ts",
-          "target": "lib/microbuild/hooks/useEditsGuard.ts"
+          "target": "lib/buildpad/hooks/useEditsGuard.ts"
         },
         {
           "source": "hooks/src/useClipboard.ts",
-          "target": "lib/microbuild/hooks/useClipboard.ts"
+          "target": "lib/buildpad/hooks/useClipboard.ts"
         },
         {
           "source": "hooks/src/useLocalStorage.ts",
-          "target": "lib/microbuild/hooks/useLocalStorage.ts"
+          "target": "lib/buildpad/hooks/useLocalStorage.ts"
         },
         {
           "source": "hooks/src/useVersions.ts",
-          "target": "lib/microbuild/hooks/useVersions.ts"
+          "target": "lib/buildpad/hooks/useVersions.ts"
         },
         {
           "source": "hooks/src/useWorkflowAssignment.ts",
-          "target": "lib/microbuild/hooks/useWorkflowAssignment.ts"
+          "target": "lib/buildpad/hooks/useWorkflowAssignment.ts"
         },
         {
           "source": "hooks/src/useWorkflowVersioning.ts",
-          "target": "lib/microbuild/hooks/useWorkflowVersioning.ts"
+          "target": "lib/buildpad/hooks/useWorkflowVersioning.ts"
         },
         {
           "source": "hooks/src/useCollections.ts",
-          "target": "lib/microbuild/hooks/useCollections.ts"
+          "target": "lib/buildpad/hooks/useCollections.ts"
         },
         {
           "source": "cli/templates/lib/hooks/index.ts",
-          "target": "lib/microbuild/hooks/index.ts"
+          "target": "lib/buildpad/hooks/index.ts"
         }
       ],
       "internalDependencies": [

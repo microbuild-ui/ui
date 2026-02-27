@@ -27,13 +27,13 @@ import { bootstrap } from './commands/bootstrap.js';
 const program = new Command();
 
 program
-  .name('microbuild')
+  .name('buildpad')
   .description('Copy & Own CLI - Add Buildpad components to your project')
   .version('1.0.0');
 
 program
   .command('init')
-  .description('Initialize Buildpad in your project (creates microbuild.json)')
+  .description('Initialize Buildpad in your project (creates buildpad.json)')
   .option('-y, --yes', 'Skip prompts and use defaults')
   .option('-c, --cwd <path>', 'Project directory', process.cwd())
   .action(init);

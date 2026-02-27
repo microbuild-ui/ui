@@ -29,7 +29,7 @@ export async function diff(component: string, options: { cwd: string }) {
   // Load config
   const config = await loadConfig(cwd);
   if (!config) {
-    console.log(chalk.red('✗ microbuild.json not found. Run "npx microbuild init" first.\n'));
+    console.log(chalk.red('✗ buildpad.json not found. Run "npx buildpad init" first.\n'));
     process.exit(1);
   }
 
@@ -42,7 +42,7 @@ export async function diff(component: string, options: { cwd: string }) {
 
   if (!comp) {
     console.log(chalk.red(`✗ Component not found: ${component}\n`));
-    console.log(chalk.dim('Run "npx microbuild list" to see available components.\n'));
+    console.log(chalk.dim('Run "npx buildpad list" to see available components.\n'));
     process.exit(1);
   }
 
@@ -123,7 +123,7 @@ export async function diff(component: string, options: { cwd: string }) {
       
       console.log(chalk.dim('\nOriginal imports:'));
       lines.filter(l => l.startsWith('import')).forEach(line => {
-        if (line.includes('@microbuild/')) {
+        if (line.includes('@buildpad/')) {
           console.log(chalk.red(`  ${line}`));
         }
       });
@@ -144,5 +144,5 @@ export async function diff(component: string, options: { cwd: string }) {
 
   console.log();
   console.log(chalk.dim('Run the following to add this component:'));
-  console.log(chalk.cyan(`  npx microbuild add ${comp.name}\n`));
+  console.log(chalk.cyan(`  npx buildpad add ${comp.name}\n`));
 }

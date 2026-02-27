@@ -1,4 +1,4 @@
-# @microbuild/ui-collections
+# @buildpad/ui-collections
 
 Dynamic collection components for Buildpad projects. Includes CRUD forms, data tables, navigation, layouts, and filter builders — all inspired by DaaS's content module.
 
@@ -35,7 +35,7 @@ CollectionForm (Data Layer)
 ## Installation
 
 ```bash
-pnpm add @microbuild/ui-collections
+pnpm add @buildpad/ui-collections
 ```
 
 ## Peer Dependencies
@@ -45,9 +45,9 @@ This package requires the following peer dependencies:
 - `@mantine/core` ^8.0.0
 - `@mantine/dates` ^8.0.0
 - `@mantine/hooks` ^8.0.0
-- `@microbuild/services` workspace:*
-- `@microbuild/types` workspace:*
-- `@microbuild/ui-form` workspace:*
+- `@buildpad/services` workspace:*
+- `@buildpad/types` workspace:*
+- `@buildpad/ui-form` workspace:*
 - `@tabler/icons-react` ^3.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-dom` ^18.0.0 || ^19.0.0
@@ -59,7 +59,7 @@ This package requires the following peer dependencies:
 Dynamic form for creating/editing collection items:
 
 ```tsx
-import { CollectionForm } from '@microbuild/ui-collections';
+import { CollectionForm } from '@buildpad/ui-collections';
 
 function CreateProduct() {
   return (
@@ -91,7 +91,7 @@ function EditProduct({ productId }: { productId: string }) {
 Dynamic list/table for displaying collection items:
 
 ```tsx
-import { CollectionList } from '@microbuild/ui-collections';
+import { CollectionList } from '@buildpad/ui-collections';
 
 function ProductList() {
   return (
@@ -120,7 +120,7 @@ function ProductList() {
 Shell layout providing sidebar navigation and main content area with header:
 
 ```tsx
-import { ContentLayout, ContentNavigation } from '@microbuild/ui-collections';
+import { ContentLayout, ContentNavigation } from '@buildpad/ui-collections';
 
 function ContentModule() {
   const [currentCollection, setCurrentCollection] = useState('products');
@@ -162,7 +162,7 @@ function ContentModule() {
 Hierarchical sidebar navigation with search, grouping, and bookmarks:
 
 ```tsx
-import { ContentNavigation } from '@microbuild/ui-collections';
+import { ContentNavigation } from '@buildpad/ui-collections';
 
 function Sidebar() {
   const collections = useCollections(); // Build your tree structure
@@ -189,7 +189,7 @@ function Sidebar() {
 Build field-type-aware filters for collection queries:
 
 ```tsx
-import { FilterPanel } from '@microbuild/ui-collections';
+import { FilterPanel } from '@buildpad/ui-collections';
 
 function ProductFilters() {
   const [filter, setFilter] = useState({});
@@ -219,7 +219,7 @@ function ProductFilters() {
 Save action dropdown menu for forms:
 
 ```tsx
-import { SaveOptions } from '@microbuild/ui-collections';
+import { SaveOptions } from '@buildpad/ui-collections';
 
 function FormActions() {
   return (
@@ -420,9 +420,9 @@ This package follows DaaS's content module pattern:
 | `save-options.vue` | `SaveOptions` |
 
 The components use:
-- `@microbuild/services` for API calls (`FieldsService`, `ItemsService`, `CollectionsService`)
-- `@microbuild/types` for type definitions (`Field`, `Collection`, `AnyItem`, `Filter`)
-- `@microbuild/ui-form` for form rendering (`VForm` → 40+ interface types)
+- `@buildpad/services` for API calls (`FieldsService`, `ItemsService`, `CollectionsService`)
+- `@buildpad/types` for type definitions (`Field`, `Collection`, `AnyItem`, `Filter`)
+- `@buildpad/ui-form` for form rendering (`VForm` → 40+ interface types)
 - Mantine v8 for UI components (AppShell, NavLink, Menu, etc.)
 
 ## Storybook
@@ -434,7 +434,7 @@ This package includes comprehensive Storybook documentation on port 6008:
 pnpm storybook:collections
 
 # Or from workspace root
-pnpm --filter @microbuild/ui-collections storybook
+pnpm --filter @buildpad/ui-collections storybook
 ```
 
 **Available Stories:**

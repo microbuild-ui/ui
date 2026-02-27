@@ -1,12 +1,12 @@
 {
-  "name": "@microbuild/mcp",
+  "name": "@buildpad/mcp",
   "version": "0.1.4",
   "description": "Model Context Protocol server for Buildpad components - enables AI agents to discover and use Buildpad packages",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "microbuild-mcp": "dist/index.js"
+    "buildpad-mcp": "dist/index.js"
   },
   "publishConfig": {
     "access": "public"

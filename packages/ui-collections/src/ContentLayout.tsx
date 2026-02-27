@@ -8,7 +8,7 @@
  *
  * Ported from DaaS PrivateView + content module shell.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 "use client";
@@ -87,8 +87,8 @@ export interface ContentLayoutProps {
  *
  * @example
  * ```tsx
- * import { ContentLayout, ContentNavigation } from '@microbuild/ui-collections';
- * import { useCollections } from '@microbuild/hooks';
+ * import { ContentLayout, ContentNavigation } from '@buildpad/ui-collections';
+ * import { useCollections } from '@buildpad/hooks';
  *
  * function ContentPage({ children }) {
  *   const collections = useCollections({ currentCollection: 'articles' });

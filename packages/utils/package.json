@@ -1,5 +1,5 @@
 {
-  "name": "@microbuild/utils",
+  "name": "@buildpad/utils",
   "version": "0.1.0",
   "description": "Utility functions for Buildpad UI packages",
   "main": "dist/index.js",
@@ -28,7 +28,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@microbuild/types": "workspace:*"
+    "@buildpad/types": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.1",
@@ -39,7 +39,7 @@
     "react": ">=18.0.0"
   },
   "keywords": [
-    "microbuild",
+    "buildpad",
     "utils",
     "utilities",
     "daas",
@@ -48,7 +48,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/microbuild/ui-packages.git",
+    "url": "https://github.com/buildpad/ui-packages.git",
     "directory": "packages/utils"
   }
 }

@@ -4,8 +4,8 @@
  * Root middleware file that handles auth session refresh.
  * This file is copied to your project by the Buildpad CLI.
  * 
- * @microbuild/origin: middleware
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: middleware
+ * @buildpad/version: 1.0.0
  */
 
 import { type NextRequest } from 'next/server';

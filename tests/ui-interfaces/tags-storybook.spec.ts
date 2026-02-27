@@ -1,7 +1,7 @@
 /**
  * Tags Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces Tags component in isolation.
+ * Tests the @buildpad/ui-interfaces Tags component in isolation.
  * Covers all 17 stories: presets, custom tags, transforms, alphabetize, states.
  * 
  * Run: pnpm test:storybook:interfaces

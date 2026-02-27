@@ -6,7 +6,7 @@
  *
  * Ported from DaaS save-options.vue.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 "use client";

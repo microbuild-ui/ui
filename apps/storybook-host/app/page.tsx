@@ -154,9 +154,9 @@ export default function HomePage() {
         <div className="hero-panel">
           <div className="code-card">
             <div className="code-title">Quick Start</div>
-            <pre>{`npx @microbuild/cli@latest init
-npx @microbuild/cli@latest add collection-form
-npx @microbuild/cli@latest bootstrap`}</pre>
+            <pre>{`npx @buildpad/cli@latest init
+npx @buildpad/cli@latest add collection-form
+npx @buildpad/cli@latest bootstrap`}</pre>
             <div className="code-foot">Add components to any Next.js project.</div>
           </div>
           <div className="signal-strip">
@@ -308,7 +308,7 @@ pnpm storybook:collections  # Port 6008`}</pre>
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://xxx.microbuild-daas.xtremax.com"
+                placeholder="https://xxx.buildpad-daas.xtremax.com"
                 required
               />
             </div>

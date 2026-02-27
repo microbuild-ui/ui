@@ -2,7 +2,7 @@
  * Buildpad CLI - Validate Command
  * 
  * Validates the Buildpad installation in a project:
- * - Checks for untransformed @microbuild/* imports
+ * - Checks for untransformed @buildpad/* imports
  * - Checks for broken relative imports (file not found)
  * - Verifies all component files exist
  * - Checks for missing CSS files
@@ -42,7 +42,7 @@ interface ValidationWarning {
 }
 
 /**
- * Check for untransformed @microbuild/* imports
+ * Check for untransformed @buildpad/* imports
  */
 async function checkUntransformedImports(
   cwd: string,
@@ -53,7 +53,7 @@ async function checkUntransformedImports(
   const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
   const patterns = [
     path.join(srcDir, 'components/**/*.{ts,tsx,js,jsx}'),
-    path.join(srcDir, 'lib/microbuild/**/*.{ts,tsx,js,jsx}'),
+    path.join(srcDir, 'lib/buildpad/**/*.{ts,tsx,js,jsx}'),
   ];
   
   for (const pattern of patterns) {
@@ -64,9 +64,9 @@ async function checkUntransformedImports(
       const lines = content.split('\n');
       
       lines.forEach((line, index) => {
-        // Check for @microbuild/* imports (not in comments)
+        // Check for @buildpad/* imports (not in comments)
         if (
-          (line.includes("from '@microbuild/") || line.includes('from "@microbuild/')) && 
+          (line.includes("from '@buildpad/") || line.includes('from "@buildpad/')) && 
           !line.trim().startsWith('//') &&
           !line.trim().startsWith('*')
         ) {
@@ -129,7 +129,7 @@ async function checkLibModules(
   const errors: ValidationError[] = [];
   
   const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
-  const libDir = path.join(srcDir, 'lib/microbuild');
+  const libDir = path.join(srcDir, 'lib/buildpad');
   
   // Required lib modules based on installed components
   const requiredModules: Record<string, string[]> = {
@@ -145,7 +145,7 @@ async function checkLibModules(
         const filePath = path.join(libDir, file);
         if (!fs.existsSync(filePath)) {
           errors.push({
-            file: `lib/microbuild/${file}`,
+            file: `lib/buildpad/${file}`,
             message: `Missing required file for ${module} module`,
             code: 'MISSING_LIB_FILE',
           });
@@ -160,7 +160,7 @@ async function checkLibModules(
   
   if (fs.existsSync(defineInterfacePath) && !fs.existsSync(interfaceRegistryPath)) {
     errors.push({
-      file: 'lib/microbuild/interface-registry.ts',
+      file: 'lib/buildpad/interface-registry.ts',
       message: 'Missing interface-registry.ts (required by define-interface.ts)',
       code: 'MISSING_INTERFACE_REGISTRY',
     });
@@ -286,7 +286,7 @@ async function checkBrokenRelativeImports(
   const srcDir = config.srcDir ? path.join(cwd, 'src') : cwd;
   const patterns = [
     path.join(srcDir, 'components/**/*.{ts,tsx,js,jsx}'),
-    path.join(srcDir, 'lib/microbuild/**/*.{ts,tsx,js,jsx}'),
+    path.join(srcDir, 'lib/buildpad/**/*.{ts,tsx,js,jsx}'),
   ];
   
   // Regex to extract relative imports
@@ -496,8 +496,8 @@ async function checkTypeScriptErrors(
       const [, file, line, , severity, tsCode, message] = match;
       const relativePath = path.relative(cwd, file);
       
-      // Only include errors from components/ui or lib/microbuild
-      if (relativePath.includes('components/ui') || relativePath.includes('lib/microbuild')) {
+      // Only include errors from components/ui or lib/buildpad
+      if (relativePath.includes('components/ui') || relativePath.includes('lib/buildpad')) {
         if (severity === 'error') {
           errors.push({
             file: relativePath,
@@ -567,7 +567,7 @@ function generateSuggestions(
   const missingCssCount = warnings.filter(w => w.code === 'MISSING_CSS').length;
   if (missingCssCount > 0) {
     suggestions.push(
-      `Copy missing CSS files from microbuild-ui-packages/packages/ui-interfaces/src/`
+      `Copy missing CSS files from buildpad-ui/packages/ui-interfaces/src/`
     );
   }
   
@@ -624,15 +624,15 @@ export async function validate(options: {
     if (json) {
       console.log(JSON.stringify({
         valid: false,
-        errors: [{ file: 'microbuild.json', message: 'Not found', code: 'NO_CONFIG' }],
+        errors: [{ file: 'buildpad.json', message: 'Not found', code: 'NO_CONFIG' }],
         warnings: [],
-        suggestions: ['Run "npx microbuild init" first'],
+        suggestions: ['Run "npx buildpad init" first'],
       }));
     } else {
-      console.log(chalk.red('\n✗ microbuild.json not found. Run "npx microbuild init" first.\n'));
+      console.log(chalk.red('\n✗ buildpad.json not found. Run "npx buildpad init" first.\n'));
     }
     if (noExit) {
-      return { valid: false, errors: [{ file: 'microbuild.json', message: 'Not found', code: 'NO_CONFIG' }], warnings: [], suggestions: ['Run "npx microbuild init" first'] };
+      return { valid: false, errors: [{ file: 'buildpad.json', message: 'Not found', code: 'NO_CONFIG' }], warnings: [], suggestions: ['Run "npx buildpad init" first'] };
     }
     process.exit(1);
   }

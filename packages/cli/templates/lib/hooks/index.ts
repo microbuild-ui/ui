@@ -92,7 +92,7 @@ export type {
   RelationSchema, 
   RelationCollectionMeta, 
   RelationFieldInfo 
-} from '@/lib/microbuild/types';
+} from '@/lib/buildpad/types';
 
 // Utility functions
 export { apiRequest, isValidPrimaryKey } from './utils';

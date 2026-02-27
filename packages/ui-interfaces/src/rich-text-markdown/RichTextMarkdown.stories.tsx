@@ -21,7 +21,7 @@ const meta: Meta<typeof RichTextMarkdown> = {
 
 ## Usage
 \`\`\`tsx
-import { RichTextMarkdown } from '@microbuild/ui-interfaces';
+import { RichTextMarkdown } from '@buildpad/ui-interfaces';
 
 <RichTextMarkdown
   label="README"

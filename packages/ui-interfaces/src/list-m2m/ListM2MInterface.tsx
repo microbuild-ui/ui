@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Text, Stack, Alert, Paper, Group, ActionIcon, Button } from '@mantine/core';
 import { IconAlertCircle, IconPlus, IconTrash, IconList } from '@tabler/icons-react';
-import type { M2MRelationInfo, M2MItem } from '@microbuild/hooks';
+import type { M2MRelationInfo, M2MItem } from '@buildpad/hooks';
 
 /**
  * Render function types for customizing ListM2M display
@@ -81,8 +81,8 @@ export interface ListM2MInterfaceProps extends ListM2MRenderProps {
  * 
  * Apps should provide these render props with their own implementations.
  * 
- * @see useRelationM2M from @microbuild/hooks for relation info
- * @see useRelationM2MItems from @microbuild/hooks for items management
+ * @see useRelationM2M from @buildpad/hooks for relation info
+ * @see useRelationM2MItems from @buildpad/hooks for items management
  * 
  * @param props - ListM2MInterface props
  */

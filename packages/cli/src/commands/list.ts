@@ -84,8 +84,8 @@ export async function list(options: { category?: string; json?: boolean; cwd?: s
   }
 
   console.log(chalk.bold('\n💡 Usage'));
-  console.log(chalk.dim('  npx microbuild add input'));
-  console.log(chalk.dim('  npx microbuild add input select-dropdown datetime'));
-  console.log(chalk.dim('  npx microbuild add --category selection'));
-  console.log(chalk.dim('  npx microbuild add --all\n'));
+  console.log(chalk.dim('  npx buildpad add input'));
+  console.log(chalk.dim('  npx buildpad add input select-dropdown datetime'));
+  console.log(chalk.dim('  npx buildpad add --category selection'));
+  console.log(chalk.dim('  npx buildpad add --all\n'));
 }

@@ -4,7 +4,7 @@
  * Uses Next.js API routes to proxy requests to DaaS backend (avoids CORS)
  */
 
-import type { Field } from '@microbuild/types';
+import type { Field } from '@buildpad/types';
 import { apiRequest } from './api-request';
 
 /**

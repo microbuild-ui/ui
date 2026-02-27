@@ -45,7 +45,7 @@ const config: StorybookConfig = {
         if (prop.parent) {
           return !prop.parent.fileName.includes('node_modules') ||
                  prop.parent.fileName.includes('@mantine') ||
-                 prop.parent.fileName.includes('@microbuild');
+                 prop.parent.fileName.includes('@buildpad');
         }
         return true;
       },
@@ -56,14 +56,14 @@ const config: StorybookConfig = {
       resolve: {
         alias: {
           // Map ALL workspace packages to source (required for cyclic deps)
-          '@microbuild/types': path.resolve(__dirname, '../../types/src'),
-          '@microbuild/services': path.resolve(__dirname, '../../services/src'),
-          '@microbuild/hooks': path.resolve(__dirname, '../../hooks/src'),
-          '@microbuild/utils': path.resolve(__dirname, '../../utils/src'),
-          '@microbuild/ui-interfaces': path.resolve(__dirname, '../../ui-interfaces/src'),
-          '@microbuild/ui-table': path.resolve(__dirname, '../../ui-table/src'),
-          '@microbuild/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),
-          '@microbuild/ui-form': path.resolve(__dirname, '../../ui-form/src'),
+          '@buildpad/types': path.resolve(__dirname, '../../types/src'),
+          '@buildpad/services': path.resolve(__dirname, '../../services/src'),
+          '@buildpad/hooks': path.resolve(__dirname, '../../hooks/src'),
+          '@buildpad/utils': path.resolve(__dirname, '../../utils/src'),
+          '@buildpad/ui-interfaces': path.resolve(__dirname, '../../ui-interfaces/src'),
+          '@buildpad/ui-table': path.resolve(__dirname, '../../ui-table/src'),
+          '@buildpad/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),
+          '@buildpad/ui-form': path.resolve(__dirname, '../../ui-form/src'),
         },
       },
       server: {

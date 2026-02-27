@@ -1,5 +1,5 @@
 {
-  "name": "@microbuild/hooks",
+  "name": "@buildpad/hooks",
   "version": "0.1.0",
   "private": true,
   "description": "Shared React hooks for Buildpad projects - DaaS-compatible relation hooks",
@@ -14,8 +14,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@microbuild/types": "workspace:*",
-    "@microbuild/services": "workspace:*"
+    "@buildpad/types": "workspace:*",
+    "@buildpad/services": "workspace:*"
   },
   "peerDependencies": {
     "@mantine/notifications": "^8.0.0",

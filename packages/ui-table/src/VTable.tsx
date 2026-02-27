@@ -4,9 +4,9 @@
  * Based on DaaS v-table component
  *
  * Integrates with:
- * - @microbuild/types for data types
- * - @microbuild/services for ItemsService API calls and DaaS context
- * - @microbuild/hooks for data management hooks
+ * - @buildpad/types for data types
+ * - @buildpad/services for ItemsService API calls and DaaS context
+ * - @buildpad/hooks for data management hooks
  *
  * Features:
  * - Column sorting with ascending/descending toggle

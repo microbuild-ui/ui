@@ -2,9 +2,9 @@
  * useDaaSContext Hook
  * 
  * Client-side hook to access DaaS configuration from React context.
- * Re-exports the context hook from @microbuild/services for use in hooks package.
+ * Re-exports the context hook from @buildpad/services for use in hooks package.
  * 
- * @module @microbuild/hooks/useDaaSContext
+ * @module @buildpad/hooks/useDaaSContext
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
@@ -13,7 +13,7 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
  * DaaS Configuration
  */
 export interface DaaSConfig {
-  /** DaaS API base URL (e.g., https://xxx.microbuild-daas.xtremax.com) */
+  /** DaaS API base URL (e.g., https://xxx.buildpad-daas.xtremax.com) */
   url: string;
   /** Static authentication token for API access */
   token: string;
@@ -56,7 +56,7 @@ export interface DaaSProviderProps {
  * @example
  * ```tsx
  * // In Storybook or testing environment
- * <DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'xxx' }}>
+ * <DaaSProvider config={{ url: 'https://xxx.buildpad-daas.xtremax.com', token: 'xxx' }}>
  *   <App />
  * </DaaSProvider>
  * ```

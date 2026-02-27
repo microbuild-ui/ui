@@ -1,5 +1,5 @@
 /**
- * @microbuild/ui-form
+ * @buildpad/ui-form
  * Dynamic form component system
  * 
  * Security Features (following DaaS architecture):

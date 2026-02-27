@@ -4,8 +4,8 @@
  * Proxies relation schema requests to the DaaS backend.
  * Required for M2O, M2M, O2M, and M2A relation components.
  * 
- * @microbuild/origin: api-routes/relations
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/relations
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

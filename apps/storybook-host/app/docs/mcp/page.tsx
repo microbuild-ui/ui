@@ -36,7 +36,7 @@ export default function McpPage() {
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
         <pre className="docs-pre">{`# Using npx (recommended — no install required)
-npx @microbuild/mcp@latest`}</pre>
+npx @buildpad/mcp@latest`}</pre>
       </div>
       <p className="docs-paragraph">
         Restart your MCP client and try the following prompts:
@@ -239,9 +239,9 @@ npx @microbuild/mcp@latest`}</pre>
         <div className="docs-code-title">.vscode/mcp.json</div>
         <pre className="docs-pre">{`{
   "servers": {
-    "microbuild": {
+    "buildpad": {
       "command": "npx",
-      "args": ["@microbuild/mcp@latest"]
+      "args": ["@buildpad/mcp@latest"]
     }
   }
 }`}</pre>
@@ -258,9 +258,9 @@ npx @microbuild/mcp@latest`}</pre>
         <pre className="docs-pre">{`{
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "npx",
-        "args": ["@microbuild/mcp@latest"]
+        "args": ["@buildpad/mcp@latest"]
       }
     }
   }
@@ -281,9 +281,9 @@ npx @microbuild/mcp@latest`}</pre>
         <div className="docs-code-title">.cursor/mcp.json</div>
         <pre className="docs-pre">{`{
   "mcpServers": {
-    "microbuild": {
+    "buildpad": {
       "command": "npx",
-      "args": ["@microbuild/mcp@latest"]
+      "args": ["@buildpad/mcp@latest"]
     }
   }
 }`}</pre>
@@ -304,9 +304,9 @@ npx @microbuild/mcp@latest`}</pre>
         <div className="docs-code-title">.mcp.json</div>
         <pre className="docs-pre">{`{
   "mcpServers": {
-    "microbuild": {
+    "buildpad": {
       "command": "npx",
-      "args": ["@microbuild/mcp@latest"]
+      "args": ["@buildpad/mcp@latest"]
     }
   }
 }`}</pre>
@@ -324,7 +324,7 @@ npx @microbuild/mcp@latest`}</pre>
       </p>
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
-        <pre className="docs-pre">{`cd /path/to/microbuild-ui-packages
+        <pre className="docs-pre">{`cd /path/to/buildpad-ui
 pnpm build:mcp`}</pre>
       </div>
       <p className="docs-paragraph">
@@ -335,10 +335,10 @@ pnpm build:mcp`}</pre>
         <pre className="docs-pre">{`{
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "node",
         "args": [
-          "/absolute/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"
+          "/absolute/path/to/buildpad-ui/packages/mcp-server/dist/index.js"
         ]
       }
     }
@@ -485,8 +485,8 @@ pnpm build:mcp`}</pre>
       </ul>
       <p className="docs-paragraph">
         When installed via CLI, imports like{" "}
-        <code>@microbuild/hooks</code> are automatically transformed to local
-        paths like <code>@/lib/microbuild/hooks</code>.
+        <code>@buildpad/hooks</code> are automatically transformed to local
+        paths like <code>@/lib/buildpad/hooks</code>.
       </p>
 
       <h2 className="docs-heading" id="troubleshooting">
@@ -508,7 +508,7 @@ pnpm build:mcp`}</pre>
         </li>
         <li>
           <strong>Verify Installation</strong> — Ensure{" "}
-          <code>npx @microbuild/mcp@latest</code> is accessible
+          <code>npx @buildpad/mcp@latest</code> is accessible
         </li>
         <li>
           <strong>Check Network</strong> — Confirm you can access npm for the
@@ -559,11 +559,11 @@ pnpm build:mcp`}</pre>
         </li>
         <li>
           <a
-            href="https://www.npmjs.com/package/@microbuild/mcp"
+            href="https://www.npmjs.com/package/@buildpad/mcp"
             target="_blank"
             rel="noopener noreferrer"
           >
-            @microbuild/mcp on npm
+            @buildpad/mcp on npm
           </a>{" "}
           — Published MCP server package
         </li>

@@ -1,7 +1,7 @@
 /**
  * Textarea Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces Textarea component in isolation.
+ * Tests the @buildpad/ui-interfaces Textarea component in isolation.
  * Covers all 15 stories: basic, softLength, fonts, autosize, rows, RTL, trim, states.
  * 
  * Run: pnpm test:storybook:interfaces

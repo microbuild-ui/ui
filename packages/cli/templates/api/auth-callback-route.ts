@@ -4,8 +4,8 @@
  * Handles OAuth callback and email confirmation redirects.
  * Exchanges the auth code for a session server-side.
  * 
- * @microbuild/origin: api-routes/auth-callback
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/auth-callback
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

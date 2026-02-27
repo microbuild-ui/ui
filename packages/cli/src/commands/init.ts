@@ -13,7 +13,7 @@ export interface ComponentVersion {
   version: string;
   /** Installation timestamp */
   installedAt: string;
-  /** Source package (e.g., @microbuild/ui-interfaces) */
+  /** Source package (e.g., @buildpad/ui-interfaces) */
   source: string;
 }
 
@@ -22,7 +22,7 @@ export interface ComponentVersion {
  * 
  * Copy & Own Model:
  * - Components are copied to your project as source files
- * - No runtime dependency on @microbuild/* packages
+ * - No runtime dependency on @buildpad/* packages
  * - Full customization - you own the code
  * - Works offline after installation
  */
@@ -38,7 +38,7 @@ export interface Config {
   aliases: {
     /** Where UI components are copied (e.g., @/components/ui) */
     components: string;
-    /** Where lib files are copied (e.g., @/lib/microbuild) */
+    /** Where lib files are copied (e.g., @/lib/buildpad) */
     lib: string;
   };
   /** Installed lib modules */
@@ -52,13 +52,13 @@ export interface Config {
 }
 
 const DEFAULT_CONFIG: Config = {
-  $schema: 'https://microbuild.dev/schema.json',
+  $schema: 'https://buildpad.dev/schema.json',
   model: 'copy-own',
   tsx: true,
   srcDir: true,
   aliases: {
     components: '@/components/ui',
-    lib: '@/lib/microbuild',
+    lib: '@/lib/buildpad',
   },
   installedLib: [],
   installedComponents: [],
@@ -87,12 +87,12 @@ export async function init(options: { yes?: boolean; cwd: string }) {
   console.log(chalk.dim('Copy & Own Model - Components become part of your codebase.\n'));
 
   // Check if already initialized
-  const configPath = path.join(cwd, 'microbuild.json');
+  const configPath = path.join(cwd, 'buildpad.json');
   if (fs.existsSync(configPath) && !yes) {
     const { overwrite } = await prompts({
       type: 'confirm',
       name: 'overwrite',
-      message: 'microbuild.json already exists. Overwrite?',
+      message: 'buildpad.json already exists. Overwrite?',
       initial: false,
     });
 
@@ -186,7 +186,7 @@ export async function init(options: { yes?: boolean; cwd: string }) {
         type: 'text',
         name: 'libPath',
         message: 'Where should lib files (types, services, hooks) be installed?',
-        initial: '@/lib/microbuild',
+        initial: '@/lib/buildpad',
       },
       {
         type: 'confirm',
@@ -198,7 +198,7 @@ export async function init(options: { yes?: boolean; cwd: string }) {
 
     config.srcDir = answers.srcDir ?? hasSrcDir;
     config.aliases.components = answers.componentsPath || '@/components/ui';
-    config.aliases.lib = answers.libPath || '@/lib/microbuild';
+    config.aliases.lib = answers.libPath || '@/lib/buildpad';
     config.tsx = answers.tsx ?? true;
   }
 
@@ -207,7 +207,7 @@ export async function init(options: { yes?: boolean; cwd: string }) {
   try {
     // Write config
     await fs.writeJSON(configPath, config, { spaces: 2 });
-    spinner.succeed('Created microbuild.json');
+    spinner.succeed('Created buildpad.json');
 
     // Create directory structure
     // Components directory
@@ -362,9 +362,9 @@ export async function init(options: { yes?: boolean; cwd: string }) {
     // Success message
     console.log(chalk.bold.green('\n✨ Setup complete!\n'));
     console.log('Next steps:');
-    console.log(chalk.cyan('  1. Add components: ') + chalk.dim('npx microbuild add input select-dropdown'));
-    console.log(chalk.cyan('  2. List components: ') + chalk.dim('npx microbuild list'));
-    console.log(chalk.cyan('  3. Add all basics: ') + chalk.dim('npx microbuild add --category input'));
+    console.log(chalk.cyan('  1. Add components: ') + chalk.dim('npx buildpad add input select-dropdown'));
+    console.log(chalk.cyan('  2. List components: ') + chalk.dim('npx buildpad list'));
+    console.log(chalk.cyan('  3. Add all basics: ') + chalk.dim('npx buildpad add --category input'));
     console.log(chalk.dim('\nComponents will be copied with all dependencies inlined.\n'));
 
   } catch (error) {
@@ -390,10 +390,10 @@ export function resolveAlias(alias: string, cwd: string, srcDir: boolean = true)
 }
 
 /**
- * Load and validate the microbuild.json config
+ * Load and validate the buildpad.json config
  */
 export async function loadConfig(cwd: string): Promise<Config | null> {
-  const configPath = path.join(cwd, 'microbuild.json');
+  const configPath = path.join(cwd, 'buildpad.json');
   if (!fs.existsSync(configPath)) {
     return null;
   }
@@ -401,9 +401,9 @@ export async function loadConfig(cwd: string): Promise<Config | null> {
 }
 
 /**
- * Save the microbuild.json config
+ * Save the buildpad.json config
  */
 export async function saveConfig(cwd: string, config: Config): Promise<void> {
-  const configPath = path.join(cwd, 'microbuild.json');
+  const configPath = path.join(cwd, 'buildpad.json');
   await fs.writeJSON(configPath, config, { spaces: 2 });
 }

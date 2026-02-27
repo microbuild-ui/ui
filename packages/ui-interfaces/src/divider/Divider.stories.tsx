@@ -26,7 +26,7 @@ const meta: Meta<typeof Divider> = {
 
 ## Usage
 \`\`\`tsx
-import { Divider } from '@microbuild/ui-interfaces';
+import { Divider } from '@buildpad/ui-interfaces';
 
 <Divider title="Section Title" icon={<IconSettings />} />
 \`\`\``,

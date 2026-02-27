@@ -1,7 +1,7 @@
 /**
  * SelectIcon Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces SelectIcon component using Storybook.
+ * Tests the @buildpad/ui-interfaces SelectIcon component using Storybook.
  * Icon picker with search, categories, and grid display.
  * 
  * Run: SKIP_WEBSERVER=true STORYBOOK_INTERFACES_URL=http://localhost:6008 npx playwright test --project=storybook-interfaces --reporter=line

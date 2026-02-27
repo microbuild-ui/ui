@@ -3,7 +3,7 @@
 # Create interface_showcase fields
 # This script adds all available interface types to the collection
 
-BASE_URL="https://6db63358-169b-4d26-a758-4a39f0088d91.microbuild-daas.xtremax.com"
+BASE_URL="https://6db63358-169b-4d26-a758-4a39f0088d91.buildpad-daas.xtremax.com"
 TOKEN="_dVeDC5ilSpRWeyaVyNXUQPX4PKbTr6Q"
 COLLECTION="interface_showcase"
 

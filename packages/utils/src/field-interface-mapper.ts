@@ -6,7 +6,7 @@
  * Ported from main-nextjs for shared use across Buildpad projects.
  */
 
-import type { Field } from "@microbuild/types";
+import type { Field } from "@buildpad/types";
 
 export type InterfaceType =
   | "input"

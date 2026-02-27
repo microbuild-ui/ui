@@ -28,13 +28,13 @@ These documents are optimized for AI agent consumption:
 
 ### Quick Agent Commands
 ```bash
-microbuild list --json          # Get all components as JSON
-microbuild info <component>     # Detailed component info
-microbuild tree <component>     # Show dependency tree
-microbuild add <component>      # Add component with all dependencies
-microbuild bootstrap            # Full setup: init + add --all + deps + validate
-microbuild validate             # Check for common installation issues
-microbuild validate --json      # JSON output for CI/CD
+buildpad list --json          # Get all components as JSON
+buildpad info <component>     # Detailed component info
+buildpad tree <component>     # Show dependency tree
+buildpad add <component>      # Add component with all dependencies
+buildpad bootstrap            # Full setup: init + add --all + deps + validate
+buildpad validate             # Check for common installation issues
+buildpad validate --json      # JSON output for CI/CD
 ```
 
 ## 🎯 Quick Navigation
@@ -52,7 +52,7 @@ microbuild validate --json      # JSON output for CI/CD
 
 ### For AI Development
 - [MCP Server Setup](../QUICKSTART.md#-setup-mcp-server-for-vs-code-copilot) - VS Code Copilot integration
-- [MCP Documentation](../packages/mcp-server/README.md) - MCP server details (`@microbuild/mcp` on npm)
+- [MCP Documentation](../packages/mcp-server/README.md) - MCP server details (`@buildpad/mcp` on npm)
 - [Available Tools](../packages/mcp-server/README.md#available-tools) - AI tools reference
 
 ### For Teams
@@ -69,16 +69,16 @@ microbuild validate --json      # JSON output for CI/CD
 
 | Package | Description | Documentation |
 |---------|-------------|---------------|
-| @microbuild/types | TypeScript types | [README](../packages/types/README.md) |
-| @microbuild/services | CRUD services, DaaSProvider, apiRequest, authentication | [README](../packages/services/README.md) |
-| @microbuild/hooks | React hooks (auth, permissions, relations, files, versioning, workflow) | [README](../packages/hooks/README.md) |
-| @microbuild/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
-| @microbuild/ui-interfaces | Field components (40+) | [README](../packages/ui-interfaces/README.md) |
-| @microbuild/ui-collections | Collection components (Form, List, Layout, Navigation, Filter, SaveOptions) | [README](../packages/ui-collections/README.md) |
-| @microbuild/ui-form | VForm - Dynamic form with permission enforcement | [README](../packages/ui-form/README.md) |
-| @microbuild/ui-table | VTable - Dynamic table with sorting, selection, drag-drop | [README](../packages/ui-table/README.md) |
-| @microbuild/mcp | MCP server (`@microbuild/mcp` on npm) | [README](../packages/mcp-server/README.md) |
-| @microbuild/cli | CLI tool (`@microbuild/cli` on npm) | [README](../packages/cli/README.md) |
+| @buildpad/types | TypeScript types | [README](../packages/types/README.md) |
+| @buildpad/services | CRUD services, DaaSProvider, apiRequest, authentication | [README](../packages/services/README.md) |
+| @buildpad/hooks | React hooks (auth, permissions, relations, files, versioning, workflow) | [README](../packages/hooks/README.md) |
+| @buildpad/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
+| @buildpad/ui-interfaces | Field components (40+) | [README](../packages/ui-interfaces/README.md) |
+| @buildpad/ui-collections | Collection components (Form, List, Layout, Navigation, Filter, SaveOptions) | [README](../packages/ui-collections/README.md) |
+| @buildpad/ui-form | VForm - Dynamic form with permission enforcement | [README](../packages/ui-form/README.md) |
+| @buildpad/ui-table | VTable - Dynamic table with sorting, selection, drag-drop | [README](../packages/ui-table/README.md) |
+| @buildpad/mcp | MCP server (`@buildpad/mcp` on npm) | [README](../packages/mcp-server/README.md) |
+| @buildpad/cli | CLI tool (`@buildpad/cli` on npm) | [README](../packages/cli/README.md) |
 | storybook-host | Next.js auth proxy & Storybook host (Amplify) | [apps/storybook-host](../apps/storybook-host) |
 
 ## 🚀 Common Tasks
@@ -116,57 +116,57 @@ microbuild validate --json      # JSON output for CI/CD
 
 | Task | Command | Documentation |
 |------|---------|---------------|
-| List components | `microbuild list` | [packages/cli/README.md](../packages/cli/README.md#list) |
-| Add component | `microbuild add input` | [packages/cli/README.md](../packages/cli/README.md#add) |
-| Initialize project | `microbuild init` | [packages/cli/README.md](../packages/cli/README.md#init) |
-| Bootstrap project | `microbuild bootstrap` | [CLI.md](CLI.md#bootstrap-command-recommended-for-ai-agents) |
-| Check status | `microbuild status` | [packages/cli/README.md](../packages/cli/README.md#status) |
-| Validate installation | `microbuild validate` | [packages/cli/README.md](../packages/cli/README.md#validate) |
+| List components | `buildpad list` | [packages/cli/README.md](../packages/cli/README.md#list) |
+| Add component | `buildpad add input` | [packages/cli/README.md](../packages/cli/README.md#add) |
+| Initialize project | `buildpad init` | [packages/cli/README.md](../packages/cli/README.md#init) |
+| Bootstrap project | `buildpad bootstrap` | [CLI.md](CLI.md#bootstrap-command-recommended-for-ai-agents) |
+| Check status | `buildpad status` | [packages/cli/README.md](../packages/cli/README.md#status) |
+| Validate installation | `buildpad validate` | [packages/cli/README.md](../packages/cli/README.md#validate) |
 
 ## 🎨 Component Categories
 
 ### Input Components
-- [Input](../packages/README.md#microbuildui-interfaces) - Text input with validation
-- [Textarea](../packages/README.md#microbuildui-interfaces) - Multi-line text
-- [InputCode](../packages/README.md#microbuildui-interfaces) - Code editor
-- [Tags](../packages/README.md#microbuildui-interfaces) - Tag input
+- [Input](../packages/README.md#buildpadui-interfaces) - Text input with validation
+- [Textarea](../packages/README.md#buildpadui-interfaces) - Multi-line text
+- [InputCode](../packages/README.md#buildpadui-interfaces) - Code editor
+- [Tags](../packages/README.md#buildpadui-interfaces) - Tag input
 
 ### Selection Components
-- [SelectDropdown](../packages/README.md#microbuildui-interfaces) - Dropdown select
-- [SelectRadio](../packages/README.md#microbuildui-interfaces) - Radio buttons
-- [SelectMultipleCheckbox](../packages/README.md#microbuildui-interfaces) - Checkboxes
-- [SelectIcon](../packages/README.md#microbuildui-interfaces) - Icon picker
-- [AutocompleteAPI](../packages/README.md#microbuildui-interfaces) - API autocomplete
-- [CollectionItemDropdown](../packages/README.md#microbuildui-interfaces) - Item selector
+- [SelectDropdown](../packages/README.md#buildpadui-interfaces) - Dropdown select
+- [SelectRadio](../packages/README.md#buildpadui-interfaces) - Radio buttons
+- [SelectMultipleCheckbox](../packages/README.md#buildpadui-interfaces) - Checkboxes
+- [SelectIcon](../packages/README.md#buildpadui-interfaces) - Icon picker
+- [AutocompleteAPI](../packages/README.md#buildpadui-interfaces) - API autocomplete
+- [CollectionItemDropdown](../packages/README.md#buildpadui-interfaces) - Item selector
 
 ### Media Components
-- [File](../packages/README.md#microbuildui-interfaces) - Single file with DaaS integration
-- [FileImage](../packages/README.md#microbuildui-interfaces) - Image picker with preview, crop, and lightbox
-- [Files](../packages/README.md#microbuildui-interfaces) - Multi-file upload (M2M relationship)
-- [Upload](../packages/README.md#microbuildui-interfaces) - Low-level drag-drop upload zone
-- [Color](../packages/README.md#microbuildui-interfaces) - Color picker
+- [File](../packages/README.md#buildpadui-interfaces) - Single file with DaaS integration
+- [FileImage](../packages/README.md#buildpadui-interfaces) - Image picker with preview, crop, and lightbox
+- [Files](../packages/README.md#buildpadui-interfaces) - Multi-file upload (M2M relationship)
+- [Upload](../packages/README.md#buildpadui-interfaces) - Low-level drag-drop upload zone
+- [Color](../packages/README.md#buildpadui-interfaces) - Color picker
 
 ### Relational Components
-- [ListM2M](../packages/README.md#microbuildui-interfaces) - Many-to-Many
-- [ListM2O](../packages/README.md#microbuildui-interfaces) - Many-to-One
-- [ListO2M](../packages/README.md#microbuildui-interfaces) - One-to-Many
-- [ListM2A](../packages/README.md#microbuildui-interfaces) - Many-to-Any
+- [ListM2M](../packages/README.md#buildpadui-interfaces) - Many-to-Many
+- [ListM2O](../packages/README.md#buildpadui-interfaces) - Many-to-One
+- [ListO2M](../packages/README.md#buildpadui-interfaces) - One-to-Many
+- [ListM2A](../packages/README.md#buildpadui-interfaces) - Many-to-Any
 
 ### Workflow Components
-- [WorkflowButton](../packages/README.md#microbuildui-interfaces) - State transitions with policy-based commands
+- [WorkflowButton](../packages/README.md#buildpadui-interfaces) - State transitions with policy-based commands
 
 ### Rich Text Components
-- [InputBlockEditor](../packages/README.md#microbuildui-interfaces) - Block-based editor using EditorJS (SSR-safe wrapper)
-- [RichTextHTML](../packages/README.md#microbuildui-interfaces) - WYSIWYG HTML editor (TipTap)
-- [RichTextMarkdown](../packages/README.md#microbuildui-interfaces) - Markdown editor with preview
+- [InputBlockEditor](../packages/README.md#buildpadui-interfaces) - Block-based editor using EditorJS (SSR-safe wrapper)
+- [RichTextHTML](../packages/README.md#buildpadui-interfaces) - WYSIWYG HTML editor (TipTap)
+- [RichTextMarkdown](../packages/README.md#buildpadui-interfaces) - Markdown editor with preview
 
 ### Map / Geometry Components
-- [Map](../packages/README.md#microbuildui-interfaces) - Geometry input with map preview
-- [MapWithRealMap](../packages/README.md#microbuildui-interfaces) - Full MapLibre implementation
+- [Map](../packages/README.md#buildpadui-interfaces) - Geometry input with map preview
+- [MapWithRealMap](../packages/README.md#buildpadui-interfaces) - Full MapLibre implementation
 
 ### Collection Components
-- [CollectionForm](../packages/README.md#microbuildui-collections) - CRUD wrapper using VForm
-- [CollectionList](../packages/README.md#microbuildui-collections) - Dynamic list/table
+- [CollectionForm](../packages/README.md#buildpadui-collections) - CRUD wrapper using VForm
+- [CollectionList](../packages/README.md#buildpadui-collections) - Dynamic list/table
 - [ContentLayout](../packages/ui-collections/README.md) - Shell layout with sidebar and main content
 - [ContentNavigation](../packages/ui-collections/README.md) - Hierarchical collection navigation
 - [FilterPanel](../packages/ui-collections/README.md) - Field-type-aware filter builder
@@ -175,14 +175,14 @@ microbuild validate --json      # JSON output for CI/CD
 ### Form Components
 - [VForm](../packages/ui-form/README.md) - Dynamic form that renders all 40+ interface types
 
-[See all 40+ components →](../packages/README.md#microbuildui-interfaces)
+[See all 40+ components →](../packages/README.md#buildpadui-interfaces)
 
 ## 🔍 How-To Guides
 
 ### Setup Guides
 1. [Set up MCP Server for VS Code](../QUICKSTART.md#-setup-mcp-server-for-vs-code-copilot)
 2. [Set up CLI Tool](../QUICKSTART.md#-setup-cli-tool-for-development)
-3. [Initialize a New Project](../packages/cli/README.md#initialize-microbuild-in-your-project)
+3. [Initialize a New Project](../packages/cli/README.md#initialize-buildpad-in-your-project)
 4. [Configure Path Aliases](../packages/cli/README.md#configuration)
 
 ### Usage Guides
@@ -273,7 +273,7 @@ Buildpad Architecture
 ## 📖 External Resources
 
 ### Related Projects
-- [microbuild-copilot](https://github.com/your-org/microbuild-copilot) - RAD platform boilerplate with agents, prompts, and templates
+- [buildpad-copilot](https://github.com/your-org/buildpad-copilot) - RAD platform boilerplate with agents, prompts, and templates
 - [nextjs-supabase-daas](https://github.com/your-org/nextjs-supabase-daas) - DaaS backend server
 
 ### Related Documentation
@@ -346,9 +346,9 @@ Buildpad Architecture
 - 🔧 New root scripts: `dev:host`, `build:host`, `start:host`, `storybook:collections`
 
 ### Version 1.3.0 (February 2026)
-- ✨ Published `@microbuild/cli` and `@microbuild/mcp` to npm
+- ✨ Published `@buildpad/cli` and `@buildpad/mcp` to npm
 - ✨ Remote registry resolver — CLI fetches components from GitHub CDN when installed via npm
-- ✨ Renamed `@microbuild/mcp-server` to `@microbuild/mcp`
+- ✨ Renamed `@buildpad/mcp-server` to `@buildpad/mcp`
 - ✨ Changesets-based versioning and release workflow
 - ✨ GitHub Actions CI + automated npm publish workflows
 - ✨ `PUBLISHING.md` documentation for release process
@@ -363,10 +363,10 @@ Buildpad Architecture
 - ✨ New root dependencies: `@mantine/form`, TipTap extensions, `axios`, `lowlight`
 - 🔧 Improved `validate` command with `noExit` option and return value
 - 🔧 Updated registry: api-routes now includes auth routes
-- 🔧 Fixed ESM/CJS type exports in `@microbuild/utils`
+- 🔧 Fixed ESM/CJS type exports in `@buildpad/utils`
 
 ### Version 1.1.0 (January 2026)
-- ✨ New `@microbuild/ui-form` package with VForm component (DaaS-inspired)
+- ✨ New `@buildpad/ui-form` package with VForm component (DaaS-inspired)
 - ✅ Playwright E2E testing infrastructure
 - ✅ Authentication setup for tests
 - ✅ 19 comprehensive VForm tests
@@ -379,7 +379,7 @@ Buildpad Architecture
 - ✅ Component registry (35+ components)
 - ✅ Complete documentation
 - ✅ Multiple distribution methods
-- ✅ Integration with microbuild-copilot RAD platform
+- ✅ Integration with buildpad-copilot RAD platform
 - ✅ WorkflowButton with revision comparison
 - ✅ Jest testing setup for ui-interfaces
 

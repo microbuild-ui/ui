@@ -4,7 +4,7 @@
  * Utility functions to load interface definitions from registry.json
  * and populate the InterfaceRegistry.
  * 
- * @module @microbuild/utils/load-interfaces
+ * @module @buildpad/utils/load-interfaces
  */
 
 import type { InterfaceMetadata, InterfaceGroup } from './interface-types';

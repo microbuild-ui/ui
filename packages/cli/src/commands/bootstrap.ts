@@ -2,7 +2,7 @@
  * Buildpad CLI - Bootstrap Command
  * 
  * Single atomic command that combines:
- * 1. init (create microbuild.json, package.json, Next.js skeleton)
+ * 1. init (create buildpad.json, package.json, Next.js skeleton)
  * 2. add --all (copy all components)
  * 3. npm dependency installation
  * 4. post-install validation
@@ -132,9 +132,9 @@ export async function bootstrap(options: {
   console.log(chalk.bold('\n' + '━'.repeat(60)));
   console.log(chalk.bold.green(`\n✨ Bootstrap complete! (${elapsed}s)\n`));
   console.log(chalk.dim('Your project is ready with:'));
-  console.log(chalk.dim('  • microbuild.json configuration'));
+  console.log(chalk.dim('  • buildpad.json configuration'));
   console.log(chalk.dim('  • 40+ UI components in components/ui/'));
-  console.log(chalk.dim('  • Types, services, hooks in lib/microbuild/'));
+  console.log(chalk.dim('  • Types, services, hooks in lib/buildpad/'));
   console.log(chalk.dim('  • API proxy routes in app/api/'));
   console.log(chalk.dim('  • Supabase auth utilities'));
   console.log(chalk.dim('  • Next.js skeleton (layout, page, config)'));

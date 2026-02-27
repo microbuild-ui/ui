@@ -19,7 +19,7 @@ export default function DistributionPage() {
       </p>
       <ol className="docs-list docs-list-ordered">
         <li>Fetches the source from the registry</li>
-        <li>Transforms <code>@microbuild/*</code> imports to local paths</li>
+        <li>Transforms <code>@buildpad/*</code> imports to local paths</li>
         <li>Resolves and copies dependencies (lib modules, other components)</li>
         <li>Copies files to your project directory</li>
       </ol>
@@ -38,7 +38,7 @@ export default function DistributionPage() {
         </li>
         <li>
           <strong>No external dependencies</strong> — No runtime dependency on
-          <code>@microbuild/*</code> packages
+          <code>@buildpad/*</code> packages
         </li>
         <li>
           <strong>Works offline</strong> — After installation, no network access
@@ -94,15 +94,15 @@ export default function DistributionPage() {
           </thead>
           <tbody>
             <tr>
-              <td><code>@microbuild/cli</code></td>
+              <td><code>@buildpad/cli</code></td>
               <td>
-                <code>npx @microbuild/cli@latest add input</code>
+                <code>npx @buildpad/cli@latest add input</code>
               </td>
             </tr>
             <tr>
-              <td><code>@microbuild/mcp</code></td>
+              <td><code>@buildpad/mcp</code></td>
               <td>
-                <code>npx @microbuild/mcp@latest</code> (for AI agents)
+                <code>npx @buildpad/mcp@latest</code> (for AI agents)
               </td>
             </tr>
           </tbody>

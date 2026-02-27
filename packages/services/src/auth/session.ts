@@ -6,7 +6,7 @@
  * 2. JWT Bearer Tokens - For API clients with Supabase Auth  
  * 3. Static Tokens - For programmatic access (DaaS-style)
  * 
- * @module @microbuild/services/auth/session
+ * @module @buildpad/services/auth/session
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -111,7 +111,7 @@ let _config: AuthClientConfig | null = null;
  * @example
  * ```typescript
  * // In your app initialization
- * import { configureAuth } from '@microbuild/services/auth';
+ * import { configureAuth } from '@buildpad/services/auth';
  * import { createServerClient } from '@supabase/ssr';
  * import { createClient } from '@supabase/supabase-js';
  * import { cookies, headers } from 'next/headers';

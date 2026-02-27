@@ -4,7 +4,7 @@
  * Type definitions for the Interface Extension System.
  * Mirrors DaaS InterfaceConfig but adapted for React.
  * 
- * @module @microbuild/utils/interface-types
+ * @module @buildpad/utils/interface-types
  */
 
 // Use a generic function component type to avoid react dependency

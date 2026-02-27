@@ -1,16 +1,16 @@
-# @microbuild/services
+# @buildpad/services
 
 CRUD service classes for Buildpad projects. DaaS-compatible services for items, fields, collections, and permissions.
 
 ## Installation
 
 ```bash
-pnpm add @microbuild/services
+pnpm add @buildpad/services
 ```
 
 ## Peer Dependencies
 
-- `@microbuild/types` workspace:*
+- `@buildpad/types` workspace:*
 
 ## Usage
 
@@ -20,7 +20,7 @@ import {
   FieldsService, 
   CollectionsService, 
   PermissionsService 
-} from '@microbuild/services';
+} from '@buildpad/services';
 ```
 
 ## ItemsService
@@ -28,7 +28,7 @@ import {
 Generic CRUD service for any collection.
 
 ```typescript
-import { ItemsService } from '@microbuild/services';
+import { ItemsService } from '@buildpad/services';
 
 // Create a typed service
 interface Product {
@@ -74,7 +74,7 @@ await productsService.deleteMany(['id-1', 'id-2']);
 ### Factory Function
 
 ```typescript
-import { createItemsService } from '@microbuild/services';
+import { createItemsService } from '@buildpad/services';
 
 // Alternative creation with custom API endpoint
 const service = createItemsService<Product>('products', {
@@ -87,7 +87,7 @@ const service = createItemsService<Product>('products', {
 Read field definitions for collections.
 
 ```typescript
-import { FieldsService } from '@microbuild/services';
+import { FieldsService } from '@buildpad/services';
 
 const fieldsService = new FieldsService();
 
@@ -106,7 +106,7 @@ const inputFields = fields.filter(f => f.meta?.interface === 'input');
 Read collection metadata.
 
 ```typescript
-import { CollectionsService } from '@microbuild/services';
+import { CollectionsService } from '@buildpad/services';
 
 const collectionsService = new CollectionsService();
 
@@ -125,7 +125,7 @@ const exists = await collectionsService.exists('products');
 Get field-level permissions for the current user.
 
 ```typescript
-import { PermissionsService, type FieldPermissions } from '@microbuild/services';
+import { PermissionsService, type FieldPermissions } from '@buildpad/services';
 
 const permissionsService = new PermissionsService();
 
@@ -149,7 +149,7 @@ const readableFields = await permissionsService.getFieldPermissions('products', 
 Low-level API request function used by all services. Supports both proxy mode (Next.js) and direct DaaS mode (Storybook/testing).
 
 ```typescript
-import { apiRequest } from '@microbuild/services';
+import { apiRequest } from '@buildpad/services';
 
 // GET request
 const data = await apiRequest<Product[]>('/api/items/products');
@@ -169,16 +169,16 @@ const filtered = await apiRequest<{ data: Product[] }>('/api/items/products?limi
 For environments without Next.js API routes (like Storybook), use `DaaSProvider` to enable direct DaaS API access.
 
 ```typescript
-import { DaaSProvider, setGlobalDaaSConfig } from '@microbuild/services';
+import { DaaSProvider, setGlobalDaaSConfig } from '@buildpad/services';
 
 // React context approach (recommended)
-<DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com', token: 'your-token' }}>
+<DaaSProvider config={{ url: 'https://xxx.buildpad-daas.xtremax.com', token: 'your-token' }}>
   <VForm collection="articles" />
 </DaaSProvider>
 
 // Global config for non-React contexts
 setGlobalDaaSConfig({ 
-  url: 'https://xxx.microbuild-daas.xtremax.com', 
+  url: 'https://xxx.buildpad-daas.xtremax.com', 
   token: 'your-token' 
 });
 ```
@@ -242,8 +242,8 @@ The `apiRequest` function automatically handles both modes based on the DaaS con
 
 ## Related Packages
 
-- [@microbuild/types](../types) - TypeScript types used by services
-- [@microbuild/hooks](../hooks) - React hooks that use these services
+- [@buildpad/types](../types) - TypeScript types used by services
+- [@buildpad/hooks](../hooks) - React hooks that use these services
 
 ## Auth Module (Server-Side)
 
@@ -255,7 +255,7 @@ Configure the auth module in your app initialization:
 
 ```typescript
 // lib/supabase/auth-config.ts
-import { configureAuth } from '@microbuild/services/auth';
+import { configureAuth } from '@buildpad/services/auth';
 import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import { cookies, headers } from 'next/headers';
@@ -287,7 +287,7 @@ import {
   isAdmin,
   getUserRole,
   AuthenticationError 
-} from '@microbuild/services/auth';
+} from '@buildpad/services/auth';
 
 // Get authenticated Supabase client and user
 const { supabase, user } = await createAuthenticatedClient();
@@ -313,7 +313,7 @@ import {
   getPermissionFilters,
   applyFilterToQuery,
   PermissionError 
-} from '@microbuild/services/auth';
+} from '@buildpad/services/auth';
 
 // Enforce permission (throws if denied)
 const { user, isAdmin } = await enforcePermission({
@@ -355,7 +355,7 @@ import {
   applyFilterToQuery,
   AuthenticationError,
   PermissionError,
-} from '@microbuild/services/auth';
+} from '@buildpad/services/auth';
 
 initializeAuth();
 

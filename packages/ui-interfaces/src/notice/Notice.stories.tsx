@@ -23,7 +23,7 @@ const meta: Meta<typeof Notice> = {
 
 ## Usage
 \`\`\`tsx
-import { Notice } from '@microbuild/ui-interfaces';
+import { Notice } from '@buildpad/ui-interfaces';
 
 <Notice type="success" title="Success!">
   Your changes have been saved.

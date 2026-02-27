@@ -11,23 +11,23 @@ packages/registry.json     # Master registry with all components, dependencies, 
 
 ### Key Commands
 ```bash
-microbuild list                    # List all components with categories
-microbuild list --json             # JSON output for programmatic use
-microbuild list --category input   # Filter by category
-microbuild info <component>        # Get full details about a component
-microbuild info <component> --json # JSON output
-microbuild tree <component>        # Show dependency tree
-microbuild add <component>         # Add component to project
-microbuild add --all               # Add all components (non-interactive)
-microbuild diff <component>        # Preview changes before adding
-microbuild bootstrap               # Full setup: init + add --all + deps + validate
-microbuild bootstrap --cwd <path>  # Bootstrap in a specific directory
-microbuild status                  # Show installed components
-microbuild status --json           # JSON output for scripting
-microbuild validate                # Validate installation (imports, SSR, missing files)
-microbuild validate --json         # JSON output for CI/CD
-microbuild fix                     # Auto-fix common issues
-microbuild outdated                # Check for component updates
+buildpad list                    # List all components with categories
+buildpad list --json             # JSON output for programmatic use
+buildpad list --category input   # Filter by category
+buildpad info <component>        # Get full details about a component
+buildpad info <component> --json # JSON output
+buildpad tree <component>        # Show dependency tree
+buildpad add <component>         # Add component to project
+buildpad add --all               # Add all components (non-interactive)
+buildpad diff <component>        # Preview changes before adding
+buildpad bootstrap               # Full setup: init + add --all + deps + validate
+buildpad bootstrap --cwd <path>  # Bootstrap in a specific directory
+buildpad status                  # Show installed components
+buildpad status --json           # JSON output for scripting
+buildpad validate                # Validate installation (imports, SSR, missing files)
+buildpad validate --json         # JSON output for CI/CD
+buildpad fix                     # Auto-fix common issues
+buildpad outdated                # Check for component updates
 ```
 
 ## Component Locations
@@ -96,10 +96,10 @@ microbuild outdated                # Check for component updates
 ```
 vform
 ├── internalDependencies:
-│   ├── types      → lib/microbuild/types/
-│   ├── services   → lib/microbuild/services/
-│   ├── hooks      → lib/microbuild/hooks/
-│   └── utils      → lib/microbuild/utils/
+│   ├── types      → lib/buildpad/types/
+│   ├── services   → lib/buildpad/services/
+│   ├── hooks      → lib/buildpad/hooks/
+│   └── utils      → lib/buildpad/utils/
 │
 └── registryDependencies (32 components):
     ├── input, textarea, input-code, input-block-editor
@@ -133,7 +133,7 @@ collection-form
 ### Task 1: User wants to add VForm
 ```bash
 # Best approach - let CLI handle all dependencies
-microbuild add vform
+buildpad add vform
 
 # This will automatically:
 # 1. Install lib modules: types, services, hooks, utils
@@ -145,53 +145,53 @@ microbuild add vform
 ### Task 2: User wants CollectionForm
 ```bash
 # This adds CollectionForm + VForm + all dependencies
-microbuild add collection-form
+buildpad add collection-form
 ```
 
 ### Task 3: User wants specific components
 ```bash
 # Add individual components
-microbuild add input select-dropdown datetime
+buildpad add input select-dropdown datetime
 
 # Add by category
-microbuild add --category selection
+buildpad add --category selection
 ```
 
 ### Task 4: Check what's installed
 ```bash
-microbuild status
-microbuild status --json
+buildpad status
+buildpad status --json
 ```
 
 ### Task 5: Find a component's source
 ```bash
 # Get detailed info including source path
-microbuild info input
-microbuild info vform
+buildpad info input
+buildpad info vform
 ```
 
 ### Task 6: Validate installation
 ```bash
 # Check for common issues (untransformed imports, missing files, SSR problems)
-microbuild validate
+buildpad validate
 
 # JSON output for CI/CD integration
-microbuild validate --json
+buildpad validate --json
 
 # Run in specific directory
-microbuild validate --cwd /path/to/project
+buildpad validate --cwd /path/to/project
 ```
 
 ### Task 7: Full project bootstrap (recommended for AI agents)
 ```bash
 # Single command: init + add --all + install deps + validate
-microbuild bootstrap --cwd /path/to/project
+buildpad bootstrap --cwd /path/to/project
 
 # Skip dependency installation
-microbuild bootstrap --skip-deps --cwd /path/to/project
+buildpad bootstrap --skip-deps --cwd /path/to/project
 
 # Skip validation step
-microbuild bootstrap --skip-validate --cwd /path/to/project
+buildpad bootstrap --skip-validate --cwd /path/to/project
 ```
 
 Bootstrap installs everything non-interactively, including:
@@ -203,7 +203,7 @@ Bootstrap installs everything non-interactively, including:
 - npm dependencies via `pnpm install`
 
 The validate command checks for:
-- **Untransformed imports** - `@microbuild/*` imports that weren't converted to local paths
+- **Untransformed imports** - `@buildpad/*` imports that weren't converted to local paths
 - **Missing lib files** - Required utility modules not present
 - **Missing CSS files** - CSS required by rich text/block editors
 - **SSR issues** - Components exported without SSR-safe wrappers
@@ -227,7 +227,7 @@ interface Registry {
   };
   
   aliases: {
-    "@/lib/microbuild": "./lib/microbuild";
+    "@/lib/buildpad": "./lib/buildpad";
     "@/components/ui": "./components/ui";
   };
   
@@ -264,16 +264,16 @@ interface ComponentEntry {
 ## Troubleshooting
 
 ### "Component not found" Error
-1. Check exact name with `microbuild list`
+1. Check exact name with `buildpad list`
 2. Names are case-insensitive
 3. Common aliases:
    - `select` → use `select-dropdown`
    - `m2m` → use `list-m2m`
    - `form` → use `vform` or `collection-form`
 
-### "microbuild.json not found"
+### "buildpad.json not found"
 ```bash
-microbuild init --yes  # Initialize with defaults
+buildpad init --yes  # Initialize with defaults
 ```
 
 ### Missing Dependencies After Add
@@ -297,19 +297,19 @@ The `bootstrap` command combines `init` + `add --all` + `pnpm install` + `valida
 
 ```bash
 # Full project setup in one command (non-interactive, no prompts)
-microbuild bootstrap --cwd /path/to/project
+buildpad bootstrap --cwd /path/to/project
 
 # Skip dependency installation (if you want to install manually)
-microbuild bootstrap --skip-deps --cwd /path/to/project
+buildpad bootstrap --skip-deps --cwd /path/to/project
 
 # Skip validation step
-microbuild bootstrap --skip-validate --cwd /path/to/project
+buildpad bootstrap --skip-validate --cwd /path/to/project
 ```
 
 **What bootstrap does:**
-1. Creates `microbuild.json` and project skeleton (package.json, tsconfig, etc.)
+1. Creates `buildpad.json` and project skeleton (package.json, tsconfig, etc.)
 2. Copies all 40+ UI components to `components/ui/`
-3. Copies types, services, hooks to `lib/microbuild/`
+3. Copies types, services, hooks to `lib/buildpad/`
 4. Copies API proxy routes (items, fields, relations, files)
 5. Copies auth proxy routes (login, logout, user, callback) and login page
 6. Copies Supabase auth utilities and middleware
@@ -332,16 +332,16 @@ microbuild bootstrap --skip-validate --cwd /path/to/project
 ```bash
 # 1. Initialize in your project
 cd your-nextjs-app
-npx @microbuild/cli init
+npx @buildpad/cli init
 
 # 2. Add components
-npx @microbuild/cli add input select-dropdown datetime
+npx @buildpad/cli add input select-dropdown datetime
 
 # 3. Or add the full form system
-npx @microbuild/cli add collection-form
+npx @buildpad/cli add collection-form
 
 # 4. Or bootstrap everything at once
-npx @microbuild/cli bootstrap
+npx @buildpad/cli bootstrap
 
 # 5. Install npm dependencies (shown at end, or done by bootstrap)
 pnpm add @mantine/core @mantine/hooks @tabler/icons-react

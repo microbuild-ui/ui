@@ -4,8 +4,8 @@
  * Proxies file operations to the DaaS backend.
  * Required for file upload components.
  * 
- * @microbuild/origin: api-routes/files
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/files
+ * @buildpad/version: 1.0.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';

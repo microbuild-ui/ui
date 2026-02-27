@@ -4,7 +4,7 @@
  * EditorJS requires browser APIs (document, Element, etc.) that don't exist on the server.
  * This wrapper uses Next.js dynamic import to load the editor only on the client.
  * 
- * @module @microbuild/ui-interfaces/input-block-editor
+ * @module @buildpad/ui-interfaces/input-block-editor
  */
 
 'use client';

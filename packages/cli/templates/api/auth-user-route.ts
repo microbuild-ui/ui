@@ -4,8 +4,8 @@
  * Returns the currently authenticated user's information.
  * Proxies through the Next.js server to avoid CORS issues.
  * 
- * @microbuild/origin: api-routes/auth-user
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: api-routes/auth-user
+ * @buildpad/version: 1.0.0
  */
 
 import { NextResponse } from 'next/server';

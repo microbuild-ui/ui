@@ -37,13 +37,13 @@ const config: StorybookConfig = {
     return mergeConfig(config, {
       resolve: {
         alias: {
-          '@microbuild/types': path.resolve(__dirname, '../../types/src'),
-          '@microbuild/services': path.resolve(__dirname, '../../services/src'),
-          '@microbuild/hooks': path.resolve(__dirname, '../../hooks/src'),
-          '@microbuild/ui-form': path.resolve(__dirname, '../../ui-form/src'),
-          '@microbuild/ui-table': path.resolve(__dirname, '../../ui-table/src'),
-          '@microbuild/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),
-          '@microbuild/utils': path.resolve(__dirname, '../../utils/src'),
+          '@buildpad/types': path.resolve(__dirname, '../../types/src'),
+          '@buildpad/services': path.resolve(__dirname, '../../services/src'),
+          '@buildpad/hooks': path.resolve(__dirname, '../../hooks/src'),
+          '@buildpad/ui-form': path.resolve(__dirname, '../../ui-form/src'),
+          '@buildpad/ui-table': path.resolve(__dirname, '../../ui-table/src'),
+          '@buildpad/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),
+          '@buildpad/utils': path.resolve(__dirname, '../../utils/src'),
         },
       },
       server: {

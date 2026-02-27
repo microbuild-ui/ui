@@ -14,7 +14,7 @@
  * - Logical: _and, _or
  * - Dynamic values: $CURRENT_USER, $CURRENT_ROLE
  * 
- * @module @microbuild/services/auth/filter-to-query
+ * @module @buildpad/services/auth/filter-to-query
  */
 
 export type FilterObject = Record<string, unknown>;

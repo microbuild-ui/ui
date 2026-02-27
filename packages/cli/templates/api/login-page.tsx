@@ -7,8 +7,8 @@
  * 
  * Pattern: Browser → /api/auth/login (same origin) → Supabase Auth (server-side)
  * 
- * @microbuild/origin: pages/login
- * @microbuild/version: 1.0.0
+ * @buildpad/origin: pages/login
+ * @buildpad/version: 1.0.0
  */
 
 'use client';

@@ -1,7 +1,7 @@
 /**
  * SelectMultipleDropdown Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces SelectMultipleDropdown component using Storybook.
+ * Tests the @buildpad/ui-interfaces SelectMultipleDropdown component using Storybook.
  * Uses Mantine MultiSelect component.
  * 
  * Run: SKIP_WEBSERVER=true STORYBOOK_INTERFACES_URL=http://localhost:6008 npx playwright test --project=storybook-interfaces --reporter=line

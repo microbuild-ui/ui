@@ -1,4 +1,4 @@
-# @microbuild/ui-table
+# @buildpad/ui-table
 
 Dynamic table component for Buildpad projects, inspired by the DaaS v-table component.
 
@@ -16,7 +16,7 @@ Dynamic table component for Buildpad projects, inspired by the DaaS v-table comp
 ## Installation
 
 ```bash
-pnpm add @microbuild/ui-table
+pnpm add @buildpad/ui-table
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ pnpm add @microbuild/ui-table
 ### Basic Usage
 
 ```tsx
-import { VTable } from '@microbuild/ui-table';
+import { VTable } from '@buildpad/ui-table';
 
 const headers = [
   { text: 'Name', value: 'name' },
@@ -51,7 +51,7 @@ function MyTable() {
 ### With Selection
 
 ```tsx
-import { VTable } from '@microbuild/ui-table';
+import { VTable } from '@buildpad/ui-table';
 import { useState } from 'react';
 
 function SelectableTable() {
@@ -72,7 +72,7 @@ function SelectableTable() {
 ### With Sorting
 
 ```tsx
-import { VTable } from '@microbuild/ui-table';
+import { VTable } from '@buildpad/ui-table';
 import { useState } from 'react';
 
 function SortableTable() {
@@ -92,12 +92,12 @@ function SortableTable() {
 ### DaaS Integration
 
 ```tsx
-import { VTable } from '@microbuild/ui-table';
-import { DaaSProvider } from '@microbuild/services';
+import { VTable } from '@buildpad/ui-table';
+import { DaaSProvider } from '@buildpad/services';
 
 function DaaSTable() {
   return (
-    <DaaSProvider config={{ url: 'https://xxx.microbuild-daas.xtremax.com' }}>
+    <DaaSProvider config={{ url: 'https://xxx.buildpad-daas.xtremax.com' }}>
       <VTable
         collection="products"
         showSelect="multiple"

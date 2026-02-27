@@ -121,9 +121,9 @@ export default function DocsPage() {
       </p>
       <div className="docs-code-block">
         <div className="docs-code-title">Terminal</div>
-        <pre className="docs-pre">{`npx @microbuild/cli@latest init
-npx @microbuild/cli@latest add collection-form
-npx @microbuild/cli@latest bootstrap`}</pre>
+        <pre className="docs-pre">{`npx @buildpad/cli@latest init
+npx @buildpad/cli@latest add collection-form
+npx @buildpad/cli@latest bootstrap`}</pre>
       </div>
 
       <h2 className="docs-heading" id="permission-aware">

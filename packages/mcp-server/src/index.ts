@@ -64,8 +64,8 @@ function readSourceFile(relativePath: string): string | null {
  */
 function generateUsageExample(component: ComponentMetadata): string {
   const examples: Record<string, string> = {
-    Input: `// Copy & Own: Component must be added via CLI from local microbuild-ui-packages
-// cd /path/to/microbuild-ui-packages && pnpm cli add input --project /path/to/your-project
+    Input: `// Copy & Own: Component must be added via CLI from local buildpad-ui
+// cd /path/to/buildpad-ui && pnpm cli add input --project /path/to/your-project
 import { Input } from '@/components/ui/input';
 
 function MyForm() {
@@ -81,7 +81,7 @@ function MyForm() {
     />
   );
 }`,
-    SelectDropdown: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add select-dropdown --project /path/to/your-project
+    SelectDropdown: `// Copy & Own: cd /path/to/buildpad-ui && pnpm cli add select-dropdown --project /path/to/your-project
 import { SelectDropdown } from '@/components/ui/select-dropdown';
 
 function StatusSelect() {
@@ -100,7 +100,7 @@ function StatusSelect() {
     />
   );
 }`,
-    DateTime: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add datetime --project /path/to/your-project
+    DateTime: `// Copy & Own: cd /path/to/buildpad-ui && pnpm cli add datetime --project /path/to/your-project
 import { DateTime } from '@/components/ui/datetime';
 
 function EventForm() {
@@ -116,7 +116,7 @@ function EventForm() {
     />
   );
 }`,
-    Toggle: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add toggle --project /path/to/your-project
+    Toggle: `// Copy & Own: cd /path/to/buildpad-ui && pnpm cli add toggle --project /path/to/your-project
 import { Toggle } from '@/components/ui/toggle';
 
 function FeatureToggle() {
@@ -133,7 +133,7 @@ function FeatureToggle() {
     />
   );
 }`,
-    CollectionForm: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add collection-form --project /path/to/your-project
+    CollectionForm: `// Copy & Own: cd /path/to/buildpad-ui && pnpm cli add collection-form --project /path/to/your-project
 import { CollectionForm } from '@/components/ui/collection-form';
 
 function ProductEditor({ productId }: { productId?: string }) {
@@ -147,7 +147,7 @@ function ProductEditor({ productId }: { productId?: string }) {
     />
   );
 }`,
-    CollectionList: `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add collection-list --project /path/to/your-project
+    CollectionList: `// Copy & Own: cd /path/to/buildpad-ui && pnpm cli add collection-list --project /path/to/your-project
 import { CollectionList } from '@/components/ui/collection-list';
 
 function ProductList() {
@@ -164,8 +164,8 @@ function ProductList() {
   };
 
   return examples[component.name] || examples[component.title] || `// Copy & Own model: This component is copied to your project
-// Import from your local components directory after running from microbuild-ui-packages:
-// cd /path/to/microbuild-ui-packages && pnpm cli add ${component.name} --project /path/to/your-project
+// Import from your local components directory after running from buildpad-ui:
+// cd /path/to/buildpad-ui && pnpm cli add ${component.name} --project /path/to/your-project
 
 import { ${component.title} } from '@/components/ui/${component.name}';
 
@@ -187,7 +187,7 @@ function Example() {
  */
 const server = new Server(
   {
-    name: 'microbuild-mcp-server',
+    name: 'buildpad-mcp-server',
     version: '1.0.0',
   },
   {
@@ -207,7 +207,7 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
   // Add package resources
   for (const pkg of PACKAGES) {
     resources.push({
-      uri: `microbuild://packages/${pkg.name}`,
+      uri: `buildpad://packages/${pkg.name}`,
       name: pkg.name,
       description: pkg.description,
       mimeType: 'application/json',
@@ -217,7 +217,7 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
   // Add component resources
   for (const component of getAllComponents()) {
     resources.push({
-      uri: `microbuild://components/${component.name}`,
+      uri: `buildpad://components/${component.name}`,
       name: component.title,
       description: `${component.description} (${component.category})`,
       mimeType: 'text/plain',
@@ -234,8 +234,8 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   const uri = request.params.uri;
 
   // Handle package info requests
-  if (uri.startsWith('microbuild://packages/')) {
-    const packageName = uri.replace('microbuild://packages/', '');
+  if (uri.startsWith('buildpad://packages/')) {
+    const packageName = uri.replace('buildpad://packages/', '');
     const pkg = PACKAGES.find(p => p.name === packageName);
 
     if (!pkg) {
@@ -254,8 +254,8 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   }
 
   // Handle component source requests
-  if (uri.startsWith('microbuild://components/')) {
-    const componentName = uri.replace('microbuild://components/', '');
+  if (uri.startsWith('buildpad://components/')) {
+    const componentName = uri.replace('buildpad://components/', '');
     const component = getComponent(componentName);
 
     if (!component) {
@@ -519,10 +519,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 ...component,
                 source: source || 'Source code not available',
                 allSources: sources,
-                installCommand: `cd /path/to/microbuild-ui-packages && pnpm cli add ${component.name} --project /path/to/your-project`,
-                installNote: '⚠️ @microbuild/cli is NOT on npm. You must use the CLI from a local clone of microbuild-ui-packages.',
+                installCommand: `cd /path/to/buildpad-ui && pnpm cli add ${component.name} --project /path/to/your-project`,
+                installNote: '⚠️ @buildpad/cli is NOT on npm. You must use the CLI from a local clone of buildpad-ui.',
                 copyOwn: {
-                  description: 'Copy this component to your project using the CLI from microbuild-ui-packages, or manually copy the source code below.',
+                  description: 'Copy this component to your project using the CLI from buildpad-ui, or manually copy the source code below.',
                   targetPath: component.files[0]?.target || `components/ui/${component.name}.tsx`,
                   peerDependencies: component.dependencies,
                 },
@@ -561,7 +561,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case 'generate_form': {
       const { collection, fields, mode } = args as any;
       
-      const code = `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add collection-form --project /path/to/your-project
+      const code = `// Copy & Own: cd /path/to/buildpad-ui && pnpm cli add collection-form --project /path/to/your-project
 import { CollectionForm } from '@/components/ui/collection-form';
 
 function ${collection.charAt(0).toUpperCase() + collection.slice(1)}Form() {
@@ -607,7 +607,7 @@ function ${collection.charAt(0).toUpperCase() + collection.slice(1)}Form() {
         .map(([key, value]) => `${key}={${JSON.stringify(value)}}`)
         .join('\n      ');
 
-      const code = `// Copy & Own: cd /path/to/microbuild-ui-packages && pnpm cli add ${type} --project /path/to/your-project
+      const code = `// Copy & Own: cd /path/to/buildpad-ui && pnpm cli add ${type} --project /path/to/your-project
 import { ${componentName} } from '@/components/ui/${type}';
 import { useState } from 'react';
 
@@ -648,8 +648,8 @@ function Example() {
     case 'get_install_command': {
       const { components, category, all } = args as any;
       
-      // NOTE: @microbuild/cli is NOT published to npm. Must use local CLI from cloned repo
-      let command = 'cd /path/to/microbuild-ui-packages && pnpm cli add';
+      // NOTE: @buildpad/cli is NOT published to npm. Must use local CLI from cloned repo
+      let command = 'cd /path/to/buildpad-ui && pnpm cli add';
       let explanation = '';
       
       if (all) {
@@ -666,13 +666,13 @@ function Example() {
           content: [
             {
               type: 'text',
-              text: `⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm. You must use the CLI from a local clone.
+              text: `⚠️ **IMPORTANT:** @buildpad/cli is NOT published to npm. You must use the CLI from a local clone.
 
 **Prerequisites:**
-1. Clone microbuild-ui-packages: \`git clone <repo-url> microbuild-ui-packages\`
-2. Install & build: \`cd microbuild-ui-packages && pnpm install && pnpm build\`
+1. Clone buildpad-ui: \`git clone <repo-url> buildpad-ui\`
+2. Install & build: \`cd buildpad-ui && pnpm install && pnpm build\`
 
-**Examples (run from microbuild-ui-packages directory):**
+**Examples (run from buildpad-ui directory):**
 - \`pnpm cli add input select-dropdown --project /path/to/your-project\`
 - \`pnpm cli add --category selection --project /path/to/your-project\`
 - \`pnpm cli add --all --project /path/to/your-project\``,
@@ -683,15 +683,15 @@ function Example() {
 
       const result = `## Copy & Own Installation
 
-⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm.
-You must use the CLI from a local clone of microbuild-ui-packages.
+⚠️ **IMPORTANT:** @buildpad/cli is NOT published to npm.
+You must use the CLI from a local clone of buildpad-ui.
 
 **Prerequisites:**
-1. Clone the repo: \`git clone <repo-url> microbuild-ui-packages\`
-2. Install deps: \`cd microbuild-ui-packages && pnpm install\`
+1. Clone the repo: \`git clone <repo-url> buildpad-ui\`
+2. Install deps: \`cd buildpad-ui && pnpm install\`
 3. Build CLI: \`pnpm build:cli\`
 
-**Command (from microbuild-ui-packages directory):**
+**Command (from buildpad-ui directory):**
 \`\`\`bash
 ${command}
 \`\`\`
@@ -700,11 +700,11 @@ ${explanation}
 
 **What happens:**
 1. Components are copied to your project (default: @/components/ui/)
-2. Internal dependencies (types, services, hooks) are copied to @/lib/microbuild/
+2. Internal dependencies (types, services, hooks) are copied to @/lib/buildpad/
 3. Imports are transformed to use local paths
-4. Dependencies are tracked in microbuild.json
+4. Dependencies are tracked in buildpad.json
 
-**First time setup (from microbuild-ui-packages directory):**
+**First time setup (from buildpad-ui directory):**
 \`\`\`bash
 pnpm cli init --project /path/to/your-project
 \`\`\`
@@ -731,15 +731,15 @@ pnpm cli init --project /path/to/your-project
 
 Buildpad uses the **Copy & Own** model (like shadcn/ui) instead of traditional npm packages.
 
-⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm.
-You must clone microbuild-ui-packages locally and use the CLI from there.
+⚠️ **IMPORTANT:** @buildpad/cli is NOT published to npm.
+You must clone buildpad-ui locally and use the CLI from there.
 
 ### Prerequisites:
-1. Clone: \`git clone <repo-url> microbuild-ui-packages\`
-2. Install: \`cd microbuild-ui-packages && pnpm install\`
+1. Clone: \`git clone <repo-url> buildpad-ui\`
+2. Install: \`cd buildpad-ui && pnpm install\`
 3. Build: \`pnpm build\`
 
-### How it works (all commands from microbuild-ui-packages directory):
+### How it works (all commands from buildpad-ui directory):
 1. **Initialize:** \`pnpm cli init --project /path/to/your-project\`
 2. **Add components:** \`pnpm cli add input select-dropdown --project /path/to/your-project\`
 3. **Customize:** Components are copied as source code - modify freely!
@@ -753,14 +753,14 @@ your-project/
 │       ├── select-dropdown.tsx
 │       └── collection-form.tsx
 ├── lib/
-│   └── microbuild/
+│   └── buildpad/
 │       ├── types/            # Type definitions
 │       ├── services/         # API services
 │       └── hooks/            # React hooks
-└── microbuild.json           # Tracks installed components
+└── buildpad.json           # Tracks installed components
 \`\`\`
 
-### CLI Commands (from microbuild-ui-packages directory):
+### CLI Commands (from buildpad-ui directory):
 - \`pnpm cli init --project <path>\` - Initialize project
 - \`pnpm cli list\` - List available components
 - \`pnpm cli add <components> --project <path>\` - Install components
@@ -871,22 +871,22 @@ your-project/
         peerDependencies: component.dependencies,
         
         // Install command (must use local CLI, not npx)
-        cliCommand: `cd /path/to/microbuild-ui-packages && pnpm cli add ${component.name} --project /path/to/your-project`,
-        cliNote: '⚠️ @microbuild/cli is NOT on npm. You must use the CLI from a local clone of microbuild-ui-packages.',
+        cliCommand: `cd /path/to/buildpad-ui && pnpm cli add ${component.name} --project /path/to/your-project`,
+        cliNote: '⚠️ @buildpad/cli is NOT on npm. You must use the CLI from a local clone of buildpad-ui.',
         
         // Instructions
         instructions: `## Copy & Own: ${component.title}
 
-⚠️ **IMPORTANT:** @microbuild/cli is NOT published to npm.
-You must use the CLI from a local clone of microbuild-ui-packages.
+⚠️ **IMPORTANT:** @buildpad/cli is NOT published to npm.
+You must use the CLI from a local clone of buildpad-ui.
 
 ### Option 1: Use CLI (Recommended)
 
 **Prerequisites:**
-1. Clone microbuild-ui-packages: \`git clone <repo-url>\`
-2. Install & build: \`cd microbuild-ui-packages && pnpm install && pnpm build\`
+1. Clone buildpad-ui: \`git clone <repo-url>\`
+2. Install & build: \`cd buildpad-ui && pnpm install && pnpm build\`
 
-**Add component (from microbuild-ui-packages directory):**
+**Add component (from buildpad-ui directory):**
 \`\`\`bash
 pnpm cli add ${component.name} --project /path/to/your-project
 \`\`\`

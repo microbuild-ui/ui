@@ -6,7 +6,7 @@ This guide will help you set up and use the Buildpad UI Packages distribution to
 
 ### Option A: Use via npx (Recommended)
 
-The MCP server is published on npm as `@microbuild/mcp`. No local build required.
+The MCP server is published on npm as `@buildpad/mcp`. No local build required.
 
 1. **Open VS Code Settings:**
 
@@ -19,9 +19,9 @@ The MCP server is published on npm as `@microbuild/mcp`. No local build required
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "npx",
-        "args": ["@microbuild/mcp@latest"]
+        "args": ["@buildpad/mcp@latest"]
       }
     }
   }
@@ -35,7 +35,7 @@ The MCP server is published on npm as `@microbuild/mcp`. No local build required
 For development or when working within the monorepo:
 
 ```bash
-cd /path/to/microbuild-ui-packages
+cd /path/to/buildpad-ui
 pnpm build:mcp
 ```
 
@@ -45,10 +45,10 @@ Then configure VS Code:
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "node",
         "args": [
-          "/absolute/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"
+          "/absolute/path/to/buildpad-ui/packages/mcp-server/dist/index.js"
         ]
       }
     }
@@ -56,7 +56,7 @@ Then configure VS Code:
 }
 ```
 
-**Important:** Replace `/absolute/path/to/microbuild-ui-packages` with the actual absolute path to your Buildpad directory.
+**Important:** Replace `/absolute/path/to/buildpad-ui` with the actual absolute path to your Buildpad directory.
 
 Reload VS Code for the changes to take effect (`Cmd+Shift+P` → "Developer: Reload Window").
 
@@ -73,39 +73,39 @@ Ask Copilot:
 
 ### Option 1: Use via npx (Recommended)
 
-The CLI is published on npm as `@microbuild/cli`. No local build required.
+The CLI is published on npm as `@buildpad/cli`. No local build required.
 
 ```bash
 # Initialize in your project
-npx @microbuild/cli@latest init
+npx @buildpad/cli@latest init
 
 # Add components
-npx @microbuild/cli@latest add input select-dropdown
+npx @buildpad/cli@latest add input select-dropdown
 
 # List available components
-npx @microbuild/cli@latest list
+npx @buildpad/cli@latest list
 
 # Bootstrap everything at once
-npx @microbuild/cli@latest bootstrap
+npx @buildpad/cli@latest bootstrap
 
 # Show component details
-npx @microbuild/cli@latest info vform
+npx @buildpad/cli@latest info vform
 
 # Dependency tree visualization
-npx @microbuild/cli@latest tree collection-form
+npx @buildpad/cli@latest tree collection-form
 
 # Check for updates
-npx @microbuild/cli@latest outdated
+npx @buildpad/cli@latest outdated
 ```
 
 ### Option 2: Use from Workspace (Development)
 
 ```bash
-cd /path/to/microbuild-ui-packages
+cd /path/to/buildpad-ui
 pnpm build:cli
 
 # Create an alias for convenience
-alias microbuild='node /path/to/microbuild-ui-packages/packages/cli/dist/index.js'
+alias buildpad='node /path/to/buildpad-ui/packages/cli/dist/index.js'
 
 # Or use the pnpm script
 pnpm cli list
@@ -115,12 +115,12 @@ pnpm cli init
 ### Option 3: Install Globally
 
 ```bash
-cd /path/to/microbuild-ui-packages/packages/cli
+cd /path/to/buildpad-ui/packages/cli
 pnpm build
 pnpm install -g .
 
 # Now you can use it anywhere
-microbuild --help
+buildpad --help
 ```
 
 ## 📝 Using the CLI
@@ -129,11 +129,11 @@ microbuild --help
 
 ```bash
 cd your-nextjs-app
-microbuild init
+buildpad init
 ```
 
 This will:
-- Create `microbuild.json` config
+- Create `buildpad.json` config
 - Set up component directory structure
 - Check for required dependencies
 
@@ -143,19 +143,19 @@ The `bootstrap` command combines init + add --all + install deps + validate into
 
 ```bash
 # Full project setup in one command
-microbuild bootstrap --cwd /path/to/project
+buildpad bootstrap --cwd /path/to/project
 
 # Skip dependency installation
-microbuild bootstrap --skip-deps --cwd /path/to/project
+buildpad bootstrap --skip-deps --cwd /path/to/project
 
 # Skip validation step
-microbuild bootstrap --skip-validate --cwd /path/to/project
+buildpad bootstrap --skip-validate --cwd /path/to/project
 ```
 
 **What bootstrap installs:**
-- `microbuild.json` configuration + Next.js skeleton
+- `buildpad.json` configuration + Next.js skeleton
 - 40+ UI components in `components/ui/`
-- Types, services, hooks in `lib/microbuild/`
+- Types, services, hooks in `lib/buildpad/`
 - API proxy routes (fields, items, relations, files)
 - Auth proxy routes (login, logout, user, OAuth callback) + login page
 - Supabase auth utilities and middleware
@@ -176,19 +176,19 @@ microbuild bootstrap --skip-validate --cwd /path/to/project
 
 ```bash
 # Add single component
-microbuild add input
+buildpad add input
 
 # Add multiple components
-microbuild add input select-dropdown datetime
+buildpad add input select-dropdown datetime
 
 # Add collection-form (includes VForm + all 32 interface components)
-microbuild add collection-form
+buildpad add collection-form
 
 # Add all components from a category
-microbuild add --category selection
+buildpad add --category selection
 
 # Interactive selection
-microbuild add
+buildpad add
 ```
 
 **Note:** When you add `collection-form`, it automatically includes:
@@ -200,49 +200,49 @@ microbuild add
 
 ```bash
 # List all
-microbuild list
+buildpad list
 
 # Filter by category
-microbuild list --category input
+buildpad list --category input
 
 # JSON output
-microbuild list --json
+buildpad list --json
 ```
 
 ### View Component Details
 
 ```bash
 # Detailed info about a component
-microbuild info vform
-microbuild info input
+buildpad info vform
+buildpad info input
 
 # JSON output
-microbuild info vform --json
+buildpad info vform --json
 ```
 
 ### Show Dependency Tree
 
 ```bash
 # Visualize dependency tree
-microbuild tree collection-form
-microbuild tree vform
+buildpad tree collection-form
+buildpad tree vform
 ```
 
 ### Preview Changes Before Adding
 
 ```bash
 # Diff between registry and local version
-microbuild diff input
+buildpad diff input
 ```
 
 ### Check Installed Components
 
 ```bash
 # View installed components and their origins
-microbuild status
+buildpad status
 
 # JSON output for scripting
-microbuild status --json
+buildpad status --json
 ```
 
 The status command shows:
@@ -254,17 +254,17 @@ The status command shows:
 
 ```bash
 # Check for common issues
-microbuild validate
+buildpad validate
 
 # JSON output for CI/CD
-microbuild validate --json
+buildpad validate --json
 
 # Run in specific directory
-microbuild validate --cwd /path/to/project
+buildpad validate --cwd /path/to/project
 ```
 
 The validate command checks for:
-- **Untransformed imports** - `@microbuild/*` imports that weren't converted
+- **Untransformed imports** - `@buildpad/*` imports that weren't converted
 - **Missing lib files** - Required utility modules not installed
 - **Missing CSS files** - CSS required by rich text/block editors
 - **SSR issues** - Components exported without SSR-safe wrappers
@@ -274,11 +274,11 @@ The validate command checks for:
 
 ```bash
 # Auto-fix common issues found by validate
-microbuild fix
+buildpad fix
 ```
 
 The fix command auto-repairs:
-- Untransformed `@microbuild/*` imports
+- Untransformed `@buildpad/*` imports
 - Broken relative imports
 - Missing CSS files
 - SSR-unsafe exports
@@ -288,7 +288,7 @@ The fix command auto-repairs:
 
 ```bash
 # Check which installed components have newer versions
-microbuild outdated
+buildpad outdated
 ```
 
 ## 🧪 Testing the Setup
@@ -297,7 +297,7 @@ microbuild outdated
 
 1. Test via npx (if published):
    ```bash
-   echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}' | npx @microbuild/mcp@latest
+   echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}' | npx @buildpad/mcp@latest
    # Press Ctrl+C to exit
    ```
 
@@ -327,19 +327,19 @@ microbuild outdated
 3. Test in a sample project:
    ```bash
    # Create a test directory
-   mkdir -p /tmp/test-microbuild
-   cd /tmp/test-microbuild
+   mkdir -p /tmp/test-buildpad
+   cd /tmp/test-buildpad
    npm init -y
    
    # Initialize Buildpad
-   node /path/to/microbuild-ui-packages/packages/cli/dist/index.js init --yes
+   node /path/to/buildpad-ui/packages/cli/dist/index.js init --yes
    
    # Or bootstrap everything at once
-   node /path/to/microbuild-ui-packages/packages/cli/dist/index.js bootstrap --cwd .
+   node /path/to/buildpad-ui/packages/cli/dist/index.js bootstrap --cwd .
    
    # Check generated files
    ls -la
-   cat microbuild.json
+   cat buildpad.json
    ```
 
 ## 🔄 Development Workflow
@@ -351,7 +351,7 @@ microbuild outdated
 vim packages/ui-interfaces/src/input/index.tsx
 
 # 2. Rebuild packages (if needed)
-pnpm --filter @microbuild/ui-interfaces build
+pnpm --filter @buildpad/ui-interfaces build
 
 # 3. Rebuild MCP server (to pick up registry changes)
 pnpm build:mcp
@@ -490,12 +490,12 @@ See [docs/TESTING.md](./docs/TESTING.md) for complete testing guide and best pra
 
 ### CLI Issues
 
-**"microbuild.json not found":**
-- Run `microbuild init` first
+**"buildpad.json not found":**
+- Run `buildpad init` first
 - Check current directory
 
 **Component not found:**
-- Verify name with `microbuild list`
+- Verify name with `buildpad list`
 - Check registry is up to date
 
 **TypeScript errors after adding component:**
@@ -506,18 +506,18 @@ See [docs/TESTING.md](./docs/TESTING.md) for complete testing guide and best pra
 ## 📚 Next Steps
 
 1. **For AI Development:**
-   - Configure VS Code with MCP server (`npx @microbuild/mcp@latest`)
+   - Configure VS Code with MCP server (`npx @buildpad/mcp@latest`)
    - Ask Copilot to generate forms and components
    - Use `get_rbac_pattern` MCP tool for RBAC setup
    - Let AI discover and use your component library
 
 2. **For Team Development:**
-   - Share CLI: `npx @microbuild/cli@latest init`
+   - Share CLI: `npx @buildpad/cli@latest init`
    - Document custom components
    - See [docs/PUBLISHING.md](./docs/PUBLISHING.md) for release workflow
 
 3. **For Production:**
-   - Packages are published on npm: `@microbuild/cli`, `@microbuild/mcp`
+   - Packages are published on npm: `@buildpad/cli`, `@buildpad/mcp`
    - See [docs/PUBLISHING.md](./docs/PUBLISHING.md) for versioning and release workflow
    - Use changesets for version management
 

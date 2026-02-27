@@ -11,13 +11,13 @@ You can use the schema to distribute your components to other projects or have A
 
 ```bash
 # 1. Initialize in your project
-npx @microbuild/cli init
+npx @buildpad/cli init
 
 # 2. Add components
-npx @microbuild/cli add input select-dropdown datetime
+npx @buildpad/cli add input select-dropdown datetime
 
 # 3. Or bootstrap everything at once (recommended for AI agents)
-npx @microbuild/cli bootstrap
+npx @buildpad/cli bootstrap
 
 # 4. Use in your code
 import { Input } from '@/components/ui/input'
@@ -31,19 +31,19 @@ The CLI copies component source code directly into your project with imports tra
 
 ```bash
 # Initialize in your project
-npx @microbuild/cli init
+npx @buildpad/cli init
 
 # Add components
-npx @microbuild/cli add input select-dropdown datetime
+npx @buildpad/cli add input select-dropdown datetime
 
 # List available components
-npx @microbuild/cli list
+npx @buildpad/cli list
 
 # Add by category
-npx @microbuild/cli add --category selection
+npx @buildpad/cli add --category selection
 
 # Preview changes before adding
-npx @microbuild/cli diff input
+npx @buildpad/cli diff input
 ```
 
 ### 2. Project Structure
@@ -74,7 +74,7 @@ your-project/
 │   │           ├── components/
 │   │           └── utils/
 │   └── lib/
-│       ├── microbuild/              # Lib modules (auto-resolved)
+│       ├── buildpad/              # Lib modules (auto-resolved)
 │       │   ├── utils.ts
 │       │   ├── field-interface-mapper.ts
 │       │   ├── types/
@@ -85,19 +85,19 @@ your-project/
 │           ├── server.ts
 │           └── client.ts
 ├── middleware.ts                     # Auth middleware
-└── microbuild.json                  # Configuration
+└── buildpad.json                  # Configuration
 ```
 
 ### 3. Import Transformation
 
 ```tsx
 // Original (in source)
-import { useRelationM2M } from '@microbuild/hooks';
-import type { M2MItem } from '@microbuild/types';
+import { useRelationM2M } from '@buildpad/hooks';
+import type { M2MItem } from '@buildpad/types';
 
 // Transformed (in your project)
-import { useRelationM2M } from '@/lib/microbuild/hooks';
-import type { M2MItem } from '@/lib/microbuild/types';
+import { useRelationM2M } from '@/lib/buildpad/hooks';
+import type { M2MItem } from '@/lib/buildpad/types';
 ```
 
 ## AI-Ready
@@ -108,7 +108,7 @@ The design of Buildpad makes it easy for AI tools to work with your code. Its op
 
 The MCP (Model Context Protocol) server exposes Buildpad components to AI assistants like VS Code Copilot.
 
-The MCP server is published as [`@microbuild/mcp`](https://www.npmjs.com/package/@microbuild/mcp) on npm.
+The MCP server is published as [`@buildpad/mcp`](https://www.npmjs.com/package/@buildpad/mcp) on npm.
 
 **Configure VS Code (Recommended — via npx):**
 
@@ -118,9 +118,9 @@ Add to your VS Code `settings.json` or `.vscode/mcp.json`:
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "npx",
-        "args": ["@microbuild/mcp@latest"]
+        "args": ["@buildpad/mcp@latest"]
       }
     }
   }
@@ -138,10 +138,10 @@ pnpm build:mcp
 {
   "mcp": {
     "servers": {
-      "microbuild": {
+      "buildpad": {
         "command": "node",
         "args": [
-          "/absolute/path/to/microbuild-ui-packages/packages/mcp-server/dist/index.js"
+          "/absolute/path/to/buildpad-ui/packages/mcp-server/dist/index.js"
         ]
       }
     }
@@ -165,11 +165,11 @@ For projects within the same monorepo:
 ```json
 {
   "dependencies": {
-    "@microbuild/types": "workspace:*",
-    "@microbuild/services": "workspace:*",
-    "@microbuild/hooks": "workspace:*",
-    "@microbuild/ui-interfaces": "workspace:*",
-    "@microbuild/ui-collections": "workspace:*"
+    "@buildpad/types": "workspace:*",
+    "@buildpad/services": "workspace:*",
+    "@buildpad/hooks": "workspace:*",
+    "@buildpad/ui-interfaces": "workspace:*",
+    "@buildpad/ui-collections": "workspace:*"
   }
 }
 ```
@@ -181,7 +181,7 @@ For external projects without publishing:
 ```json
 {
   "dependencies": {
-    "@microbuild/types": "github:yourorg/microbuild#packages/types"
+    "@buildpad/types": "github:yourorg/buildpad#packages/types"
   }
 }
 ```
@@ -189,15 +189,15 @@ For external projects without publishing:
 ### GitHub Packages (Private Registry)
 
 For private distribution, you can publish to GitHub's private npm registry.
-Note: The CLI and MCP server are already published publicly at `@microbuild/cli` and `@microbuild/mcp` on npmjs.com.
+Note: The CLI and MCP server are already published publicly at `@buildpad/cli` and `@buildpad/mcp` on npmjs.com.
 
 ```bash
 # Create .npmrc
-echo "@microbuild:registry=https://npm.pkg.github.com" > .npmrc
+echo "@buildpad:registry=https://npm.pkg.github.com" > .npmrc
 echo "//npm.pkg.github.com/:_authToken=\${GITHUB_TOKEN}" >> .npmrc
 
 # Publish
-pnpm --filter @microbuild/types publish
+pnpm --filter @buildpad/types publish
 ```
 
 ## Comparison
@@ -228,9 +228,9 @@ pnpm build:packages
 
 ```bash
 # Initialize and add components
-npx @microbuild/cli init
-npx @microbuild/cli add input
-npx @microbuild/cli list
+npx @buildpad/cli init
+npx @buildpad/cli add input
+npx @buildpad/cli list
 ```
 
 ### Testing the MCP Server
@@ -247,7 +247,7 @@ pnpm build:mcp
 Re-add a component with the overwrite flag:
 
 ```bash
-npx @microbuild/cli add input --overwrite
+npx @buildpad/cli add input --overwrite
 ```
 
 Or manually edit the copied component in your project. Since you own the code, you can modify it however you need.
@@ -264,13 +264,13 @@ Or manually edit the copied component in your project. Since you own the code, y
 
 ### CLI Component Not Found
 
-1. Check component name: `npx @microbuild/cli list`
+1. Check component name: `npx @buildpad/cli list`
 2. Verify registry is up to date
 
 ### Type Errors After Install
 
 1. Install peer dependencies: `pnpm add @mantine/core react`
-2. Check tsconfig path aliases match `microbuild.json`
+2. Check tsconfig path aliases match `buildpad.json`
 3. Restart TypeScript server in VS Code
 
 ## Resources
@@ -290,10 +290,10 @@ All Storybooks use **Storybook 10** with `@storybook/nextjs-vite`.
 | Path | Package | Content |
 |------|---------|---------|
 | `/` | storybook-host | Landing page with DaaS connection form + Storybook links |
-| `/storybook/interfaces/` | `@microbuild/ui-interfaces` | 40+ field interface components |
-| `/storybook/form/` | `@microbuild/ui-form` | VForm dynamic form component |
-| `/storybook/table/` | `@microbuild/ui-table` | VTable dynamic table component |
-| `/storybook/collections/` | `@microbuild/ui-collections` | CollectionForm, CollectionList, ContentLayout, ContentNavigation, FilterPanel, SaveOptions |
+| `/storybook/interfaces/` | `@buildpad/ui-interfaces` | 40+ field interface components |
+| `/storybook/form/` | `@buildpad/ui-form` | VForm dynamic form component |
+| `/storybook/table/` | `@buildpad/ui-table` | VTable dynamic table component |
+| `/storybook/collections/` | `@buildpad/ui-collections` | CollectionForm, CollectionList, ContentLayout, ContentNavigation, FilterPanel, SaveOptions |
 | `/api/connect` | storybook-host | Store DaaS credentials (encrypted cookie) |
 | `/api/status` | storybook-host | Check connection status |
 | `/api/[...path]` | storybook-host | Catch-all proxy to DaaS backend |

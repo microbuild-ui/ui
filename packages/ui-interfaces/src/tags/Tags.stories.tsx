@@ -20,7 +20,7 @@ const meta: Meta<typeof Tags> = {
 
 ## Usage
 \`\`\`tsx
-import { Tags } from '@microbuild/ui-interfaces';
+import { Tags } from '@buildpad/ui-interfaces';
 
 <Tags
   label="Categories"

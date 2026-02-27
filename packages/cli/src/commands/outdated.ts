@@ -38,9 +38,9 @@ export async function outdated(options: {
   const config = await loadConfig(cwd);
   if (!config) {
     if (json) {
-      console.log(JSON.stringify({ error: 'microbuild.json not found' }));
+      console.log(JSON.stringify({ error: 'buildpad.json not found' }));
     } else {
-      console.log(chalk.red('\n✗ microbuild.json not found. Run "npx microbuild init" first.\n'));
+      console.log(chalk.red('\n✗ buildpad.json not found. Run "npx buildpad init" first.\n'));
     }
     process.exit(1);
   }
@@ -113,7 +113,7 @@ export async function outdated(options: {
       }
       
       console.log(chalk.dim('\n  Update with:'));
-      console.log(chalk.cyan(`    npx microbuild add ${result.outdated.map(c => c.name).join(' ')} --overwrite\n`));
+      console.log(chalk.cyan(`    npx buildpad add ${result.outdated.map(c => c.name).join(' ')} --overwrite\n`));
     }
     
     if (result.unknown.length > 0) {

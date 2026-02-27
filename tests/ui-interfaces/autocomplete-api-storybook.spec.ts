@@ -1,7 +1,7 @@
 /**
  * AutocompleteAPI Interface Storybook E2E Tests
  * 
- * Tests the @microbuild/ui-interfaces AutocompleteAPI component using Storybook.
+ * Tests the @buildpad/ui-interfaces AutocompleteAPI component using Storybook.
  * Autocomplete input that fetches suggestions from an external API.
  * 
  * Note: These tests verify rendering only, not actual API calls (which require network).

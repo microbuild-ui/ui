@@ -137,10 +137,10 @@ importers:
 
   packages/hooks:
     dependencies:
-      '@microbuild/services':
+      '@buildpad/services':
         specifier: workspace:*
         version: link:../services
-      '@microbuild/types':
+      '@buildpad/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -178,7 +178,7 @@ importers:
 
   packages/services:
     dependencies:
-      '@microbuild/types':
+      '@buildpad/types':
         specifier: workspace:*
         version: link:../types
     devDependencies:
@@ -219,19 +219,19 @@ importers:
       '@mantine/hooks':
         specifier: ^8.0.0
         version: 8.3.10(react@19.2.0)
-      '@microbuild/hooks':
+      '@buildpad/hooks':
         specifier: workspace:*
         version: link:../hooks
-      '@microbuild/services':
+      '@buildpad/services':
         specifier: workspace:*
         version: link:../services
-      '@microbuild/types':
+      '@buildpad/types':
         specifier: workspace:*
         version: link:../types
-      '@microbuild/ui-form':
+      '@buildpad/ui-form':
         specifier: workspace:*
         version: link:../ui-form
-      '@microbuild/ui-table':
+      '@buildpad/ui-table':
         specifier: workspace:*
         version: link:../ui-table
       '@storybook/addon-a11y':
@@ -291,16 +291,16 @@ importers:
       '@mantine/tiptap':
         specifier: ^8.3.10
         version: 8.3.10(@mantine/core@8.3.10(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@mantine/hooks@8.3.10(react@19.2.0))(@tiptap/extension-link@3.13.0(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0))(@tiptap/react@3.13.0(@floating-ui/dom@1.7.4)(@tiptap/core@3.13.0(@tiptap/pm@3.13.0))(@tiptap/pm@3.13.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@microbuild/services':
+      '@buildpad/services':
         specifier: workspace:*
         version: link:../services
-      '@microbuild/types':
+      '@buildpad/types':
         specifier: workspace:*
         version: link:../types
-      '@microbuild/ui-interfaces':
+      '@buildpad/ui-interfaces':
         specifier: workspace:*
         version: link:../ui-interfaces
-      '@microbuild/utils':
+      '@buildpad/utils':
         specifier: workspace:*
         version: link:../utils
       '@tabler/icons-react':
@@ -464,16 +464,16 @@ importers:
       '@mantine/notifications':
         specifier: ^8.3.9
         version: 8.3.10(@mantine/core@8.3.10(@mantine/hooks@8.3.10(react@19.2.0))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@mantine/hooks@8.3.10(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@microbuild/hooks':
+      '@buildpad/hooks':
         specifier: workspace:*
         version: link:../hooks
-      '@microbuild/services':
+      '@buildpad/services':
         specifier: workspace:*
         version: link:../services
-      '@microbuild/types':
+      '@buildpad/types':
         specifier: workspace:*
         version: link:../types
-      '@microbuild/ui-collections':
+      '@buildpad/ui-collections':
         specifier: workspace:*
         version: link:../ui-collections
       '@storybook/addon-docs':
@@ -554,13 +554,13 @@ importers:
       '@mantine/hooks':
         specifier: ^8.0.0
         version: 8.3.10(react@19.2.0)
-      '@microbuild/hooks':
+      '@buildpad/hooks':
         specifier: workspace:*
         version: link:../hooks
-      '@microbuild/services':
+      '@buildpad/services':
         specifier: workspace:*
         version: link:../services
-      '@microbuild/types':
+      '@buildpad/types':
         specifier: workspace:*
         version: link:../types
       '@storybook/addon-a11y':
@@ -611,7 +611,7 @@ importers:
 
   packages/utils:
     dependencies:
-      '@microbuild/types':
+      '@buildpad/types':
         specifier: workspace:*
         version: link:../types
       react:

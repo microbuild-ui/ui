@@ -215,7 +215,7 @@ export async function tree(componentName: string, options: { json?: boolean; dep
       console.log();
     }
     
-    console.log(chalk.dim('Run "microbuild list" to see all available components.\n'));
+    console.log(chalk.dim('Run "buildpad list" to see all available components.\n'));
     process.exit(1);
   }
   
@@ -246,5 +246,5 @@ export async function tree(componentName: string, options: { json?: boolean; dep
   }
   
   console.log(chalk.bold('💡 Add this component'));
-  console.log(chalk.dim(`   microbuild add ${component.name}\n`));
+  console.log(chalk.dim(`   buildpad add ${component.name}\n`));
 }

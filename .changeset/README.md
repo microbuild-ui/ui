@@ -9,7 +9,7 @@ pnpm changeset
 ```
 
 This will prompt you to:
-1. Select which packages changed (`@microbuild/cli`, `@microbuild/mcp`)
+1. Select which packages changed (`@buildpad/cli`, `@buildpad/mcp`)
 2. Choose a semver bump type (patch / minor / major)
 3. Write a summary of the change
 

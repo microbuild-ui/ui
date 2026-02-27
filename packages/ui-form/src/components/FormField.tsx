@@ -3,7 +3,7 @@
  * Renders a single field with label, interface component, and validation
  * Based on DaaS form-field component
  * 
- * Uses @microbuild/utils for field readonly detection.
+ * Uses @buildpad/utils for field readonly detection.
  */
 
 import React, { useMemo } from 'react';
@@ -12,7 +12,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import type { FormField as TFormField, ValidationError } from '../types';
 import { FormFieldInterface } from './FormFieldInterface';
 import { FormFieldLabel } from './FormFieldLabel';
-import { isFieldReadOnly } from '@microbuild/utils';
+import { isFieldReadOnly } from '@buildpad/utils';
 
 export interface FormFieldProps {
   /** Field definition */
@@ -66,11 +66,11 @@ export const FormField: React.FC<FormFieldProps> = ({
     return primaryKey === '+' || !primaryKey ? 'create' : 'edit';
   }, [primaryKey]);
 
-  // Determine if field is disabled using @microbuild/utils isFieldReadOnly
+  // Determine if field is disabled using @buildpad/utils isFieldReadOnly
   const isDisabled = useMemo(() => {
     if (disabled) return true;
     
-    // Use the comprehensive isFieldReadOnly from @microbuild/utils
+    // Use the comprehensive isFieldReadOnly from @buildpad/utils
     // This handles: auto-increment, UUID PKs, meta.readonly, generated defaults, etc.
     return isFieldReadOnly(field, { context, primaryKey });
   }, [disabled, field, context, primaryKey]);

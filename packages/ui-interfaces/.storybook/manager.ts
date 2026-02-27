@@ -3,8 +3,8 @@ import { create } from 'storybook/theming/create';
 
 const theme = create({
   base: 'light',
-  brandTitle: '@microbuild/ui-interfaces',
-  brandUrl: 'https://github.com/microbuild',
+  brandTitle: '@buildpad/ui-interfaces',
+  brandUrl: 'https://github.com/buildpad',
   
   // UI
   appBg: '#f8f9fa',

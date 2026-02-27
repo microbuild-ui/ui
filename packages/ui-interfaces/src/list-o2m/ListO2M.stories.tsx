@@ -24,7 +24,7 @@ This is the INVERSE of M2O - viewing the "many" side from the "one" perspective.
 
 ## Usage
 \`\`\`tsx
-import { ListO2M } from '@microbuild/ui-interfaces';
+import { ListO2M } from '@buildpad/ui-interfaces';
 
 <ListO2M
   collection="categories"

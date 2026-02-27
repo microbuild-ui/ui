@@ -27,7 +27,7 @@ import {
 } from '@tabler/icons-react';
 import { VTable } from './VTable';
 import type { HeaderRaw, Item, Sort } from './types';
-import { DaaSProvider, useDaaSContext } from '@microbuild/services';
+import { DaaSProvider, useDaaSContext } from '@buildpad/services';
 
 /**
  * VTable - DaaS Connected Playground
