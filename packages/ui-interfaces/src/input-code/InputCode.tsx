@@ -77,6 +77,11 @@ export const InputCode = forwardRef<HTMLTextAreaElement, InputCodeProps>(({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [internalValue, setInternalValue] = useState(value || '');
 
+  // Sync internal state when value prop changes externally
+  React.useEffect(() => {
+    setInternalValue(value || '');
+  }, [value]);
+
   // Map language prop to internal language
   const _language = useMemo(() => {
     if (!language) return 'plaintext';

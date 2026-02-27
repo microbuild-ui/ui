@@ -30,11 +30,11 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // src/CollectionForm.tsx
-var import_react = require("react");
 var import_core = require("@mantine/core");
-var import_icons_react = require("@tabler/icons-react");
 var import_services = require("@microbuild/services");
 var import_ui_form = require("@microbuild/ui-form");
+var import_icons_react = require("@tabler/icons-react");
+var import_react = require("react");
 var import_jsx_runtime = require("react/jsx-runtime");
 var SYSTEM_FIELDS = [
   "id",
@@ -71,10 +71,7 @@ var CollectionForm = ({
     () => excludeFields || EMPTY_ARRAY,
     [excludeFields]
   );
-  const stableIncludeFields = (0, import_react.useMemo)(
-    () => includeFields,
-    [includeFields]
-  );
+  const stableIncludeFields = (0, import_react.useMemo)(() => includeFields, [includeFields]);
   const [fields, setFields] = (0, import_react.useState)([]);
   const [formData, setFormData] = (0, import_react.useState)(stableDefaultValues);
   const [loading, setLoading] = (0, import_react.useState)(true);
@@ -111,9 +108,10 @@ var CollectionForm = ({
         });
         setFields(editableFields);
         if (mode === "edit" && id) {
-          const itemsService = new import_services.ItemsService(collection);
-          const item = await itemsService.readOne(id);
-          setFormData({ ...stableDefaultValues, ...item });
+          const response = await (0, import_services.apiRequest)(
+            `/api/items/${collection}/${id}`
+          );
+          setFormData({ ...stableDefaultValues, ...response.data });
         } else {
           setFormData(stableDefaultValues);
         }
@@ -121,13 +119,22 @@ var CollectionForm = ({
         lastLoadKey.current = loadKey;
       } catch (err) {
         console.error("Error loading form data:", err);
-        setError(err instanceof Error ? err.message : "Failed to load form data");
+        setError(
+          err instanceof Error ? err.message : "Failed to load form data"
+        );
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [collection, id, mode, stableDefaultValues, stableExcludeFields, stableIncludeFields]);
+  }, [
+    collection,
+    id,
+    mode,
+    stableDefaultValues,
+    stableExcludeFields,
+    stableIncludeFields
+  ]);
   const handleFormUpdate = (0, import_react.useCallback)((values) => {
     setFormData((prev) => ({
       ...prev,
@@ -142,7 +149,6 @@ var CollectionForm = ({
     setError(null);
     setSuccess(false);
     try {
-      const itemsService = new import_services.ItemsService(collection);
       const dataToSave = { ...formData };
       READ_ONLY_FIELDS.forEach((f) => {
         if (!stableDefaultValues[f]) {
@@ -150,11 +156,18 @@ var CollectionForm = ({
         }
       });
       if (mode === "create") {
-        const newId = await itemsService.createOne(dataToSave);
+        const response = await (0, import_services.apiRequest)(
+          `/api/items/${collection}`,
+          { method: "POST", body: JSON.stringify(dataToSave) }
+        );
+        const newId = response.data?.id;
         setSuccess(true);
         onSuccess?.({ ...dataToSave, id: newId });
       } else if (id) {
-        await itemsService.updateOne(id, dataToSave);
+        await (0, import_services.apiRequest)(`/api/items/${collection}/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(dataToSave)
+        });
         setSuccess(true);
         onSuccess?.({ ...dataToSave, id });
       }
@@ -169,8 +182,26 @@ var CollectionForm = ({
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_core.Paper, { p: "md", pos: "relative", mih: 200, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_core.LoadingOverlay, { visible: true }) });
   }
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_core.Paper, { p: "md", "data-testid": "collection-form", children: [
-    error && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_core.Alert, { icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_react.IconAlertCircle, { size: 16 }), color: "red", mb: "md", "data-testid": "form-error", children: error }),
-    success && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_core.Alert, { icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_react.IconCheck, { size: 16 }), color: "green", mb: "md", "data-testid": "form-success", children: mode === "create" ? "Item created successfully!" : "Item updated successfully!" }),
+    error && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      import_core.Alert,
+      {
+        icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_react.IconAlertCircle, { size: 16 }),
+        color: "red",
+        mb: "md",
+        "data-testid": "form-error",
+        children: error
+      }
+    ),
+    success && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      import_core.Alert,
+      {
+        icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_icons_react.IconCheck, { size: 16 }),
+        color: "green",
+        mb: "md",
+        "data-testid": "form-success",
+        children: mode === "create" ? "Item created successfully!" : "Item updated successfully!"
+      }
+    ),
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("form", { onSubmit: handleSubmit, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_core.Stack, { gap: "md", children: [
       fields.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_core.Text, { c: "dimmed", ta: "center", py: "xl", children: [
         "No editable fields found for ",
@@ -218,11 +249,11 @@ var CollectionForm = ({
 };
 
 // src/CollectionList.tsx
-var import_react2 = require("react");
 var import_core2 = require("@mantine/core");
-var import_icons_react2 = require("@tabler/icons-react");
 var import_services2 = require("@microbuild/services");
 var import_ui_table = require("@microbuild/ui-table");
+var import_icons_react2 = require("@tabler/icons-react");
+var import_react2 = require("react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
 var SYSTEM_FIELDS2 = [
   "user_created",
@@ -268,43 +299,61 @@ var CollectionList = ({
   const [sort, setSort] = (0, import_react2.useState)({ by: null, desc: false });
   const [headerOverrides, setHeaderOverrides] = (0, import_react2.useState)({});
   const rowHeight = rowHeightProp ?? SPACING_HEIGHT[tableSpacing] ?? 48;
+  const [readableFields, setReadableFields] = (0, import_react2.useState)(null);
   (0, import_react2.useEffect)(() => {
-    const loadFields = async () => {
+    let cancelled = false;
+    const loadFieldsAndPermissions = async () => {
       try {
-        const fieldsService = new import_services2.FieldsService();
-        const result = await fieldsService.readAll(collection);
-        const visible = result.filter((f) => {
+        const [fieldsResult, permFields] = await Promise.all([
+          new import_services2.FieldsService().readAll(collection),
+          import_services2.PermissionsService.getReadableFields(collection).catch(() => null)
+        ]);
+        if (cancelled) return;
+        let visible = fieldsResult.filter((f) => {
           if (SYSTEM_FIELDS2.includes(f.field)) return false;
           if (f.type === "alias") return false;
           if (f.meta?.hidden) return false;
           return true;
         });
+        setReadableFields(permFields);
+        const hasRestriction = permFields && permFields.length > 0 && !permFields.includes("*");
+        if (hasRestriction) {
+          const accessibleSet = new Set(permFields);
+          visible = visible.filter((f) => accessibleSet.has(f.field));
+        }
         setAllFields(visible);
         if (displayFields) {
-          setVisibleFieldKeys(displayFields);
+          const keys = hasRestriction ? displayFields.filter((k) => new Set(permFields).has(k)) : displayFields;
+          setVisibleFieldKeys(
+            keys.length > 0 ? keys : visible.slice(0, 5).map((f) => f.field)
+          );
         } else {
           const initial = visible.slice(0, 5).map((f) => f.field);
-          if (!initial.includes(primaryKeyField)) {
+          if (!initial.includes(primaryKeyField) && visible.some((f) => f.field === primaryKeyField)) {
             initial.unshift(primaryKeyField);
           }
           setVisibleFieldKeys(initial);
         }
       } catch (err) {
         console.error("Error loading fields:", err);
-        setError(
-          "Failed to load collection fields. Make sure the Storybook Host app is running (pnpm dev:host) and connected at http://localhost:3000."
-        );
-        setLoading(false);
+        if (!cancelled) {
+          setError(
+            "Failed to load collection fields. Make sure the Storybook Host app is running (pnpm dev:host) and connected at http://localhost:3000."
+          );
+          setLoading(false);
+        }
       }
     };
-    loadFields();
+    loadFieldsAndPermissions();
+    return () => {
+      cancelled = true;
+    };
   }, [collection, displayFields, primaryKeyField]);
   const loadItems = (0, import_react2.useCallback)(async () => {
     if (visibleFieldKeys.length === 0) return;
     try {
       setLoading(true);
       setError(null);
-      const itemsService = new import_services2.ItemsService(collection);
       const query = {
         limit,
         page,
@@ -324,9 +373,17 @@ var CollectionList = ({
       if (sort.by) {
         query.sort = sort.desc ? `-${sort.by}` : sort.by;
       }
-      const result = await itemsService.readByQuery(query);
-      setItems(result || []);
-      setTotalCount(result.length || 0);
+      const queryString = new URLSearchParams(
+        Object.entries(query).filter(([, v]) => v !== void 0 && v !== null).map(([k, v]) => [
+          k,
+          typeof v === "object" ? JSON.stringify(v) : String(v)
+        ])
+      ).toString();
+      const response = await (0, import_services2.apiRequest)(`/api/items/${collection}${queryString ? `?${queryString}` : ""}`);
+      setItems(response.data || []);
+      setTotalCount(
+        response.meta?.total_count || response.meta?.filter_count || response.data?.length || 0
+      );
     } catch (err) {
       console.error("Error loading items:", err);
       setError(err instanceof Error ? err.message : "Failed to load items");
@@ -334,7 +391,16 @@ var CollectionList = ({
     } finally {
       setLoading(false);
     }
-  }, [collection, visibleFieldKeys, filter, limit, page, search, sort, primaryKeyField]);
+  }, [
+    collection,
+    visibleFieldKeys,
+    filter,
+    limit,
+    page,
+    search,
+    sort,
+    primaryKeyField
+  ]);
   (0, import_react2.useEffect)(() => {
     if (visibleFieldKeys.length > 0) {
       loadItems();
@@ -343,9 +409,10 @@ var CollectionList = ({
   (0, import_react2.useEffect)(() => {
     setPage(1);
   }, [search, filter]);
+  const permittedFields = (0, import_react2.useMemo)(() => allFields, [allFields]);
   const headers = (0, import_react2.useMemo)(() => {
     return visibleFieldKeys.map((key) => {
-      const fieldMeta = allFields.find((f) => f.field === key);
+      const fieldMeta = permittedFields.find((f) => f.field === key);
       const overrides = headerOverrides[key] || {};
       const label = fieldMeta?.meta?.note || key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
       return {
@@ -359,39 +426,51 @@ var CollectionList = ({
         ...overrides
       };
     });
-  }, [visibleFieldKeys, allFields, headerOverrides, enableSort]);
+  }, [visibleFieldKeys, permittedFields, headerOverrides, enableSort]);
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
   const selectedIds = (0, import_react2.useMemo)(() => {
     return selectedItems.map(
       (item) => typeof item === "object" && item !== null ? item[primaryKeyField] : item
     );
   }, [selectedItems, primaryKeyField]);
-  const addField = (0, import_react2.useCallback)((fieldKey) => {
-    setVisibleFieldKeys((prev) => {
-      if (prev.includes(fieldKey)) return prev;
-      const next = [...prev, fieldKey];
-      onFieldsChange?.(next);
-      return next;
-    });
-  }, [onFieldsChange]);
-  const removeField = (0, import_react2.useCallback)((fieldKey) => {
-    setVisibleFieldKeys((prev) => {
-      const next = prev.filter((k) => k !== fieldKey);
-      onFieldsChange?.(next);
-      return next;
-    });
-  }, [onFieldsChange]);
-  const handleAlignChange = (0, import_react2.useCallback)((fieldKey, align) => {
-    setHeaderOverrides((prev) => ({
-      ...prev,
-      [fieldKey]: { ...prev[fieldKey], align }
-    }));
-  }, []);
-  const handleSortChange = (0, import_react2.useCallback)((newSort) => {
-    const s = newSort ?? { by: null, desc: false };
-    setSort(s);
-    onSortChangeProp?.(s);
-  }, [onSortChangeProp]);
+  const addField = (0, import_react2.useCallback)(
+    (fieldKey) => {
+      setVisibleFieldKeys((prev) => {
+        if (prev.includes(fieldKey)) return prev;
+        const next = [...prev, fieldKey];
+        onFieldsChange?.(next);
+        return next;
+      });
+    },
+    [onFieldsChange]
+  );
+  const removeField = (0, import_react2.useCallback)(
+    (fieldKey) => {
+      setVisibleFieldKeys((prev) => {
+        const next = prev.filter((k) => k !== fieldKey);
+        onFieldsChange?.(next);
+        return next;
+      });
+    },
+    [onFieldsChange]
+  );
+  const handleAlignChange = (0, import_react2.useCallback)(
+    (fieldKey, align) => {
+      setHeaderOverrides((prev) => ({
+        ...prev,
+        [fieldKey]: { ...prev[fieldKey], align }
+      }));
+    },
+    []
+  );
+  const handleSortChange = (0, import_react2.useCallback)(
+    (newSort) => {
+      const s = newSort ?? { by: null, desc: false };
+      setSort(s);
+      onSortChangeProp?.(s);
+    },
+    [onSortChangeProp]
+  );
   const handleHeadersChange = (0, import_react2.useCallback)((newHeaders) => {
     const overrides = {};
     newHeaders.forEach((h) => {
@@ -402,97 +481,93 @@ var CollectionList = ({
     setHeaderOverrides((prev) => ({ ...prev, ...overrides }));
     setVisibleFieldKeys(newHeaders.map((h) => h.value));
   }, []);
-  const renderHeaderContextMenu = (0, import_react2.useCallback)((header) => {
-    if (!enableHeaderMenu) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { padding: 4, minWidth: 180 }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Menu.Label, { children: "Sort" }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-        "div",
-        {
-          role: "menuitem",
-          className: "mantine-Menu-item",
-          style: { display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", cursor: "pointer" },
-          onClick: () => handleSortChange({ by: header.value, desc: false }),
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconSortAscending, { size: 14 }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: "Sort ascending" })
-          ]
-        }
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-        "div",
-        {
-          role: "menuitem",
-          className: "mantine-Menu-item",
-          style: { display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", cursor: "pointer" },
-          onClick: () => handleSortChange({ by: header.value, desc: true }),
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconSortDescending, { size: 14 }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: "Sort descending" })
-          ]
-        }
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { borderTop: "1px solid var(--mantine-color-default-border)", margin: "4px 0" } }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Menu.Label, { children: "Alignment" }),
-      [
-        { align: "left", icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlignLeft, { size: 14 }), label: "Align left" },
-        { align: "center", icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlignCenter, { size: 14 }), label: "Align center" },
-        { align: "right", icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlignRight, { size: 14 }), label: "Align right" }
-      ].map(({ align, icon, label }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-        "div",
-        {
-          role: "menuitem",
-          className: "mantine-Menu-item",
-          style: {
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "6px 12px",
-            cursor: "pointer",
-            fontWeight: header.align === align ? 600 : 400,
-            color: header.align === align ? "var(--mantine-color-primary)" : void 0
+  const renderHeaderContextMenu = (0, import_react2.useCallback)(
+    (header) => {
+      if (!enableHeaderMenu) return null;
+      return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "collection-list-context-menu", role: "menu", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Menu.Label, { children: "Sort" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "div",
+          {
+            role: "menuitem",
+            className: "mantine-Menu-item collection-list-context-menu-item",
+            onClick: () => handleSortChange({ by: header.value, desc: false }),
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconSortAscending, { size: 14 }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: "Sort ascending" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "div",
+          {
+            role: "menuitem",
+            className: "mantine-Menu-item collection-list-context-menu-item",
+            onClick: () => handleSortChange({ by: header.value, desc: true }),
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconSortDescending, { size: 14 }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: "Sort descending" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "collection-list-context-menu-divider" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Menu.Label, { children: "Alignment" }),
+        [
+          {
+            align: "left",
+            icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlignLeft, { size: 14 }),
+            label: "Align left"
           },
-          onClick: () => handleAlignChange(header.value, align),
-          children: [
-            icon,
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: label })
-          ]
-        },
-        align
-      )),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { style: { borderTop: "1px solid var(--mantine-color-default-border)", margin: "4px 0" } }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-        "div",
-        {
-          role: "menuitem",
-          className: "mantine-Menu-item",
-          style: { display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", cursor: "pointer", color: "var(--mantine-color-red-6)" },
-          onClick: () => removeField(header.value),
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconEyeOff, { size: 14 }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: "Hide field" })
-          ]
-        }
-      )
-    ] });
-  }, [enableHeaderMenu, handleSortChange, handleAlignChange, removeField]);
+          {
+            align: "center",
+            icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlignCenter, { size: 14 }),
+            label: "Align center"
+          },
+          {
+            align: "right",
+            icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlignRight, { size: 14 }),
+            label: "Align right"
+          }
+        ].map(({ align, icon, label }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "div",
+          {
+            role: "menuitem",
+            className: `mantine-Menu-item collection-list-context-menu-item${header.align === align ? " active" : ""}`,
+            onClick: () => handleAlignChange(header.value, align),
+            children: [
+              icon,
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: label })
+            ]
+          },
+          align
+        )),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "collection-list-context-menu-divider" }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          "div",
+          {
+            role: "menuitem",
+            className: "mantine-Menu-item collection-list-context-menu-item danger",
+            onClick: () => removeField(header.value),
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconEyeOff, { size: 14 }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: "Hide field" })
+            ]
+          }
+        )
+      ] });
+    },
+    [enableHeaderMenu, handleSortChange, handleAlignChange, removeField]
+  );
   const hiddenFields = (0, import_react2.useMemo)(() => {
-    return allFields.filter((f) => !visibleFieldKeys.includes(f.field));
-  }, [allFields, visibleFieldKeys]);
+    return permittedFields.filter((f) => !visibleFieldKeys.includes(f.field));
+  }, [permittedFields, visibleFieldKeys]);
   const renderHeaderAppend = (0, import_react2.useCallback)(() => {
     if (!enableAddField || hiddenFields.length === 0) return null;
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_core2.Menu, { position: "bottom-end", withArrow: true, shadow: "md", closeOnItemClick: true, children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Menu.Target, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.ActionIcon, { variant: "subtle", size: "sm", title: "Add field", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconPlus, { size: 16 }) }) }),
       /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_core2.Menu.Dropdown, { children: [
         /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Menu.Label, { children: "Add field" }),
-        hiddenFields.map((f) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-          import_core2.Menu.Item,
-          {
-            onClick: () => addField(f.field),
-            children: f.meta?.note || f.field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-          },
-          f.field
-        ))
+        hiddenFields.map((f) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Menu.Item, { onClick: () => addField(f.field), children: f.meta?.note || f.field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) }, f.field))
       ] })
     ] });
   }, [enableAddField, hiddenFields, addField]);
@@ -506,7 +581,7 @@ var CollectionList = ({
             leftSection: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconSearch, { size: 16 }),
             value: search,
             onChange: (e) => setSearch(e.currentTarget.value),
-            style: { width: 250 },
+            className: "collection-list-search",
             "data-testid": "collection-list-search"
           }
         ),
@@ -541,7 +616,15 @@ var CollectionList = ({
         ))
       ] })
     ] }),
-    error && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Alert, { icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlertCircle, { size: 16 }), color: "red", "data-testid": "collection-list-error", children: error }),
+    error && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      import_core2.Alert,
+      {
+        icon: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_icons_react2.IconAlertCircle, { size: 16 }),
+        color: "red",
+        "data-testid": "collection-list-error",
+        children: error
+      }
+    ),
     /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
       import_ui_table.VTable,
       {
@@ -563,8 +646,11 @@ var CollectionList = ({
         clickable: !!onItemClick,
         renderHeaderContextMenu: enableHeaderMenu ? renderHeaderContextMenu : void 0,
         renderHeaderAppend: enableAddField ? renderHeaderAppend : void 0,
-        renderFooter: () => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", c: "dimmed", children: loading ? "Loading..." : `Showing ${Math.min((page - 1) * limit + 1, totalCount)}\u2013${Math.min(page * limit, totalCount)} of ${totalCount}` }),
+        renderFooter: () => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "collection-list-footer", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", c: "dimmed", children: loading ? "Loading..." : `Showing ${Math.min(
+            (page - 1) * limit + 1,
+            totalCount
+          )}\u2013${Math.min(page * limit, totalCount)} of ${totalCount}` }),
           /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_core2.Group, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_core2.Text, { size: "sm", children: "Per page:" }),
             /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
@@ -579,7 +665,7 @@ var CollectionList = ({
                 },
                 data: ["10", "25", "50", "100"],
                 size: "xs",
-                style: { width: 72 },
+                className: "collection-list-per-page-select",
                 "data-testid": "collection-list-per-page"
               }
             ),
@@ -690,17 +776,17 @@ var _filterId = 0;
 function uid() {
   return `filter-${++_filterId}`;
 }
-function rulesToDirectus(rules) {
+function rulesToDaaS(rules) {
   return rules.map((r) => {
     if ("logical" in r) {
-      return { [r.logical]: rulesToDirectus(r.rules) };
+      return { [r.logical]: rulesToDaaS(r.rules) };
     }
     const boolOps = ["_null", "_nnull", "_empty", "_nempty"];
     const val = boolOps.includes(r.operator) ? true : r.value;
     return { [r.field]: { [r.operator]: val } };
   });
 }
-function directusToRules(filter) {
+function daasToRules(filter) {
   const key = Object.keys(filter)[0];
   if (!key) return [];
   if (key === "_and" || key === "_or") {
@@ -711,7 +797,7 @@ function directusToRules(filter) {
         return {
           id: uid(),
           logical: childKey,
-          rules: directusToRules(child)
+          rules: daasToRules(child)
         };
       }
       return parseFieldRule(child);
@@ -845,7 +931,7 @@ var FilterPanel = ({
       return {
         id: uid(),
         logical,
-        rules: directusToRules(value)
+        rules: daasToRules(value)
       };
     }
     return { id: uid(), logical: "_and", rules: [] };
@@ -855,7 +941,7 @@ var FilterPanel = ({
     if (group.rules.length === 0) {
       onChange?.(null);
     } else {
-      const nodes = rulesToDirectus(group.rules);
+      const nodes = rulesToDaaS(group.rules);
       onChange?.({ [group.logical]: nodes });
     }
   }, [onChange]);

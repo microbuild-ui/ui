@@ -154,7 +154,7 @@ export const Toggle: React.FC<ToggleProps> = ({
     ...switchProps,
     checked,
     onChange: handleChange,
-    disabled: disabled || readOnly,
+    disabled,
     label: label ? (required ? `${label} *` : label) : undefined,
     description,
     error,
@@ -162,6 +162,7 @@ export const Toggle: React.FC<ToggleProps> = ({
     onLabel: defaultIconOn,
     offLabel: defaultIconOff,
     "aria-label": switchProps?.["aria-label"] || label || "Toggle",
+    ...(readOnly && { 'aria-readonly': true }),
     ...rest,
   };
 
@@ -175,14 +176,15 @@ export const Toggle: React.FC<ToggleProps> = ({
     track: {
       backgroundColor: checked ? defaultColorOn : defaultColorOff,
       borderColor: checked ? defaultColorOn : defaultColorOff,
-      cursor: disabled || readOnly ? "not-allowed" : "pointer",
+      cursor: disabled ? "not-allowed" : readOnly ? "default" : "pointer",
+      pointerEvents: readOnly ? "none" as const : undefined,
     },
     thumb: {
       backgroundColor: "white",
       borderColor: checked ? defaultColorOn : defaultColorOff,
     },
     label: {
-      cursor: disabled || readOnly ? "not-allowed" : "pointer",
+      cursor: disabled ? "not-allowed" : readOnly ? "default" : "pointer",
     },
   };
 

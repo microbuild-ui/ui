@@ -105,11 +105,15 @@ export const Boolean: React.FC<BooleanProps> = ({
     ...switchProps,
     checked,
     onChange: handleChange,
-    disabled: disabled || readOnly,
+    disabled,
     label: label ? (required ? `${label} *` : label) : undefined,
     description,
     error,
     size,
+    ...(readOnly && {
+      style: { pointerEvents: 'none' as const, opacity: 0.8 },
+      'aria-readonly': true,
+    }),
     ...rest,
   };
 
