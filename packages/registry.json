@@ -145,15 +145,11 @@
     },
     "services": {
       "name": "services",
-      "description": "CRUD service classes for items, fields, collections, and permissions",
+      "description": "Service classes for fields, collections, permissions, and DaaS API config",
       "files": [
         {
           "source": "services/src/api-request.ts",
           "target": "lib/buildpad/services/api-request.ts"
-        },
-        {
-          "source": "services/src/items.ts",
-          "target": "lib/buildpad/services/items.ts"
         },
         {
           "source": "services/src/fields.ts",

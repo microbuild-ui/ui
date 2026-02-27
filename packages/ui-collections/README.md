@@ -203,7 +203,7 @@ function ProductFilters() {
       onChange={setFilter}
       onApply={(filter) => {
         console.log('Apply filter:', filter);
-        // Pass to CollectionList or ItemsService
+        // Pass to CollectionList or use with apiRequest
       }}
       onClear={() => setFilter({})}
     />
@@ -420,7 +420,7 @@ This package follows DaaS's content module pattern:
 | `save-options.vue` | `SaveOptions` |
 
 The components use:
-- `@buildpad/services` for API calls (`FieldsService`, `ItemsService`, `CollectionsService`)
+- `@buildpad/services` for API calls (`FieldsService`, `CollectionsService`, `apiRequest`)
 - `@buildpad/types` for type definitions (`Field`, `Collection`, `AnyItem`, `Filter`)
 - `@buildpad/ui-form` for form rendering (`VForm` → 40+ interface types)
 - Mantine v8 for UI components (AppShell, NavLink, Menu, etc.)

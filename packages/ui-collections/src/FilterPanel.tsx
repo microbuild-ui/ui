@@ -6,7 +6,7 @@
  *
  * Produces DaaS-compatible filter objects ({ _and: [...] })
  * that can be passed to CollectionList's `filter` prop or
- * used directly with ItemsService.readByQuery().
+ * used directly with apiRequest for custom queries.
  *
  * @package @buildpad/ui-collections
  */

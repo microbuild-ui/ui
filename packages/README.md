@@ -38,7 +38,7 @@ A collection of packages for building DaaS-compatible content management applica
 │  (useRelationM2M, useSelection, usePreset, useVersions...)  │
 ├─────────────────────────────────────────────────────────────┤
 │                     services + utils                        │
-│  (ItemsService, FieldsService, DaaSProvider,                │
+│  (FieldsService, CollectionsService, DaaSProvider,          │
 │   getFieldInterface, field-interface-mapper)                │
 ├─────────────────────────────────────────────────────────────┤
 │                         types                               │
@@ -81,13 +81,13 @@ pnpm add @mantine/core @mantine/hooks @mantine/dates @tabler/icons-react react r
 ### Using Services
 
 ```typescript
-import { ItemsService } from '@buildpad/services';
+import { FieldsService, CollectionsService } from '@buildpad/services';
 
-const productsService = new ItemsService('products');
-const products = await productsService.readByQuery({ 
-  filter: { status: { _eq: 'published' } },
-  limit: 10 
-});
+const fieldsService = new FieldsService();
+const fields = await fieldsService.readAll('products');
+
+const collectionsService = new CollectionsService();
+const collections = await collectionsService.readAll();
 ```
 
 ### Using Hooks
