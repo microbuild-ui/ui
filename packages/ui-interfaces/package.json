@@ -1,6 +1,6 @@
 {
   "name": "@buildpad/ui-interfaces",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "private": true,
   "description": "Shared UI interface components for Buildpad projects - DaaS-compatible field interfaces",
   "main": "./src/index.ts",
@@ -32,6 +32,8 @@
     "./color": "./src/color/index.ts",
     "./select-icon": "./src/select-icon/index.ts",
     "./group-detail": "./src/group-detail/index.ts",
+    "./group-accordion": "./src/group-accordion/index.ts",
+    "./group-raw": "./src/group-raw/index.ts",
     "./upload": "./src/upload/index.ts",
     "./input-block-editor": "./src/input-block-editor/index.ts",
     "./rich-text-html": "./src/rich-text-html/index.ts",

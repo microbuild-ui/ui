@@ -39,7 +39,7 @@ test.describe('AutocompleteAPI - Basic Rendering', () => {
 
   test('WithDebounce: renders with debounce config', async ({ page }) => {
     await goToStory(page, 'interfaces-autocompleteapi--with-debounce');
-    await expect(page.getByText('Search Repos')).toBeVisible();
+    await expect(page.getByText('Debounced Search')).toBeVisible();
     await expect(page.getByText('Waits 300ms after typing stops before searching')).toBeVisible();
   });
 
@@ -50,7 +50,7 @@ test.describe('AutocompleteAPI - Basic Rendering', () => {
 
   test('LimitedResults: renders with result limit', async ({ page }) => {
     await goToStory(page, 'interfaces-autocompleteapi--limited-results');
-    await expect(page.getByText('Shows max 5 results')).toBeVisible();
+    await expect(page.getByText('Shows max 3 results')).toBeVisible();
   });
 });
 
@@ -108,6 +108,6 @@ test.describe('AutocompleteAPI - Variants', () => {
   test('GitHubUserSearch: renders user search variant', async ({ page }) => {
     await goToStory(page, 'interfaces-autocompleteapi--git-hub-user-search');
     await expect(page.getByText('Search GitHub Users', { exact: true })).toBeVisible();
-    await expect(page.getByText('Search GitHub users by username')).toBeVisible();
+    await expect(page.getByText('Uses different API endpoint and result paths')).toBeVisible();
   });
 });

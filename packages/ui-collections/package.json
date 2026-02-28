@@ -1,6 +1,6 @@
 {
   "name": "@buildpad/ui-collections",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "description": "Dynamic collection components (Form, List) for Buildpad projects",
   "type": "module",
   "main": "./dist/index.js",
@@ -44,6 +44,7 @@
     "@mantine/core": "^8.0.0",
     "@mantine/dates": "^8.0.0",
     "@mantine/hooks": "^8.0.0",
+    "@mantine/tiptap": "^8.3.10",
     "@buildpad/hooks": "workspace:*",
     "@buildpad/services": "workspace:*",
     "@buildpad/types": "workspace:*",

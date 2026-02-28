@@ -15,6 +15,8 @@ export type { FormFieldProps } from './components/FormField';
 export { FormFieldLabel } from './components/FormFieldLabel';
 export { FormFieldInterface } from './components/FormFieldInterface';
 export type { FormFieldInterfaceProps } from './components/FormFieldInterface';
+export { FormGroupField } from './components/FormGroupField';
+export type { FormGroupFieldProps } from './components/FormGroupField';
 
 export * from './types';
 export * from './utils';

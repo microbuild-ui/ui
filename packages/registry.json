@@ -1381,6 +1381,69 @@
       }
     },
     {
+      "name": "group-accordion",
+      "title": "GroupAccordion",
+      "description": "Accordion-style group with expandable sections",
+      "category": "layout",
+      "files": [
+        {
+          "source": "ui-interfaces/src/group-accordion/GroupAccordion.tsx",
+          "target": "components/ui/group-accordion.tsx"
+        }
+      ],
+      "dependencies": [
+        "@mantine/core",
+        "@tabler/icons-react"
+      ],
+      "internalDependencies": [],
+      "interface": {
+        "id": "group-accordion",
+        "name": "Accordion Group",
+        "icon": "IconLayoutList",
+        "types": [
+          "alias"
+        ],
+        "localTypes": [
+          "group"
+        ],
+        "group": "group",
+        "order": 2,
+        "supported": true,
+        "hasOptions": true
+      }
+    },
+    {
+      "name": "group-raw",
+      "title": "GroupRaw",
+      "description": "Transparent group wrapper that renders children inline",
+      "category": "layout",
+      "files": [
+        {
+          "source": "ui-interfaces/src/group-raw/GroupRaw.tsx",
+          "target": "components/ui/group-raw.tsx"
+        }
+      ],
+      "dependencies": [
+        "@mantine/core"
+      ],
+      "internalDependencies": [],
+      "interface": {
+        "id": "group-raw",
+        "name": "Raw Group",
+        "icon": "IconSquare",
+        "types": [
+          "alias"
+        ],
+        "localTypes": [
+          "group"
+        ],
+        "group": "group",
+        "order": 3,
+        "supported": true,
+        "hasOptions": false
+      }
+    },
+    {
       "name": "slider",
       "title": "Slider",
       "description": "Range slider with numeric type support",
@@ -1542,6 +1605,10 @@
           "target": "components/ui/vform/components/FormFieldInterface.tsx"
         },
         {
+          "source": "ui-form/src/components/FormGroupField.tsx",
+          "target": "components/ui/vform/components/FormGroupField.tsx"
+        },
+        {
           "source": "ui-form/src/components/index.ts",
           "target": "components/ui/vform/components/index.ts"
         },
@@ -1607,6 +1674,8 @@
         "divider",
         "notice",
         "group-detail",
+        "group-accordion",
+        "group-raw",
         "rich-text-html",
         "rich-text-markdown",
         "map",

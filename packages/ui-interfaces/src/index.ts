@@ -60,6 +60,10 @@ export { Notice } from './notice';
 export type { NoticeProps, NoticeType } from './notice';
 export { GroupDetail } from './group-detail';
 export type { GroupDetailProps } from './group-detail';
+export { GroupAccordion } from './group-accordion';
+export type { GroupAccordionProps } from './group-accordion';
+export { GroupRaw } from './group-raw';
+export type { GroupRawProps } from './group-raw';
 
 // File interfaces - integrate with DaaS Files API via @buildpad/hooks
 export { File, FileInterface } from './file';

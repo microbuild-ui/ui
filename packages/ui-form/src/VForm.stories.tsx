@@ -556,3 +556,376 @@ export const RequiredFieldsOnly: Story = {
     },
   },
 };
+
+// ============================================================================
+// Group Interface Stories
+// ============================================================================
+
+// Helper to create a group field (type=alias, special includes 'group')
+const createGroupField = (
+  field: string,
+  interfaceType: 'group-detail' | 'group-accordion' | 'group-raw',
+  options: CreateFieldOptions = {}
+): Field => ({
+  field,
+  type: 'alias',
+  collection: 'test_collection',
+  name: options.meta?.name ?? field,
+  schema: undefined,
+  meta: {
+    id: Math.random(),
+    collection: 'test_collection',
+    field,
+    interface: interfaceType,
+    display: null,
+    display_options: null,
+    readonly: false,
+    hidden: false,
+    sort: null,
+    width: 'full',
+    group: null,
+    note: null,
+    required: false,
+    options: options.meta?.options ?? null,
+    special: ['alias', 'group', 'no-data'],
+    validation: null,
+    validation_message: null,
+    ...options.meta,
+    // Ensure special is always set for groups
+    ...(options.meta?.special ? {} : {}),
+  },
+});
+
+// Helper to create a child field that belongs to a group
+const createChildField = (
+  field: string,
+  type: string,
+  interfaceType: string,
+  groupName: string,
+  options: CreateFieldOptions = {}
+): Field => createField(field, type, interfaceType, {
+  ...options,
+  meta: {
+    group: groupName,
+    ...options.meta,
+  },
+});
+
+// Fields with group-detail wrapper
+const groupDetailFields: Field[] = [
+  // A standalone field outside any group
+  createField('page_title', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 1 },
+  }),
+  // Group-detail parent
+  createGroupField('basic_info', 'group-detail', {
+    meta: {
+      sort: 2,
+      name: 'Basic Information',
+      options: { start: 'open', headerIcon: 'menu_open' },
+    },
+  }),
+  // Children of basic_info group
+  createChildField('first_name', 'string', 'input', 'basic_info', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createChildField('last_name', 'string', 'input', 'basic_info', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  createChildField('bio', 'text', 'input-multiline', 'basic_info', {
+    meta: { width: 'full', sort: 3 },
+  }),
+  // Another group-detail (starts closed)
+  createGroupField('settings_group', 'group-detail', {
+    meta: {
+      sort: 3,
+      name: 'Settings',
+      options: { start: 'closed' },
+    },
+  }),
+  createChildField('is_active', 'boolean', 'boolean', 'settings_group', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createChildField('role', 'string', 'select-dropdown', 'settings_group', {
+    meta: {
+      width: 'half',
+      sort: 2,
+      options: {
+        choices: [
+          { text: 'Admin', value: 'admin' },
+          { text: 'Editor', value: 'editor' },
+          { text: 'Viewer', value: 'viewer' },
+        ],
+      },
+    },
+  }),
+];
+
+/**
+ * Form with GroupDetail interface
+ */
+export const WithGroupDetail: Story = {
+  render: () => <VFormWrapper fields={groupDetailFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Form with group-detail interfaces. Fields are wrapped in collapsible sections. '
+          + '"Basic Information" starts open, "Settings" starts closed.',
+      },
+    },
+  },
+};
+
+// Fields with group-raw wrapper (transparent, no visual container)
+const groupRawFields: Field[] = [
+  createField('heading', 'string', 'input', {
+    meta: { width: 'full', sort: 1 },
+  }),
+  createGroupField('inline_group', 'group-raw', {
+    meta: { sort: 2, name: 'Inline Group' },
+  }),
+  createChildField('color', 'string', 'select-dropdown', 'inline_group', {
+    meta: {
+      width: 'half',
+      sort: 1,
+      options: {
+        choices: [
+          { text: 'Red', value: 'red' },
+          { text: 'Blue', value: 'blue' },
+          { text: 'Green', value: 'green' },
+        ],
+      },
+    },
+  }),
+  createChildField('size', 'string', 'select-dropdown', 'inline_group', {
+    meta: {
+      width: 'half',
+      sort: 2,
+      options: {
+        choices: [
+          { text: 'Small', value: 'sm' },
+          { text: 'Medium', value: 'md' },
+          { text: 'Large', value: 'lg' },
+        ],
+      },
+    },
+  }),
+  createField('notes', 'text', 'input-multiline', {
+    meta: { width: 'full', sort: 3 },
+  }),
+];
+
+/**
+ * Form with GroupRaw interface
+ */
+export const WithGroupRaw: Story = {
+  render: () => <VFormWrapper fields={groupRawFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Form with group-raw interface. The group is a transparent wrapper — '
+          + 'child fields render inline without any visual container.',
+      },
+    },
+  },
+};
+
+// Mixed group types in one form
+const mixedGroupFields: Field[] = [
+  createField('document_title', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 1 },
+  }),
+  // Group Detail
+  createGroupField('metadata_group', 'group-detail', {
+    meta: {
+      sort: 2,
+      name: 'Metadata',
+      options: { start: 'open' },
+    },
+  }),
+  createChildField('author', 'string', 'input', 'metadata_group', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createChildField('publish_date', 'timestamp', 'datetime', 'metadata_group', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  // Group Raw
+  createGroupField('flags_group', 'group-raw', {
+    meta: { sort: 3, name: 'Flags' },
+  }),
+  createChildField('featured', 'boolean', 'boolean', 'flags_group', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createChildField('pinned', 'boolean', 'boolean', 'flags_group', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  // Another Group Detail (closed)
+  createGroupField('advanced_group', 'group-detail', {
+    meta: {
+      sort: 4,
+      name: 'Advanced Settings',
+      options: { start: 'closed' },
+    },
+  }),
+  createChildField('slug', 'string', 'input', 'advanced_group', {
+    meta: { width: 'full', sort: 1 },
+  }),
+  createChildField('seo_description', 'text', 'input-multiline', 'advanced_group', {
+    meta: { width: 'full', sort: 2 },
+  }),
+];
+
+// Fields with group-accordion wrapper (sections are sub-groups)
+// Directus pattern: accordion children are group fields, each containing form fields
+const groupAccordionFields: Field[] = [
+  createField('page_title', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 1 },
+  }),
+  // Accordion parent
+  createGroupField('details_accordion', 'group-accordion', {
+    meta: {
+      sort: 2,
+      name: 'Details',
+      options: { accordionMode: true, start: 'first' },
+    },
+  }),
+  // Section A (group field, child of accordion)
+  createGroupField('personal_section', 'group-detail', {
+    meta: {
+      sort: 1,
+      name: 'Personal Info',
+      group: 'details_accordion',
+    },
+  }),
+  // Fields inside Section A
+  createChildField('first_name', 'string', 'input', 'personal_section', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createChildField('last_name', 'string', 'input', 'personal_section', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  createChildField('email', 'string', 'input', 'personal_section', {
+    meta: { width: 'full', sort: 3 },
+  }),
+  // Section B (group field, child of accordion)
+  createGroupField('address_section', 'group-detail', {
+    meta: {
+      sort: 2,
+      name: 'Address',
+      group: 'details_accordion',
+    },
+  }),
+  // Fields inside Section B
+  createChildField('street', 'string', 'input', 'address_section', {
+    meta: { width: 'full', sort: 1 },
+  }),
+  createChildField('city', 'string', 'input', 'address_section', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  createChildField('zip_code', 'string', 'input', 'address_section', {
+    meta: { width: 'half', sort: 3 },
+  }),
+  // Section C
+  createGroupField('preferences_section', 'group-detail', {
+    meta: {
+      sort: 3,
+      name: 'Preferences',
+      group: 'details_accordion',
+    },
+  }),
+  createChildField('newsletter', 'boolean', 'boolean', 'preferences_section', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createChildField('theme', 'string', 'select-dropdown', 'preferences_section', {
+    meta: {
+      width: 'half',
+      sort: 2,
+      options: {
+        choices: [
+          { text: 'Light', value: 'light' },
+          { text: 'Dark', value: 'dark' },
+          { text: 'System', value: 'system' },
+        ],
+      },
+    },
+  }),
+];
+
+/**
+ * Form with GroupAccordion interface
+ */
+export const WithGroupAccordion: Story = {
+  render: () => <VFormWrapper fields={groupAccordionFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Form with group-accordion interface. Each accordion section is a group field '
+          + 'containing form fields. "Personal Info" starts open (start=first). '
+          + 'In accordion mode, only one section can be open at a time.',
+      },
+    },
+  },
+};
+
+// Accordion with regular (non-group) fields as direct children — Directus pattern
+// In Directus, ALL direct children of an accordion become sections,
+// including regular fields like text inputs. The field renders inside
+// the expanded section with hideLabel.
+const regularAccordionFields: Field[] = [
+  createField('page_title', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 1 },
+  }),
+  // Accordion parent
+  createGroupField('test_accordion', 'group-accordion', {
+    meta: {
+      sort: 2,
+      name: 'Test Accordion',
+      options: { accordionMode: true, start: 'first' },
+    },
+  }),
+  // Regular fields as direct children of the accordion (not groups)
+  createChildField('test_input', 'string', 'input', 'test_accordion', {
+    meta: { width: 'full', sort: 1 },
+  }),
+  createChildField('test_input2', 'string', 'input', 'test_accordion', {
+    meta: { width: 'full', sort: 2 },
+  }),
+  createChildField('rich_text_editor', 'text', 'input-multiline', 'test_accordion', {
+    meta: { width: 'full', sort: 3 },
+  }),
+];
+
+/**
+ * Accordion with regular fields as sections (Directus pattern).
+ * Each direct child field becomes a section header.
+ * The section content renders the field itself (with hideLabel).
+ * This matches the Directus data model screenshot where test_input,
+ * test_input2, and rich_text_editor are direct children of the accordion.
+ */
+export const WithRegularFieldAccordion: Story = {
+  render: () => <VFormWrapper fields={regularAccordionFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Accordion with regular (non-group) fields as direct children. '
+          + 'Each field becomes a section header, and the input renders inside '
+          + 'the expanded section. Matches the Directus accordion pattern.',
+      },
+    },
+  },
+};
+
+/**
+ * Form with mixed group types
+ */
+export const WithMixedGroups: Story = {
+  render: () => <VFormWrapper fields={mixedGroupFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Form combining group-detail and group-raw interfaces. '
+          + 'Demonstrates that different group types can coexist in the same form.',
+      },
+    },
+  },
+};

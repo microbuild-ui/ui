@@ -5,6 +5,7 @@ import { MantineProvider, createTheme } from '@mantine/core';
 // Import Mantine CSS
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import '@mantine/tiptap/styles.css';
 
 // Import preview styles
 import './preview.css';

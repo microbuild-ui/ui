@@ -8,8 +8,8 @@ import {
   Stack,
   Text
 } from "@mantine/core";
-import { FieldsService, apiRequest } from "@microbuild/services";
-import { VForm } from "@microbuild/ui-form";
+import { FieldsService, apiRequest } from "@buildpad/services";
+import { VForm } from "@buildpad/ui-form";
 import { IconAlertCircle, IconCheck, IconX } from "@tabler/icons-react";
 import {
   useCallback,
@@ -79,7 +79,11 @@ var CollectionForm = ({
             return false;
           }
           if (f.type === "alias") {
-            return false;
+            const isGroup = f.meta?.special?.includes?.("group");
+            const isPresentation = f.meta?.interface === "presentation-divider" || f.meta?.interface === "presentation-notice";
+            if (!isGroup && !isPresentation) {
+              return false;
+            }
           }
           if (stableExcludeFields.includes(f.field)) {
             return false;
@@ -248,8 +252,8 @@ import {
   FieldsService as FieldsService2,
   PermissionsService,
   apiRequest as apiRequest2
-} from "@microbuild/services";
-import { VTable } from "@microbuild/ui-table";
+} from "@buildpad/services";
+import { VTable } from "@buildpad/ui-table";
 import {
   IconAlertCircle as IconAlertCircle2,
   IconAlignCenter,

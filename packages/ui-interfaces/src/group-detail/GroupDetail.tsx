@@ -126,7 +126,7 @@ export function GroupDetail({
   badge,
   start = 'open',
   headerIcon,
-  headerColor,
+  headerColor = 'var(--mantine-color-text)',
   direction: _direction,
   children,
   onChange: _onChange,
@@ -160,6 +160,15 @@ export function GroupDetail({
 
   // Initialize state, auto-open if there are validation errors
   const [isOpen, setIsOpen] = useState(start === 'open' || validationMessages.length > 0);
+
+  // Re-evaluate start state when loading finishes (matches directus behavior)
+  const [wasLoading, setWasLoading] = useState(loading);
+  useEffect(() => {
+    if (wasLoading && !loading) {
+      setIsOpen(start === 'open');
+    }
+    setWasLoading(loading);
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if any fields have been edited
   const isEdited = useMemo(() => {

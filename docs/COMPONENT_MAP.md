@@ -78,6 +78,8 @@ Quick reference for finding component source files.
 | `divider` | `buildpad add divider` | [ui-interfaces/src/divider/Divider.tsx](../packages/ui-interfaces/src/divider/Divider.tsx) |
 | `notice` | `buildpad add notice` | [ui-interfaces/src/notice/Notice.tsx](../packages/ui-interfaces/src/notice/Notice.tsx) |
 | `group-detail` | `buildpad add group-detail` | [ui-interfaces/src/group-detail/GroupDetail.tsx](../packages/ui-interfaces/src/group-detail/GroupDetail.tsx) |
+| `group-accordion` | `buildpad add group-accordion` | [ui-interfaces/src/group-accordion/GroupAccordion.tsx](../packages/ui-interfaces/src/group-accordion/GroupAccordion.tsx) |
+| `group-raw` | `buildpad add group-raw` | [ui-interfaces/src/group-raw/GroupRaw.tsx](../packages/ui-interfaces/src/group-raw/GroupRaw.tsx) |
 
 ## Rich Text Components
 
@@ -120,7 +122,7 @@ vform → types, services, hooks, utils
       → autocomplete-api, collection-item-dropdown
       → file, file-image, files, upload
       → list-m2m, list-m2o, list-o2m, list-m2a
-      → divider, notice, group-detail
+      → divider, notice, group-detail, group-accordion, group-raw
       → rich-text-html, rich-text-markdown
       → map, workflow-button
 ```

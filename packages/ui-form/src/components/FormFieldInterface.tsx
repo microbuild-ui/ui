@@ -105,6 +105,8 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
       'presentation-divider': 'Divider',
       'presentation-notice': 'Notice',
       'group-detail': 'GroupDetail',
+      'group-accordion': 'GroupAccordion',
+      'group-raw': 'GroupRaw',
       
       // Note: Relational interfaces (list-m2o, list-o2m, list-m2m, list-m2a)
       // are mapped separately in relationalFullComponentMap below

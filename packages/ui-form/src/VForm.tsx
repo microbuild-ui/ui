@@ -24,10 +24,12 @@ import { FieldsService, useDaaSContext } from '@buildpad/services';
 // isPresentationField is available from @buildpad/utils if needed for filtering
 import type { ValidationError, FieldValues } from './types';
 import { FormField } from './components/FormField';
+import { FormGroupField } from './components/FormGroupField';
 import {
   getFormFields,
   getDefaultValuesFromFields,
   isFieldVisible,
+  isGroupField,
   updateFieldWidths,
 } from './utils';
 
@@ -264,16 +266,25 @@ export const VForm: React.FC<VFormProps> = ({
     return processed;
   }, [fields, group, stableExcludeFields, enforcePermissions, accessibleFields]);
 
-  // Get visible fields (excluding hidden and presentation-only fields)
+  // Collect all group field names so we can filter out their children
+  const groupFieldNames = useMemo(() => {
+    return new Set(formFields.filter(isGroupField).map((f) => f.field));
+  }, [formFields]);
+
+  // Get visible fields (excluding hidden fields and children that belong to a group)
   const visibleFields = useMemo(() => {
     return formFields.filter((f) => {
       // Filter out hidden fields
       if (!isFieldVisible(f)) return false;
+      // Filter out fields that are children of a group field.
+      // These will be rendered inside their group wrapper by FormGroupField,
+      // so we must NOT render them again as standalone flat fields.
+      if (f.meta?.group && groupFieldNames.has(f.meta.group)) return false;
       // Presentation fields (dividers, notices) are kept for layout
       // They will be rendered but won't store data
       return true;
     });
-  }, [formFields]);
+  }, [formFields, groupFieldNames]);
 
   // Merge initial values with current values
   const allValues = useMemo(() => {
@@ -387,6 +398,27 @@ export const VForm: React.FC<VFormProps> = ({
           const isFirstEditable =
             autofocus &&
             index === visibleFields.findIndex((f) => !f.meta?.readonly);
+
+          // Render group fields with their children nested inside
+          if (isGroupField(field)) {
+            return (
+              <FormGroupField
+                key={field.field}
+                field={field}
+                allFields={fields}
+                values={allValues}
+                initialValues={stableInitialValues}
+                validationErrors={stableValidationErrors}
+                disabled={disabled}
+                loading={loadingProp}
+                primaryKey={primaryKey}
+                onFieldChange={handleFieldChange}
+                onFieldUnset={handleFieldUnset}
+                getFieldError={getFieldError}
+                className={field.meta?.width || 'full'}
+              />
+            );
+          }
 
           return (
             <FormField
