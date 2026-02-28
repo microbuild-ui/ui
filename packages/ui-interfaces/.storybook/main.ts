@@ -40,6 +40,7 @@ const config: StorybookConfig = {
           '@buildpad/types': path.resolve(__dirname, '../../types/src'),
           '@buildpad/services': path.resolve(__dirname, '../../services/src'),
           '@buildpad/hooks': path.resolve(__dirname, '../../hooks/src'),
+          '@buildpad/ui-interfaces': path.resolve(__dirname, '../src'),
           '@buildpad/ui-form': path.resolve(__dirname, '../../ui-form/src'),
           '@buildpad/ui-table': path.resolve(__dirname, '../../ui-table/src'),
           '@buildpad/ui-collections': path.resolve(__dirname, '../../ui-collections/src'),

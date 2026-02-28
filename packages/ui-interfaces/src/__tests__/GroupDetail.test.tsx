@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
-import { GroupDetail } from './GroupDetail';
+import { GroupDetail } from '../group-detail/GroupDetail';
 
 // Helper to render with Mantine provider
 const renderWithProvider = (component: React.ReactElement) => {

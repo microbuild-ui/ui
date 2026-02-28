@@ -126,6 +126,7 @@ export function RichTextMarkdown({
     },
     editable: !disabled && viewMode === 'editor',
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
   });
 
   // Update editor content when value prop changes

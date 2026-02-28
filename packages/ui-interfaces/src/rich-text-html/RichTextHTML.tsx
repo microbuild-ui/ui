@@ -99,7 +99,16 @@ export function RichTextHTML({
       onChange?.(html);
     },
     editable: !disabled,
+    // Always false: the editor is created asynchronously in a useEffect after
+    // the component's DOM has been committed. This is critical when the editor
+    // mounts inside a container that was just made visible (e.g. accordion
+    // section) — with `true`, Tiptap tries to attach ProseMirror to a DOM node
+    // that React hasn't committed yet, resulting in a zero-height content area.
     immediatelyRender: false,
+    // Tiptap v3 defaults this to false for performance, but we need the
+    // component to re-render when the editor becomes available so the
+    // loading placeholder is replaced with the actual editor UI.
+    shouldRerenderOnTransaction: true,
     editorProps: {
       attributes: {
         style: `font-family: ${fontOptions[editorFont]}`,

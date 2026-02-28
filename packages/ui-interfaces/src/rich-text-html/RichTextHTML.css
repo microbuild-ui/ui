@@ -2,6 +2,19 @@
   position: relative;
 }
 
+/* Ensure the ProseMirror editable area has a visible min-height.
+   Without this, the content area can collapse to 0px when the editor
+   initialises inside a container that was previously hidden (e.g.
+   accordion sections using display:none toggling). */
+.rich-text-html-wrapper .ProseMirror {
+  min-height: 120px;
+}
+
+/* Also target the Mantine wrapper around ProseMirror */
+.rich-text-html-wrapper .mantine-RichTextEditor-content {
+  min-height: 120px;
+}
+
 .rich-text-html-label {
   font-size: 14px;
   font-weight: 500;

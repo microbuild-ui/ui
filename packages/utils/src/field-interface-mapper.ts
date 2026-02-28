@@ -8,6 +8,31 @@
 
 import type { Field } from "@buildpad/types";
 
+/**
+ * Normalize DaaS rich-text toolbar items to match RichTextHTML expectations.
+ * DaaS stores "link" but the component checks for "customLink".
+ */
+function normalizeRichTextToolbar(toolbar?: string[]): string[] | undefined {
+  if (!toolbar) return undefined;
+  return toolbar.map((item) => (item === "link" ? "customLink" : item));
+}
+
+/**
+ * Return a shallow copy of `obj` without the specified keys.
+ * Used to prevent double-passing props that are explicitly mapped.
+ */
+function omitKeys(
+  obj: Record<string, unknown> | undefined,
+  keys: string[],
+): Record<string, unknown> {
+  if (!obj) return {};
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (!keys.includes(k)) result[k] = v;
+  }
+  return result;
+}
+
 export type InterfaceType =
   | "input"
   | "input-code"
@@ -43,7 +68,10 @@ export type InterfaceType =
   | "select-multiple-dropdown"
   | "select-multiple-checkbox-tree"
   | "collection-item-dropdown"
-  | "workflow-button";
+  | "workflow-button"
+  | "group-detail"
+  | "group-accordion"
+  | "group-raw";
 
 export interface InterfaceConfig {
   /** Interface component type */
@@ -151,8 +179,10 @@ function getExplicitInterface(
       return {
         type: "input-rich-text-html",
         props: {
-          toolbar: options?.toolbar,
-          ...options,
+          toolbar: normalizeRichTextToolbar(options?.toolbar as string[] | undefined),
+          // DaaS stores font as "font" but RichTextHTML expects "editorFont"
+          editorFont: (options?.font as string) || undefined,
+          ...omitKeys(options, ['toolbar', 'font']),
         },
       };
 
@@ -508,6 +538,37 @@ function getExplicitInterface(
           placeholder: options?.placeholder as string,
           alwaysVisible: options?.alwaysVisible !== false,
           workflowField: (options?.workflowField as string) || "status",
+          ...options,
+        },
+      };
+
+    // Group interfaces (layout/presentation - wrap child fields)
+    case "group-detail":
+      return {
+        type: "group-detail",
+        props: {
+          start: (options?.start as string) || "open",
+          headerIcon: options?.headerIcon as string,
+          headerColor: options?.headerColor as string,
+          badge: options?.badge as string,
+          ...options,
+        },
+      };
+
+    case "group-accordion":
+      return {
+        type: "group-accordion",
+        props: {
+          accordionMode: options?.accordionMode !== false,
+          start: (options?.start as string) || "closed",
+          ...options,
+        },
+      };
+
+    case "group-raw":
+      return {
+        type: "group-raw",
+        props: {
           ...options,
         },
       };

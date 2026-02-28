@@ -140,9 +140,16 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
           ) {
             return false;
           }
-          // Exclude alias fields (O2M, M2M, M2A)
+          // Exclude alias fields UNLESS they are group interfaces
+          // Group fields have type="alias" with special=["alias","group","no-data"]
           if (f.type === "alias") {
-            return false;
+            const isGroup = f.meta?.special?.includes?.('group');
+            const isPresentation =
+              f.meta?.interface === 'presentation-divider' ||
+              f.meta?.interface === 'presentation-notice';
+            if (!isGroup && !isPresentation) {
+              return false;
+            }
           }
           // Apply exclude list
           if (stableExcludeFields.includes(f.field)) {

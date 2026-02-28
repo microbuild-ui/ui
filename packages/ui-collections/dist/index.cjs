@@ -31,8 +31,8 @@ module.exports = __toCommonJS(index_exports);
 
 // src/CollectionForm.tsx
 var import_core = require("@mantine/core");
-var import_services = require("@microbuild/services");
-var import_ui_form = require("@microbuild/ui-form");
+var import_services = require("@buildpad/services");
+var import_ui_form = require("@buildpad/ui-form");
 var import_icons_react = require("@tabler/icons-react");
 var import_react = require("react");
 var import_jsx_runtime = require("react/jsx-runtime");
@@ -96,7 +96,11 @@ var CollectionForm = ({
             return false;
           }
           if (f.type === "alias") {
-            return false;
+            const isGroup = f.meta?.special?.includes?.("group");
+            const isPresentation = f.meta?.interface === "presentation-divider" || f.meta?.interface === "presentation-notice";
+            if (!isGroup && !isPresentation) {
+              return false;
+            }
           }
           if (stableExcludeFields.includes(f.field)) {
             return false;
@@ -250,8 +254,8 @@ var CollectionForm = ({
 
 // src/CollectionList.tsx
 var import_core2 = require("@mantine/core");
-var import_services2 = require("@microbuild/services");
-var import_ui_table = require("@microbuild/ui-table");
+var import_services2 = require("@buildpad/services");
+var import_ui_table = require("@buildpad/ui-table");
 var import_icons_react2 = require("@tabler/icons-react");
 var import_react2 = require("react");
 var import_jsx_runtime2 = require("react/jsx-runtime");
