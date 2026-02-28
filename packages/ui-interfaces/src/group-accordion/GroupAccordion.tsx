@@ -308,13 +308,23 @@ function AccordionSection({
   // Lazy-mount: only render section content once the section has been opened
   // at least once. Once mounted, content stays mounted so that form state
   // (and complex editors like Tiptap) are preserved when collapsed.
-  const [hasBeenOpened, setHasBeenOpened] = useState(isOpen);
+  //
+  // We use a ref + state combo so that the very first render where isOpen
+  // becomes true already has hasBeenOpened === true.  This avoids a two-phase
+  // mount (useEffect → setState → re-render) that can race with Tiptap's own
+  // useEffect-based editor creation, causing ProseMirror to attach to a DOM
+  // node that isn't fully laid out yet.
+  const mountedRef = React.useRef(isOpen);
+  if (isOpen && !mountedRef.current) {
+    mountedRef.current = true;
+  }
+  const [hasBeenOpened, setHasBeenOpened] = useState(mountedRef.current);
 
-  useEffect(() => {
-    if (isOpen && !hasBeenOpened) {
-      setHasBeenOpened(true);
-    }
-  }, [isOpen, hasBeenOpened]);
+  // Keep state in sync for subsequent opens (e.g. if the component
+  // re-renders with isOpen=true after being constructed with isOpen=false).
+  if (isOpen && !hasBeenOpened) {
+    setHasBeenOpened(true);
+  }
 
   const handleClick = (e: React.MouseEvent) => {
     if (disabled) return;

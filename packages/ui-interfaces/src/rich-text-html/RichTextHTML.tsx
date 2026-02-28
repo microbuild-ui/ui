@@ -4,6 +4,7 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
+import Underline from '@tiptap/extension-underline';
 import Superscript from '@tiptap/extension-superscript';
 import SubScript from '@tiptap/extension-subscript';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -81,6 +82,7 @@ export function RichTextHTML({
         link: false, // Disable StarterKit's link to use Mantine's Link
       }),
       Highlight,
+      Underline,
       Link,
       Superscript,
       SubScript,
