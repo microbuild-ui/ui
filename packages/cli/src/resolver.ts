@@ -27,7 +27,7 @@ const __dirname = path.dirname(__filename);
  * Base URL for fetching files remotely.
  * Points to the raw GitHub content of the `main` branch.
  *
- * Override at runtime with the `MICROBUILD_REGISTRY_URL` env var.
+ * Override at runtime with the `BUILDPAD_REGISTRY_URL` env var.
  *
  * ⚠️  REPLACE the placeholder below with your actual GitHub org/repo.
  */
@@ -38,7 +38,7 @@ const DEFAULT_REGISTRY_URL =
  * Runtime-configurable registry URL.
  */
 export const REGISTRY_BASE_URL =
-  process.env.MICROBUILD_REGISTRY_URL ?? DEFAULT_REGISTRY_URL;
+  process.env.BUILDPAD_REGISTRY_URL ?? DEFAULT_REGISTRY_URL;
 
 // Local packages root (only valid when running from monorepo)
 // From dist/index.js → packages/cli/dist → needs ../../ to reach packages/
