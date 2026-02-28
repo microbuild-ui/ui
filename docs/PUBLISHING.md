@@ -300,7 +300,7 @@ When `@buildpad/cli` is installed via npm (not running from the monorepo), it:
 ### Overriding the registry URL
 
 ```bash
-MICROBUILD_REGISTRY_URL=https://your-cdn.com/packages npx @buildpad/cli add input
+BUILDPAD_REGISTRY_URL=https://your-cdn.com/packages npx @buildpad/cli add input
 ```
 
 ### Local mode (development)
