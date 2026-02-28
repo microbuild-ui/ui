@@ -33,9 +33,9 @@ export async function getAuthHeaders(): Promise<HeadersInit> {
  * Get the DaaS backend URL from environment
  */
 export function getDaasUrl(): string {
-  const url = process.env.NEXT_PUBLIC_MICROBUILD_DAAS_URL;
+  const url = process.env.NEXT_PUBLIC_BUILDPAD_DAAS_URL;
   if (!url) {
-    throw new Error('NEXT_PUBLIC_MICROBUILD_DAAS_URL is not configured in .env.local');
+    throw new Error('NEXT_PUBLIC_BUILDPAD_DAAS_URL is not configured in .env.local');
   }
   return url;
 }

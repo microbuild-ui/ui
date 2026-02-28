@@ -1,6 +1,6 @@
 # @buildpad/services
 
-CRUD service classes for Buildpad projects. DaaS-compatible services for items, fields, collections, and permissions.
+Service classes for Buildpad projects. DaaS-compatible services for fields, collections, permissions, and DaaS API configuration.
 
 ## Installation
 
@@ -16,70 +16,10 @@ pnpm add @buildpad/services
 
 ```typescript
 import { 
-  ItemsService, 
   FieldsService, 
   CollectionsService, 
   PermissionsService 
 } from '@buildpad/services';
-```
-
-## ItemsService
-
-Generic CRUD service for any collection.
-
-```typescript
-import { ItemsService } from '@buildpad/services';
-
-// Create a typed service
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  status: 'draft' | 'published';
-}
-
-const productsService = new ItemsService<Product>('products');
-
-// Read operations
-const products = await productsService.readByQuery({ 
-  filter: { status: { _eq: 'published' } },
-  sort: ['-created_at'],
-  limit: 10 
-});
-
-const product = await productsService.readOne('product-id');
-
-// Create
-const newProduct = await productsService.createOne({ 
-  title: 'New Product', 
-  price: 99.99,
-  status: 'draft' 
-});
-
-// Update
-await productsService.updateOne('product-id', { 
-  title: 'Updated Title' 
-});
-
-// Bulk update
-await productsService.updateMany(['id-1', 'id-2'], { 
-  status: 'published' 
-});
-
-// Delete
-await productsService.deleteOne('product-id');
-await productsService.deleteMany(['id-1', 'id-2']);
-```
-
-### Factory Function
-
-```typescript
-import { createItemsService } from '@buildpad/services';
-
-// Alternative creation with custom API endpoint
-const service = createItemsService<Product>('products', {
-  baseUrl: '/api/v2',
-});
 ```
 
 ## FieldsService
@@ -205,19 +145,6 @@ setGlobalDaaSConfig({
 The `apiRequest` function automatically handles both modes based on the DaaS configuration.
 
 ## API Reference
-
-### ItemsService<T>
-
-| Method | Description |
-|--------|-------------|
-| `readByQuery(query)` | Read items with filter, sort, pagination |
-| `readOne(id)` | Read single item by ID |
-| `createOne(data)` | Create single item |
-| `createMany(data[])` | Create multiple items |
-| `updateOne(id, data)` | Update single item |
-| `updateMany(ids[], data)` | Update multiple items |
-| `deleteOne(id)` | Delete single item |
-| `deleteMany(ids[])` | Delete multiple items |
 
 ### FieldsService
 

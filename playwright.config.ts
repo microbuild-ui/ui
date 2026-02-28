@@ -15,7 +15,7 @@ dotenv.config({ path: '.env.local' });
  */
 
 // URLs from environment
-const DAAS_URL = process.env.NEXT_PUBLIC_MICROBUILD_DAAS_URL || 'http://localhost:3000';
+const DAAS_URL = process.env.NEXT_PUBLIC_BUILDPAD_DAAS_URL || 'http://localhost:3000';
 const STORYBOOK_URL = process.env.STORYBOOK_URL || 'http://localhost:6006';
 const STORYBOOK_TABLE_URL = process.env.STORYBOOK_TABLE_URL || 'http://localhost:6007';
 const STORYBOOK_INTERFACES_URL = process.env.STORYBOOK_INTERFACES_URL || 'http://localhost:6008';

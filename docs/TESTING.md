@@ -300,7 +300,7 @@ pnpm test:storybook    # Run Playwright tests
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://xxx.buildpad-supabase.xtremax.com
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   NEXT_PUBLIC_MICROBUILD_DAAS_URL=https://xxx.buildpad-daas.xtremax.com
+   NEXT_PUBLIC_BUILDPAD_DAAS_URL=https://xxx.buildpad-daas.xtremax.com
    ```
 
 2. **Test credentials** in `.env.local`:
@@ -458,7 +458,7 @@ jobs:
       - run: pnpm exec playwright install chromium
       - run: pnpm test:e2e
         env:
-          NEXT_PUBLIC_MICROBUILD_DAAS_URL: ${{ secrets.DAAS_URL }}
+          NEXT_PUBLIC_BUILDPAD_DAAS_URL: ${{ secrets.DAAS_URL }}
           # Credentials are passed via environment variables
 ```
 

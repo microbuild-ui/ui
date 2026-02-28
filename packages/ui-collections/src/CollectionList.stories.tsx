@@ -315,7 +315,7 @@ const meta = {
       description: {
         component:
           "A data-connected list that composes VTable for sorting, resize, reorder, and selection. " +
-          "Fetches fields & items from FieldsService / ItemsService. " +
+          "Fetches fields & items via FieldsService and the items API route. " +
           "Right-click column headers for sort, align, and hide options. " +
           "These stories use mock data. For live DaaS data, use the **Playground** story.",
       },

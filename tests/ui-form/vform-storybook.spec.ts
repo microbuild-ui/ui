@@ -342,7 +342,7 @@ test.describe('VForm Storybook - Accessibility', () => {
 
 test.describe('VForm Storybook - DaaS Playground', () => {
   // Skip if no DaaS URL configured
-  const DAAS_URL = process.env.NEXT_PUBLIC_MICROBUILD_DAAS_URL;
+  const DAAS_URL = process.env.NEXT_PUBLIC_BUILDPAD_DAAS_URL;
   const DAAS_TOKEN = process.env.STORYBOOK_DAAS_TOKEN;
 
   test('should render DaaS connection panel', async ({ page }) => {
