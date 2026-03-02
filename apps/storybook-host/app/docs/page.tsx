@@ -217,7 +217,7 @@ npx @buildpad/cli@latest bootstrap`}</pre>
             </tr>
             <tr>
               <td>Relational</td>
-              <td>ListM2M, ListM2O, ListO2M, ListM2A</td>
+              <td>ListM2M, SelectDropdownM2O, ListO2M, ListM2A</td>
               <td>Many-to-Many, Many-to-One, One-to-Many, Many-to-Any</td>
             </tr>
             <tr>

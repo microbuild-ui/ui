@@ -1,10 +1,44 @@
-import { FieldsService } from "@buildpad/services";
-import type { Field } from "@buildpad/types";
-import { useCallback, useEffect, useState } from "react";
-import { apiRequest } from "./utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { apiRequest, isValidPrimaryKey } from "./utils";
+
+// ---------------------------------------------------------------------------
+// Template field extraction helper
+// ---------------------------------------------------------------------------
+
+const TEMPLATE_REGEX = /\{\{(.*?)\}\}/g;
 
 /**
- * Information about a Many-to-One relationship
+ * Extract field names referenced inside `{{…}}` placeholders so we know which
+ * fields to request from the API when loading items.
+ */
+export function extractFieldsFromTemplate(template: string | undefined | null): string[] {
+  if (!template) return [];
+  const fields: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = TEMPLATE_REGEX.exec(template)) !== null) {
+    const key = m[1].trim();
+    if (key) {
+      // For nested paths like "author.name" we need the root field ("author")
+      // to include in the API `fields` param, but we also include the full
+      // dot-path so that deep selects work.
+      fields.push(key);
+      const root = key.split(".")[0];
+      if (root !== key && !fields.includes(root)) {
+        fields.push(root);
+      }
+    }
+  }
+  return [...new Set(fields)];
+}
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+/**
+ * Information about a Many-to-One relationship.
+ *
+ * Built from the DaaS `/relations` endpoint + optional collection metadata.
  */
 export interface M2ORelationInfo {
   /** The related collection (foreign table) */
@@ -22,34 +56,54 @@ export interface M2ORelationInfo {
     field: string;
     type: string;
   };
-  /** Display template for the related item */
+  /**
+   * Resolved display template — precedence:
+   * 1. explicit `template` prop from field options
+   * 2. related collection's `meta.display_template`
+   * 3. `undefined` (component should build a fallback)
+   */
   displayTemplate?: string;
-  /** Relation metadata */
+  /** Relation metadata from DaaS */
   relation: {
     field: string;
     collection: string;
     related_collection: string;
     meta?: Record<string, unknown> | null;
   };
+  /**
+   * Whether the related collection is a singleton (single-object collection).
+   * When true the interface should auto-select the single item.
+   */
+  isSingleton?: boolean;
 }
 
 /**
- * Custom hook for managing Many-to-One (M2O) relationship information
+ * Custom hook for loading Many-to-One (M2O) relationship metadata.
  *
- * In M2O relationships:
- * - The current collection has a foreign key pointing to another collection
- * - Only ONE related item can be selected
- * - Example: A "posts" item belongs to ONE "category"
+ * Improvements over prior version:
+ * - Queries `/api/relations` directly (no interface-type gate).
+ * - Resolves display template from collection metadata if the field options
+ *   don't provide one.
+ * - Extracts required query fields from the template.
+ * - Detects singleton collections.
+ *
+ * @param collection - The collection that owns the foreign key.
+ * @param field      - The M2O field name.
+ * @param templateOverride - Optional explicit template (from field options).
  */
-export function useRelationM2O(collection: string, field: string) {
-  const [relationInfo, setRelationInfo] = useState<M2ORelationInfo | null>(
-    null,
-  );
+export function useRelationM2O(
+  collection: string,
+  field: string,
+  templateOverride?: string,
+) {
+  const [relationInfo, setRelationInfo] = useState<M2ORelationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadRelationInfo = async () => {
+    let cancelled = false;
+
+    const load = async () => {
       if (!collection || !field) {
         setRelationInfo(null);
         setLoading(false);
@@ -60,147 +114,201 @@ export function useRelationM2O(collection: string, field: string) {
         setLoading(true);
         setError(null);
 
-        // Get field info
-        const fieldsService = new FieldsService();
-        const fieldsData = await fieldsService.readAll(collection);
-        const currentField = fieldsData.find((f: Field) => f.field === field);
+        // ── 1. Fetch relation metadata from DaaS ──────────────────────
+        const relationsResp = await apiRequest<{
+          data: {
+            many_collection: string;
+            many_field: string;
+            one_collection: string | null;
+            one_primary?: string;
+            schema?: { foreign_key_column?: string; data_type?: string } | null;
+            meta?: Record<string, unknown> | null;
+          }[];
+        }>(`/api/relations`);
 
-        if (!currentField) {
-          setError(`Field "${field}" not found in collection "${collection}"`);
-          setRelationInfo(null);
-          setLoading(false);
-          return;
-        }
+        const relation = relationsResp.data?.find(
+          (r) => r.many_collection === collection && r.many_field === field,
+        );
 
-        // Check if this is a M2O interface
-        const interfaceType = currentField.meta?.interface;
-        if (
-          interfaceType !== "list-m2o" &&
-          interfaceType !== "select-dropdown-m2o"
-        ) {
-          setError(
-            `Field "${field}" is not configured as a list-m2o or select-dropdown-m2o interface`,
-          );
-          setRelationInfo(null);
-          setLoading(false);
-          return;
-        }
-
-        // Get the related collection from multiple sources
-        const fieldOptions = currentField.meta?.options as
-          | Record<string, unknown>
-          | undefined;
-        let relatedCollectionName: string | null =
-          (currentField.schema?.foreign_key_table as string | undefined) ||
-          (fieldOptions?.related_collection as string | undefined) ||
-          (fieldOptions?.relatedCollection as string | undefined) ||
-          null;
-
-        // If still not found, try fetching from daas_relations
-        if (!relatedCollectionName) {
-          try {
-            const relationsData = await apiRequest<{
-              data: {
-                many_collection: string;
-                many_field: string;
-                one_collection?: string;
-              }[];
-            }>(`/api/relations?collection=${collection}&field=${field}`);
-            const relation = relationsData.data?.find(
-              (r) => r.many_collection === collection && r.many_field === field,
+        if (!relation?.one_collection) {
+          if (!cancelled) {
+            setError(
+              `No M2O relation found for ${collection}.${field}. ` +
+                `Ensure a relation is configured in DaaS.`,
             );
-            if (relation?.one_collection) {
-              relatedCollectionName = relation.one_collection;
-            }
-          } catch {
-            // Ignore relation fetch errors
+            setRelationInfo(null);
           }
-        }
-
-        if (!relatedCollectionName) {
-          setError(`No related collection configured for field "${field}".`);
-          setRelationInfo(null);
-          setLoading(false);
           return;
         }
 
-        // Build relation info
+        const relatedCollectionName = relation.one_collection;
+        const fkType = relation.schema?.data_type || "uuid";
+        const relatedPK = relation.one_primary || relation.schema?.foreign_key_column || "id";
+
+        // ── 2. Fetch related collection meta for display template ─────
+        let collectionMeta: Record<string, unknown> | undefined;
+        let resolvedTemplate: string | undefined = templateOverride;
+        let isSingleton = false;
+
+        try {
+          const colResp = await apiRequest<{
+            data: {
+              collection: string;
+              meta?: {
+                display_template?: string;
+                singleton?: boolean;
+                [key: string]: unknown;
+              };
+            };
+          }>(`/api/collections/${relatedCollectionName}`);
+
+          collectionMeta = colResp.data?.meta as Record<string, unknown> | undefined;
+
+          if (!resolvedTemplate && collectionMeta?.display_template) {
+            resolvedTemplate = collectionMeta.display_template as string;
+          }
+
+          if (collectionMeta?.singleton === true) {
+            isSingleton = true;
+          }
+        } catch {
+          // Collection meta is optional — template will just be undefined
+        }
+
+        if (cancelled) return;
+
         const info: M2ORelationInfo = {
           relatedCollection: {
             collection: relatedCollectionName,
-            meta: {},
+            meta: collectionMeta,
           },
           foreignKeyField: {
-            field: field,
-            type: currentField.schema?.data_type || "uuid",
+            field,
+            type: fkType,
           },
           relatedPrimaryKeyField: {
-            field: currentField.schema?.foreign_key_column || "id",
+            field: relatedPK,
             type: "uuid",
           },
-          displayTemplate: fieldOptions?.template as string | undefined,
+          displayTemplate: resolvedTemplate,
           relation: {
             field,
             collection,
             related_collection: relatedCollectionName,
-            meta: currentField.meta as Record<string, unknown> | undefined,
+            meta: relation.meta ?? null,
           },
+          isSingleton,
         };
 
         setRelationInfo(info);
       } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : "Failed to load relationship configuration";
-        setError(errorMessage);
-        setRelationInfo(null);
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load relationship configuration",
+          );
+          setRelationInfo(null);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    loadRelationInfo();
-  }, [collection, field]);
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [collection, field, templateOverride]);
+
+  /**
+   * Fields that need to be fetched for any item so the display template
+   * can be rendered. Always includes at least the primary key.
+   */
+  const templateFields = useMemo(() => {
+    const pk = relationInfo?.relatedPrimaryKeyField.field ?? "id";
+    const fromTemplate = extractFieldsFromTemplate(relationInfo?.displayTemplate);
+    const merged = new Set([pk, ...fromTemplate]);
+    return Array.from(merged);
+  }, [relationInfo]);
 
   return {
     relationInfo,
     loading,
     error,
+    /** Fields required by the display template (includes PK). */
+    templateFields,
   };
 }
 
+// ---------------------------------------------------------------------------
+// M2O Item types
+// ---------------------------------------------------------------------------
+
 /**
- * M2O Item - a related item in a Many-to-One relationship
+ * M2O Item — a related item in a Many-to-One relationship.
+ *
+ * The value can be:
+ * - A primitive (string | number) representing the foreign key.
+ * - A full object (when the item is fetched or inlined).
  */
 export interface M2OItem {
-  id: string | number;
   [key: string]: unknown;
 }
 
-/**
- * Query parameters for loading M2O item
- */
 export interface M2OQueryParams {
   fields?: string[];
 }
 
 /**
- * Custom hook for managing M2O relationship item (CRUD operations)
+ * Get the primitive primary-key value from a value that may be an object.
+ */
+function getPrimaryKeyFromValue(
+  value: string | number | Record<string, unknown> | null | undefined,
+  pkField: string,
+): string | number | null {
+  if (value == null) return null;
+  if (typeof value === "string" || typeof value === "number") return value;
+  if (typeof value === "object") {
+    const pk = value[pkField];
+    if (typeof pk === "string" || typeof pk === "number") return pk;
+  }
+  return null;
+}
+
+/**
+ * Custom hook for loading / managing the selected M2O item.
+ *
+ * Improvements:
+ * - Accepts object values (`Record<string, any>`) in addition to primitives.
+ * - Auto-loads with template fields from `useRelationM2O`.
+ * - Merges inline edits with fetched data.
  */
 export function useRelationM2OItem(
   relationInfo: M2ORelationInfo | null,
-  value: string | number | null,
+  value: string | number | Record<string, unknown> | null,
+  templateFields?: string[],
 ) {
   const [item, setItem] = useState<M2OItem | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load the related item
+  const pkField = relationInfo?.relatedPrimaryKeyField.field ?? "id";
+  const primaryKey = getPrimaryKeyFromValue(value, pkField);
+
+  // If value is already an object, use it as initial/edits data
+  const inlineData = typeof value === "object" && value !== null ? value : null;
+
   const loadItem = useCallback(
     async (params?: M2OQueryParams) => {
-      if (!relationInfo || !value) {
-        setItem(null);
+      if (!relationInfo || !isValidPrimaryKey(primaryKey)) {
+        // If we have inline data (object value) use it directly
+        if (inlineData) {
+          setItem(inlineData);
+        } else {
+          setItem(null);
+        }
         return;
       }
 
@@ -208,29 +316,37 @@ export function useRelationM2OItem(
         setLoading(true);
         setError(null);
 
-        const collection = relationInfo.relatedCollection.collection;
+        const col = relationInfo.relatedCollection.collection;
+        const fields = params?.fields ?? templateFields ?? [];
         const queryParams = new URLSearchParams();
-        if (params?.fields && params.fields.length > 0) {
-          queryParams.set("fields", params.fields.join(","));
+        if (fields.length > 0) {
+          queryParams.set("fields", fields.join(","));
         }
         const qs = queryParams.toString();
-        const path = `/api/items/${collection}/${value}${qs ? `?${qs}` : ""}`;
+        const path = `/api/items/${col}/${primaryKey}${qs ? `?${qs}` : ""}`;
 
         const response = await apiRequest<{ data: M2OItem }>(path);
-        setItem(response.data as M2OItem);
+        const fetched = (response.data ?? null) as M2OItem | null;
+
+        // Merge inline edits on top of fetched data
+        if (fetched && inlineData) {
+          setItem({ ...fetched, ...inlineData });
+        } else {
+          setItem(fetched);
+        }
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to load related item";
-        setError(errorMessage);
-        setItem(null);
+        setError(
+          err instanceof Error ? err.message : "Failed to load related item",
+        );
+        // Fall back to inline data if available
+        setItem(inlineData);
       } finally {
         setLoading(false);
       }
     },
-    [relationInfo, value],
+    [relationInfo, primaryKey, inlineData, templateFields],
   );
 
-  // Clear the selected item
   const clearItem = useCallback(() => {
     setItem(null);
   }, []);
@@ -242,5 +358,7 @@ export function useRelationM2OItem(
     loadItem,
     clearItem,
     setItem,
+    /** Resolved primitive primary key */
+    primaryKey,
   };
 }

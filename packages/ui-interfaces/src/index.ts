@@ -78,16 +78,16 @@ export type { UploadProps, FileUpload } from './upload';
 // Relational interfaces (placeholders - require render props)
 export { ListM2MInterface } from './list-m2m';
 export type { ListM2MInterfaceProps, ListM2MRenderProps } from './list-m2m';
-export { ListM2OInterface } from './list-m2o';
-export type { ListM2OInterfaceProps, ListM2ORenderProps } from './list-m2o';
+export { SelectDropdownM2OInterface, ListM2OInterface } from './select-dropdown-m2o';
+export type { SelectDropdownM2OInterfaceProps, SelectDropdownM2ORenderProps, ListM2OInterfaceProps, ListM2ORenderProps } from './select-dropdown-m2o';
 export { ListO2MInterface } from './list-o2m';
 export type { ListO2MInterfaceProps, ListO2MRenderProps } from './list-o2m';
 
 // Full relational components (with hooks integration)
 export { ListM2M } from './list-m2m';
 export type { ListM2MProps } from './list-m2m';
-export { ListM2O } from './list-m2o';
-export type { ListM2OProps } from './list-m2o';
+export { SelectDropdownM2O, ListM2O } from './select-dropdown-m2o';
+export type { SelectDropdownM2OProps, ListM2OProps } from './select-dropdown-m2o';
 export { ListO2M } from './list-o2m';
 export type { ListO2MProps } from './list-o2m';
 export { ListM2A } from './list-m2a';

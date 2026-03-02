@@ -70,8 +70,8 @@ buildpad validate --json      # JSON output for CI/CD
 | Package | Description | Documentation |
 |---------|-------------|---------------|
 | @buildpad/types | TypeScript types | [README](../packages/types/README.md) |
-| @buildpad/services | CRUD services, DaaSProvider, apiRequest, authentication | [README](../packages/services/README.md) |
-| @buildpad/hooks | React hooks (auth, permissions, relations, field metadata, files, versioning, workflow) | [README](../packages/hooks/README.md) |
+| @buildpad/services | CRUD services, DaaSProvider, apiRequest, auth module (session, permissions, filters) | [README](../packages/services/README.md) |
+| @buildpad/hooks | React hooks (useAuth, usePermissions, useDaaSContext, relations, field metadata, files, versioning, workflow) | [README](../packages/hooks/README.md) |
 | @buildpad/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
 | @buildpad/ui-interfaces | Field components (40+) | [README](../packages/ui-interfaces/README.md) |
 | @buildpad/ui-collections | Collection components (Form, List, Layout, Navigation, Filter, SaveOptions) | [README](../packages/ui-collections/README.md) |
@@ -148,7 +148,7 @@ buildpad validate --json      # JSON output for CI/CD
 
 ### Relational Components
 - [ListM2M](../packages/README.md#buildpadui-interfaces) - Many-to-Many
-- [ListM2O](../packages/README.md#buildpadui-interfaces) - Many-to-One
+- [SelectDropdownM2O](../packages/README.md#buildpadui-interfaces) - Many-to-One
 - [ListO2M](../packages/README.md#buildpadui-interfaces) - One-to-Many
 - [ListM2A](../packages/README.md#buildpadui-interfaces) - Many-to-Any
 

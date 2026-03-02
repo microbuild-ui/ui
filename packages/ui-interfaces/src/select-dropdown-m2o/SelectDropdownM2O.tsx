@@ -41,12 +41,12 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 
 /**
- * Props for the ListM2O component
+ * Props for the SelectDropdownM2O component
  *
  * Many-to-One (M2O) relationship interface - allows selecting ONE item from a related collection.
  * Example: A "post" belongs to ONE "category"
  */
-export interface ListM2OProps {
+export interface SelectDropdownM2OProps {
   /** Current value - the foreign key (ID of the related item) */
   value?: string | number | null;
   /** Callback fired when value changes */
@@ -90,12 +90,12 @@ export interface ListM2OProps {
 }
 
 /**
- * ListM2O - Many-to-One relationship interface
+ * SelectDropdownM2O - Many-to-One relationship interface
  *
  * Similar to DaaS list-o2m but for M2O relationships.
  * Allows selecting ONE related item from another collection.
  */
-export const ListM2O: React.FC<ListM2OProps> = ({
+export const SelectDropdownM2O: React.FC<SelectDropdownM2OProps> = ({
   value,
   onChange,
   collection,
@@ -742,4 +742,4 @@ export const ListM2O: React.FC<ListM2OProps> = ({
   );
 };
 
-export default ListM2O;
+export default SelectDropdownM2O;

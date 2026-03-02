@@ -168,6 +168,22 @@
           "target": "lib/buildpad/services/daas-context.tsx"
         },
         {
+          "source": "services/src/auth/index.ts",
+          "target": "lib/buildpad/services/auth/index.ts"
+        },
+        {
+          "source": "services/src/auth/session.ts",
+          "target": "lib/buildpad/services/auth/session.ts"
+        },
+        {
+          "source": "services/src/auth/enforcer.ts",
+          "target": "lib/buildpad/services/auth/enforcer.ts"
+        },
+        {
+          "source": "services/src/auth/filter-to-query.ts",
+          "target": "lib/buildpad/services/auth/filter-to-query.ts"
+        },
+        {
           "source": "cli/templates/lib/services/index.ts",
           "target": "lib/buildpad/services/index.ts"
         }
@@ -261,8 +277,24 @@
           "target": "lib/buildpad/hooks/useRelationPermissionsM2M.ts"
         },
         {
+          "source": "hooks/src/useRelationPermissionsM2O.ts",
+          "target": "lib/buildpad/hooks/useRelationPermissionsM2O.ts"
+        },
+        {
           "source": "hooks/src/useFieldMetadata.ts",
           "target": "lib/buildpad/hooks/useFieldMetadata.ts"
+        },
+        {
+          "source": "hooks/src/useAuth.ts",
+          "target": "lib/buildpad/hooks/useAuth.ts"
+        },
+        {
+          "source": "hooks/src/usePermissions.ts",
+          "target": "lib/buildpad/hooks/usePermissions.ts"
+        },
+        {
+          "source": "hooks/src/useDaaSContext.tsx",
+          "target": "lib/buildpad/hooks/useDaaSContext.tsx"
         },
         {
           "source": "cli/templates/lib/hooks/index.ts",
@@ -1176,14 +1208,18 @@
       }
     },
     {
-      "name": "list-m2o",
-      "title": "ListM2O",
-      "description": "Many-to-One relationship interface",
+      "name": "select-dropdown-m2o",
+      "title": "SelectDropdownM2O",
+      "description": "Many-to-One dropdown selector with search and modal",
       "category": "relational",
       "files": [
         {
-          "source": "ui-interfaces/src/list-m2o/ListM2O.tsx",
-          "target": "components/ui/list-m2o.tsx"
+          "source": "ui-interfaces/src/select-dropdown-m2o/SelectDropdownM2O.tsx",
+          "target": "components/ui/select-dropdown-m2o.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/select-dropdown-m2o/SelectDropdownM2OInterface.tsx",
+          "target": "components/ui/select-dropdown-m2o-interface.tsx"
         }
       ],
       "dependencies": [
@@ -1201,7 +1237,7 @@
         "collection-list"
       ],
       "interface": {
-        "id": "list-m2o",
+        "id": "select-dropdown-m2o",
         "name": "Many to One",
         "icon": "IconArrowRight",
         "types": [
@@ -1217,7 +1253,8 @@
         "order": 3,
         "supported": true,
         "recommended": true,
-        "hasOptions": true
+        "hasOptions": true,
+        "aliases": ["list-m2o"]
       }
     },
     {
@@ -1697,7 +1734,7 @@
         "files",
         "upload",
         "list-m2m",
-        "list-m2o",
+        "select-dropdown-m2o",
         "list-o2m",
         "list-m2a",
         "divider",

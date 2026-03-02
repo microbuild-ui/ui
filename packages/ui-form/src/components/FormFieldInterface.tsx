@@ -108,7 +108,7 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
       'group-accordion': 'GroupAccordion',
       'group-raw': 'GroupRaw',
       
-      // Note: Relational interfaces (list-m2o, list-o2m, list-m2m, list-m2a)
+      // Note: Relational interfaces (select-dropdown-m2o, list-o2m, list-m2m, list-m2a)
       // are mapped separately in relationalFullComponentMap below
       // to use full implementations with hooks integration
       
@@ -127,12 +127,12 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
       'workflow-button': 'WorkflowButton',
     };
     
-    // For relational interfaces, prefer the full implementation (ListM2M, ListM2O, ListO2M)
+    // For relational interfaces, prefer the full implementation (ListM2M, SelectDropdownM2O, ListO2M)
     // over the placeholder *Interface components that require render props.
     // The full implementations use @buildpad/hooks and @buildpad/ui-collections internally.
     const relationalFullComponentMap: Record<string, string> = {
-      'list-m2o': 'ListM2O',
-      'select-dropdown-m2o': 'ListM2O',
+      'list-m2o': 'SelectDropdownM2O',
+      'select-dropdown-m2o': 'SelectDropdownM2O',
       'list-o2m': 'ListO2M',
       'list-m2m': 'ListM2M',
       'list-m2a': 'ListM2A',

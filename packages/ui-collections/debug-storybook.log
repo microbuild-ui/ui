@@ -1,0 +1,20 @@
+[15:15:50.204] [INFO] storybook v10.2.8
+[15:15:53.498] [DEBUG] Getting package.json info for /Users/macbook/Documents/DAAS/microbuild-ui/packages/ui-collections/package.json...
+[15:15:54.010] [INFO] Starting...
+[15:15:54.042] [WARN] No story files found for the specified pattern: [34msrc/**/*.mdx[39m
+[15:15:54.198] [DEBUG] Starting preview..
+[15:15:54.244] [DEBUG] Using tsconfig paths for react-docgen
+[15:15:55.196] [ERROR] [38;2;241;97;97mError: listen EADDRINUSE: address already in use :::6008[39m
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at _Polka.listen (file:///Users/macbook/Documents/DAAS/microbuild-ui/node_modules/.pnpm/storybook@10.2.8_@testing-library+dom@10.4.0_prettier@2.8.8_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:6486:110)
+    at file:///Users/macbook/Documents/DAAS/microbuild-ui/node_modules/.pnpm/storybook@10.2.8_@testing-library+dom@10.4.0_prettier@2.8.8_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:7217:39
+    at new Promise (<anonymous>)
+    at storybookDevServer (file:///Users/macbook/Documents/DAAS/microbuild-ui/node_modules/.pnpm/storybook@10.2.8_@testing-library+dom@10.4.0_prettier@2.8.8_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:7216:19)
+    at async buildOrThrow (file:///Users/macbook/Documents/DAAS/microbuild-ui/node_modules/.pnpm/storybook@10.2.8_@testing-library+dom@10.4.0_prettier@2.8.8_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:4504:12)
+    at async buildDevStandalone (file:///Users/macbook/Documents/DAAS/microbuild-ui/node_modules/.pnpm/storybook@10.2.8_@testing-library+dom@10.4.0_prettier@2.8.8_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/core-server/index.js:7577:66)
+    at async withTelemetry (file:///Users/macbook/Documents/DAAS/microbuild-ui/node_modules/.pnpm/storybook@10.2.8_@testing-library+dom@10.4.0_prettier@2.8.8_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/storybook/dist/_node-chunks/chunk-KIOKJLL5.js:218:12)
+[15:15:55.197] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
+[15:19:53.157] [PROMPT] Would you like to send anonymous crash reports to improve Storybook and fix bugs faster? {"choice":false}

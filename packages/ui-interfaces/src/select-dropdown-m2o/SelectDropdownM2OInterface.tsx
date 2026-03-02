@@ -6,9 +6,9 @@ import { IconAlertCircle, IconPlus, IconTrash, IconList, IconX } from '@tabler/i
 import type { M2ORelationInfo, M2OItem } from '@buildpad/hooks';
 
 /**
- * Render function types for customizing ListM2O display
+ * Render function types for customizing SelectDropdownM2O display
  */
-export interface ListM2ORenderProps {
+export interface SelectDropdownM2ORenderProps {
   /** Render function for the selected item */
   renderSelectedItem?: (item: M2OItem | null, onClear: () => void) => React.ReactNode;
   /** Render function for the selection modal content */
@@ -18,11 +18,11 @@ export interface ListM2ORenderProps {
 }
 
 /**
- * ListM2O Interface Props
+ * SelectDropdownM2O Interface Props
  * 
- * Props for the Many-to-One relationship list interface.
+ * Props for the Many-to-One relationship select dropdown interface.
  */
-export interface ListM2OInterfaceProps extends ListM2ORenderProps {
+export interface SelectDropdownM2OInterfaceProps extends SelectDropdownM2ORenderProps {
   /** Current value - the selected item ID or object */
   value?: string | number | M2OItem | null;
   /** Callback fired when value changes */
@@ -58,15 +58,15 @@ export interface ListM2OInterfaceProps extends ListM2ORenderProps {
 }
 
 /**
- * ListM2OInterface Component (Placeholder)
+ * SelectDropdownM2OInterface Component (Placeholder)
  * 
  * This is a placeholder component for the Many-to-One list interface.
  * 
  * @see useRelationM2O from @buildpad/hooks for relation info
  * 
- * @param props - ListM2OInterface props
+ * @param props - SelectDropdownM2OInterface props
  */
-export const ListM2OInterface: React.FC<ListM2OInterfaceProps> = ({
+export const SelectDropdownM2OInterface: React.FC<SelectDropdownM2OInterfaceProps> = ({
   value,
   onChange,
   collection,
@@ -107,7 +107,7 @@ export const ListM2OInterface: React.FC<ListM2OInterfaceProps> = ({
           variant="light"
         >
           <Text size="sm">
-            <strong>ListM2O Interface</strong> requires render props to be provided.
+            <strong>SelectDropdownM2O Interface</strong> requires render props to be provided.
           </Text>
           <Text size="xs" mt="xs">
             Collection: <code>{collection}</code>, Field: <code>{field}</code>
@@ -201,4 +201,4 @@ export const ListM2OInterface: React.FC<ListM2OInterfaceProps> = ({
   );
 };
 
-export default ListM2OInterface;
+export default SelectDropdownM2OInterface;

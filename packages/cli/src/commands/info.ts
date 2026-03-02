@@ -80,11 +80,11 @@ function findComponent(name: string, registry: Registry): ComponentEntry | undef
     'wysiwyg': 'rich-text-html',
     'markdown': 'rich-text-markdown',
     'm2m': 'list-m2m',
-    'm2o': 'list-m2o',
+    'm2o': 'select-dropdown-m2o',
     'o2m': 'list-o2m',
     'm2a': 'list-m2a',
     'manytomany': 'list-m2m',
-    'manytoone': 'list-m2o',
+    'manytoone': 'select-dropdown-m2o',
     'onetomany': 'list-o2m',
     'manytoany': 'list-m2a',
   };

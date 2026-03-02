@@ -162,7 +162,7 @@ export default function ComponentsPage() {
           </thead>
           <tbody>
             <tr><td><code>list-m2m</code></td><td><code>buildpad add list-m2m</code></td></tr>
-            <tr><td><code>list-m2o</code></td><td><code>buildpad add list-m2o</code></td></tr>
+            <tr><td><code>select-dropdown-m2o</code></td><td><code>buildpad add select-dropdown-m2o</code></td></tr>
             <tr><td><code>list-o2m</code></td><td><code>buildpad add list-o2m</code></td></tr>
             <tr><td><code>list-m2a</code></td><td><code>buildpad add list-m2a</code></td></tr>
           </tbody>

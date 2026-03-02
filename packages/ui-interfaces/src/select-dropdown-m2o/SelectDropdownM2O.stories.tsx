@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ListM2O } from './ListM2O';
+import { SelectDropdownM2O } from './SelectDropdownM2O';
 
-const meta: Meta<typeof ListM2O> = {
-  title: 'Interfaces/ListM2O',
-  component: ListM2O,
+const meta: Meta<typeof SelectDropdownM2O> = {
+  title: 'Interfaces/SelectDropdownM2O',
+  component: SelectDropdownM2O,
   parameters: {
     layout: 'padded',
     docs: {
@@ -22,9 +22,9 @@ Example: A "post" belongs to ONE "category". The post has a \`category_id\` fore
 
 ## Usage
 \`\`\`tsx
-import { ListM2O } from '@buildpad/ui-interfaces';
+import { SelectDropdownM2O } from '@buildpad/ui-interfaces';
 
-<ListM2O
+<SelectDropdownM2O
   collection="posts"
   field="category_id"
   value={categoryId}

@@ -362,12 +362,13 @@ function getExplicitInterface(
     case "list-m2o":
     case "select-dropdown-m2o":
       return {
-        type: "list-m2o",
+        type: "select-dropdown-m2o",
         props: {
-          layout: (options?.layout as "dropdown" | "modal") || "dropdown",
-          fields: (options?.fields as string[]) || ["id", "name"],
+          layout: (options?.selectMode as "dropdown" | "modal") || (options?.layout as "dropdown" | "modal") || "dropdown",
+          fields: (options?.fields as string[]) || undefined,
           template: options?.template as string,
           enableCreate: options?.enableCreate !== false,
+          enableSelect: options?.enableSelect !== false,
           enableLink: options?.enableLink === true,
           searchable: options?.searchable !== false,
           allowNone: options?.allowNone !== false,

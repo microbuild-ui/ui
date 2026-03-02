@@ -63,6 +63,10 @@ export {
     useRelationPermissionsM2M,
     type RelationPermissionsM2M,
 } from './useRelationPermissionsM2M';
+export {
+    useRelationPermissionsM2O,
+    type RelationPermissionsM2O,
+} from './useRelationPermissionsM2O';
 
 // File hooks
 export { 

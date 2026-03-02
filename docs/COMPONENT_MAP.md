@@ -67,7 +67,7 @@ Quick reference for finding component source files.
 | Name | Command | Source |
 |------|---------|--------|
 | `list-m2m` | `buildpad add list-m2m` | [ui-interfaces/src/list-m2m/ListM2M.tsx](../packages/ui-interfaces/src/list-m2m/ListM2M.tsx) |
-| `list-m2o` | `buildpad add list-m2o` | [ui-interfaces/src/list-m2o/ListM2O.tsx](../packages/ui-interfaces/src/list-m2o/ListM2O.tsx) |
+| `select-dropdown-m2o` | `buildpad add select-dropdown-m2o` | [ui-interfaces/src/select-dropdown-m2o/SelectDropdownM2O.tsx](../packages/ui-interfaces/src/select-dropdown-m2o/SelectDropdownM2O.tsx) |
 | `list-o2m` | `buildpad add list-o2m` | [ui-interfaces/src/list-o2m/ListO2M.tsx](../packages/ui-interfaces/src/list-o2m/ListO2M.tsx) |
 | `list-m2a` | `buildpad add list-m2a` | [ui-interfaces/src/list-m2a/ListM2A.tsx](../packages/ui-interfaces/src/list-m2a/ListM2A.tsx) |
 
@@ -121,7 +121,7 @@ vform → types, services, hooks, utils
       → select-multiple-checkbox, select-multiple-dropdown, select-multiple-checkbox-tree
       → autocomplete-api, collection-item-dropdown
       → file, file-image, files, upload
-      → list-m2m, list-m2o, list-o2m, list-m2a
+      → list-m2m, select-dropdown-m2o, list-o2m, list-m2a
       → divider, notice, group-detail, group-accordion, group-raw
       → rich-text-html, rich-text-markdown
       → map, workflow-button

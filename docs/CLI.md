@@ -80,7 +80,7 @@ buildpad outdated                # Check for component updates
 | `notice` | `packages/ui-interfaces/src/notice/Notice.tsx` | layout |
 | `group-detail` | `packages/ui-interfaces/src/group-detail/GroupDetail.tsx` | layout |
 | `list-m2m` | `packages/ui-interfaces/src/list-m2m/ListM2M.tsx` | relational |
-| `list-m2o` | `packages/ui-interfaces/src/list-m2o/ListM2O.tsx` | relational |
+| `select-dropdown-m2o` | `packages/ui-interfaces/src/select-dropdown-m2o/SelectDropdownM2O.tsx` | relational |
 | `list-o2m` | `packages/ui-interfaces/src/list-o2m/ListO2M.tsx` | relational |
 | `list-m2a` | `packages/ui-interfaces/src/list-m2a/ListM2A.tsx` | relational |
 
@@ -110,7 +110,7 @@ vform
     ├── color, tags, slider
     ├── autocomplete-api, collection-item-dropdown
     ├── file, file-image, files, upload
-    ├── list-m2m, list-m2o, list-o2m, list-m2a
+    ├── list-m2m, select-dropdown-m2o, list-o2m, list-m2a
     ├── divider, notice, group-detail
     ├── rich-text-html, rich-text-markdown
     ├── map, workflow-button
