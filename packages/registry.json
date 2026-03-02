@@ -253,6 +253,18 @@
           "target": "lib/buildpad/hooks/useCollections.ts"
         },
         {
+          "source": "hooks/src/useRelationMultipleM2M.ts",
+          "target": "lib/buildpad/hooks/useRelationMultipleM2M.ts"
+        },
+        {
+          "source": "hooks/src/useRelationPermissionsM2M.ts",
+          "target": "lib/buildpad/hooks/useRelationPermissionsM2M.ts"
+        },
+        {
+          "source": "hooks/src/useFieldMetadata.ts",
+          "target": "lib/buildpad/hooks/useFieldMetadata.ts"
+        },
+        {
           "source": "cli/templates/lib/hooks/index.ts",
           "target": "lib/buildpad/hooks/index.ts"
         }
@@ -1126,6 +1138,10 @@
         {
           "source": "ui-interfaces/src/list-m2m/ListM2MInterface.tsx",
           "target": "components/ui/list-m2m-interface.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/list-m2m/translations.ts",
+          "target": "components/ui/list-m2m/translations.ts"
         }
       ],
       "dependencies": [

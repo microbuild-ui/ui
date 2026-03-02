@@ -40,6 +40,7 @@
 │         │                │                 │                        │
 │         │          DaaSProvider       useAuth                       │
 │         │          apiRequest         usePermissions                │
+│         │                             useFieldMetadata              │
 │         └────────────────┼─────────────────┘                        │
 │                          │                                          │
 │                          ▼                                          │

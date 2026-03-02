@@ -53,6 +53,16 @@ export {
     type RelationPermissionsM2A,
     type PerCollectionPermission,
 } from './useRelationPermissionsM2A';
+export {
+    useRelationMultipleM2M,
+    type M2MDisplayItem,
+    type M2MChangesItem,
+    type M2MMultipleQueryParams,
+} from './useRelationMultipleM2M';
+export {
+    useRelationPermissionsM2M,
+    type RelationPermissionsM2M,
+} from './useRelationPermissionsM2M';
 
 // File hooks
 export { 
@@ -117,6 +127,14 @@ export {
     type UseWorkflowVersioningProps,
     type UseWorkflowVersioningReturn
 } from './useWorkflowVersioning';
+
+// Field metadata hook
+export {
+    useFieldMetadata,
+    type FieldMetadataEntry,
+    type UseFieldMetadataOptions,
+    type UseFieldMetadataReturn,
+} from './useFieldMetadata';
 
 // API helpers
 export { api, daasAPI, createDaaSAPI, type DaaSAPIConfig, type QueryParams } from './api';

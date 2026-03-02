@@ -103,11 +103,40 @@ tests/ui-form/
 └── vform.spec.ts             # Full E2E workflow tests (create, edit, validate)
 
 tests/ui-interfaces/
-├── input-storybook.spec.ts       # Input interface tests (23 tests)
-├── textarea-storybook.spec.ts    # Textarea interface tests (15 tests)
-├── input-code-storybook.spec.ts  # InputCode interface tests (18 tests)
-├── slider-storybook.spec.ts      # Slider interface tests (19 tests)
-└── tags-storybook.spec.ts        # Tags interface tests (19 tests)
+├── autocomplete-api-storybook.spec.ts  # AutocompleteAPI tests (13 tests)
+├── boolean-storybook.spec.ts           # Boolean tests (15 tests)
+├── collection-item-dropdown-storybook.spec.ts # CollectionItemDropdown tests (17 tests)
+├── color-storybook.spec.ts             # Color tests (12 tests)
+├── datetime-storybook.spec.ts          # DateTime tests (16 tests)
+├── divider-storybook.spec.ts           # Divider tests (13 tests)
+├── file-image-storybook.spec.ts        # FileImage tests (15 tests)
+├── file-storybook.spec.ts              # File tests (12 tests)
+├── files-storybook.spec.ts             # Files tests (12 tests)
+├── group-accordion-storybook.spec.ts   # GroupAccordion tests (9 tests)
+├── group-detail-storybook.spec.ts      # GroupDetail tests (12 tests)
+├── group-raw-storybook.spec.ts         # GroupRaw tests (4 tests)
+├── input-block-editor-storybook.spec.ts # InputBlockEditor tests (14 tests)
+├── input-code-storybook.spec.ts        # InputCode tests (18 tests)
+├── input-storybook.spec.ts             # Input tests (23 tests)
+├── list-m2a-storybook.spec.ts          # ListM2A tests (22 tests)
+├── list-m2m-storybook.spec.ts          # ListM2M tests (32 tests)
+├── list-m2o-storybook.spec.ts          # ListM2O tests (14 tests)
+├── list-o2m-storybook.spec.ts          # ListO2M tests (18 tests)
+├── map-storybook.spec.ts               # Map tests (14 tests)
+├── notice-storybook.spec.ts            # Notice tests (16 tests)
+├── rich-text-html-storybook.spec.ts    # RichTextHTML tests (15 tests)
+├── rich-text-markdown-storybook.spec.ts # RichTextMarkdown tests (13 tests)
+├── select-dropdown-storybook.spec.ts   # SelectDropdown tests (15 tests)
+├── select-icon-storybook.spec.ts       # SelectIcon tests (11 tests)
+├── select-multiple-checkbox-storybook.spec.ts # SelectMultipleCheckbox tests (14 tests)
+├── select-multiple-checkbox-tree-storybook.spec.ts # SelectMultipleCheckboxTree tests (14 tests)
+├── select-multiple-dropdown-storybook.spec.ts # SelectMultipleDropdown tests (11 tests)
+├── select-radio-storybook.spec.ts      # SelectRadio tests (12 tests)
+├── slider-storybook.spec.ts            # Slider tests (19 tests)
+├── tags-storybook.spec.ts              # Tags tests (19 tests)
+├── textarea-storybook.spec.ts          # Textarea tests (15 tests)
+├── toggle-storybook.spec.ts            # Toggle tests (21 tests)
+└── upload-storybook.spec.ts            # Upload tests (14 tests)
 
 tests/ui-table/
 └── vtable-storybook.spec.ts  # VTable Storybook component tests (22 tests)
@@ -137,15 +166,44 @@ SKIP_WEBSERVER=true STORYBOOK_INTERFACES_URL=http://localhost:6008 \
   npx playwright test tests/ui-interfaces --project=storybook-interfaces
 ```
 
-### Test Coverage (94 tests total)
+### Test Coverage (514 tests across 34 interfaces)
 
 | Interface | Test File | Tests | Coverage |
 |-----------|-----------|-------|----------|
 | Input | `input-storybook.spec.ts` | 23 | Types, masked, slug, clear, trim, softLength, fonts, icons, states |
 | Textarea | `textarea-storybook.spec.ts` | 15 | SoftLength, fonts, autosize, rows, RTL, trim, states |
 | InputCode | `input-code-storybook.spec.ts` | 18 | Languages, line numbers, line wrapping, template, states |
+| InputBlockEditor | `input-block-editor-storybook.spec.ts` | 14 | Block types, toolbar, content editing, states |
 | Slider | `slider-storybook.spec.ts` | 19 | Types, ranges, marks, ticks, sizes, colors, states |
 | Tags | `tags-storybook.spec.ts` | 19 | Presets, custom tags, transforms, alphabetize, states |
+| Boolean | `boolean-storybook.spec.ts` | 15 | Toggle, labels, colors, default values, states |
+| Toggle | `toggle-storybook.spec.ts` | 21 | Switch states, icons, labels, colors, states |
+| DateTime | `datetime-storybook.spec.ts` | 16 | Date, time, datetime pickers, formats, states |
+| Color | `color-storybook.spec.ts` | 12 | Picker, swatches, opacity, formats, states |
+| SelectDropdown | `select-dropdown-storybook.spec.ts` | 15 | Search, custom options, presets, states |
+| SelectRadio | `select-radio-storybook.spec.ts` | 12 | Layout, custom values, states |
+| SelectMultipleCheckbox | `select-multiple-checkbox-storybook.spec.ts` | 14 | Checkbox groups, other option, states |
+| SelectMultipleCheckboxTree | `select-multiple-checkbox-tree-storybook.spec.ts` | 14 | Hierarchical selection, expand/collapse, states |
+| SelectMultipleDropdown | `select-multiple-dropdown-storybook.spec.ts` | 11 | Multi-select, search, tags, states |
+| SelectIcon | `select-icon-storybook.spec.ts` | 11 | Icon categories, search, preview, states |
+| AutocompleteAPI | `autocomplete-api-storybook.spec.ts` | 13 | API search, fonts, RTL, icons, states |
+| CollectionItemDropdown | `collection-item-dropdown-storybook.spec.ts` | 17 | Collection selection, search, states |
+| File | `file-storybook.spec.ts` | 12 | Upload, preview, remove, states |
+| FileImage | `file-image-storybook.spec.ts` | 15 | Image upload, preview, focal point, states |
+| Files | `files-storybook.spec.ts` | 12 | Multi-upload, drag & drop, states |
+| Upload | `upload-storybook.spec.ts` | 14 | Dropzone, file types, size limits, states |
+| Divider | `divider-storybook.spec.ts` | 13 | Horizontal/vertical, titles, icons, states |
+| Notice | `notice-storybook.spec.ts` | 16 | Alert types, icons, dismissible, states |
+| GroupDetail | `group-detail-storybook.spec.ts` | 12 | Collapsible sections, headers, states |
+| GroupAccordion | `group-accordion-storybook.spec.ts` | 9 | Accordion expand/collapse, nested content |
+| GroupRaw | `group-raw-storybook.spec.ts` | 4 | Transparent wrapper, inline children |
+| Map | `map-storybook.spec.ts` | 14 | Geometry input, coordinates, states |
+| RichTextHTML | `rich-text-html-storybook.spec.ts` | 15 | WYSIWYG toolbar, formatting, links, states |
+| RichTextMarkdown | `rich-text-markdown-storybook.spec.ts` | 13 | Markdown editing, preview, syntax, states |
+| ListM2M | `list-m2m-storybook.spec.ts` | 32 | M2M junction, inline editing, permissions, display templates |
+| ListM2O | `list-m2o-storybook.spec.ts` | 14 | M2O selection, display, states |
+| ListO2M | `list-o2m-storybook.spec.ts` | 18 | O2M management, inline editing, states |
+| ListM2A | `list-m2a-storybook.spec.ts` | 22 | M2A polymorphic, collection selection, states |
 
 ## VTable Component Testing
 

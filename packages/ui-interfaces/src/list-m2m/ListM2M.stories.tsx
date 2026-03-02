@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ListM2M } from './ListM2M';
+import type { M2MDisplayItem } from '@buildpad/hooks';
 
 const meta: Meta<typeof ListM2M> = {
     title: 'Interfaces/ListM2M',
@@ -82,8 +83,8 @@ providing a comprehensive UI for creating, selecting, editing, and removing rela
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Mock data for stories
-const mockArticleTags = [
+// Mock data for stories — shaped as M2MDisplayItem (junction rows with nested related data)
+const mockArticleTags: M2MDisplayItem[] = [
     {
         id: 1,
         article_id: 1,
@@ -104,7 +105,7 @@ const mockArticleTags = [
     }
 ];
 
-const mockProjectMembers = [
+const mockProjectMembers: M2MDisplayItem[] = [
     {
         id: 1,
         project_id: 1,
@@ -152,14 +153,38 @@ const mockProjectMembers = [
 /**
  * Default List M2M interface in list layout mode
  */
+// Minimal mock relation info so the component can format display values
+const mockTagRelationInfo = {
+    junctionCollection: { collection: 'articles_tags', meta: {} },
+    relatedCollection: { collection: 'tags', meta: {} },
+    junctionField: { field: 'tag_id', collection: 'articles_tags' },
+    reverseJunctionField: { field: 'article_id', collection: 'articles_tags' },
+    junctionPrimaryKeyField: { field: 'id', collection: 'articles_tags' },
+    relatedPrimaryKeyField: { field: 'id', collection: 'tags' },
+    sortField: null,
+    oneDeselect: 'nullify' as const,
+};
+
+const mockMembersRelationInfo = {
+    junctionCollection: { collection: 'project_members', meta: {} },
+    relatedCollection: { collection: 'users', meta: {} },
+    junctionField: { field: 'user_id', collection: 'project_members' },
+    reverseJunctionField: { field: 'project_id', collection: 'project_members' },
+    junctionPrimaryKeyField: { field: 'id', collection: 'project_members' },
+    relatedPrimaryKeyField: { field: 'id', collection: 'users' },
+    sortField: null,
+    oneDeselect: 'nullify' as const,
+};
+
 export const Default: Story = {
     args: {
-        value: mockArticleTags,
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
         collection: 'articles',
         field: 'tags',
         primaryKey: 1,
         layout: 'list',
-        template: '{{tag_id.name}} ({{tag_id.color}})',
+        template: '{{name}} ({{color}})',
         enableCreate: true,
         enableSelect: true,
         enableLink: false,
@@ -178,12 +203,13 @@ export const Default: Story = {
  */
 export const TableLayout: Story = {
     args: {
-        value: mockProjectMembers,
+        mockItems: mockProjectMembers,
+        mockRelationInfo: mockMembersRelationInfo as any,
         collection: 'projects',
         field: 'members',
         primaryKey: 1,
         layout: 'table',
-        fields: ['user_id.name', 'user_id.email', 'role', 'joined_at'],
+        fields: ['name', 'email', 'role', 'joined_at'],
         enableCreate: true,
         enableSelect: true,
         enableSearchFilter: true,
@@ -228,12 +254,13 @@ export const ComfortableTable: Story = {
  */
 export const Disabled: Story = {
     args: {
-        value: mockArticleTags,
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
         collection: 'articles',
         field: 'tags',
         primaryKey: 1,
         layout: 'list',
-        template: '{{tag_id.name}}',
+        template: '{{name}}',
         disabled: true,
         label: 'Read-only Tags',
         description: 'These tags cannot be modified',
@@ -250,7 +277,8 @@ export const Disabled: Story = {
  */
 export const Empty: Story = {
     args: {
-        value: [],
+        mockItems: [],
+        mockRelationInfo: mockTagRelationInfo as any,
         collection: 'articles',
         field: 'categories',
         primaryKey: 1,
@@ -270,7 +298,8 @@ export const Empty: Story = {
  */
 export const Required: Story = {
     args: {
-        value: [],
+        mockItems: [],
+        mockRelationInfo: mockTagRelationInfo as any,
         collection: 'articles',
         field: 'categories',
         primaryKey: 1,
@@ -292,7 +321,8 @@ export const Required: Story = {
  */
 export const Minimal: Story = {
     args: {
-        value: [],
+        mockItems: [],
+        mockRelationInfo: mockTagRelationInfo as any,
         collection: 'posts',
         field: 'tags',
         primaryKey: 1,
@@ -307,12 +337,13 @@ export const Minimal: Story = {
  */
 export const CustomTemplate: Story = {
     args: {
-        value: mockArticleTags,
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
         collection: 'articles',
         field: 'tags',
         primaryKey: 1,
         layout: 'list',
-        template: '🏷️ {{tag_id.name}} | {{tag_id.slug}} | {{tag_id.color}}',
+        template: '🏷️ {{name}} | {{slug}} | {{color}}',
         enableCreate: true,
         enableSelect: true,
         label: 'Tags with Custom Template',
@@ -328,9 +359,9 @@ export const CustomTemplate: Story = {
  */
 export const WithPagination: Story = {
     args: {
-        value: [
+        mockItems: [
             ...mockProjectMembers,
-            ...Array.from({ length: 20 }, (_, i) => ({
+            ...Array.from({ length: 20 }, (_, i): M2MDisplayItem => ({
                 id: i + 10,
                 project_id: 1,
                 user_id: { 
@@ -344,11 +375,12 @@ export const WithPagination: Story = {
                 joined_at: `2024-01-${String(i + 4).padStart(2, '0')}T00:00:00Z`
             }))
         ],
+        mockRelationInfo: mockMembersRelationInfo as any,
         collection: 'projects',
         field: 'members',
         primaryKey: 1,
         layout: 'table',
-        fields: ['user_id.name', 'user_id.email', 'role'],
+        fields: ['name', 'email', 'role'],
         enableSearchFilter: true,
         label: 'Large Member List',
         description: 'Demonstrating pagination with many items',
@@ -364,12 +396,13 @@ export const WithPagination: Story = {
  */
 export const WithError: Story = {
     args: {
-        value: mockArticleTags,
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
         collection: 'articles',
         field: 'tags',
         primaryKey: 1,
         layout: 'list',
-        template: '{{tag_id.name}}',
+        template: '{{name}}',
         label: 'Tags with Error',
         description: 'This field has a validation error',
         error: 'Invalid tag selection - duplicates not allowed',
@@ -385,12 +418,13 @@ export const WithError: Story = {
  */
 export const FullFeatured: Story = {
     args: {
-        value: mockProjectMembers,
+        mockItems: mockProjectMembers,
+        mockRelationInfo: mockMembersRelationInfo as any,
         collection: 'projects',
         field: 'members',
         primaryKey: 1,
         layout: 'table',
-        fields: ['user_id.name', 'user_id.email', 'role', 'permissions', 'joined_at'],
+        fields: ['name', 'email', 'role', 'permissions', 'joined_at'],
         enableCreate: true,
         enableSelect: true,
         enableSearchFilter: true,
@@ -404,5 +438,316 @@ export const FullFeatured: Story = {
         onChange: (_value: any) => {
             // Full featured value changed callback
         }
+    }
+};
+
+// ── Local-first state management stories ────────────────────────
+
+/** Mock items with $type markers showing various change states */
+const mockLocalFirstItems: M2MDisplayItem[] = [
+    {
+        id: 1,
+        tag_id: { id: 1, name: "Unmodified Item", color: "#888" },
+        // no $type → existing unmodified
+    },
+    {
+        id: 2,
+        $type: 'updated',
+        $index: 0,
+        tag_id: { id: 2, name: "Updated Item", color: "#FFA500" },
+    },
+    {
+        id: '$new-0',
+        $type: 'created',
+        $index: 0,
+        tag_id: { id: 99, name: "Created Item", color: "#00FF00" },
+    },
+];
+
+/**
+ * Demonstrates local-first state management with created, updated, and deleted items.
+ */
+export const LocalFirstStates: Story = {
+    args: {
+        mockItems: mockLocalFirstItems,
+        mockRelationInfo: mockTagRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        template: '{{name}}',
+        enableCreate: true,
+        enableSelect: true,
+        label: 'Local-First States',
+        description: 'Items with various change states (created, updated, unmodified)',
+        onChange: (_value: any) => {},
+    }
+};
+
+/**
+ * Non-editable mode — items are visible but no action buttons shown.
+ */
+export const NonEditable: Story = {
+    args: {
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        template: '{{name}}',
+        nonEditable: true,
+        label: 'Non-Editable Tags',
+        description: 'View-only mode — no add/edit/remove actions',
+        onChange: (_value: any) => {},
+    }
+};
+
+/**
+ * Read-only mode
+ */
+export const ReadOnlyMode: Story = {
+    args: {
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        template: '{{name}}',
+        readOnly: true,
+        label: 'Read-Only Tags',
+        description: 'Read-only mode — interface is non-interactive',
+        onChange: (_value: any) => {},
+    }
+};
+
+// ── P2: Drag-and-drop sorting stories ───────────────────────────
+
+/** Mock relation with sortField enabled (enables DnD/sort) */
+const mockSortableRelationInfo = {
+    ...mockTagRelationInfo,
+    sortField: 'sort_order',
+};
+
+/** Mock sortable items with sort_order values */
+const mockSortableItems: M2MDisplayItem[] = [
+    {
+        id: 1,
+        article_id: 1,
+        sort_order: 1,
+        tag_id: { id: 1, name: "First Item", color: "#61DAFB", slug: "first" },
+    },
+    {
+        id: 2,
+        article_id: 1,
+        sort_order: 2,
+        tag_id: { id: 2, name: "Second Item", color: "#3178C6", slug: "second" },
+    },
+    {
+        id: 3,
+        article_id: 1,
+        sort_order: 3,
+        tag_id: { id: 3, name: "Third Item", color: "#339AF0", slug: "third" },
+    },
+];
+
+/**
+ * Drag-and-drop sorting in list layout.
+ * Items show a drag handle (grip icon) because sortField is set
+ * and all items fit on one page (totalCount <= limit).
+ */
+export const DragAndDropList: Story = {
+    args: {
+        mockItems: mockSortableItems,
+        mockRelationInfo: mockSortableRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        template: '{{name}} ({{color}})',
+        enableCreate: true,
+        enableSelect: true,
+        label: 'Drag & Drop List',
+        description: 'Sortable items with drag handles — drag to reorder',
+        limit: 15,
+        onChange: (_value: any) => {},
+    }
+};
+
+/**
+ * Drag-and-drop sorting in table layout.
+ * Shows drag handle column instead of up/down arrows when
+ * all items fit on a single page.
+ */
+export const DragAndDropTable: Story = {
+    args: {
+        mockItems: mockSortableItems,
+        mockRelationInfo: mockSortableRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'table',
+        fields: ['name', 'color', 'slug'],
+        enableCreate: true,
+        enableSelect: true,
+        enableSearchFilter: true,
+        label: 'Drag & Drop Table',
+        description: 'Table layout with drag-and-drop sorting',
+        limit: 15,
+        onChange: (_value: any) => {},
+    }
+};
+
+/**
+ * Sort fallback: When items exceed the page limit, DnD is disabled
+ * and up/down arrow buttons are shown instead.
+ */
+export const SortFallbackArrows: Story = {
+    args: {
+        mockItems: mockSortableItems,
+        mockRelationInfo: mockSortableRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        template: '{{name}}',
+        enableCreate: true,
+        enableSelect: true,
+        label: 'Sort Fallback — Arrows',
+        description: 'DnD is disabled when items exceed page size — shows up/down arrows instead',
+        limit: 2, // limit < totalCount → arrows instead of DnD
+        onChange: (_value: any) => {},
+    }
+};
+
+// ── P2: Batch edit story ───────────────────────────────────────
+
+/**
+ * Batch edit mode in table layout.
+ * Shows checkboxes for multi-selection and a batch edit button
+ * appears when items are selected.
+ */
+export const BatchEditTable: Story = {
+    args: {
+        mockItems: mockProjectMembers,
+        mockRelationInfo: mockMembersRelationInfo as any,
+        collection: 'projects',
+        field: 'members',
+        primaryKey: 1,
+        layout: 'table',
+        fields: ['name', 'email', 'role'],
+        enableCreate: true,
+        enableSelect: true,
+        enableBatchEdit: true,
+        label: 'Batch Edit Table',
+        description: 'Table with multi-select checkboxes for batch editing',
+        limit: 15,
+        onChange: (_value: any) => {},
+    }
+};
+
+// ── P2: i18n / translations story ───────────────────────────────
+
+/**
+ * Custom translations (i18n override).
+ * Demonstrates overriding default English strings with custom labels.
+ */
+export const CustomTranslations: Story = {
+    args: {
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        template: '{{name}}',
+        enableCreate: true,
+        enableSelect: true,
+        label: 'Étiquettes',
+        description: 'Démonstration de la traduction i18n',
+        translations: {
+            create_new: 'Créer nouveau',
+            add_existing: 'Ajouter existant',
+            no_items: 'Aucun élément lié',
+            edit: 'Modifier',
+            remove: 'Supprimer',
+            navigate_to_item: 'Ouvrir l\'élément',
+            search_placeholder: 'Rechercher...',
+            select_items: 'Sélectionner des éléments',
+            add_selected: 'Ajouter la sélection',
+            create_item: 'Créer un élément',
+            edit_item: 'Modifier l\'élément',
+            badge_new: 'NOUVEAU',
+            badge_edited: 'MODIFIÉ',
+            unsaved_changes: '(modifications non enregistrées)',
+            item_count_one: '1 élément',
+            item_count_other: '{count} éléments',
+        },
+        onChange: (_value: any) => {},
+    }
+};
+
+// ── P2: Skeleton loading story ──────────────────────────────────
+
+/**
+ * Skeleton loading state — list layout.
+ * This story cannot truly show the skeleton loading state in storybook
+ * because mock mode bypasses loading. In a real app, skeleton placeholders
+ * appear while data is being fetched from DaaS.
+ */
+export const SkeletonLoadingList: Story = {
+    args: {
+        mockItems: [],
+        mockRelationInfo: mockTagRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        label: 'Skeleton Loading (List)',
+        description: 'Shows skeleton placeholders while loading. (In mock mode, you see the empty state instead.)',
+        onChange: (_value: any) => {},
+    }
+};
+
+/**
+ * Skeleton loading state — table layout.
+ */
+export const SkeletonLoadingTable: Story = {
+    args: {
+        mockItems: [],
+        mockRelationInfo: mockTagRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'table',
+        fields: ['name', 'color', 'slug'],
+        label: 'Skeleton Loading (Table)',
+        description: 'Shows skeleton rows while loading. (In mock mode, you see the empty state.)',
+        onChange: (_value: any) => {},
+    }
+};
+
+// ── P2: Version indicator story ─────────────────────────────────
+
+/**
+ * Content versioning indicator.
+ * When a versionId is provided, a badge shows which version is being viewed.
+ */
+export const VersionedContent: Story = {
+    args: {
+        mockItems: mockArticleTags,
+        mockRelationInfo: mockTagRelationInfo as any,
+        collection: 'articles',
+        field: 'tags',
+        primaryKey: 1,
+        layout: 'list',
+        template: '{{name}}',
+        versionId: 'draft-v2',
+        enableCreate: true,
+        enableSelect: true,
+        label: 'Versioned Tags',
+        description: 'Viewing a specific content version',
+        onChange: (_value: any) => {},
     }
 };

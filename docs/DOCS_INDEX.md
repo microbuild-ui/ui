@@ -71,7 +71,7 @@ buildpad validate --json      # JSON output for CI/CD
 |---------|-------------|---------------|
 | @buildpad/types | TypeScript types | [README](../packages/types/README.md) |
 | @buildpad/services | CRUD services, DaaSProvider, apiRequest, authentication | [README](../packages/services/README.md) |
-| @buildpad/hooks | React hooks (auth, permissions, relations, files, versioning, workflow) | [README](../packages/hooks/README.md) |
+| @buildpad/hooks | React hooks (auth, permissions, relations, field metadata, files, versioning, workflow) | [README](../packages/hooks/README.md) |
 | @buildpad/utils | Field interface mapper & utilities | [README](../packages/utils/README.md) |
 | @buildpad/ui-interfaces | Field components (40+) | [README](../packages/ui-interfaces/README.md) |
 | @buildpad/ui-collections | Collection components (Form, List, Layout, Navigation, Filter, SaveOptions) | [README](../packages/ui-collections/README.md) |
@@ -323,6 +323,16 @@ Buildpad Architecture
 - Check existing documentation first
 
 ## 📝 Changelog
+
+### Version 1.6.0 (March 2026)
+- ✨ New `useRelationMultipleM2M` hook — fetches display items for M2M junctions with sorting/pagination
+- ✨ New `useRelationPermissionsM2M` hook — checks create/update permissions on junction + related collection
+- ✨ New `useFieldMetadata` hook — resolves field metadata for display templates in relational interfaces
+- ✨ ListM2M upgraded to full-featured M2M interface with inline editing, permissions, and display templates
+- ✨ ListM2M `translations.ts` — externalized UI strings for internationalization support
+- 🔧 Registry schema `$schema` updated to GitHub raw CDN URL
+- 🔧 Registry description clarified to "DaaS-compatible Nextjs frontends"
+- 🔧 RichTextHTML now includes `@tiptap/extension-underline` dependency
 
 ### Version 1.5.0 (February 2026)
 - ✨ VTable DaaS Playground stories (`VTable.daas.stories.tsx`) — connect to real DaaS and test with actual collection data

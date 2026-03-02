@@ -41,7 +41,7 @@ buildpad outdated                # Check for component updates
 | **ui-collections** | `packages/ui-collections/src/` | CollectionForm, CollectionList, ContentLayout, ContentNavigation, FilterPanel, SaveOptions |
 | **types** | `packages/types/src/` | TypeScript type definitions |
 | **services** | `packages/services/src/` | API services (FieldsService, CollectionsService, DaaSProvider, etc.) |
-| **hooks** | `packages/hooks/src/` | React hooks (useAuth, usePermissions, useRelationM2M, etc.) |
+| **hooks** | `packages/hooks/src/` | React hooks (useAuth, usePermissions, useRelationM2M, useRelationMultipleM2M, useFieldMetadata, etc.) |
 | **utils** | `packages/utils/src/` | Utility functions (field-interface-mapper) |
 
 ### Component-to-File Mapping
