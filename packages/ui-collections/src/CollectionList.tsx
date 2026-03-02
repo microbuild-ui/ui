@@ -181,10 +181,12 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         if (cancelled) return;
 
         // All non-system, non-hidden, non-alias fields
+        // DaaS flat format has hidden/type at top level; Directus nests in meta
         let visible = fieldsResult.filter((f: Field) => {
           if (SYSTEM_FIELDS.includes(f.field)) return false;
           if (f.type === "alias") return false;
-          if (f.meta?.hidden) return false;
+          const isHidden = f.meta?.hidden ?? (f as unknown as Record<string, unknown>).hidden;
+          if (isHidden) return false;
           return true;
         });
 
@@ -223,6 +225,12 @@ export const CollectionList: React.FC<CollectionListProps> = ({
           }
           setVisibleFieldKeys(initial);
         }
+
+        // If no visible fields remain, stop loading with a clear message
+        if (visible.length === 0 && !cancelled) {
+          setError(`No visible fields found for collection "${collection}". Verify the collection exists and has non-hidden fields.`);
+          setLoading(false);
+        }
       } catch (err) {
         console.error("Error loading fields:", err);
         if (!cancelled) {
@@ -252,7 +260,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
       const query: Record<string, unknown> = {
         limit,
         page,
-        meta: ["total_count", "filter_count"],
+        meta: "total_count,filter_count",
       };
 
       // Fields to fetch — always include PK
@@ -260,7 +268,8 @@ export const CollectionList: React.FC<CollectionListProps> = ({
       if (!fieldsToFetch.includes(primaryKeyField)) {
         fieldsToFetch.unshift(primaryKeyField);
       }
-      query.fields = fieldsToFetch;
+      // DaaS expects CSV format, not JSON arrays
+      query.fields = fieldsToFetch.join(',');
 
       // Filter
       if (filter && Object.keys(filter).length > 0) {
@@ -286,17 +295,23 @@ export const CollectionList: React.FC<CollectionListProps> = ({
           ]),
       ).toString();
 
-      const response = await apiRequest<{
-        data: Record<string, unknown>[];
-        meta?: { total_count?: number; filter_count?: number };
-      }>(`/api/items/${collection}${queryString ? `?${queryString}` : ""}`);
-      setItems(response.data || []);
-      setTotalCount(
-        response.meta?.total_count ||
-          response.meta?.filter_count ||
-          response.data?.length ||
-          0,
-      );
+      const rawResponse = await apiRequest<
+        { data: Record<string, unknown>[]; meta?: { total_count?: number; filter_count?: number } } | Record<string, unknown>[]
+      >(`/api/items/${collection}${queryString ? `?${queryString}` : ""}`);
+
+      // Handle both { data: [...] } (Directus) and flat array (DaaS) formats
+      if (Array.isArray(rawResponse)) {
+        setItems(rawResponse);
+        setTotalCount(rawResponse.length);
+      } else {
+        setItems(rawResponse.data || []);
+        setTotalCount(
+          rawResponse.meta?.total_count ||
+            rawResponse.meta?.filter_count ||
+            rawResponse.data?.length ||
+            0,
+        );
+      }
     } catch (err) {
       console.error("Error loading items:", err);
       setError(err instanceof Error ? err.message : "Failed to load items");

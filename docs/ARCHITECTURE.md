@@ -343,7 +343,7 @@ registry.ts
 │   │   └── components: [
 │   │       { name: 'Input', category: 'input', ... },
 │   │       { name: 'SelectDropdown', category: 'selection', ... },
-│   │       ...30 components
+│   │       ...33 components
 │   │   ]
 │   ├── @buildpad/ui-form
 │   │   └── components: [

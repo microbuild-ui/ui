@@ -26,21 +26,40 @@ import {
     IconTrash,
     IconExternalLink,
     IconSearch,
-    IconChevronUp,
-    IconChevronDown,
     IconAlertCircle,
     IconChevronDown as IconDropdown,
     IconBox,
+    IconArrowBackUp,
+    IconGripVertical,
 } from "@tabler/icons-react";
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useDisclosure } from "@mantine/hooks";
 import { 
     useRelationM2A, 
     useRelationM2AItems, 
+    useRelationPermissionsM2A,
     type M2AItem, 
-    type M2ARelationInfo 
+    type M2ARelationInfo,
+    type ChangesItem,
 } from "@buildpad/hooks";
 import { CollectionList } from "@buildpad/ui-collections";
-import { CollectionForm } from "@buildpad/ui-collections";
+import { renderTemplate } from "./render-template";
+import { JunctionItemForm } from "./JunctionItemForm";
 
 /**
  * Props for the ListM2A component
@@ -100,6 +119,110 @@ export interface ListM2AProps {
     mockRelationInfo?: Partial<M2ARelationInfo>;
 }
 
+// ── DnD helper: Sortable table row ──
+interface SortableTableRowProps {
+    id: string;
+    dragEnabled: boolean;
+    showDragColumn: boolean;
+    isAllowed: boolean;
+    isDeleted: boolean;
+    children: React.ReactNode;
+    'data-testid'?: string;
+    'data-item-type'?: string;
+}
+
+const SortableTableRow: React.FC<SortableTableRowProps> = ({
+    id,
+    dragEnabled,
+    showDragColumn,
+    isAllowed,
+    isDeleted,
+    children,
+    ...rest
+}) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id,
+        disabled: !dragEnabled,
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : !isAllowed || isDeleted ? 0.5 : 1,
+        textDecoration: isDeleted ? 'line-through' : undefined,
+    };
+
+    return (
+        <Table.Tr ref={setNodeRef} style={style} {...attributes} {...rest}>
+            {showDragColumn && (
+                <Table.Td style={{ width: 50 }}>
+                    {dragEnabled ? (
+                        <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            size="sm"
+                            style={{ cursor: 'grab', touchAction: 'none' }}
+                            data-testid={`m2a-drag-handle-${id}`}
+                            {...listeners}
+                        >
+                            <IconGripVertical size={14} />
+                        </ActionIcon>
+                    ) : null}
+                </Table.Td>
+            )}
+            {children}
+        </Table.Tr>
+    );
+};
+
+// ── DnD helper: Sortable list item wrapper ──
+interface SortableListItemProps {
+    id: string;
+    dragEnabled: boolean;
+    children: React.ReactNode;
+}
+
+const SortableListItem: React.FC<SortableListItemProps> = ({
+    id,
+    dragEnabled,
+    children,
+}) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id,
+        disabled: !dragEnabled,
+    });
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        display: 'flex',
+        alignItems: 'stretch',
+        gap: 4,
+    };
+
+    return (
+        <Box ref={setNodeRef} style={style} {...attributes}>
+            {dragEnabled && (
+                <Box
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        cursor: 'grab',
+                        touchAction: 'none',
+                        padding: '0 4px',
+                    }}
+                    data-testid={`m2a-drag-handle-${id}`}
+                    {...listeners}
+                >
+                    <IconGripVertical size={14} color="var(--mantine-color-gray-5)" />
+                </Box>
+            )}
+            <Box style={{ flex: 1 }}>{children}</Box>
+        </Box>
+    );
+};
+
 /**
  * ListM2A - Many-to-Any relationship interface
  * 
@@ -156,12 +279,6 @@ export const ListM2A: React.FC<ListM2AProps> = ({
     // Internal state for mock items (for demo mode)
     const [internalMockItems, setInternalMockItems] = useState<M2AItem[]>(mockItems || []);
 
-    // Staged selections - items selected but not yet persisted (for new parent items)
-    const [stagedSelections, setStagedSelections] = useState<M2AItem[]>([]);
-
-    // Check if parent item is saved (has valid primary key, not '+' which means new)
-    const isParentSaved = primaryKey && primaryKey !== '+';
-
     // Modal states
     const [editModalOpened, { open: openEditModal, close: closeEditModal }] = useDisclosure(false);
     const [selectModalOpened, { open: openSelectModal, close: closeSelectModal }] = useDisclosure(false);
@@ -169,21 +286,30 @@ export const ListM2A: React.FC<ListM2AProps> = ({
     const [isCreatingNew, setIsCreatingNew] = useState(false);
     const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
     
+    // Check if parent item is saved (has valid primary key, not '+' which means new)
+    const isParentSaved = primaryKey && primaryKey !== '+';
+
     // Error notification state
     const [selectError, setSelectError] = useState<string | null>(null);
 
     // Use the items management hook (only when not in demo mode)
+    // Now uses local-first ChangesItem pattern – no direct API calls
     const {
-        items: hookItems,
+        displayItems: hookDisplayItems,
         totalCount: hookTotalCount,
         loading: itemsLoading,
         loadItems,
         createItem,
+        createItemWithData,
         removeItem,
+        updateItem,
         selectItems,
         moveItemUp: hookMoveItemUp,
         moveItemDown: hookMoveItemDown,
         getSelectedPrimaryKeysByCollection,
+        getChanges,
+        hasChanges,
+        resetChanges,
     } = useRelationM2AItems(
         isDemoMode ? null : (hookRelationInfo as M2ARelationInfo | null), 
         isDemoMode ? null : (primaryKey || null)
@@ -194,15 +320,15 @@ export const ListM2A: React.FC<ListM2AProps> = ({
     const relationError = isDemoMode ? null : hookError;
     const relationLoading = isDemoMode ? false : hookLoading;
 
-    // Combine fetched items with staged selections
-    const baseItems: M2AItem[] = isDemoMode ? internalMockItems : hookItems;
-    const items: M2AItem[] = isParentSaved 
-        ? baseItems 
-        : [...baseItems, ...stagedSelections];
+    // Items to render: in demo mode use mock items, otherwise the merged displayItems
+    const items: M2AItem[] = isDemoMode ? internalMockItems : hookDisplayItems;
+    
+    // Visible items (filter out deleted for counting/display, but keep them for undo)
+    const visibleItems = useMemo(() => items.filter(i => i.$type !== 'deleted'), [items]);
     
     const totalCount = isDemoMode 
         ? internalMockItems.length 
-        : (hookTotalCount + stagedSelections.length);
+        : hookTotalCount;
     const loading = isDemoMode ? false : (relationLoading || itemsLoading);
 
     // Allowed collections (non-singleton)
@@ -211,6 +337,43 @@ export const ListM2A: React.FC<ListM2AProps> = ({
             c => c.meta?.singleton !== true
         ) || [];
     }, [relationInfo?.allowedCollections]);
+
+    // Per-collection permission maps (Directus-style)
+    const {
+        createAllowed: permCreateAllowed,
+        selectAllowed: permSelectAllowed,
+        updateAllowed: permUpdateAllowed,
+        deleteAllowed: permDeleteAllowed,
+    } = useRelationPermissionsM2A(isDemoMode ? null : (hookRelationInfo as M2ARelationInfo | null));
+
+    // Collections where user can create new items
+    const creatableCollections = useMemo(() => {
+        if (isDemoMode) return allowedCollections;
+        return allowedCollections.filter(c => permCreateAllowed[c.collection]);
+    }, [isDemoMode, allowedCollections, permCreateAllowed]);
+
+    // Collections where user can select existing items
+    const selectableCollections = useMemo(() => {
+        if (isDemoMode) return allowedCollections;
+        if (!permSelectAllowed) return [];
+        return allowedCollections;
+    }, [isDemoMode, allowedCollections, permSelectAllowed]);
+
+    // Helper: can user edit this item's collection?
+    const canEditItem = useCallback((item: M2AItem): boolean => {
+        if (isDemoMode) return true;
+        const coll = (relationInfo ? item[relationInfo.collectionField.field] as string : null) || (item as Record<string, unknown>).collection as string;
+        if (!coll) return false;
+        return permUpdateAllowed[coll] ?? false;
+    }, [isDemoMode, relationInfo, permUpdateAllowed]);
+
+    // Helper: can user remove/unlink this item?
+    const canDeleteItem = useCallback((item: M2AItem): boolean => {
+        if (isDemoMode) return true;
+        const coll = (relationInfo ? item[relationInfo.collectionField.field] as string : null) || (item as Record<string, unknown>).collection as string;
+        if (!coll) return false;
+        return permDeleteAllowed[coll] ?? false;
+    }, [isDemoMode, relationInfo, permDeleteAllowed]);
 
     // Get display template for each collection
     const getDisplayTemplate = useCallback((collectionName: string) => {
@@ -224,67 +387,127 @@ export const ListM2A: React.FC<ListM2AProps> = ({
         onChangeRef.current = _onChange;
     }, [_onChange]);
 
-    // Track previous staged selections to avoid duplicate updates
-    const prevStagedSelectionsRef = useRef<string>('');
+    // Track previous changes JSON to avoid duplicate onChange emissions
+    const prevChangesRef = useRef<string>('');
+    // Track whether we've ever emitted so we don't clear formData on initial load
+    const hasEmittedRef = useRef(false);
 
-    // Notify parent component when staged selections change (for unsaved parent items)
+    // Notify parent component whenever local changes change.
+    // Builds a flat M2A payload for DaaS processM2AField (replace mode):
+    //   [{ collection: "coll_name", item: "item_id" }, ...]
+    // Must include ALL visible items (fetched + created - deleted) because
+    // DaaS deletes all existing junction records, then inserts the payload.
     useEffect(() => {
-        // Only process for unsaved parent items
-        if (isParentSaved || !relationInfo) {
-            return;
-        }
+        if (isDemoMode || !relationInfo) return;
 
-        // Serialize current selections to compare
-        const currentSerialized = JSON.stringify(
-            stagedSelections.map(item => ({
-                collection: item.collection,
-                item: item.item,
-            }))
-        );
-
-        // Skip if nothing changed
-        if (currentSerialized === prevStagedSelectionsRef.current) {
-            return;
-        }
-
-        prevStagedSelectionsRef.current = currentSerialized;
-
-        // Build payload and notify parent
-        if (onChangeRef.current) {
-            if (stagedSelections.length > 0) {
-                const createPayload = stagedSelections.map(item => ({
-                    [relationInfo.collectionField.field]: item.collection,
-                    [relationInfo.junctionField.field]: item.item,
-                }));
-                onChangeRef.current(createPayload as M2AItem[]);
-            } else {
-                onChangeRef.current([]);
+        if (!hasChanges) {
+            // No local changes. If we previously emitted, clear the form value
+            // so saving doesn't accidentally trigger replace-mode with stale data.
+            if (hasEmittedRef.current) {
+                onChangeRef.current?.(undefined as unknown as M2AItem[]);
+                hasEmittedRef.current = false;
+                prevChangesRef.current = '';
             }
+            return;
         }
-    }, [stagedSelections, isParentSaved, relationInfo]);
+
+        const currentChanges = getChanges();
+        const serialized = JSON.stringify(currentChanges);
+
+        if (serialized === prevChangesRef.current) return;
+        prevChangesRef.current = serialized;
+
+        // Build the full M2A replacement payload from all non-deleted items.
+        const collField = relationInfo.collectionField.field;
+        const itemField = relationInfo.junctionField.field;
+
+        const payload = hookDisplayItems
+            .filter(item => item.$type !== 'deleted')
+            .map(item => {
+                const collectionName = item[collField] as string;
+                const junctionFieldValue = item[itemField];
+
+                // Extract the plain item ID.
+                // loadItems enrichment replaces the flat junction ID with a nested
+                // object like { id: "uuid", title: "..." }. For locally-created
+                // items it's { id: "uuid" }. We need the flat ID for the backend.
+                let itemId: string | number | undefined;
+                if (typeof junctionFieldValue === 'object' && junctionFieldValue !== null) {
+                    const nested = junctionFieldValue as Record<string, unknown>;
+                    itemId = (nested.id ?? Object.values(nested)[0]) as string | number;
+                } else {
+                    itemId = junctionFieldValue as string | number;
+                }
+
+                return {
+                    [collField]: collectionName,
+                    [itemField]: itemId,
+                };
+            })
+            .filter(entry => entry[collField] && entry[itemField]);
+
+        onChangeRef.current?.(payload as unknown as M2AItem[]);
+        hasEmittedRef.current = true;
+    }, [isDemoMode, relationInfo, getChanges, hasChanges, hookDisplayItems]);
 
     // Functions that work for both demo and real mode
-    const moveItemUp = async (index: number) => {
+    const moveItemUp = (index: number) => {
         if (isDemoMode) {
             if (index <= 0) return;
             const newItems = [...internalMockItems];
             [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
             setInternalMockItems(newItems);
         } else {
-            await hookMoveItemUp(index);
+            hookMoveItemUp(index);
         }
     };
 
-    const moveItemDown = async (index: number) => {
+    const moveItemDown = (index: number) => {
         if (isDemoMode) {
             if (index >= internalMockItems.length - 1) return;
             const newItems = [...internalMockItems];
             [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
             setInternalMockItems(newItems);
         } else {
-            await hookMoveItemDown(index);
+            hookMoveItemDown(index);
         }
     };
+
+    // ── Drag & Drop (DnD) setup ──
+    // Drag is only allowed when: there's a sortField, not disabled, and all items fit on one page
+    const hasSortField = !!relationInfo?.sortField;
+    const canDrag = hasSortField && !disabled && visibleItems.length <= limit;
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+
+    // Sortable item IDs (must be strings for DnD)
+    const sortableIds = useMemo(
+        () => visibleItems.map((item) => String(item.id)),
+        [visibleItems],
+    );
+
+    // Handle drag end → reorder items
+    const handleDragEnd = useCallback(
+        (event: DragEndEvent) => {
+            const { active, over } = event;
+            if (!over || active.id === over.id) return;
+
+            const oldIndex = visibleItems.findIndex((i) => String(i.id) === String(active.id));
+            const newIndex = visibleItems.findIndex((i) => String(i.id) === String(over.id));
+            if (oldIndex === -1 || newIndex === -1) return;
+
+            // Move item from oldIndex to newIndex using repeated up/down
+            if (oldIndex < newIndex) {
+                for (let i = oldIndex; i < newIndex; i++) moveItemDown(i);
+            } else {
+                for (let i = oldIndex; i > newIndex; i--) moveItemUp(i);
+            }
+        },
+        [visibleItems, moveItemUp, moveItemDown],
+    );
 
     // Load items when parameters change (only for real mode)
     useEffect(() => {
@@ -329,88 +552,24 @@ export const ListM2A: React.FC<ListM2AProps> = ({
         if (!selectedCollection) return;
         setSelectError(null);
 
-        if (isParentSaved) {
-            try {
-                await selectItems(selectedCollection, selectedIds);
-                closeSelectModal();
-                setSelectedCollection(null);
-                // Reload items
-                if (relationInfo && primaryKey) {
-                    loadItems({
-                        limit,
-                        page: currentPage,
-                        search: enableSearchFilter ? search : undefined,
-                        sortField,
-                        sortDirection,
-                        fields,
-                    });
-                }
-            } catch (err) {
-                console.error('Error selecting items:', err);
-                setSelectError('Failed to link items. Please try again.');
-            }
-        } else {
-            // Stage selections for unsaved parent
-            try {
-                const response = await fetch(
-                    `/api/items/${selectedCollection}?filter=${JSON.stringify({
-                        id: { _in: selectedIds }
-                    })}&fields=*`
-                );
-
-                if (!response.ok) throw new Error('Failed to fetch items');
-
-                const { data: fetchedItems } = await response.json();
-
-                const stagedItems: M2AItem[] = fetchedItems.map((itemData: Record<string, unknown>) => ({
-                    id: `staged-${Date.now()}-${Math.random()}`,
-                    collection: selectedCollection,
-                    item: itemData,
-                    $type: 'staged' as const,
-                }));
-
-                setStagedSelections(prev => {
-                    if (allowDuplicates) {
-                        return [...prev, ...stagedItems];
-                    }
-                    // Filter out duplicates
-                    const existingIds = new Set(
-                        prev
-                            .filter(i => i.collection === selectedCollection)
-                            .map(i => (i.item as Record<string, unknown>)?.id)
-                    );
-                    const newItems = stagedItems.filter(
-                        i => !existingIds.has((i.item as Record<string, unknown>)?.id)
-                    );
-                    return [...prev, ...newItems];
-                });
-
-                closeSelectModal();
-                setSelectedCollection(null);
-            } catch (err) {
-                console.error('Error staging items:', err);
-                setSelectError('Failed to select items. Please try again.');
-            }
-        }
+        // Local-first: stage selections – no API calls
+        selectItems(selectedCollection, selectedIds);
+        closeSelectModal();
+        setSelectedCollection(null);
     };
 
-    // Handle removing item
-    const handleRemoveItem = async (item: M2AItem) => {
-        if (item.$type === 'staged') {
-            setStagedSelections(prev => prev.filter(i => i.id !== item.id));
-            return;
-        }
-
+    // Handle removing item (local-first: just toggle $type)
+    const handleRemoveItem = (item: M2AItem) => {
         if (isDemoMode) {
             setInternalMockItems(prev => prev.filter(i => i.id !== item.id));
             return;
         }
 
-        try {
-            await removeItem(item);
-        } catch (err) {
-            console.error('Error removing item:', err);
-        }
+        // removeItem handles all cases:
+        // - created items → splice from create array
+        // - deleted items → undo (splice from delete array)
+        // - fetched items → add to delete array
+        removeItem(item);
     };
 
     // Get the collection prefix/label for an item
@@ -419,12 +578,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
         const collectionName = item[relationInfo.collectionField.field] as string || item.collection;
         
         if (prefix) {
-            // Simple template rendering for prefix
-            let rendered = prefix;
-            Object.entries(item).forEach(([key, value]) => {
-                rendered = rendered.replace(`{{${key}}}`, String(value || ''));
-            });
-            return rendered;
+            return renderTemplate(prefix, item as Record<string, unknown>);
         }
 
         const collInfo = allowedCollections.find(c => c.collection === collectionName);
@@ -443,12 +597,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
         const template = getDisplayTemplate(collectionName || '');
         
         if (typeof itemData === 'object' && itemData !== null) {
-            // Simple template rendering
-            let rendered = template;
-            Object.entries(itemData as Record<string, unknown>).forEach(([key, value]) => {
-                rendered = rendered.replace(`{{${key}}}`, String(value || ''));
-            });
-            return rendered;
+            return renderTemplate(template, itemData as Record<string, unknown>);
         }
 
         return String(itemData);
@@ -457,7 +606,8 @@ export const ListM2A: React.FC<ListM2AProps> = ({
     // Check if item's collection is still allowed
     const isCollectionAllowed = (item: M2AItem): boolean => {
         if (!relationInfo) return false;
-        const collectionName = item[relationInfo.collectionField.field] as string || item.collection;
+        const cfField = relationInfo.collectionField.field;
+        const collectionName = item[cfField] as string || (item as Record<string, unknown>).collection as string;
         return allowedCollections.some(c => c.collection === collectionName);
     };
 
@@ -548,7 +698,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                             </Text>
                         )}
 
-                        {!disabled && enableSelect && allowedCollections.length > 0 && (
+                        {!disabled && enableSelect && selectableCollections.length > 0 && (
                             <Menu shadow="md" width={200}>
                                 <Menu.Target>
                                     <Button
@@ -561,7 +711,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                     </Button>
                                 </Menu.Target>
                                 <Menu.Dropdown>
-                                    {allowedCollections.map(coll => (
+                                    {selectableCollections.map(coll => (
                                         <Menu.Item
                                             key={coll.collection}
                                             leftSection={<IconBox size={14} />}
@@ -575,7 +725,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                             </Menu>
                         )}
 
-                        {!disabled && enableCreate && allowedCollections.length > 0 && (
+                        {!disabled && enableCreate && creatableCollections.length > 0 && (
                             <Menu shadow="md" width={200}>
                                 <Menu.Target>
                                     <Tooltip 
@@ -593,7 +743,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                     </Tooltip>
                                 </Menu.Target>
                                 <Menu.Dropdown>
-                                    {allowedCollections.map(coll => (
+                                    {creatableCollections.map(coll => (
                                         <Menu.Item
                                             key={coll.collection}
                                             leftSection={<IconBox size={14} />}
@@ -609,11 +759,10 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                     </Group>
                 </Group>
 
-                {/* Staged items notice */}
-                {!isParentSaved && stagedSelections.length > 0 && (
-                    <Alert icon={<IconAlertCircle size={16} />} color="blue" mb="md">
-                        {stagedSelections.length} item{stagedSelections.length !== 1 ? 's' : ''} selected.
-                        These will be linked when you save the item.
+                {/* Unsaved changes notice */}
+                {!isDemoMode && hasChanges && (
+                    <Alert icon={<IconAlertCircle size={16} />} color="blue" mb="md" data-testid="m2a-unsaved-notice">
+                        You have unsaved changes. Save the parent item to persist them.
                     </Alert>
                 )}
 
@@ -630,18 +779,27 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                     </Alert>
                 )}
 
+                {/* Drag disabled notice (paginated) */}
+                {hasSortField && !disabled && visibleItems.length > limit && (
+                    <Alert icon={<IconAlertCircle size={16} />} color="yellow" mb="md" data-testid="m2a-drag-disabled-notice">
+                        Drag &amp; drop sorting is disabled when items are paginated. Reduce items or increase page size to enable.
+                    </Alert>
+                )}
+
                 {/* Content */}
                 {items.length === 0 && !loading ? (
                     <Paper p="xl" style={{ textAlign: 'center' }} data-testid="m2a-empty">
                         <Text c="dimmed">No items</Text>
                     </Paper>
                 ) : layout === 'table' ? (
-                    /* Table Layout */
+                    /* Table Layout — wrapped with DnD */
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
                     <Table striped highlightOnHover data-testid="m2a-table">
                         <Table.Thead>
                             <Table.Tr>
-                                {relationInfo?.sortField && (
-                                    <Table.Th style={{ width: 80 }}>Order</Table.Th>
+                                {hasSortField && (
+                                    <Table.Th style={{ width: 50 }}></Table.Th>
                                 )}
                                 <Table.Th style={{ width: 150 }}>Collection</Table.Th>
                                 <Table.Th>Item</Table.Th>
@@ -649,39 +807,23 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
-                            {items.map((item, index) => {
+                            {items.map((item) => {
                                 const isAllowed = isCollectionAllowed(item);
+                                const isDeleted = item.$type === 'deleted';
+                                const isCreated = item.$type === 'created';
+                                const isUpdated = item.$type === 'updated';
                                 
                                 return (
-                                    <Table.Tr 
+                                    <SortableTableRow 
                                         key={item.id} 
+                                        id={String(item.id)}
+                                        dragEnabled={canDrag && !isDeleted}
+                                        showDragColumn={hasSortField}
+                                        isAllowed={isAllowed}
+                                        isDeleted={isDeleted}
                                         data-testid={`m2a-row-${item.id}`}
-                                        style={!isAllowed ? { opacity: 0.6 } : undefined}
+                                        data-item-type={item.$type}
                                     >
-                                        {relationInfo?.sortField && (
-                                            <Table.Td>
-                                                <Group gap="xs">
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        size="sm"
-                                                        disabled={index === 0 || disabled}
-                                                        onClick={() => moveItemUp(index)}
-                                                        data-testid={`m2a-move-up-${item.id}`}
-                                                    >
-                                                        <IconChevronUp size={14} />
-                                                    </ActionIcon>
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        size="sm"
-                                                        disabled={index === items.length - 1 || disabled}
-                                                        onClick={() => moveItemDown(index)}
-                                                        data-testid={`m2a-move-down-${item.id}`}
-                                                    >
-                                                        <IconChevronDown size={14} />
-                                                    </ActionIcon>
-                                                </Group>
-                                            </Table.Td>
-                                        )}
                                         <Table.Td>
                                             <Badge 
                                                 color={isAllowed ? 'blue' : 'gray'}
@@ -692,7 +834,12 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                         </Table.Td>
                                         <Table.Td>
                                             {isAllowed ? (
-                                                <Text size="sm">{getItemDisplayValue(item)}</Text>
+                                                <Group gap="xs">
+                                                    <Text size="sm" td={isDeleted ? 'line-through' : undefined}>{getItemDisplayValue(item)}</Text>
+                                                    {isCreated && <Badge size="xs" color="green" variant="light">new</Badge>}
+                                                    {isUpdated && <Badge size="xs" color="yellow" variant="light">edited</Badge>}
+                                                    {isDeleted && <Badge size="xs" color="red" variant="light">removed</Badge>}
+                                                </Group>
                                             ) : (
                                                 <Group gap="xs">
                                                     <IconAlertCircle size={14} color="orange" />
@@ -702,7 +849,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                         </Table.Td>
                                         <Table.Td>
                                             <Group gap="xs">
-                                                {enableLink && isAllowed && (
+                                                {enableLink && isAllowed && !isDeleted && (
                                                     <Tooltip label="View item">
                                                         <ActionIcon
                                                             variant="subtle"
@@ -715,7 +862,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                                     </Tooltip>
                                                 )}
 
-                                                {!disabled && isAllowed && (
+                                                {!disabled && isAllowed && !isDeleted && canEditItem(item) && (
                                                     <Tooltip label="Edit">
                                                         <ActionIcon
                                                             variant="subtle"
@@ -729,7 +876,21 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                                     </Tooltip>
                                                 )}
 
-                                                {!disabled && (
+                                                {!disabled && isDeleted && (
+                                                    <Tooltip label="Undo remove">
+                                                        <ActionIcon
+                                                            variant="subtle"
+                                                            color="blue"
+                                                            size="sm"
+                                                            onClick={() => handleRemoveItem(item)}
+                                                            data-testid={`m2a-undo-${item.id}`}
+                                                        >
+                                                            <IconArrowBackUp size={14} />
+                                                        </ActionIcon>
+                                                    </Tooltip>
+                                                )}
+
+                                                {!disabled && !isDeleted && canDeleteItem(item) && (
                                                     <Tooltip label="Remove">
                                                         <ActionIcon
                                                             variant="subtle"
@@ -744,65 +905,54 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                                 )}
                                             </Group>
                                         </Table.Td>
-                                    </Table.Tr>
+                                    </SortableTableRow>
                                 );
                             })}
                         </Table.Tbody>
                     </Table>
+                    </SortableContext>
+                    </DndContext>
                 ) : (
-                    /* List Layout */
+                    /* List Layout — wrapped with DnD */
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
                     <Stack gap="xs" data-testid="m2a-list">
-                        {items.map((item, index) => {
+                        {items.map((item) => {
                             const isAllowed = isCollectionAllowed(item);
                             const isDeleted = item.$type === 'deleted';
+                            const isCreated = item.$type === 'created';
+                            const isUpdated = item.$type === 'updated';
                             
                             return (
-                                <Paper
+                                <SortableListItem
                                     key={item.id}
+                                    id={String(item.id)}
+                                    dragEnabled={canDrag && !isDeleted}
+                                >
+                                <Paper
                                     p="sm"
                                     withBorder
                                     style={{ 
-                                        cursor: disabled || !isAllowed ? 'default' : 'pointer',
-                                        opacity: !isAllowed || isDeleted ? 0.6 : 1,
+                                        cursor: disabled || !isAllowed || isDeleted || !canEditItem(item) ? 'default' : 'pointer',
+                                        opacity: !isAllowed || isDeleted ? 0.5 : 1,
+                                        textDecoration: isDeleted ? 'line-through' : undefined,
+                                        borderColor: isCreated ? 'var(--mantine-color-green-4)' : isUpdated ? 'var(--mantine-color-yellow-4)' : isDeleted ? 'var(--mantine-color-red-3)' : undefined,
                                     }}
-                                    onClick={() => !disabled && isAllowed && handleEditItem(item)}
+                                    onClick={() => !disabled && isAllowed && !isDeleted && canEditItem(item) && handleEditItem(item)}
                                     data-testid={`m2a-item-${item.id}`}
+                                    data-item-type={item.$type}
                                 >
                                     <Group justify="space-between">
                                         <Group>
-                                            {relationInfo?.sortField && !disabled && (
-                                                <Group gap="xs">
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        size="sm"
-                                                        disabled={index === 0}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            moveItemUp(index);
-                                                        }}
-                                                        data-testid={`m2a-list-move-up-${item.id}`}
-                                                    >
-                                                        <IconChevronUp size={14} />
-                                                    </ActionIcon>
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        size="sm"
-                                                        disabled={index === items.length - 1}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            moveItemDown(index);
-                                                        }}
-                                                        data-testid={`m2a-list-move-down-${item.id}`}
-                                                    >
-                                                        <IconChevronDown size={14} />
-                                                    </ActionIcon>
-                                                </Group>
-                                            )}
-                                            
                                             {isAllowed ? (
                                                 <Group gap="xs">
                                                     <Text c="blue" fw={500}>{getItemPrefix(item)}:</Text>
-                                                    <Text>{getItemDisplayValue(item)}</Text>
+                                                    <Text td={isDeleted ? 'line-through' : undefined}>
+                                                        {getItemDisplayValue(item)}
+                                                    </Text>
+                                                    {isCreated && <Badge size="xs" color="green" variant="light">new</Badge>}
+                                                    {isUpdated && <Badge size="xs" color="yellow" variant="light">edited</Badge>}
+                                                    {isDeleted && <Badge size="xs" color="red" variant="light">removed</Badge>}
                                                 </Group>
                                             ) : (
                                                 <Group gap="xs">
@@ -813,7 +963,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                         </Group>
                                         
                                         <Group gap="xs">
-                                            {enableLink && isAllowed && (
+                                            {enableLink && isAllowed && !isDeleted && (
                                                 <ActionIcon
                                                     variant="subtle"
                                                     color="blue"
@@ -824,26 +974,47 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                                                     <IconExternalLink size={14} />
                                                 </ActionIcon>
                                             )}
-                                            {!disabled && (
-                                                <ActionIcon
-                                                    variant="subtle"
-                                                    color="red"
-                                                    size="sm"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleRemoveItem(item);
-                                                    }}
-                                                    data-testid={`m2a-list-remove-${item.id}`}
-                                                >
-                                                    <IconTrash size={14} />
-                                                </ActionIcon>
+                                            {!disabled && isDeleted && (
+                                                <Tooltip label="Undo remove">
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        color="blue"
+                                                        size="sm"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleRemoveItem(item); // toggles undo for deleted items
+                                                        }}
+                                                        data-testid={`m2a-list-undo-${item.id}`}
+                                                    >
+                                                        <IconArrowBackUp size={14} />
+                                                    </ActionIcon>
+                                                </Tooltip>
+                                            )}
+                                            {!disabled && !isDeleted && canDeleteItem(item) && (
+                                                <Tooltip label="Remove">
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        color="red"
+                                                        size="sm"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleRemoveItem(item);
+                                                        }}
+                                                        data-testid={`m2a-list-remove-${item.id}`}
+                                                    >
+                                                        <IconTrash size={14} />
+                                                    </ActionIcon>
+                                                </Tooltip>
                                             )}
                                         </Group>
                                     </Group>
                                 </Paper>
+                                </SortableListItem>
                             );
                         })}
                     </Stack>
+                    </SortableContext>
+                    </DndContext>
                 )}
 
                 {/* Pagination */}
@@ -888,45 +1059,41 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                 </Text>
             )}
 
-            {/* Edit Modal */}
+            {/* Edit Modal — junction-based form (two sections: related item + junction metadata) */}
             <Modal
                 opened={editModalOpened}
                 onClose={() => {
                     closeEditModal();
+                    setCurrentlyEditing(null);
                     setSelectedCollection(null);
                 }}
                 title={isCreatingNew ? `Create New ${selectedCollection}` : `Edit ${selectedCollection}`}
                 size="lg"
             >
-                {selectedCollection && (
-                    <CollectionForm
-                        collection={selectedCollection}
-                        id={currentlyEditing 
-                            ? (currentlyEditing[relationInfo?.junctionField?.field || 'item'] as Record<string, unknown>)?.id as string | number
-                            : undefined
-                        }
-                        mode={isCreatingNew ? "create" : "edit"}
-                        onSuccess={async (newId) => {
+                {selectedCollection && relationInfo && (
+                    <JunctionItemForm
+                        relationInfo={relationInfo}
+                        item={currentlyEditing}
+                        targetCollection={selectedCollection}
+                        isNew={isCreatingNew}
+                        parentPrimaryKey={primaryKey}
+                        disabled={disabled}
+                        onCancel={() => {
                             closeEditModal();
-                            if (isCreatingNew && newId && isParentSaved) {
-                                // Create junction record linking to new item
-                                const itemId = typeof newId === 'object' && newId !== null 
-                                    ? (newId as Record<string, unknown>).id as string | number
-                                    : newId as string | number;
-                                await createItem(selectedCollection, itemId);
-                            }
+                            setCurrentlyEditing(null);
                             setSelectedCollection(null);
-                            // Reload items
-                            if (!isDemoMode && relationInfo && primaryKey) {
-                                loadItems({
-                                    limit,
-                                    page: currentPage,
-                                    search: enableSearchFilter ? search : undefined,
-                                    sortField,
-                                    sortDirection,
-                                    fields,
-                                });
+                        }}
+                        onSave={(edits) => {
+                            if (isCreatingNew) {
+                                // Stage a junction create with the related item nested
+                                createItemWithData(selectedCollection || '', edits);
+                            } else if (currentlyEditing) {
+                                // Stage an update to the junction row (includes nested related edits)
+                                updateItem(currentlyEditing, edits);
                             }
+                            closeEditModal();
+                            setCurrentlyEditing(null);
+                            setSelectedCollection(null);
                         }}
                     />
                 )}
@@ -957,15 +1124,15 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                     </Alert>
                 )}
 
-                {/* Staged notice */}
-                {!isParentSaved && !selectError && (
+                {/* Staged notice – local-first, changes are always staged */}
+                {!selectError && (
                     <Alert 
                         icon={<IconAlertCircle size={16} />} 
                         title="Items will be linked when you save" 
                         color="blue" 
                         mb="md"
                     >
-                        Selected items will be linked after you save the current item.
+                        Selected items will be staged locally and saved when you save the parent item.
                     </Alert>
                 )}
 
@@ -974,12 +1141,14 @@ export const ListM2A: React.FC<ListM2AProps> = ({
                         <CollectionList
                             collection={selectedCollection}
                             enableSelection
-                            filter={!allowDuplicates && isParentSaved ? (() => {
+                            filter={!allowDuplicates ? (() => {
                                 const selectedByCollection = getSelectedPrimaryKeysByCollection();
                                 const selectedIds = selectedByCollection[selectedCollection] || [];
                                 if (selectedIds.length === 0) return undefined;
+                                // Use actual PK field from relation info (not hardcoded "id")
+                                const pkField = relationInfo?.relationPrimaryKeyFields?.[selectedCollection]?.field || 'id';
                                 return {
-                                    id: { _nin: selectedIds }
+                                    [pkField]: { _nin: selectedIds }
                                 };
                             })() : undefined}
                             bulkActions={[

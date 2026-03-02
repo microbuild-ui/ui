@@ -1,8 +1,8 @@
 {
-  "$schema": "https://buildpad.dev/registry.schema.json",
+  "$schema": "https://raw.githubusercontent.com/microbuild-ui/ui/refs/heads/main/packages/registry.json",
   "version": "1.0.0",
   "name": "buildpad",
-  "description": "A collection of copy-and-own components for building DaaS-compatible CMS frontends",
+  "description": "A collection of copy-and-own components for building DaaS-compatible Nextjs frontends",
   "license": "MIT",
   "repository": "https://github.com/microbuild-ui/ui",
   "meta": {
@@ -211,6 +211,10 @@
         {
           "source": "hooks/src/useRelationM2A.ts",
           "target": "lib/buildpad/hooks/useRelationM2A.ts"
+        },
+        {
+          "source": "hooks/src/useRelationPermissionsM2A.ts",
+          "target": "lib/buildpad/hooks/useRelationPermissionsM2A.ts"
         },
         {
           "source": "hooks/src/useSelection.ts",
@@ -1251,6 +1255,14 @@
         {
           "source": "ui-interfaces/src/list-m2a/ListM2A.tsx",
           "target": "components/ui/list-m2a.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/list-m2a/JunctionItemForm.tsx",
+          "target": "components/ui/list-m2a/JunctionItemForm.tsx"
+        },
+        {
+          "source": "ui-interfaces/src/list-m2a/render-template.ts",
+          "target": "components/ui/list-m2a/render-template.ts"
         }
       ],
       "dependencies": [
@@ -1504,7 +1516,8 @@
         "@tiptap/extension-subscript",
         "@tiptap/extension-placeholder",
         "@tiptap/extension-color",
-        "@tiptap/extension-text-style"
+        "@tiptap/extension-text-style",
+        "@tiptap/extension-underline"
       ],
       "internalDependencies": [],
       "interface": {

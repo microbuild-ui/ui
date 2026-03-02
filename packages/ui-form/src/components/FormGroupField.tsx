@@ -52,7 +52,7 @@ function getChildFields(allFields: Field[], groupName: string): TFormField[] {
     .sort((a, b) => (a.meta?.sort ?? 0) - (b.meta?.sort ?? 0))
     .map((f) => ({
       ...f,
-      name: f.meta?.name ?? f.name ?? f.field,
+      name: (f as Record<string, any>).name ?? f.field,
     })) as TFormField[];
 }
 
@@ -182,13 +182,13 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
         data-field={field.field}
       >
         <GroupDetail
-          field={field}
+          field={field as any}
           fields={allFields as any}
           values={values}
           initialValues={initialValues}
           disabled={disabled}
           loading={loading}
-          validationErrors={childValidationErrors}
+          validationErrors={childValidationErrors as any}
           start={interfaceConfig.props?.start as 'open' | 'closed'}
           headerIcon={interfaceConfig.props?.headerIcon as string}
           headerColor={interfaceConfig.props?.headerColor as string}
@@ -207,13 +207,13 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
         data-field={field.field}
       >
         <GroupAccordion
-          field={field}
+          field={field as any}
           fields={allFields as any}
           values={values}
           initialValues={initialValues}
           disabled={disabled}
           loading={loading}
-          validationErrors={childValidationErrors}
+          validationErrors={childValidationErrors as any}
           accordionMode={interfaceConfig.props?.accordionMode as boolean}
           start={interfaceConfig.props?.start as 'opened' | 'closed' | 'first'}
           renderSection={(section) => {
@@ -242,7 +242,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
             const fullField = allFields.find((f) => f.field === section.field) || section;
             const sectionFormField = {
               ...fullField,
-              name: fullField.meta?.name ?? (fullField as any).name ?? fullField.field,
+              name: (fullField as any).name ?? fullField.field,
               hideLabel: true,
             } as TFormField;
 
@@ -274,7 +274,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
         className={`form-field field-width-${className || 'full'}`}
         data-field={field.field}
       >
-        <GroupRaw field={field} disabled={disabled}>
+        <GroupRaw field={field as any} disabled={disabled}>
           <ChildFieldsRenderer {...childProps} />
         </GroupRaw>
       </Box>

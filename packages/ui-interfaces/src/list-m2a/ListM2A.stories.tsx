@@ -352,3 +352,77 @@ export const FullFeatured: Story = {
     },
   },
 };
+
+/**
+ * Demonstrates local-first state management with items in different states.
+ * Items show visual indicators: green border (new), yellow (edited), red + strikethrough (removed).
+ */
+export const LocalFirstStates: Story = {
+  args: {
+    label: 'Local-First Demo',
+    collection: 'pages',
+    field: 'blocks',
+    primaryKey: 'page-1',
+    layout: 'list',
+    mockItems: [
+      { id: 1, collection: 'text_blocks', item: { id: '101', title: 'Existing Item' }, sort: 1 },
+      { id: 2, collection: 'image_blocks', item: { id: '201', title: 'Updated Item' }, sort: 2, $type: 'updated' as const, $index: 0 },
+      { id: 3, collection: 'text_blocks', item: { id: '102', title: 'Deleted Item' }, sort: 3, $type: 'deleted' as const, $index: 0 },
+      { id: '$new-0', collection: 'video_blocks', item: { id: '301', title: 'Newly Added' }, sort: 4, $type: 'created' as const, $index: 0 },
+    ],
+    mockRelationInfo: {
+      allowedCollections: [
+        { collection: 'text_blocks' },
+        { collection: 'image_blocks' },
+        { collection: 'video_blocks' },
+      ],
+      junctionCollection: { collection: 'pages_blocks' },
+      collectionField: { field: 'collection' },
+      junctionField: { field: 'item' },
+      sortField: 'sort',
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `Demonstrates local-first state management. Items have visual state indicators:
+- **No marker**: Fetched from server, unmodified
+- **Green border + "new" badge**: Locally created, not yet saved
+- **Yellow border + "edited" badge**: Edited locally, pending save
+- **Red + strikethrough + "removed" badge**: Marked for deletion, with undo option`,
+      },
+    },
+  },
+};
+
+/**
+ * Live DaaS story — connects to real test_m2a_pages collection.
+ * Requires DaaS test collections to be created (test_m2a_pages, test_m2a_page_blocks,
+ * test_m2a_text_blocks, test_m2a_image_blocks) and DaaSProvider configured in Storybook.
+ *
+ * This story exercises:
+ * - DaaS flat-format relation discovery (two-relation M2A pattern)
+ * - Live item loading from junction table
+ * - JunctionItemForm (two-section edit modal via junction collection)
+ * - Create, edit, remove, and select existing items
+ */
+export const LiveDaaS: Story = {
+  args: {
+    label: 'Page Blocks (Live DaaS)',
+    collection: 'test_m2a_pages',
+    field: 'blocks',
+    primaryKey: 1,
+    layout: 'list',
+    enableCreate: true,
+    enableSelect: true,
+    enableLink: false,
+    description: 'Live M2A interface connected to DaaS test collections',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `Live DaaS story — connects to **test_m2a_pages** with junction **test_m2a_page_blocks** and related collections **test_m2a_text_blocks** / **test_m2a_image_blocks**. Exercises full DaaS relation discovery, item loading, and junction-based edit modal.`,
+      },
+    },
+  },
+};

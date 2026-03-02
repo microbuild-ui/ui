@@ -1,18 +1,18 @@
 import React from 'react';
-import { Sort } from '@microbuild/ui-table';
-import { AnyItem, Field, Collection, Bookmark } from '@microbuild/types';
+import { AnyItem, Field, Collection, Bookmark } from '@buildpad/types';
+import { Sort } from '@buildpad/ui-table';
 
 /**
  * CollectionForm Component
  *
  * A CRUD wrapper around VForm that handles data fetching and persistence.
- * Uses VForm for the actual form rendering with all @microbuild/ui-interfaces components.
+ * Uses VForm for the actual form rendering with all @buildpad/ui-interfaces components.
  *
  * Architecture:
  * - CollectionForm = Data layer (fetch fields, load/save items, CRUD operations)
- * - VForm = Presentation layer (renders fields with proper interfaces from @microbuild/ui-interfaces)
+ * - VForm = Presentation layer (renders fields with proper interfaces from @buildpad/ui-interfaces)
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 interface CollectionFormProps {
@@ -21,7 +21,7 @@ interface CollectionFormProps {
     /** Item ID for edit mode */
     id?: string | number;
     /** Mode: create or edit */
-    mode?: 'create' | 'edit';
+    mode?: "create" | "edit";
     /** Default values for new items */
     defaultValues?: Record<string, unknown>;
     /** Callback on successful save */
@@ -43,12 +43,12 @@ declare const CollectionForm: React.FC<CollectionFormProps>;
  *
  * A dynamic list/table that fetches items from a collection.
  * Composes VTable for presentation (sorting, resize, reorder, selection)
- * with data fetching from FieldsService/ItemsService.
+ * with data fetching from FieldsService/apiRequest.
  *
  * Used by ListO2M and ListM2M for selecting existing items,
  * and by content module pages for collection list views.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 interface BulkAction {
@@ -62,7 +62,7 @@ interface CollectionListProps {
     collection: string;
     /** Enable row selection */
     enableSelection?: boolean;
-    /** Filter to apply (Directus-style filter object) */
+    /** Filter to apply (DaaS-style filter object) */
     filter?: Record<string, unknown>;
     /** Bulk actions for selected items */
     bulkActions?: BulkAction[];
@@ -87,7 +87,7 @@ interface CollectionListProps {
     /** Row height in pixels */
     rowHeight?: number;
     /** Table spacing preset */
-    tableSpacing?: 'compact' | 'cozy' | 'comfortable';
+    tableSpacing?: "compact" | "cozy" | "comfortable";
     /** Callback when item row is clicked */
     onItemClick?: (item: AnyItem) => void;
     /** Callback when visible fields change */
@@ -105,13 +105,13 @@ declare const CollectionList: React.FC<CollectionListProps>;
  * FilterPanel Component
  *
  * A field-type-aware filter builder for collection queries.
- * Inspired by Directus's system-filter interface.
+ * Inspired by DaaS's system-filter interface.
  *
- * Produces Directus-compatible filter objects ({ _and: [...] })
+ * Produces DaaS-compatible filter objects ({ _and: [...] })
  * that can be passed to CollectionList's `filter` prop or
- * used directly with ItemsService.readByQuery().
+ * used directly with apiRequest for custom queries.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 /** A single filter rule */
@@ -130,7 +130,7 @@ interface FilterGroup {
 interface FilterPanelProps {
     /** Available fields to filter on */
     fields: Field[];
-    /** Current filter value (Directus-style JSON) */
+    /** Current filter value (DaaS-style JSON) */
     value?: Record<string, unknown> | null;
     /** Called when filter changes */
     onChange?: (filter: Record<string, unknown> | null) => void;
@@ -154,9 +154,9 @@ declare const FilterPanel: React.FC<FilterPanelProps>;
  * Displays all collections in a tree structure with search, grouping,
  * bookmarks, context menus, and show/hide hidden collections.
  *
- * Ported from Directus content module's navigation.vue + navigation-item.vue.
+ * Ported from DaaS content module's navigation.vue + navigation-item.vue.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 /** Node in the collection tree */
@@ -215,8 +215,8 @@ interface ContentNavigationProps {
  *
  * @example
  * ```tsx
- * import { ContentNavigation } from '@microbuild/ui-collections';
- * import { useCollections } from '@microbuild/hooks';
+ * import { ContentNavigation } from '@buildpad/ui-collections';
+ * import { useCollections } from '@buildpad/hooks';
  *
  * function Sidebar() {
  *   const {
@@ -253,9 +253,9 @@ declare const ContentNavigation: React.FC<ContentNavigationProps>;
  * - Main content area with header (title, breadcrumbs, actions)
  * - Responsive: sidebar collapses on mobile
  *
- * Ported from Directus PrivateView + content module shell.
+ * Ported from DaaS PrivateView + content module shell.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 interface BreadcrumbItem {
@@ -306,8 +306,8 @@ interface ContentLayoutProps {
  *
  * @example
  * ```tsx
- * import { ContentLayout, ContentNavigation } from '@microbuild/ui-collections';
- * import { useCollections } from '@microbuild/hooks';
+ * import { ContentLayout, ContentNavigation } from '@buildpad/ui-collections';
+ * import { useCollections } from '@buildpad/hooks';
  *
  * function ContentPage({ children }) {
  *   const collections = useCollections({ currentCollection: 'articles' });
@@ -340,9 +340,9 @@ declare const ContentLayout: React.FC<ContentLayoutProps>;
  * Dropdown menu attached to the primary save button providing
  * additional save actions: save & stay, save & add new, save as copy, discard.
  *
- * Ported from Directus save-options.vue.
+ * Ported from DaaS save-options.vue.
  *
- * @package @microbuild/ui-collections
+ * @package @buildpad/ui-collections
  */
 
 type SaveAction = 'save-and-stay' | 'save-and-add-new' | 'save-as-copy' | 'discard-and-stay';
