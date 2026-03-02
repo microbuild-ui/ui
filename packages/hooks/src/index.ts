@@ -45,8 +45,14 @@ export {
     useRelationM2AItems, 
     type M2ARelationInfo, 
     type M2AItem, 
-    type M2AQueryParams
+    type M2AQueryParams,
+    type ChangesItem,
 } from './useRelationM2A';
+export {
+    useRelationPermissionsM2A,
+    type RelationPermissionsM2A,
+    type PerCollectionPermission,
+} from './useRelationPermissionsM2A';
 
 // File hooks
 export { 

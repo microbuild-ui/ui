@@ -20,7 +20,9 @@ export class FieldsService {
         ? `/api/fields/${collection}`
         : '/api/fields';
 
-      const response = await apiRequest<{ data: Field[] }>(path);
+      // Handle both { data: Field[] } (Directus) and Field[] (DaaS flat) formats
+      const response = await apiRequest<{ data: Field[] } | Field[]>(path);
+      if (Array.isArray(response)) return response;
       return response.data || [];
     } catch (error) {
       console.error('Error fetching fields:', error);
@@ -32,11 +34,13 @@ export class FieldsService {
    * Read a single field
    */
   async readOne(collection: string, field: string): Promise<Field> {
-    const response = await apiRequest<{ data: Field }>(`/api/fields/${collection}/${field}`);
-    if (!response.data) {
+    const response = await apiRequest<{ data: Field } | Field>(`/api/fields/${collection}/${field}`);
+    // Handle both { data: Field } (Directus) and flat Field (DaaS) formats
+    const fieldData = (response as { data: Field }).data ?? response;
+    if (!fieldData || !(fieldData as Field).field) {
       throw new Error(`Field not found: ${collection}.${field}`);
     }
-    return response.data;
+    return fieldData as Field;
   }
 }
 

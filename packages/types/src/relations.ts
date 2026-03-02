@@ -227,16 +227,23 @@ export interface O2MQueryParams {
 export interface M2ARelationInfo {
   /** The junction/pivot collection */
   junctionCollection: RelationCollectionMeta;
-  /** Available target collections */
-  allowedCollections: string[];
-  /** Field in junction pointing to current collection */
-  junctionField: RelationFieldInfo;
+  /** Available target collections (with metadata) */
+  allowedCollections: Array<{
+    collection: string;
+    meta?: Record<string, unknown>;
+    name?: string;
+    icon?: string;
+  }>;
   /** Field in junction storing the collection name */
   collectionField: RelationFieldInfo;
-  /** Field in junction storing the item ID */
-  itemField: RelationFieldInfo;
+  /** Field in junction storing the related item ID/key */
+  junctionField: RelationFieldInfo;
+  /** Field in junction pointing back to parent collection */
+  reverseJunctionField: RelationFieldInfo;
   /** Primary key field of junction collection */
   junctionPrimaryKeyField: RelationFieldInfo;
+  /** Primary key fields of each allowed collection (detected at runtime) */
+  relationPrimaryKeyFields: Record<string, { field: string; type: string }>;
   /** Optional sort field in junction */
   sortField?: string;
   /** Relation configuration */
@@ -248,19 +255,26 @@ export interface M2ARelationInfo {
 }
 
 /**
- * M2A item representation
+ * M2A item representation — a junction row in a Many-to-Any relationship.
+ * Fields are dynamic (keyed by the junction table's column names).
  */
 export interface M2AItem {
   /** Junction record ID */
   id: string | number;
-  /** The collection this item belongs to */
-  collection: string;
-  /** The item ID in the related collection */
-  item: string | number;
-  /** The actual item data */
-  data?: Record<string, unknown>;
+  /** The collection name (may live under the dynamic collectionField key) */
+  collection?: string;
+  /** The related item data or ID (may live under the dynamic junctionField key) */
+  item?: Record<string, unknown> | string | number;
   /** Sort order if configured */
   sort?: number;
+  /** Index within the local changes array (create/update/delete) */
+  $index?: number;
+  /** Item type marker for local-first tracking */
+  $type?: 'created' | 'updated' | 'deleted';
+  /** Index into the update array when an item is both edited and deleted */
+  $edits?: number;
+  /** Any other fields from the junction row */
+  [key: string]: unknown;
 }
 
 /**
