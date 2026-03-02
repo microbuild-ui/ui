@@ -21,7 +21,7 @@
  * @module @buildpad/ui-interfaces/list-m2m
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
     Paper,
     Group,
@@ -714,11 +714,23 @@ export const ListM2M: React.FC<ListM2MProps> = ({
         return null;
     }, [template, relationInfo]);
 
+    // ── Refs to break bidirectional sync loops ─────────────────────
+    // 1. Track the onChange callback via ref so the "notify parent" effect
+    //    doesn't re-trigger when the parent re-renders with a new closure.
+    // 2. Track the last JSON we sent so the "sync external" effect skips
+    //    echoed values coming back from the parent.
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
+    const lastSentChangesJSON = useRef<string>("");
+
     // ── Sync external value → local changes ─────────────────────────
     useEffect(() => {
         if (valueProp && typeof valueProp === "object" && !Array.isArray(valueProp)) {
             const vp = valueProp as M2MChangesItem;
             if ("create" in vp && "update" in vp && "delete" in vp) {
+                // Skip if this matches what we just sent via onChange (prevent infinite loop)
+                const vpJSON = JSON.stringify(vp);
+                if (vpJSON === lastSentChangesJSON.current) return;
                 setLocalChanges(vp);
             }
         }
@@ -726,10 +738,19 @@ export const ListM2M: React.FC<ListM2MProps> = ({
 
     // ── Notify parent of changes ────────────────────────────────────
     useEffect(() => {
-        if (onChange && hasChanges) {
-            onChange(getChanges());
+        const hasAnyChanges =
+            changes.create.length > 0 ||
+            changes.update.length > 0 ||
+            changes.delete.length > 0;
+        if (onChangeRef.current && hasAnyChanges) {
+            const changesValue = { ...changes };
+            lastSentChangesJSON.current = JSON.stringify(changesValue);
+            onChangeRef.current(changesValue);
         }
-    }, [changes, onChange, hasChanges, getChanges]);
+        // onChange accessed via ref — intentionally omitted from deps
+        // to prevent infinite loop when parent re-renders with new closure
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [changes]);
 
     // ── Load items when parameters change ───────────────────────────
     useEffect(() => {
