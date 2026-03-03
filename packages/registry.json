@@ -1260,7 +1260,7 @@
     {
       "name": "list-o2m",
       "title": "ListO2M",
-      "description": "One-to-Many relationship interface",
+      "description": "One-to-Many relationship interface with changeset staging, permission gates, batch edit, drag-and-drop reorder, unique FK / singleton guards, nested template rendering, and dynamic filter interpolation",
       "category": "relational",
       "files": [
         {

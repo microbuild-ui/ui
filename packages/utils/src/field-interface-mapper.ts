@@ -384,6 +384,9 @@ function getExplicitInterface(
         type: "list-o2m",
         props: {
           layout: (options?.layout as "list" | "table") || "list",
+          tableSpacing:
+            (options?.tableSpacing as "compact" | "cozy" | "comfortable") ||
+            "cozy",
           fields: (options?.fields as string[]) || ["id"],
           template: options?.template as string,
           enableCreate: options?.enableCreate !== false,
@@ -391,6 +394,8 @@ function getExplicitInterface(
           enableLink: options?.enableLink === true,
           enableSearchFilter: options?.enableSearchFilter === true,
           limit: (options?.limit as number) || 15,
+          sort: options?.sort as string | undefined,
+          sortDirection: (options?.sortDirection as "asc" | "desc") || undefined,
           filter: options?.filter as Record<string, unknown>,
           ...options,
         },

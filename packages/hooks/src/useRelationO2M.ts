@@ -30,6 +30,12 @@ export interface O2MRelationInfo {
   sortField?: string;
   /** Display template for the related item */
   displayTemplate?: string;
+  /** Action when deselecting items: 'nullify' (set FK to null) or 'delete' */
+  oneDeselectAction?: "nullify" | "delete";
+  /** Whether the related collection is a singleton */
+  isSingleton?: boolean;
+  /** Whether the FK field has a unique constraint (only 1 child allowed) */
+  isForeignKeyUnique?: boolean;
   /** Relation metadata */
   relation: {
     field: string;
@@ -110,17 +116,27 @@ export function useRelationO2M(collection: string, field: string) {
           undefined;
 
         // If not found in options, try fetching from daas_relations
+        let oneDeselectAction: "nullify" | "delete" = "nullify";
+        let sortFieldFromRelation: string | undefined;
         if (!relatedCollectionName || !reverseFieldName) {
           try {
             interface RelationData {
               collection?: string;
               related_collection?: string | null;
               field?: string;
+              one_collection?: string;
+              one_field?: string;
+              many_collection?: string;
+              many_field?: string;
+              sort_field?: string | null;
+              one_deselect_action?: string | null;
               meta?: {
                 one_collection?: string;
                 one_field?: string;
                 many_collection?: string;
                 many_field?: string;
+                sort_field?: string | null;
+                one_deselect_action?: string | null;
               };
             }
             const relationsData = await apiRequest<{ data: RelationData[] }>(
@@ -129,29 +145,49 @@ export function useRelationO2M(collection: string, field: string) {
 
             const o2mRelation = relationsData.data?.find(
               (r) =>
-                r.meta?.one_collection === collection &&
-                r.meta?.one_field === field,
+                (r.meta?.one_collection === collection &&
+                  r.meta?.one_field === field) ||
+                (r.one_collection === collection && r.one_field === field),
             );
 
             if (o2mRelation) {
               relatedCollectionName =
                 relatedCollectionName ||
                 o2mRelation.meta?.many_collection ||
+                o2mRelation.many_collection ||
                 null;
               reverseFieldName =
-                reverseFieldName || o2mRelation.meta?.many_field || null;
+                reverseFieldName ||
+                o2mRelation.meta?.many_field ||
+                o2mRelation.many_field ||
+                null;
+              // Extract one_deselect_action from relation
+              const deselectAction =
+                o2mRelation.one_deselect_action ||
+                o2mRelation.meta?.one_deselect_action;
+              if (deselectAction === "delete") {
+                oneDeselectAction = "delete";
+              }
+              // Extract sort_field from relation
+              sortFieldFromRelation =
+                (o2mRelation.sort_field ||
+                  o2mRelation.meta?.sort_field) as string | undefined ||
+                undefined;
             }
 
             // Auto-discover FK field if needed
             if (relatedCollectionName && !reverseFieldName) {
               const m2oRelation = relationsData.data?.find(
                 (r) =>
-                  r.collection === relatedCollectionName &&
-                  r.related_collection === collection,
+                  (r.collection === relatedCollectionName ||
+                    r.many_collection === relatedCollectionName) &&
+                  (r.related_collection === collection ||
+                    r.one_collection === collection),
               );
 
               if (m2oRelation) {
-                reverseFieldName = m2oRelation.field || null;
+                reverseFieldName =
+                  m2oRelation.field || m2oRelation.many_field || null;
               }
             }
           } catch {
@@ -173,6 +209,31 @@ export function useRelationO2M(collection: string, field: string) {
           return;
         }
 
+        // Check if the related collection is a singleton and if the FK is unique
+        let isSingleton = false;
+        let isForeignKeyUnique = false;
+        try {
+          // Fetch related collection metadata to check singleton status
+          const collectionMeta = await apiRequest<{
+            data: { meta?: { singleton?: boolean } };
+          }>(`/api/collections/${relatedCollectionName}`);
+          isSingleton = collectionMeta.data?.meta?.singleton === true;
+
+          // Fetch FK field schema to check uniqueness
+          const fkFieldData = await apiRequest<{
+            data: { schema?: { is_unique?: boolean } };
+          }>(
+            `/api/fields/${relatedCollectionName}/${reverseFieldName}`,
+          );
+          isForeignKeyUnique =
+            fkFieldData.data?.schema?.is_unique === true;
+        } catch {
+          // Ignore metadata fetch errors — defaults are safe
+        }
+
+        // Use sort_field from relation as fallback
+        const effectiveSortField = sortFieldName || sortFieldFromRelation || undefined;
+
         // Build relation info
         const info: O2MRelationInfo = {
           relatedCollection: {
@@ -191,7 +252,7 @@ export function useRelationO2M(collection: string, field: string) {
             field: "id",
             type: "uuid",
           },
-          sortField: sortFieldName,
+          sortField: effectiveSortField,
           displayTemplate: fieldOptions?.template as string | undefined,
           relation: {
             field,
@@ -199,6 +260,9 @@ export function useRelationO2M(collection: string, field: string) {
             related_collection: relatedCollectionName,
             meta: currentField.meta as Record<string, unknown> | undefined,
           },
+          oneDeselectAction: oneDeselectAction,
+          isSingleton: isSingleton,
+          isForeignKeyUnique: isForeignKeyUnique,
         };
 
         setRelationInfo(info);

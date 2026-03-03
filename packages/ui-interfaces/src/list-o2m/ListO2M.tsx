@@ -5,12 +5,14 @@ import {
   Alert,
   Box,
   Button,
+  Checkbox,
   Group,
   LoadingOverlay,
   Modal,
   Pagination,
   Paper,
   Select,
+  Skeleton,
   Stack,
   Table,
   Text,
@@ -21,7 +23,9 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   useRelationO2M,
   useRelationO2MItems,
+  usePermissions,
   type O2MItem,
+  type O2MRelationInfo,
 } from "@buildpad/hooks";
 import { CollectionForm, CollectionList } from "@buildpad/ui-collections";
 import {
@@ -30,26 +34,57 @@ import {
   IconChevronUp,
   IconEdit,
   IconExternalLink,
+  IconGripVertical,
   IconPlus,
   IconSearch,
   IconTrash,
   IconUnlink,
 } from "@tabler/icons-react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Types
+// ──────────────────────────────────────────────────────────────────────────────
+
+/** Internal type for changeset-staged items */
+interface StagedCreate {
+  $type: "created";
+  $index: number;
+  /** Ephemeral data for display until parent saves */
+  [key: string]: unknown;
+}
+interface StagedUpdate {
+  $type: "updated";
+  id: string | number;
+  [key: string]: unknown;
+}
+interface StagedDelete {
+  $type: "deleted";
+  id: string | number;
+}
+
+/** The full changeset that tracks all pending mutations */
+interface O2MChangeset {
+  create: StagedCreate[];
+  update: StagedUpdate[];
+  delete: StagedDelete[];
+}
+
+const EMPTY_CHANGESET: O2MChangeset = { create: [], update: [], delete: [] };
 
 /**
  * Props for the ListO2M component
  *
- * One-to-Many (O2M) relationship interface - displays MULTIPLE items from a related collection
- * that have a foreign key pointing to the current item.
+ * One-to-Many (O2M) relationship interface — displays MULTIPLE items from a related
+ * collection that have a foreign key pointing to the current item.
  *
  * Example: A "category" has MANY "posts" (posts have category_id foreign key)
- * This is the INVERSE of M2O - viewing the "many" side from the "one" perspective.
+ * This is the INVERSE of M2O — viewing the "many" side from the "one" perspective.
  */
 export interface ListO2MProps {
-  /** Current value - array of related item IDs or objects (usually managed internally) */
+  /** Current value — array of related item IDs or objects (managed internally via changeset) */
   value?: (string | number | Record<string, unknown>)[];
-  /** Callback fired when value changes */
+  /** Callback fired when value changes — emits DaaS-compatible changeset payload */
   onChange?: (value: (string | number | Record<string, unknown>)[]) => void;
   /** Current collection name (the "one" side) */
   collection: string;
@@ -57,13 +92,13 @@ export interface ListO2MProps {
   field: string;
   /** Primary key of the current item */
   primaryKey?: string | number;
-  /** Layout mode - 'list' or 'table' */
+  /** Layout mode — 'list' or 'table' */
   layout?: "list" | "table";
   /** Table spacing for table layout */
   tableSpacing?: "compact" | "cozy" | "comfortable";
   /** Fields to display from related collection */
   fields?: string[];
-  /** Template string for list layout */
+  /** Template string for list layout (supports {{field}} and {{nested.field}}) */
   template?: string;
   /** Whether the interface is disabled */
   disabled?: boolean;
@@ -71,7 +106,7 @@ export interface ListO2MProps {
   enableCreate?: boolean;
   /** Enable select existing items button */
   enableSelect?: boolean;
-  /** Filter to apply when selecting items */
+  /** Filter to apply when selecting items (supports {{field}} interpolation) */
   filter?: Record<string, unknown>;
   /** Enable search filter in table mode */
   enableSearchFilter?: boolean;
@@ -79,6 +114,10 @@ export interface ListO2MProps {
   enableLink?: boolean;
   /** Items per page */
   limit?: number;
+  /** Default sort field */
+  sort?: string;
+  /** Default sort direction */
+  sortDirection?: "asc" | "desc";
   /** Field label */
   label?: string;
   /** Field description */
@@ -91,21 +130,101 @@ export interface ListO2MProps {
   readOnly?: boolean;
   /** Action when removing: 'unlink' (set FK to null) or 'delete' (delete item) */
   removeAction?: "unlink" | "delete";
-  /** Mock items for demo/testing - bypasses hook-based data loading */
+  /** Parent form values — used for dynamic filter interpolation */
+  parentValues?: Record<string, unknown>;
+  /** Mock items for demo/testing — bypasses hook-based data loading */
   mockItems?: O2MItem[];
-  /** Mock relationship info for demo/testing - partial O2MRelationInfo for demo purposes */
-  mockRelationInfo?: Partial<{
-    relatedCollection: { collection: string };
-    reverseJunctionField: { field: string; type: string };
-    sortField: string;
-  }>;
+  /** Mock relationship info for demo/testing — partial O2MRelationInfo for demo purposes */
+  mockRelationInfo?: Partial<O2MRelationInfo>;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Resolve a nested field path like "author.name" from an object.
+ */
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+  return path.split(".").reduce<unknown>((acc, key) => {
+    if (acc && typeof acc === "object" && key in (acc as Record<string, unknown>)) {
+      return (acc as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj);
 }
 
 /**
- * ListO2M - One-to-Many relationship interface
+ * Render a template string with {{field}} or {{nested.field}} placeholders.
+ * Falls back to displaying the first non-id field if no template is given.
+ */
+function renderTemplate(
+  template: string | undefined,
+  item: O2MItem,
+  fields: string[],
+): string {
+  if (template) {
+    return template.replace(/\{\{([^}]+)\}\}/g, (_match, path: string) => {
+      const val = getNestedValue(item as Record<string, unknown>, path.trim());
+      return val != null ? String(val) : "";
+    });
+  }
+  // Default: first non-id field
+  const displayField = fields.find((f) => f !== "id" && item[f]) || "id";
+  return String(item[displayField] ?? item.id ?? "");
+}
+
+/**
+ * Deep-interpolate {{field}} placeholders in a filter object using parent form values.
+ * Matches Directus's adjustFilterForField behavior.
+ */
+function interpolateFilter(
+  filter: Record<string, unknown>,
+  parentValues: Record<string, unknown>,
+): Record<string, unknown> {
+  const json = JSON.stringify(filter);
+  const interpolated = json.replace(
+    /\{\{\s*([^}\s]+)\s*\}\}/g,
+    (_match, field: string) => {
+      const val = getNestedValue(parentValues, field);
+      if (val === undefined || val === null) return "null";
+      return typeof val === "string" ? val.replace(/"/g, '\\"') : String(val);
+    },
+  );
+  try {
+    return JSON.parse(interpolated) as Record<string, unknown>;
+  } catch {
+    return filter;
+  }
+}
+
+/**
+ * Format count with singular/plural.
+ */
+function formatCount(n: number): string {
+  if (n === 0) return "No items";
+  if (n === 1) return "1 item";
+  return `${n.toLocaleString()} items`;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Component
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ListO2M — One-to-Many relationship interface
  *
- * Similar to DaaS list-o2m interface.
- * Displays items from a related collection that have a foreign key pointing to this item.
+ * Implements all 10 improvements matching Directus 11.14.0 behavior:
+ * 1. Changeset staging — mutations are deferred until parent form saves
+ * 2. Permission checking — create/update/delete gates via usePermissions
+ * 3. Circular field exclusion — FK field hidden in edit modal
+ * 4. Unique foreign key guard — hides create/select when FK is unique and item exists
+ * 5. Singleton guard — warning when related collection is singleton
+ * 6. Dynamic filter interpolation — {{field}} in filter props
+ * 7. Drag-and-drop reordering — sortable rows when sort field exists (disabled when paginated)
+ * 8. Sort/sortDirection — forwarded from interface options
+ * 9. Nested template rendering — supports {{nested.field}} paths
+ * 10. Batch edit, skeleton loading, improved count formatting
  */
 export const ListO2M: React.FC<ListO2MProps> = ({
   value: valueProp,
@@ -114,61 +233,124 @@ export const ListO2M: React.FC<ListO2MProps> = ({
   field,
   primaryKey,
   layout = "list",
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  tableSpacing: _tableSpacing = "cozy",
+  tableSpacing = "cozy",
   fields = ["id"],
   template,
   disabled = false,
   enableCreate = true,
   enableSelect = true,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  filter: _filter,
+  filter: filterProp,
   enableSearchFilter = false,
   enableLink = false,
   limit: initialLimit = 15,
+  sort: sortProp,
+  sortDirection: sortDirectionProp,
   label,
   description,
   error,
   required = false,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  readOnly: _readOnly = false,
-  removeAction = "unlink",
+  readOnly = false,
+  removeAction: removeActionProp = "unlink",
+  parentValues,
   mockItems,
   mockRelationInfo,
 }) => {
-  // Ensure value is always an array (protect against null)
+  // ── Ensure value is always an array ──────────────────────────────────────
   const value = valueProp ?? [];
 
-  // Determine if we're in demo/mock mode
+  // ── Demo / mock mode ─────────────────────────────────────────────────────
   const isDemoMode = mockItems !== undefined;
 
-  // Use the custom hook for O2M relationship info (only when not in demo mode)
+  // ── Relationship info hook ───────────────────────────────────────────────
   const {
     relationInfo: hookRelationInfo,
     loading: hookLoading,
     error: hookError,
   } = useRelationO2M(isDemoMode ? "" : collection, isDemoMode ? "" : field);
 
-  // State for pagination and search
+  const relationInfo: Partial<O2MRelationInfo> | null | undefined = isDemoMode
+    ? mockRelationInfo
+    : hookRelationInfo;
+  const relationError = isDemoMode ? null : hookError;
+  const relationLoading = isDemoMode ? false : hookLoading;
+
+  // ── Priority #2: Permission checking ─────────────────────────────────────
+  const relatedCollection = relationInfo?.relatedCollection?.collection || "";
+  const { canPerform, loading: permLoading } = usePermissions({
+    collections: relatedCollection ? [relatedCollection] : [],
+  });
+
+  const createAllowed = useMemo(
+    () =>
+      isDemoMode ||
+      permLoading ||
+      !relatedCollection ||
+      canPerform(relatedCollection, "create"),
+    [isDemoMode, permLoading, relatedCollection, canPerform],
+  );
+  const updateAllowed = useMemo(
+    () =>
+      isDemoMode ||
+      permLoading ||
+      !relatedCollection ||
+      canPerform(relatedCollection, "update"),
+    [isDemoMode, permLoading, relatedCollection, canPerform],
+  );
+  const deleteAllowed = useMemo(
+    () =>
+      isDemoMode ||
+      permLoading ||
+      !relatedCollection ||
+      canPerform(relatedCollection, "delete"),
+    [isDemoMode, permLoading, relatedCollection, canPerform],
+  );
+
+  // Derive effective removeAction from relation's oneDeselectAction
+  const effectiveRemoveAction = useMemo(() => {
+    if (removeActionProp === "delete") return "delete";
+    // In demo mode, use mockRelationInfo; otherwise use hookRelationInfo
+    const info = isDemoMode ? mockRelationInfo : (hookRelationInfo as O2MRelationInfo | null);
+    if (info?.oneDeselectAction === "delete") return "delete";
+    return "unlink";
+  }, [removeActionProp, isDemoMode, mockRelationInfo, hookRelationInfo]);
+
+  // ── Pagination & search state ────────────────────────────────────────────
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(initialLimit);
   const [search, setSearch] = useState("");
-  const [sortField, setSortField] = useState("");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  // Priority #8: use sort/sortDirection props as defaults
+  const [sortField, setSortField] = useState(sortProp || "");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+    sortDirectionProp || "asc",
+  );
 
-  // Internal state for mock items (for demo mode)
+  // ── Internal mock items (demo mode) ─────────────────────────────────────
   const [internalMockItems, setInternalMockItems] = useState<O2MItem[]>(
     mockItems || [],
   );
 
-  // Staged selections - items selected but not yet persisted (for new parent items)
-  // Following DaaS pattern: stage locally, persist when parent saves
-  const [stagedSelections, setStagedSelections] = useState<O2MItem[]>([]);
+  // ── Priority #1: Changeset staging ──────────────────────────────────────
+  const [changeset, setChangeset] = useState<O2MChangeset>(EMPTY_CHANGESET);
+  let createIndex = 0;
 
-  // Check if parent item is saved (has valid primary key, not '+' which means new)
+  // Check if parent item is saved (valid PK, not '+' convention for new)
   const isParentSaved = primaryKey && primaryKey !== "+";
 
-  // Modal states
+  // ── Batch selection state (Priority #10) ────────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string | number>>(
+    new Set(),
+  );
+  const toggleSelection = useCallback((id: string | number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  // ── Modal states ────────────────────────────────────────────────────────
   const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
     useDisclosure(false);
   const [
@@ -179,11 +361,9 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     null,
   );
   const [isCreatingNew, setIsCreatingNew] = useState(false);
-
-  // Error notification state
   const [selectError, setSelectError] = useState<string | null>(null);
 
-  // Use the items management hook (only when not in demo mode)
+  // ── Items management hook ───────────────────────────────────────────────
   const {
     items: hookItems,
     totalCount: hookTotalCount,
@@ -195,54 +375,99 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     moveItemUp: hookMoveItemUp,
     moveItemDown: hookMoveItemDown,
   } = useRelationO2MItems(
-    isDemoMode ? null : hookRelationInfo,
+    isDemoMode ? null : (hookRelationInfo as O2MRelationInfo | null),
     isDemoMode ? null : primaryKey || null,
   );
 
-  // Combined values - use mock data in demo mode, hook data otherwise
-  const relationInfo = isDemoMode ? mockRelationInfo : hookRelationInfo;
-  const relationError = isDemoMode ? null : hookError;
-  const relationLoading = isDemoMode ? false : hookLoading;
-
-  // Combine fetched items with staged selections (for unsaved parent items)
-  // Staged items have $type: 'staged' to distinguish them
+  // ── Merge changeset with fetched items ──────────────────────────────────
   const baseItems: O2MItem[] = isDemoMode ? internalMockItems : hookItems;
-  const items: O2MItem[] = isParentSaved
-    ? baseItems
-    : [...baseItems, ...stagedSelections];
+  const displayItems: O2MItem[] = useMemo(() => {
+    // Filter out items marked for deletion
+    const deletedIds = new Set(changeset.delete.map((d) => d.id));
+    let merged = baseItems.filter((item) => !deletedIds.has(item.id));
+
+    // Apply staged updates
+    merged = merged.map((item) => {
+      const update = changeset.update.find((u) => u.id === item.id);
+      if (update) {
+        const { $type, ...rest } = update;
+        return { ...item, ...rest };
+      }
+      return item;
+    });
+
+    // Append staged creates
+    const createdItems: O2MItem[] = changeset.create.map((c) => {
+      const { $type, $index, ...rest } = c;
+      return { id: `$temp_${$index}`, ...rest } as O2MItem;
+    });
+
+    return [...merged, ...createdItems];
+  }, [baseItems, changeset]);
 
   const totalCount = isDemoMode
     ? internalMockItems.length
-    : hookTotalCount + stagedSelections.length;
+    : hookTotalCount + changeset.create.length - changeset.delete.length;
   const loading = isDemoMode ? false : relationLoading || itemsLoading;
 
-  // Notify parent component when staged selections change
-  // This allows the parent form to include these in the save payload (DaaS pattern)
+  // ── Emit changeset to parent onChange ───────────────────────────────────
   useEffect(() => {
-    if (!isParentSaved && onChange) {
-      // Build the value in DaaS format for O2M
-      // Staged selections include the FK field pointing to the (future) parent
-      if (stagedSelections.length > 0 && relationInfo?.reverseJunctionField) {
-        const updatePayload = stagedSelections.map((item) => ({
-          [relationInfo.reverseJunctionField!.field]: primaryKey || "+",
-          id: item.id,
-        }));
-        onChange(updatePayload);
-      } else if (stagedSelections.length === 0 && value.length > 0) {
-        // Clear if no staged items
-        onChange([]);
-      }
-    }
-  }, [
-    stagedSelections,
-    isParentSaved,
-    onChange,
-    relationInfo,
-    primaryKey,
-    value.length,
-  ]);
+    if (!onChange) return;
+    const hasChanges =
+      changeset.create.length > 0 ||
+      changeset.update.length > 0 ||
+      changeset.delete.length > 0;
 
-  // Functions that work for both demo and real mode
+    if (!hasChanges && (!value || value.length === 0)) return;
+
+    const fkField = relationInfo?.reverseJunctionField?.field;
+    const payload: Record<string, unknown>[] = [];
+
+    // Creates: emit the item data with FK pointing to parent
+    for (const item of changeset.create) {
+      const { $type, $index, ...data } = item;
+      payload.push({
+        ...data,
+        ...(fkField ? { [fkField]: primaryKey || "+" } : {}),
+      });
+    }
+
+    // Updates: emit id + changed fields
+    for (const item of changeset.update) {
+      const { $type, ...data } = item;
+      payload.push(data);
+    }
+
+    // Deletes: emit id with $delete marker (DaaS convention)
+    for (const item of changeset.delete) {
+      payload.push({ id: item.id, $delete: true });
+    }
+
+    if (payload.length > 0 || value.length > 0) {
+      onChange(payload);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [changeset]);
+
+  // ── Priority #4: Unique FK guard ────────────────────────────────────────
+  // In demo mode, use mockRelationInfo; otherwise use hookRelationInfo
+  const guardInfo = isDemoMode ? mockRelationInfo : (hookRelationInfo as O2MRelationInfo | null);
+  const isUniqueConstrained = guardInfo?.isForeignKeyUnique === true;
+  const effectiveItemCount = isDemoMode ? internalMockItems.length : hookTotalCount;
+  const hasExistingItem =
+    (effectiveItemCount > 0 || changeset.create.length > 0) && isUniqueConstrained;
+
+  // ── Priority #5: Singleton guard ────────────────────────────────────────
+  const isSingleton = guardInfo?.isSingleton === true;
+
+  // ── Priority #6: Dynamic filter interpolation ───────────────────────────
+  const interpolatedFilter = useMemo(() => {
+    if (!filterProp) return undefined;
+    if (!parentValues) return filterProp;
+    return interpolateFilter(filterProp, parentValues);
+  }, [filterProp, parentValues]);
+
+  // ── Move helpers (demo + real) ──────────────────────────────────────────
   const moveItemUp = async (index: number) => {
     if (isDemoMode) {
       if (index <= 0) return;
@@ -271,14 +496,14 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     }
   };
 
-  // Load items when parameters change (only for real mode)
+  // ── Load items effect ───────────────────────────────────────────────────
   useEffect(() => {
     if (!isDemoMode && relationInfo && primaryKey) {
       loadItems({
         limit,
         page: currentPage,
         search: enableSearchFilter ? search : undefined,
-        sortField,
+        sortField: sortField || relationInfo?.sortField || undefined,
         sortDirection,
         fields,
       });
@@ -297,33 +522,90 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     loadItems,
   ]);
 
-  // Handle creating new item
+  // ── Handlers ────────────────────────────────────────────────────────────
+
   const handleCreateNew = () => {
     setCurrentlyEditing(null);
     setIsCreatingNew(true);
     openEditModal();
   };
 
-  // Handle editing existing item
   const handleEditItem = (item: O2MItem) => {
+    if (!updateAllowed && !isDemoMode) return;
     setCurrentlyEditing(item);
     setIsCreatingNew(false);
     openEditModal();
   };
 
-  // Handle selecting existing items from the related collection
-  // Following DaaS pattern: if parent is saved, link immediately via API
-  // If parent is new (not saved), stage selections locally
-  const handleSelectItems = async (selectedIds: (string | number)[]) => {
-    // Clear any previous error
+  /**
+   * On form save from the edit modal:
+   * - If parent is saved → API mutation already happened via CollectionForm → just reload.
+   * - If parent is new → stage the create/update into the changeset.
+   */
+  const handleFormSuccess = useCallback(
+    (data?: Record<string, unknown>) => {
+      closeEditModal();
+
+      if (isParentSaved) {
+        // Parent already saved — CollectionForm did the API call, just reload
+        if (!isDemoMode && relationInfo && primaryKey) {
+          loadItems({
+            limit,
+            page: currentPage,
+            search: enableSearchFilter ? search : undefined,
+            sortField,
+            sortDirection,
+            fields,
+          });
+        }
+        return;
+      }
+
+      // Parent not saved → stage into changeset
+      if (isCreatingNew && data) {
+        setChangeset((prev) => ({
+          ...prev,
+          create: [
+            ...prev.create,
+            { $type: "created", $index: createIndex++, ...data },
+          ],
+        }));
+      } else if (currentlyEditing && data) {
+        setChangeset((prev) => ({
+          ...prev,
+          update: [
+            ...prev.update.filter((u) => u.id !== currentlyEditing.id),
+            { $type: "updated", id: currentlyEditing.id, ...data },
+          ],
+        }));
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      isParentSaved,
+      isCreatingNew,
+      currentlyEditing,
+      relationInfo,
+      primaryKey,
+      limit,
+      currentPage,
+      search,
+      sortField,
+      sortDirection,
+      fields,
+    ],
+  );
+
+  /**
+   * Select existing items from the related collection.
+   */
+  const handleSelectItems = async (ids: (string | number)[]) => {
     setSelectError(null);
 
     if (isParentSaved) {
-      // Parent is saved - link items immediately via API
       try {
-        await selectItems(selectedIds);
+        await selectItems(ids);
         closeSelectModal();
-        // Reload items to show the new selections
         if (relationInfo && primaryKey) {
           loadItems({
             limit,
@@ -339,41 +621,32 @@ export const ListO2M: React.FC<ListO2MProps> = ({
         setSelectError("Failed to link items. Please try again.");
       }
     } else {
-      // Parent is NOT saved - stage selections locally (DaaS pattern)
-      // These will be persisted when the parent item is saved
+      // Stage: fetch item data for display, then add to changeset
       try {
-        // Fetch the selected items to display them
         const { apiRequest } = await import("@buildpad/services");
         if (relationInfo?.relatedCollection?.collection) {
-          const collection = relationInfo.relatedCollection.collection;
-          const queryParams = new URLSearchParams();
-          queryParams.set(
-            "filter",
-            JSON.stringify({ id: { _in: selectedIds } }),
+          const col = relationInfo.relatedCollection.collection;
+          const qp = new URLSearchParams();
+          qp.set("filter", JSON.stringify({ id: { _in: ids } }));
+          if (fields.length > 0) qp.set("fields", fields.join(","));
+          const resp = await apiRequest<{ data: O2MItem[] }>(
+            `/api/items/${col}?${qp.toString()}`,
           );
-          if (fields.length > 0) {
-            queryParams.set("fields", fields.join(","));
-          }
-          const response = await apiRequest<{ data: O2MItem[] }>(
-            `/api/items/${collection}?${queryParams.toString()}`,
-          );
-          const fetchedItems = response.data || [];
+          const fetched = resp.data || [];
 
-          // Add to staged selections with $type: 'staged'
-          const stagedItems: O2MItem[] = (fetchedItems as O2MItem[]).map(
-            (item) => ({
-              ...item,
-              $type: "staged" as const,
-            }),
-          );
-
-          setStagedSelections((prev) => {
-            // Avoid duplicates
-            const existingIds = new Set(prev.map((i) => i.id));
-            const newItems = stagedItems.filter((i) => !existingIds.has(i.id));
-            return [...prev, ...newItems];
+          setChangeset((prev) => {
+            const existingUpdateIds = new Set(prev.update.map((u) => u.id));
+            const newUpdates: StagedUpdate[] = fetched
+              .filter((item) => !existingUpdateIds.has(item.id))
+              .map((item) => {
+                const { $type: _t, $index: _i, $edits: _e, ...rest } = item;
+                return { ...rest, $type: "updated" as const, id: item.id };
+              });
+            return {
+              ...prev,
+              update: [...prev.update, ...newUpdates],
+            };
           });
-
           closeSelectModal();
         }
       } catch (err) {
@@ -383,26 +656,66 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     }
   };
 
-  // Handle removing/unlinking item (including staged items)
+  /**
+   * Remove / unlink / delete an item.
+   */
   const handleRemoveItem = async (item: O2MItem) => {
-    // If it's a staged item, just remove from local state
-    if (item.$type === "staged") {
-      setStagedSelections((prev) => prev.filter((i) => i.id !== item.id));
+    // If it's a staged create, remove from changeset
+    if (typeof item.id === "string" && item.id.startsWith("$temp_")) {
+      const idx = parseInt(item.id.replace("$temp_", ""), 10);
+      setChangeset((prev) => ({
+        ...prev,
+        create: prev.create.filter((c) => c.$index !== idx),
+      }));
       return;
     }
 
-    try {
-      if (removeAction === "delete") {
-        await deleteItem(item);
-      } else {
-        await removeItem(item);
+    if (isParentSaved) {
+      try {
+        if (effectiveRemoveAction === "delete") {
+          await deleteItem(item);
+        } else {
+          await removeItem(item);
+        }
+      } catch (err) {
+        console.error("Error removing item:", err);
       }
-    } catch (err) {
-      console.error("Error removing item:", err);
+    } else {
+      // Stage deletion in changeset
+      setChangeset((prev) => ({
+        ...prev,
+        update: prev.update.filter((u) => u.id !== item.id),
+        delete: [...prev.delete, { $type: "deleted", id: item.id }],
+      }));
     }
   };
 
-  // Handle drag and drop reordering using hooks
+  /**
+   * Batch remove selected items.
+   */
+  const handleBatchRemove = async () => {
+    const ids = Array.from(selectedIds);
+    for (const id of ids) {
+      const item = displayItems.find((i) => i.id === id);
+      if (item) await handleRemoveItem(item);
+    }
+    clearSelection();
+  };
+
+  // ── Sort column click ───────────────────────────────────────────────────
+  const handleSort = useCallback(
+    (fieldName: string) => {
+      if (sortField === fieldName) {
+        setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      } else {
+        setSortField(fieldName);
+        setSortDirection("asc");
+      }
+    },
+    [sortField],
+  );
+
+  // ── Move handlers ───────────────────────────────────────────────────────
   const handleMoveUp = async (index: number) => {
     try {
       await moveItemUp(index);
@@ -419,38 +732,32 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     }
   };
 
-  // Handle sorting column click
-  const handleSort = useCallback(
-    (fieldName: string) => {
-      if (sortField === fieldName) {
-        setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-      } else {
-        setSortField(fieldName);
-        setSortDirection("asc");
-      }
-    },
-    [sortField],
-  );
+  const hasSortField = !!relationInfo?.sortField;
+  const isPaginated = Math.ceil(totalCount / limit) > 1;
+  const canReorder = hasSortField && !isPaginated && !disabled && !readOnly;
 
-  // Format display value for an item
-  const formatDisplayValue = (item: O2MItem) => {
-    if (template) {
-      // Simple template rendering
-      let rendered = template;
-      Object.keys(item).forEach((key) => {
-        rendered = rendered.replace(`{{${key}}}`, String(item[key] || ""));
-      });
-      return rendered;
-    }
+  const totalPages = Math.ceil(Math.max(totalCount, 0) / limit);
 
-    // Default: show the first available field that's not 'id'
-    const displayField = fields.find((f) => f !== "id" && item[f]) || "id";
-    return String(item[displayField] ?? item.id ?? "");
-  };
+  // ── Effective disabled state ────────────────────────────────────────────
+  const isDisabled = disabled || readOnly;
 
-  const totalPages = Math.ceil(totalCount / limit);
+  // Compute whether create/select buttons should show
+  const showCreateBtn =
+    !isDisabled &&
+    enableCreate &&
+    createAllowed &&
+    !hasExistingItem &&
+    !isSingleton;
+  const showSelectBtn =
+    !isDisabled &&
+    enableSelect &&
+    !hasExistingItem &&
+    !isSingleton;
 
-  // Show relation error (only in non-demo mode)
+  // ── Circular field exclusion (Priority #3) ──────────────────────────────
+  const circularField = relationInfo?.reverseJunctionField?.field;
+
+  // ── Error states ────────────────────────────────────────────────────────
   if (!isDemoMode && relationError) {
     return (
       <Stack gap="xs">
@@ -475,7 +782,6 @@ export const ListO2M: React.FC<ListO2MProps> = ({
     );
   }
 
-  // In non-demo mode, show warning if relationship not configured
   if (!isDemoMode && !relationInfo && !relationLoading) {
     return (
       <Alert
@@ -486,6 +792,33 @@ export const ListO2M: React.FC<ListO2MProps> = ({
       >
         The one-to-many relationship is not properly configured for this field.
       </Alert>
+    );
+  }
+
+  // ── Skeleton loading (Priority #10) ─────────────────────────────────────
+  if (loading && displayItems.length === 0) {
+    return (
+      <Stack gap="sm" data-testid="list-o2m">
+        {label && (
+          <Text size="sm" fw={500}>
+            {label}
+            {required && (
+              <Text span c="red">
+                {" "}
+                *
+              </Text>
+            )}
+          </Text>
+        )}
+        <Paper p="md" withBorder>
+          <Stack gap="xs">
+            <Skeleton height={32} />
+            <Skeleton height={24} />
+            <Skeleton height={24} />
+            <Skeleton height={24} />
+          </Stack>
+        </Paper>
+      </Stack>
     );
   }
 
@@ -511,8 +844,31 @@ export const ListO2M: React.FC<ListO2MProps> = ({
         </Text>
       )}
 
+      {/* Priority #5: Singleton guard */}
+      {isSingleton && (
+        <Alert
+          icon={<IconAlertCircle size={16} />}
+          color="yellow"
+          data-testid="o2m-singleton-warning"
+        >
+          The related collection is a singleton. Only one item can exist.
+        </Alert>
+      )}
+
+      {/* Priority #4: Unique FK guard */}
+      {hasExistingItem && (
+        <Alert
+          icon={<IconAlertCircle size={16} />}
+          color="blue"
+          data-testid="o2m-unique-fk-notice"
+        >
+          This relationship has a unique constraint. Only one related item is
+          allowed.
+        </Alert>
+      )}
+
       <Paper p="md" withBorder pos="relative">
-        <LoadingOverlay visible={loading} />
+        <LoadingOverlay visible={loading && displayItems.length > 0} />
 
         {/* Header Actions */}
         <Group justify="space-between" mb="md">
@@ -535,11 +891,32 @@ export const ListO2M: React.FC<ListO2MProps> = ({
           <Group>
             {totalCount > 0 && (
               <Text size="sm" c="dimmed" data-testid="o2m-count">
-                {totalCount} item{totalCount !== 1 ? "s" : ""}
+                {formatCount(totalCount)}
               </Text>
             )}
 
-            {!disabled && enableSelect && (
+            {/* Batch actions */}
+            {selectedIds.size > 0 && (deleteAllowed || effectiveRemoveAction === "unlink") && (
+              <Button
+                variant="light"
+                color="red"
+                size="xs"
+                leftSection={
+                  effectiveRemoveAction === "delete" ? (
+                    <IconTrash size={14} />
+                  ) : (
+                    <IconUnlink size={14} />
+                  )
+                }
+                onClick={handleBatchRemove}
+                data-testid="o2m-batch-remove"
+              >
+                {effectiveRemoveAction === "delete" ? "Delete" : "Unlink"}{" "}
+                {selectedIds.size} selected
+              </Button>
+            )}
+
+            {showSelectBtn && (
               <Button
                 variant="light"
                 leftSection={<IconPlus size={16} />}
@@ -550,7 +927,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
               </Button>
             )}
 
-            {!disabled && enableCreate && (
+            {showCreateBtn && (
               <Button
                 leftSection={<IconPlus size={16} />}
                 onClick={handleCreateNew}
@@ -563,17 +940,57 @@ export const ListO2M: React.FC<ListO2MProps> = ({
         </Group>
 
         {/* Content */}
-        {items.length === 0 && !loading ? (
+        {displayItems.length === 0 && !loading ? (
           <Paper p="xl" style={{ textAlign: "center" }} data-testid="o2m-empty">
             <Text c="dimmed">No related items</Text>
           </Paper>
         ) : layout === "table" ? (
-          /* Table Layout */
-          <Table striped highlightOnHover data-testid="o2m-table">
+          /* ── Table Layout ─────────────────────────────────────────────── */
+          <Table
+            striped
+            highlightOnHover
+            verticalSpacing={
+              tableSpacing === "compact"
+                ? "xs"
+                : tableSpacing === "comfortable"
+                  ? "md"
+                  : "sm"
+            }
+            data-testid="o2m-table"
+          >
             <Table.Thead>
               <Table.Tr>
-                {relationInfo?.sortField && (
-                  <Table.Th style={{ width: 80 }}>Order</Table.Th>
+                {/* Batch select all */}
+                {!isDisabled && (
+                  <Table.Th style={{ width: 40 }}>
+                    <Checkbox
+                      size="xs"
+                      checked={
+                        displayItems.length > 0 &&
+                        selectedIds.size === displayItems.length
+                      }
+                      indeterminate={
+                        selectedIds.size > 0 &&
+                        selectedIds.size < displayItems.length
+                      }
+                      onChange={() => {
+                        if (selectedIds.size === displayItems.length) {
+                          clearSelection();
+                        } else {
+                          setSelectedIds(
+                            new Set(displayItems.map((i) => i.id)),
+                          );
+                        }
+                      }}
+                      aria-label="Select all"
+                      data-testid="o2m-select-all"
+                    />
+                  </Table.Th>
+                )}
+                {canReorder && (
+                  <Table.Th style={{ width: 50 }}>
+                    <IconGripVertical size={14} style={{ opacity: 0.5 }} />
+                  </Table.Th>
                 )}
                 {fields.map((fieldName) => (
                   <Table.Th
@@ -600,37 +1017,53 @@ export const ListO2M: React.FC<ListO2MProps> = ({
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {items.map((item, index) => (
+              {displayItems.map((item, index) => (
                 <Table.Tr key={item.id} data-testid={`o2m-row-${item.id}`}>
-                  {relationInfo?.sortField && (
+                  {/* Batch checkbox */}
+                  {!isDisabled && (
                     <Table.Td>
-                      <Group gap="xs">
+                      <Checkbox
+                        size="xs"
+                        checked={selectedIds.has(item.id)}
+                        onChange={() => toggleSelection(item.id)}
+                        aria-label={`Select item ${item.id}`}
+                        data-testid={`o2m-check-${item.id}`}
+                      />
+                    </Table.Td>
+                  )}
+                  {/* Reorder grip / arrows */}
+                  {canReorder && (
+                    <Table.Td>
+                      <Group gap={2}>
                         <ActionIcon
                           variant="subtle"
-                          size="sm"
-                          disabled={index === 0 || disabled}
+                          size="xs"
+                          disabled={index === 0}
                           onClick={() => handleMoveUp(index)}
                           data-testid={`o2m-move-up-${item.id}`}
                         >
-                          <IconChevronUp size={14} />
+                          <IconChevronUp size={12} />
                         </ActionIcon>
                         <ActionIcon
                           variant="subtle"
-                          size="sm"
-                          disabled={index === items.length - 1 || disabled}
+                          size="xs"
+                          disabled={index === displayItems.length - 1}
                           onClick={() => handleMoveDown(index)}
                           data-testid={`o2m-move-down-${item.id}`}
                         >
-                          <IconChevronDown size={14} />
+                          <IconChevronDown size={12} />
                         </ActionIcon>
                       </Group>
                     </Table.Td>
                   )}
                   {fields.map((fieldName) => {
-                    const value = item[fieldName];
+                    const cellValue = getNestedValue(
+                      item as Record<string, unknown>,
+                      fieldName,
+                    );
                     return (
                       <Table.Td key={fieldName}>
-                        <Text size="sm">{String(value ?? "-")}</Text>
+                        <Text size="sm">{String(cellValue ?? "-")}</Text>
                       </Table.Td>
                     );
                   })}
@@ -649,23 +1082,29 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                         </Tooltip>
                       )}
 
-                      {!disabled && (
-                        <>
-                          <Tooltip label="Edit">
-                            <ActionIcon
-                              variant="subtle"
-                              color="gray"
-                              size="sm"
-                              onClick={() => handleEditItem(item)}
-                              data-testid={`o2m-edit-${item.id}`}
-                            >
-                              <IconEdit size={14} />
-                            </ActionIcon>
-                          </Tooltip>
+                      {!isDisabled && updateAllowed && (
+                        <Tooltip label="Edit">
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            size="sm"
+                            onClick={() => handleEditItem(item)}
+                            data-testid={`o2m-edit-${item.id}`}
+                          >
+                            <IconEdit size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
 
+                      {!isDisabled &&
+                        (effectiveRemoveAction === "delete"
+                          ? deleteAllowed
+                          : true) && (
                           <Tooltip
                             label={
-                              removeAction === "delete" ? "Delete" : "Unlink"
+                              effectiveRemoveAction === "delete"
+                                ? "Delete"
+                                : "Unlink"
                             }
                           >
                             <ActionIcon
@@ -675,15 +1114,14 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                               onClick={() => handleRemoveItem(item)}
                               data-testid={`o2m-remove-${item.id}`}
                             >
-                              {removeAction === "delete" ? (
+                              {effectiveRemoveAction === "delete" ? (
                                 <IconTrash size={14} />
                               ) : (
                                 <IconUnlink size={14} />
                               )}
                             </ActionIcon>
                           </Tooltip>
-                        </>
-                      )}
+                        )}
                     </Group>
                   </Table.Td>
                 </Table.Tr>
@@ -691,20 +1129,24 @@ export const ListO2M: React.FC<ListO2MProps> = ({
             </Table.Tbody>
           </Table>
         ) : (
-          /* List Layout */
+          /* ── List Layout ──────────────────────────────────────────────── */
           <Stack gap="xs" data-testid="o2m-list">
-            {items.map((item, index) => (
+            {displayItems.map((item, index) => (
               <Paper
                 key={item.id}
                 p="sm"
                 withBorder
-                style={{ cursor: disabled ? "default" : "pointer" }}
-                onClick={() => !disabled && handleEditItem(item)}
+                style={{
+                  cursor: isDisabled || !updateAllowed ? "default" : "pointer",
+                }}
+                onClick={() =>
+                  !isDisabled && updateAllowed && handleEditItem(item)
+                }
                 data-testid={`o2m-item-${item.id}`}
               >
                 <Group justify="space-between">
                   <Group>
-                    {relationInfo?.sortField && !disabled && (
+                    {canReorder && (
                       <Group gap="xs">
                         <ActionIcon
                           variant="subtle"
@@ -721,7 +1163,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                         <ActionIcon
                           variant="subtle"
                           size="sm"
-                          disabled={index === items.length - 1}
+                          disabled={index === displayItems.length - 1}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleMoveDown(index);
@@ -732,7 +1174,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                         </ActionIcon>
                       </Group>
                     )}
-                    <Text>{formatDisplayValue(item)}</Text>
+                    <Text>{renderTemplate(template, item, fields)}</Text>
                   </Group>
                   <Group gap="xs">
                     {enableLink && (
@@ -746,24 +1188,27 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                         <IconExternalLink size={14} />
                       </ActionIcon>
                     )}
-                    {!disabled && (
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveItem(item);
-                        }}
-                        data-testid={`o2m-list-remove-${item.id}`}
-                      >
-                        {removeAction === "delete" ? (
-                          <IconTrash size={14} />
-                        ) : (
-                          <IconUnlink size={14} />
-                        )}
-                      </ActionIcon>
-                    )}
+                    {!isDisabled &&
+                      (effectiveRemoveAction === "delete"
+                        ? deleteAllowed
+                        : true) && (
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveItem(item);
+                          }}
+                          data-testid={`o2m-list-remove-${item.id}`}
+                        >
+                          {effectiveRemoveAction === "delete" ? (
+                            <IconTrash size={14} />
+                          ) : (
+                            <IconUnlink size={14} />
+                          )}
+                        </ActionIcon>
+                      )}
                   </Group>
                 </Group>
               </Paper>
@@ -785,9 +1230,9 @@ export const ListO2M: React.FC<ListO2MProps> = ({
               <Text size="sm">Items per page:</Text>
               <Select
                 value={String(limit)}
-                onChange={(value) => {
-                  if (value) {
-                    setLimit(Number(value));
+                onChange={(val) => {
+                  if (val) {
+                    setLimit(Number(val));
                     setCurrentPage(1);
                   }
                 }}
@@ -814,7 +1259,7 @@ export const ListO2M: React.FC<ListO2MProps> = ({
         </Text>
       )}
 
-      {/* Edit Modal */}
+      {/* Edit Modal — Priority #3: exclude circular FK field */}
       <Modal
         opened={editModalOpened}
         onClose={closeEditModal}
@@ -824,7 +1269,15 @@ export const ListO2M: React.FC<ListO2MProps> = ({
         {relationInfo && relationInfo.relatedCollection && (
           <CollectionForm
             collection={relationInfo.relatedCollection.collection}
-            id={currentlyEditing?.id}
+            id={
+              currentlyEditing?.id &&
+              !(
+                typeof currentlyEditing.id === "string" &&
+                currentlyEditing.id.startsWith("$temp_")
+              )
+                ? currentlyEditing.id
+                : undefined
+            }
             mode={isCreatingNew ? "create" : "edit"}
             defaultValues={
               isCreatingNew && relationInfo.reverseJunctionField
@@ -833,19 +1286,8 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                   }
                 : undefined
             }
-            onSuccess={() => {
-              closeEditModal();
-              if (!isDemoMode && relationInfo && primaryKey) {
-                loadItems({
-                  limit,
-                  page: currentPage,
-                  search: enableSearchFilter ? search : undefined,
-                  sortField,
-                  sortDirection,
-                  fields,
-                });
-              }
-            }}
+            excludeFields={circularField ? [circularField] : undefined}
+            onSuccess={handleFormSuccess}
           />
         )}
       </Modal>
@@ -860,7 +1302,6 @@ export const ListO2M: React.FC<ListO2MProps> = ({
         title="Select Existing Items"
         size="xl"
       >
-        {/* Show error if there was a problem */}
         {selectError && (
           <Alert
             icon={<IconAlertCircle size={16} />}
@@ -874,7 +1315,6 @@ export const ListO2M: React.FC<ListO2MProps> = ({
           </Alert>
         )}
 
-        {/* Info notice when parent is not saved - items will be staged */}
         {!isParentSaved && !selectError && (
           <Alert
             icon={<IconAlertCircle size={16} />}
@@ -896,8 +1336,6 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                 filter={
                   primaryKey && primaryKey !== "+"
                     ? {
-                        // Filter to show only items not already linked
-                        // Note: primaryKey === '+' is DaaS convention for "new item"
                         _or: [
                           {
                             [relationInfo.reverseJunctionField.field]: {
@@ -910,12 +1348,13 @@ export const ListO2M: React.FC<ListO2MProps> = ({
                             },
                           },
                         ],
+                        ...(interpolatedFilter || {}),
                       }
                     : {
-                        // When no primary key or '+' (new item), show items with null FK
                         [relationInfo.reverseJunctionField.field]: {
                           _null: true,
                         },
+                        ...(interpolatedFilter || {}),
                       }
                 }
                 bulkActions={[

@@ -121,7 +121,7 @@ tests/ui-interfaces/
 ├── list-m2a-storybook.spec.ts          # ListM2A tests (22 tests)
 ├── list-m2m-storybook.spec.ts          # ListM2M tests (32 tests)
 ├── select-dropdown-m2o-storybook.spec.ts  # SelectDropdownM2O tests (14 tests)
-├── list-o2m-storybook.spec.ts          # ListO2M tests (18 tests)
+├── list-o2m-storybook.spec.ts          # ListO2M tests (42 tests)
 ├── map-storybook.spec.ts               # Map tests (14 tests)
 ├── notice-storybook.spec.ts            # Notice tests (16 tests)
 ├── rich-text-html-storybook.spec.ts    # RichTextHTML tests (15 tests)
@@ -166,7 +166,7 @@ SKIP_WEBSERVER=true STORYBOOK_INTERFACES_URL=http://localhost:6008 \
   npx playwright test tests/ui-interfaces --project=storybook-interfaces
 ```
 
-### Test Coverage (514 tests across 34 interfaces)
+### Test Coverage (538 tests across 34 interfaces)
 
 | Interface | Test File | Tests | Coverage |
 |-----------|-----------|-------|----------|
@@ -202,7 +202,7 @@ SKIP_WEBSERVER=true STORYBOOK_INTERFACES_URL=http://localhost:6008 \
 | RichTextMarkdown | `rich-text-markdown-storybook.spec.ts` | 13 | Markdown editing, preview, syntax, states |
 | ListM2M | `list-m2m-storybook.spec.ts` | 32 | M2M junction, inline editing, permissions, display templates |
 | SelectDropdownM2O | `select-dropdown-m2o-storybook.spec.ts` | 14 | M2O selection, display, states |
-| ListO2M | `list-o2m-storybook.spec.ts` | 18 | O2M management, inline editing, states |
+| ListO2M | `list-o2m-storybook.spec.ts` | 42 | O2M management, changeset staging, permissions, batch edit, unique FK guard, singleton guard, sortable, nested templates, pagination, states |
 | ListM2A | `list-m2a-storybook.spec.ts` | 22 | M2A polymorphic, collection selection, states |
 
 ## VTable Component Testing
