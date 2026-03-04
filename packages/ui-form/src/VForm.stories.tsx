@@ -66,7 +66,7 @@ type Story = StoryObj<typeof VForm>;
 
 // Type-safe field options for createField helper
 interface CreateFieldOptions {
-  meta?: Partial<FieldMeta>;
+  meta?: Partial<FieldMeta> & { name?: string; [key: string]: unknown };
   schema?: Partial<FieldSchema>;
 }
 
@@ -570,7 +570,6 @@ const createGroupField = (
   field,
   type: 'alias',
   collection: 'test_collection',
-  name: options.meta?.name ?? field,
   schema: undefined,
   meta: {
     id: Math.random(),
@@ -925,6 +924,635 @@ export const WithMixedGroups: Story = {
       description: {
         story: 'Form combining group-detail and group-raw interfaces. '
           + 'Demonstrates that different group types can coexist in the same form.',
+      },
+    },
+  },
+};
+
+// ============================================================================
+// P0/P1 Feature Stories: Conditions, NonEditable, ValidationSummary
+// ============================================================================
+
+// Fields with conditional visibility rules
+const conditionalFields: Field[] = [
+  createField('category', 'string', 'select-dropdown', {
+    meta: {
+      width: 'full',
+      required: true,
+      sort: 1,
+      options: {
+        choices: [
+          { text: 'Article', value: 'article' },
+          { text: 'Event', value: 'event' },
+          { text: 'Product', value: 'product' },
+        ],
+      },
+    },
+  }),
+  createField('title', 'string', 'input', {
+    meta: {
+      width: 'full',
+      required: true,
+      sort: 2,
+      options: { placeholder: 'Enter title...' },
+    },
+  }),
+  // This field only shows when category === 'event'
+  createField('event_date', 'timestamp', 'datetime', {
+    meta: {
+      width: 'half',
+      sort: 3,
+      note: 'Only visible when category is "event"',
+      conditions: [
+        {
+          name: 'Show for events',
+          rule: { _and: [{ category: { _eq: 'event' } }] },
+          hidden: false,
+          options: {},
+        },
+        {
+          name: 'Hide by default',
+          rule: { _and: [{ category: { _neq: 'event' } }] },
+          hidden: true,
+          options: {},
+        },
+      ],
+    },
+  }),
+  // This field only shows when category === 'event'
+  createField('event_location', 'string', 'input', {
+    meta: {
+      width: 'half',
+      sort: 4,
+      note: 'Only visible when category is "event"',
+      options: { placeholder: 'Event venue...' },
+      conditions: [
+        {
+          name: 'Show for events',
+          rule: { _and: [{ category: { _eq: 'event' } }] },
+          hidden: false,
+          options: {},
+        },
+        {
+          name: 'Hide by default',
+          rule: { _and: [{ category: { _neq: 'event' } }] },
+          hidden: true,
+          options: {},
+        },
+      ],
+    },
+  }),
+  // This field becomes required when category === 'product'
+  createField('price', 'float', 'input', {
+    meta: {
+      width: 'half',
+      sort: 5,
+      note: 'Required for products, optional otherwise',
+      options: { placeholder: '0.00' },
+      conditions: [
+        {
+          name: 'Required for products',
+          rule: { _and: [{ category: { _eq: 'product' } }] },
+          required: true,
+          options: {},
+        },
+      ],
+    },
+  }),
+  // Readonly when product is active
+  createField('sku', 'string', 'input', {
+    meta: {
+      width: 'half',
+      sort: 6,
+      note: 'Becomes readonly for products',
+      options: { placeholder: 'SKU-...' },
+      conditions: [
+        {
+          name: 'Readonly for products',
+          rule: { _and: [{ category: { _eq: 'product' } }] },
+          readonly: true,
+          options: {},
+        },
+      ],
+    },
+  }),
+];
+
+/**
+ * Form with conditional field visibility and options.
+ * Try changing the "category" dropdown to see fields appear/disappear:
+ * - "event": Shows event_date and event_location
+ * - "product": Makes price required and sku readonly
+ */
+export const WithConditions: Story = {
+  render: () => <VFormWrapper fields={conditionalFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates applyConditions utility. Change the category dropdown to '
+          + 'see fields dynamically show/hide and change readonly/required state.',
+      },
+    },
+  },
+};
+
+// Fields for NonEditable mode demo
+const nonEditableFields: Field[] = [
+  createField('name', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 1 },
+  }),
+  createField('email', 'string', 'input', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  createField('role', 'string', 'select-dropdown', {
+    meta: {
+      width: 'half',
+      sort: 3,
+      options: {
+        choices: [
+          { text: 'Admin', value: 'admin' },
+          { text: 'Editor', value: 'editor' },
+          { text: 'Viewer', value: 'viewer' },
+        ],
+      },
+    },
+  }),
+  createField('bio', 'text', 'input-multiline', {
+    meta: { width: 'full', sort: 4 },
+  }),
+  createField('is_active', 'boolean', 'boolean', {
+    meta: { width: 'half', sort: 5 },
+  }),
+  createField('created_at', 'timestamp', 'datetime', {
+    meta: { width: 'half', sort: 6 },
+  }),
+];
+
+/**
+ * Non-editable form (view-only mode).
+ * Renders field values in a readable view-only state.
+ * Unlike "disabled" which greys out fields, nonEditable shows them clearly.
+ */
+export const NonEditable: Story = {
+  render: () => {
+    const [values, setValues] = useState<FieldValues>({
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      role: 'admin',
+      bio: 'Senior software engineer with 10 years of experience.',
+      is_active: true,
+      created_at: new Date().toISOString(),
+    });
+
+    return (
+      <div>
+        <VForm
+          fields={nonEditableFields}
+          modelValue={values}
+          initialValues={values}
+          onUpdate={setValues}
+          primaryKey="user-123"
+          nonEditable
+        />
+        <div className="vform-stories-debug-panel">
+          <strong>Form is nonEditable — values should not change:</strong>
+          <pre className="vform-stories-debug-pre">
+            {JSON.stringify(values, null, 2)}
+          </pre>
+        </div>
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Non-editable form. Field values are displayed in a readable '
+          + 'view-only state, distinct from the grayed-out "disabled" mode.',
+      },
+    },
+  },
+};
+
+// Fields for validation summary demo
+const validationSummaryFields: Field[] = [
+  createField('name', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 1 },
+  }),
+  createField('email', 'string', 'input', {
+    meta: {
+      width: 'half',
+      sort: 2,
+      validation_message: 'Please provide a valid email address',
+    },
+  }),
+  createField('age', 'integer', 'input', {
+    meta: {
+      width: 'half',
+      sort: 3,
+    },
+  }),
+  // Hidden field with an error (tests hidden-field awareness)
+  createField('internal_id', 'string', 'input', {
+    meta: { width: 'full', sort: 4, hidden: true },
+  }),
+];
+
+/**
+ * Form with validation errors summary banner.
+ * Shows a clickable summary at the top of the form listing all errors,
+ * including errors on hidden fields.
+ */
+export const WithValidationSummary: Story = {
+  render: () => {
+    const [values, setValues] = useState<FieldValues>({
+      name: '',
+      email: 'not-an-email',
+      age: -5,
+    });
+
+    const validationErrors = [
+      { field: 'name', type: 'required', message: 'Name is required' },
+      { field: 'email', type: 'FAILED_VALIDATION', code: 'FAILED_VALIDATION' },
+      { field: 'age', type: 'range', message: 'Age must be a positive number' },
+      { field: 'internal_id', type: 'required', message: 'Internal ID is missing (hidden field)' },
+    ];
+
+    return (
+      <VForm
+        fields={validationSummaryFields}
+        modelValue={values}
+        initialValues={values}
+        onUpdate={setValues}
+        primaryKey="+"
+        validationErrors={validationErrors}
+        showValidationSummary={true}
+      />
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates the ValidationErrors summary banner at the top of the form. '
+          + 'Errors are clickable to scroll to the field. Hidden field errors are flagged.',
+      },
+    },
+  },
+};
+
+// Group with readonly propagation (pushGroupOptionsDown)
+const groupReadonlyPropagationFields: Field[] = [
+  createField('title', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 1 },
+  }),
+  // Readonly group — children should inherit readonly
+  createGroupField('readonly_section', 'group-detail', {
+    meta: {
+      sort: 2,
+      name: 'Read-Only Section',
+      readonly: true,
+      options: { start: 'open' },
+    },
+  }),
+  createChildField('locked_name', 'string', 'input', 'readonly_section', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createChildField('locked_email', 'string', 'input', 'readonly_section', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  // Required group — children should inherit required
+  createGroupField('required_section', 'group-detail', {
+    meta: {
+      sort: 3,
+      name: 'Required Section (all fields required)',
+      required: true,
+      options: { start: 'open' },
+    },
+  }),
+  createChildField('must_fill_1', 'string', 'input', 'required_section', {
+    meta: { width: 'half', sort: 1, options: { placeholder: 'Required via group' } },
+  }),
+  createChildField('must_fill_2', 'string', 'input', 'required_section', {
+    meta: { width: 'half', sort: 2, options: { placeholder: 'Required via group' } },
+  }),
+];
+
+/**
+ * Form demonstrating pushGroupOptionsDown.
+ * The "Read-Only Section" group has readonly=true — all children inherit it.
+ * The "Required Section" group has required=true — all children inherit it.
+ */
+export const WithGroupPropagation: Story = {
+  render: () => (
+    <VFormWrapper
+      fields={groupReadonlyPropagationFields}
+      initialValues={{
+        locked_name: 'Cannot change',
+        locked_email: 'locked@example.com',
+      }}
+    />
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates pushGroupOptionsDown utility. Parent group readonly/required '
+          + 'settings propagate to all child fields automatically.',
+      },
+    },
+  },
+};
+
+// ============================================================================
+// P2 / P4 Feature Stories
+// ============================================================================
+
+// Fields with auto-increment PK (tests #3 setPrimaryKeyReadonly)
+const primaryKeyFields: Field[] = [
+  createField('id', 'integer', 'input', {
+    schema: {
+      is_primary_key: true,
+      has_auto_increment: true,
+      is_nullable: false,
+    },
+    meta: { width: 'full', sort: 1 },
+  }),
+  createField('title', 'string', 'input', {
+    meta: { width: 'full', required: true, sort: 2 },
+  }),
+  createField('description', 'text', 'input-multiline', {
+    meta: { width: 'full', sort: 3 },
+  }),
+];
+
+/**
+ * Form editing an existing item with auto-increment PK.
+ * The "id" field should automatically become readonly when editing
+ * (primaryKey !== '+') because setPrimaryKeyReadonly detects the
+ * auto-increment schema property.
+ */
+export const PrimaryKeyReadonly: Story = {
+  render: () => (
+    <VFormWrapper
+      fields={primaryKeyFields}
+      primaryKey={42}
+      initialValues={{ id: 42, title: 'Existing Item' }}
+    />
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates setPrimaryKeyReadonly (#3). Auto-increment PK "id" '
+          + 'becomes readonly when editing (primaryKey=42). In create mode (primaryKey="+"), '
+          + 'it would be editable.',
+      },
+    },
+  },
+};
+
+// Fields for half-right pairing test (#12 updateFieldWidths)
+const halfRightFields: Field[] = [
+  createField('first_name', 'string', 'input', {
+    meta: { width: 'half', sort: 1 },
+  }),
+  createField('last_name', 'string', 'input', {
+    meta: { width: 'half', sort: 2 },
+  }),
+  createField('email', 'string', 'input', {
+    meta: { width: 'full', sort: 3 },
+  }),
+  createField('city', 'string', 'input', {
+    meta: { width: 'half', sort: 4 },
+  }),
+  createField('country', 'string', 'input', {
+    meta: { width: 'half', sort: 5 },
+  }),
+  // Odd half at end — should stay half (NOT forced to full)
+  createField('postal_code', 'string', 'input', {
+    meta: { width: 'half', sort: 6 },
+  }),
+];
+
+/**
+ * Tests updateFieldWidths half-right pairing (#12).
+ * "first_name" gets half, "last_name" gets half-right.
+ * "postal_code" is an odd trailing half and should NOT be forced to full.
+ */
+export const HalfRightPairing: Story = {
+  render: () => <VFormWrapper fields={halfRightFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates updateFieldWidths half-right pairing (#12). '
+          + 'Consecutive half-width fields pair into half / half-right. '
+          + 'A trailing odd half stays half (never forced to full).',
+      },
+    },
+  },
+};
+
+// Fields for sort order test (#13)
+const sortOrderFields: Field[] = [
+  // Intentionally out of id/sort order to verify sorting
+  createField('field_c', 'string', 'input', {
+    meta: { width: 'full', sort: 3, id: 30 },
+  }),
+  createField('field_a', 'string', 'input', {
+    meta: { width: 'full', sort: 1, id: 10 },
+  }),
+  createField('field_b', 'string', 'input', {
+    meta: { width: 'full', sort: 2, id: 20 },
+  }),
+  // Two fields with the SAME sort — tiebreaker should use meta.id
+  createField('field_d', 'string', 'input', {
+    meta: { width: 'half', sort: 4, id: 40 },
+  }),
+  createField('field_e', 'string', 'input', {
+    meta: { width: 'half', sort: 4, id: 35 },
+  }),
+  // Field with null sort — should appear at end
+  createField('field_unsorted', 'string', 'input', {
+    meta: { width: 'full', sort: null, id: 50 },
+  }),
+];
+
+/**
+ * Tests sort order fix (#13).
+ * Fields should appear in order: field_a (sort 1), field_b (sort 2),
+ * field_c (sort 3), field_e (sort 4, id 35), field_d (sort 4, id 40),
+ * field_unsorted (null sort — last).
+ */
+export const SortOrder: Story = {
+  render: () => <VFormWrapper fields={sortOrderFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Verifies sort order (#13). Null sort goes to end. '
+          + 'Tiebreaker uses meta.id ascending instead of field name.',
+      },
+    },
+  },
+};
+
+// Fields for deep equality test (#20)
+const deepEqualFields: Field[] = [
+  createField('tags', 'json', 'tags', {
+    meta: { width: 'full', sort: 1, note: 'Edit then restore to initial — should un-mark as edited' },
+  }),
+  createField('config', 'json', 'input-code', {
+    meta: { width: 'full', sort: 2, options: { language: 'json' } },
+  }),
+  createField('name', 'string', 'input', {
+    meta: { width: 'full', sort: 3, note: 'Primitive field for comparison' },
+  }),
+];
+
+/**
+ * Tests deep equality for JSON fields (#20).
+ * When you edit a JSON field and then restore the original value,
+ * the field should be removed from edits (not kept with identical data).
+ */
+export const DeepEquality: Story = {
+  render: () => (
+    <VFormWrapper
+      fields={deepEqualFields}
+      initialValues={{
+        tags: ['typescript', 'react'],
+        config: { theme: 'dark', lang: 'en' },
+        name: 'Test',
+      }}
+      primaryKey="item-1"
+    />
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates deep equality (#20). Editing a JSON field then '
+          + 'restoring the same value removes it from edits.',
+      },
+    },
+  },
+};
+
+// Fields for null-interface fallback test (#8)
+const nullInterfaceFields: Field[] = [
+  createField('normal_input', 'string', 'input', {
+    meta: { width: 'full', sort: 1 },
+  }),
+  // Field with null interface — should fallback to 'input' for string type
+  {
+    field: 'string_no_iface',
+    type: 'string',
+    collection: 'test_collection',
+    schema: {
+      name: 'string_no_iface',
+      table: 'test_collection',
+      data_type: 'string',
+      is_nullable: true,
+      is_unique: false,
+      is_primary_key: false,
+      has_auto_increment: false,
+    },
+    meta: {
+      id: 901,
+      collection: 'test_collection',
+      field: 'string_no_iface',
+      interface: null,
+      display: null,
+      display_options: null,
+      readonly: false,
+      hidden: false,
+      sort: 2,
+      width: 'full',
+      group: null,
+      note: 'This field has interface=null — should fallback to "input"',
+      required: false,
+      options: null,
+      special: null,
+      validation: null,
+      validation_message: null,
+    },
+  },
+  // Boolean with null interface — should fallback to 'boolean'
+  {
+    field: 'bool_no_iface',
+    type: 'boolean',
+    collection: 'test_collection',
+    schema: {
+      name: 'bool_no_iface',
+      table: 'test_collection',
+      data_type: 'boolean',
+      is_nullable: true,
+      is_unique: false,
+      is_primary_key: false,
+      has_auto_increment: false,
+    },
+    meta: {
+      id: 902,
+      collection: 'test_collection',
+      field: 'bool_no_iface',
+      interface: null,
+      display: null,
+      display_options: null,
+      readonly: false,
+      hidden: false,
+      sort: 3,
+      width: 'half',
+      group: null,
+      note: 'Boolean with interface=null — should fallback to "boolean"',
+      required: false,
+      options: null,
+      special: null,
+      validation: null,
+      validation_message: null,
+    },
+  },
+  // JSON with null interface — should fallback to 'input-code'
+  {
+    field: 'json_no_iface',
+    type: 'json',
+    collection: 'test_collection',
+    schema: {
+      name: 'json_no_iface',
+      table: 'test_collection',
+      data_type: 'json',
+      is_nullable: true,
+      is_unique: false,
+      is_primary_key: false,
+      has_auto_increment: false,
+    },
+    meta: {
+      id: 903,
+      collection: 'test_collection',
+      field: 'json_no_iface',
+      interface: null,
+      display: null,
+      display_options: null,
+      readonly: false,
+      hidden: false,
+      sort: 4,
+      width: 'full',
+      group: null,
+      note: 'JSON with interface=null — should fallback to "input-code"',
+      required: false,
+      options: null,
+      special: null,
+      validation: null,
+      validation_message: null,
+    },
+  },
+];
+
+/**
+ * Tests interface fallback for null meta.interface (#8).
+ * Fields with `interface: null` should render using type-based defaults:
+ * string→input, boolean→boolean, json→input-code.
+ */
+export const NullInterfaceFallback: Story = {
+  render: () => <VFormWrapper fields={nullInterfaceFields} />,
+  parameters: {
+    docs: {
+      description: {
+        story: 'Demonstrates getDefaultInterfaceForType fallback (#8). '
+          + 'Fields with interface=null use type-based defaults.',
       },
     },
   },

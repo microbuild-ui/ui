@@ -25,6 +25,7 @@ import { FieldsService, useDaaSContext } from '@buildpad/services';
 import type { ValidationError, FieldValues } from './types';
 import { FormField } from './components/FormField';
 import { FormGroupField } from './components/FormGroupField';
+import { ValidationErrors } from './components/ValidationErrors';
 import {
   getFormFields,
   getDefaultValuesFromFields,
@@ -32,6 +33,10 @@ import {
   isGroupField,
   updateFieldWidths,
 } from './utils';
+import { applyConditions } from './utils/apply-conditions';
+import { pushGroupOptionsDown } from './utils/push-group-options-down';
+import { updateSystemDivider } from './utils/update-system-divider';
+import { setPrimaryKeyReadonly } from './utils/set-primary-key-readonly';
 
 /**
  * Permission action for the form
@@ -53,6 +58,12 @@ export interface VFormProps {
   primaryKey?: string | number;
   /** Disable all fields */
   disabled?: boolean;
+  /** 
+   * Non-editable mode. Shows field values but prevents editing.
+   * Unlike `disabled` which greys out fields, nonEditable renders them
+   * in a readable view-only state.
+   */
+  nonEditable?: boolean;
   /** Show loading state */
   loading?: boolean;
   /** Validation errors */
@@ -65,6 +76,8 @@ export interface VFormProps {
   showDivider?: boolean;
   /** Show message when no visible fields */
   showNoVisibleFields?: boolean;
+  /** Show validation errors summary banner at top of form */
+  showValidationSummary?: boolean;
   /** Fields to exclude from rendering */
   excludeFields?: string[];
   /** CSS class name */
@@ -79,6 +92,7 @@ export interface VFormProps {
   /** 
    * Enable permission-based field filtering.
    * When true, only fields the user has permission to access will be shown.
+   * Fields that are readable but not writable will be rendered as nonEditable.
    * Requires DaaSProvider context for authentication.
    */
   enforcePermissions?: boolean;
@@ -86,12 +100,44 @@ export interface VFormProps {
    * Callback when permissions are loaded
    */
   onPermissionsLoaded?: (accessibleFields: string[]) => void;
+  /**
+   * Callback when field is scrolled to (from ValidationErrors click)
+   */
+  onScrollToField?: (fieldKey: string) => void;
 }
 
 // Stable empty references to prevent re-renders
 const EMPTY_OBJECT: FieldValues = {};
 const EMPTY_ARRAY: string[] = [];
 const EMPTY_VALIDATION_ERRORS: ValidationError[] = [];
+const EMPTY_SET: Set<string> = new Set();
+
+/**
+ * Deep equality comparison for field values.
+ * Handles primitives, arrays, plain objects, null/undefined, and Date.
+ */
+function isDeepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return a === b;
+  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
+  if (typeof a !== typeof b) return false;
+  if (typeof a !== 'object') return false;
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((item, i) => isDeepEqual(item, (b as unknown[])[i]));
+  }
+
+  const keysA = Object.keys(a as Record<string, unknown>);
+  const keysB = Object.keys(b as Record<string, unknown>);
+  if (keysA.length !== keysB.length) return false;
+  return keysA.every((key) =>
+    isDeepEqual(
+      (a as Record<string, unknown>)[key],
+      (b as Record<string, unknown>)[key],
+    ),
+  );
+}
 
 /**
  * VForm - Dynamic form component
@@ -104,17 +150,20 @@ export const VForm: React.FC<VFormProps> = ({
   onUpdate,
   primaryKey,
   disabled = false,
+  nonEditable = false,
   loading: loadingProp = false,
   validationErrors,
   autofocus = false,
   group = null,
-  showDivider: _showDivider = false, // prefixed with _ to indicate it's intentionally unused for now
+  showDivider: _showDivider = false,
   showNoVisibleFields = true,
+  showValidationSummary = true,
   excludeFields,
   className,
   action,
   enforcePermissions = false,
   onPermissionsLoaded,
+  onScrollToField,
 }) => {
   // Use stable references for optional props
   const stableModelValue = useMemo(
@@ -138,6 +187,8 @@ export const VForm: React.FC<VFormProps> = ({
   const [loadingFields, setLoadingFields] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accessibleFields, setAccessibleFields] = useState<string[] | null>(null);
+  /** Fields that are readable but NOT writable — shown as nonEditable */
+  const [readOnlyPermFields, setReadOnlyPermFields] = useState<Set<string>>(EMPTY_SET);
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   
   // Get DaaS context for authenticated requests
@@ -183,9 +234,12 @@ export const VForm: React.FC<VFormProps> = ({
   }, [collection, fieldsProp]);
 
   // Load permissions if enforcePermissions is enabled
+  // Loads both read permissions AND write (create/update) permissions
+  // Fields visible in read but not in write are rendered as nonEditable
   useEffect(() => {
     if (!enforcePermissions || !collection) {
       setAccessibleFields(null);
+      setReadOnlyPermFields(EMPTY_SET);
       return;
     }
 
@@ -193,34 +247,60 @@ export const VForm: React.FC<VFormProps> = ({
       try {
         setPermissionsLoading(true);
         
-        // Check if we're in direct mode (has auth context)
-        const url = daasContext.isDirectMode 
-          ? daasContext.buildUrl(`/api/permissions/${collection}?action=${effectiveAction}`)
-          : `/api/permissions/${collection}?action=${effectiveAction}`;
+        const buildUrl = (permAction: string) =>
+          daasContext.isDirectMode
+            ? daasContext.buildUrl(`/api/permissions/${collection}?action=${permAction}`)
+            : `/api/permissions/${collection}?action=${permAction}`;
         
-        const response = await fetch(url, {
-          headers: daasContext.getHeaders(),
-          credentials: 'include',
-        });
-        
-        if (!response.ok) {
-          if (response.status === 403) {
-            // No permissions - show no fields
-            setAccessibleFields([]);
-            return;
+        const fetchFields = async (permAction: string): Promise<string[]> => {
+          const response = await fetch(buildUrl(permAction), {
+            headers: daasContext.getHeaders(),
+            credentials: 'include',
+          });
+          if (!response.ok) {
+            if (response.status === 403) return [];
+            throw new Error(`Failed to fetch permissions: ${response.status}`);
           }
-          throw new Error(`Failed to fetch permissions: ${response.status}`);
+          const data = await response.json();
+          return data.data?.fields || [];
+        };
+
+        // Load read + write permissions in parallel
+        const writeAction = effectiveAction === 'read' ? 'read' : effectiveAction;
+        const [readFields, writeFields] = await Promise.all([
+          fetchFields('read'),
+          effectiveAction !== 'read' ? fetchFields(writeAction) : Promise.resolve([]),
+        ]);
+
+        // Determine accessible fields (union of read + write)
+        const readSet = new Set(readFields);
+        const writeSet = new Set(writeFields);
+        const hasReadWildcard = readFields.includes('*');
+        const hasWriteWildcard = writeFields.includes('*');
+
+        // All accessible = readable OR writable
+        const allAccessible = hasReadWildcard
+          ? ['*']
+          : [...new Set([...readFields, ...writeFields])];
+
+        // Read-only fields = readable but NOT writable (nonEditable rendering)
+        const readOnlySet = new Set<string>();
+        if (effectiveAction !== 'read' && !hasWriteWildcard) {
+          for (const f of readSet) {
+            if (f !== '*' && !writeSet.has(f)) {
+              readOnlySet.add(f);
+            }
+          }
         }
-        
-        const data = await response.json();
-        const permissionFields = data.data?.fields || [];
-        
-        setAccessibleFields(permissionFields);
-        onPermissionsLoaded?.(permissionFields);
+
+        setAccessibleFields(allAccessible);
+        setReadOnlyPermFields(readOnlySet);
+        onPermissionsLoaded?.(allAccessible);
       } catch (err) {
         console.error('Error loading permissions:', err);
         // On error, default to showing all fields (fail open for better UX)
         setAccessibleFields(null);
+        setReadOnlyPermFields(EMPTY_SET);
       } finally {
         setPermissionsLoading(false);
       }
@@ -234,7 +314,18 @@ export const VForm: React.FC<VFormProps> = ({
     return getDefaultValuesFromFields(fields);
   }, [fields]);
 
+  // Merge initial values with current values (needed by applyConditions in the pipeline)
+  const allValues = useMemo(() => {
+    return {
+      ...defaultValues,
+      ...stableInitialValues,
+      ...stableModelValue,
+    };
+  }, [defaultValues, stableInitialValues, stableModelValue]);
+
   // Process fields for display
+  // Pipeline: getFormFields → group filter → exclude filter → applyConditions
+  //   → pushGroupOptionsDown → permissions filter → updateSystemDivider → updateFieldWidths
   const formFields = useMemo(() => {
     let processed = getFormFields(fields);
 
@@ -251,6 +342,15 @@ export const VForm: React.FC<VFormProps> = ({
       processed = processed.filter((f) => !stableExcludeFields.includes(f.field));
     }
 
+    // Set auto-increment / UUID primary keys readonly when editing
+    processed = processed.map((field) => setPrimaryKeyReadonly(field, primaryKey));
+
+    // Apply field conditions (evaluates show/hide/options rules against current values)
+    processed = processed.map((field) => applyConditions(allValues, field));
+
+    // Propagate readonly/required from parent groups to children
+    processed = pushGroupOptionsDown(processed);
+
     // Filter by permissions if enforced
     if (enforcePermissions && accessibleFields !== null) {
       // Wildcard means all fields are accessible
@@ -260,11 +360,14 @@ export const VForm: React.FC<VFormProps> = ({
       }
     }
 
+    // Update system divider visibility (always run — hiding is internal to divider logic)
+    updateSystemDivider(processed);
+
     // Update field widths for proper layout
     processed = updateFieldWidths(processed);
 
     return processed;
-  }, [fields, group, stableExcludeFields, enforcePermissions, accessibleFields]);
+  }, [fields, group, stableExcludeFields, enforcePermissions, accessibleFields, allValues, primaryKey]);
 
   // Collect all group field names so we can filter out their children
   const groupFieldNames = useMemo(() => {
@@ -286,24 +389,15 @@ export const VForm: React.FC<VFormProps> = ({
     });
   }, [formFields, groupFieldNames]);
 
-  // Merge initial values with current values
-  const allValues = useMemo(() => {
-    return {
-      ...defaultValues,
-      ...stableInitialValues,
-      ...stableModelValue,
-    };
-  }, [defaultValues, stableInitialValues, stableModelValue]);
-
   // Handle field value change
   const handleFieldChange = useCallback(
     (fieldName: string, value: any) => {
       const field = fields.find((f) => f.field === fieldName);
       if (!field) return;
 
-      // Check if value is same as initial/default
+      // Check if value is same as initial/default (deep comparison for objects/arrays)
       const initialValue = stableInitialValues[fieldName] ?? defaultValues[fieldName];
-      if (value === initialValue) {
+      if (isDeepEqual(value, initialValue)) {
         // Remove from edits
         const newValues = { ...stableModelValue };
         delete newValues[fieldName];
@@ -319,14 +413,18 @@ export const VForm: React.FC<VFormProps> = ({
     [fields, stableInitialValues, defaultValues, stableModelValue, onUpdate]
   );
 
-  // Handle field unset
+  // Handle field unset (skip if field is disabled/readonly — matches Directus guard)
   const handleFieldUnset = useCallback(
     (fieldName: string) => {
-      const newValues = { ...modelValue };
+      // Guard: don't unset disabled/readonly fields
+      const field = formFields.find((f) => f.field === fieldName);
+      if (field?.meta?.readonly || disabled) return;
+
+      const newValues = { ...stableModelValue };
       delete newValues[fieldName];
       onUpdate?.(newValues);
     },
-    [modelValue, onUpdate]
+    [formFields, disabled, stableModelValue, onUpdate]
   );
 
   // Get validation error for a field
@@ -341,6 +439,12 @@ export const VForm: React.FC<VFormProps> = ({
     },
     [stableValidationErrors, collection]
   );
+
+  // Pre-compute first editable field index once (avoid per-field findIndex)
+  const firstEditableIndex = useMemo(() => {
+    if (!autofocus) return -1;
+    return visibleFields.findIndex((f) => !f.meta?.readonly);
+  }, [autofocus, visibleFields]);
 
   // Show loading skeleton
   if (loadingFields || loadingProp || permissionsLoading) {
@@ -392,12 +496,21 @@ export const VForm: React.FC<VFormProps> = ({
 
   return (
     <Box className={`v-form ${className || ''}`}>
+      {/* Validation errors summary banner */}
+      {showValidationSummary && stableValidationErrors.length > 0 && (
+        <ValidationErrors
+          validationErrors={stableValidationErrors}
+          fields={fields}
+          onScrollToField={onScrollToField}
+        />
+      )}
       <div className="form-grid">
         {visibleFields.map((field, index) => {
           // Check if this is the first editable field (for autofocus)
-          const isFirstEditable =
-            autofocus &&
-            index === visibleFields.findIndex((f) => !f.meta?.readonly);
+          const isFirstEditable = index === firstEditableIndex;
+
+          // Determine if field is nonEditable (prop-level or permission-level)
+          const isFieldNonEditable = nonEditable || readOnlyPermFields.has(field.field);
 
           // Render group fields with their children nested inside
           if (isGroupField(field)) {
@@ -410,11 +523,13 @@ export const VForm: React.FC<VFormProps> = ({
                 initialValues={stableInitialValues}
                 validationErrors={stableValidationErrors}
                 disabled={disabled}
+                nonEditable={isFieldNonEditable}
                 loading={loadingProp}
                 primaryKey={primaryKey}
                 onFieldChange={handleFieldChange}
                 onFieldUnset={handleFieldUnset}
                 getFieldError={getFieldError}
+                nonEditableFields={readOnlyPermFields}
                 className={field.meta?.width || 'full'}
               />
             );
@@ -429,6 +544,7 @@ export const VForm: React.FC<VFormProps> = ({
               onChange={(value) => handleFieldChange(field.field, value)}
               onUnset={() => handleFieldUnset(field.field)}
               disabled={disabled}
+              nonEditable={isFieldNonEditable}
               loading={loadingProp}
               validationError={getFieldError(field.field)}
               primaryKey={primaryKey}

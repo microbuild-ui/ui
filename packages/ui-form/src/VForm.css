@@ -1,16 +1,18 @@
 /**
  * VForm Styles
  * Based on DaaS v-form styles
+ * Field layout is controlled entirely by field configuration (meta.width),
+ * no responsive breakpoints — the form always respects the data model layout.
  */
 
 .v-form {
   width: 100%;
 }
 
-/* Form Grid Layout */
+/* Form Grid Layout — always two-column */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: [start] minmax(0, 1fr) [half] minmax(0, 1fr) [full];
   gap: var(--mantine-spacing-md, 16px);
   width: 100%;
 }
@@ -18,35 +20,34 @@
 /* Field Width Classes */
 .form-field.field-width-full,
 .form-field.field-width-fill {
-  grid-column: 1 / -1;
+  grid-column: start / full;
 }
 
 .form-field.field-width-half,
-.form-field.field-width-half-left,
-.form-field.field-width-half-right {
-  grid-column: span 1;
+.form-field.field-width-half-left {
+  grid-column: start / half;
 }
 
-/* Single Column on Small Screens */
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-field.field-width-half,
-  .form-field.field-width-half-left,
-  .form-field.field-width-half-right {
-    grid-column: 1 / -1;
-  }
+.form-field.field-width-half-right {
+  grid-column: half / full;
 }
 
 /* Field States */
 .form-field[data-edited="true"] {
-  /* Optionally add visual indicator for edited fields */
+  /* Visual indicator for edited fields — subtle left border */
+  border-left: 2px solid var(--mantine-color-blue-5, #228be6);
+  padding-left: var(--mantine-spacing-xs, 8px);
 }
 
-/* System Divider - uses escaped $ to avoid PostCSS variable interpretation */
+.form-field.invalid,
+.form-field[data-invalid="true"] {
+  /* Visual indicator for validation errors */
+  border-left: 2px solid var(--mantine-color-red-6, #fa5252);
+  padding-left: var(--mantine-spacing-xs, 8px);
+}
+
+/* System Divider */
 .form-field[data-field="system-divider"] {
-  grid-column: 1 / -1;
+  grid-column: start / full;
   margin: var(--mantine-spacing-md, 16px) 0;
 }

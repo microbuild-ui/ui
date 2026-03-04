@@ -11,10 +11,46 @@ import React, { useMemo } from 'react';
 import { Alert, Skeleton, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import type { FormField } from '../types';
-import { getFieldInterface, type InterfaceConfig } from '@buildpad/utils';
+import { getFieldInterface, type InterfaceConfig, type InterfaceType } from '@buildpad/utils';
+import { InterfaceErrorBoundary } from './InterfaceErrorBoundary';
 
 // Import interface components
 import * as Interfaces from '@buildpad/ui-interfaces';
+
+/**
+ * Get the default interface name for a given field type.
+ * Mirrors Directus getDefaultInterfaceForType so that fields with
+ * `meta.interface === null` still render a sensible component.
+ */
+function getDefaultInterfaceForType(type: string | undefined | null): InterfaceType {
+  switch (type) {
+    case 'bigInteger':
+    case 'integer':
+    case 'float':
+    case 'decimal':
+      return 'input';
+    case 'boolean':
+      return 'boolean';
+    case 'text':
+      return 'input-multiline';
+    case 'json':
+    case 'csv':
+      return 'input-code';
+    case 'dateTime':
+    case 'date':
+    case 'time':
+    case 'timestamp':
+      return 'datetime';
+    case 'uuid':
+      return 'input';
+    case 'hash':
+      return 'input'; // closest available interface
+    case 'geometry':
+      return 'map';
+    default:
+      return 'input';
+  }
+}
 
 export interface FormFieldInterfaceProps {
   /** Field definition */
@@ -27,6 +63,8 @@ export interface FormFieldInterfaceProps {
   disabled?: boolean;
   /** Field is readonly */
   readonly?: boolean;
+  /** Field is non-editable (view-only, distinct from disabled) */
+  nonEditable?: boolean;
   /** Field is required */
   required?: boolean;
   /** Field is loading */
@@ -48,6 +86,7 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
   onChange,
   disabled = false,
   readonly = false,
+  nonEditable = false,
   required = false,
   loading = false,
   error,
@@ -56,8 +95,14 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
 }) => {
   // Get interface configuration from @buildpad/utils
   // Returns InterfaceConfig with type and props
+  // Falls back to default interface for the field type when meta.interface is null
   const interfaceConfig: InterfaceConfig = useMemo(() => {
-    return getFieldInterface(field);
+    const config = getFieldInterface(field);
+    // If the utility returned an empty type, derive from field.type
+    if (!config.type) {
+      return { ...config, type: getDefaultInterfaceForType(field.type) };
+    }
+    return config;
   }, [field]);
 
   // Get interface component by type
@@ -176,12 +221,15 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
 
   // Build props for interface component
   // Merge interfaceConfig.props (from @buildpad/utils) with runtime props
+  // When nonEditable, suppress onChange and mark disabled+readonly
+  const isEffectivelyReadonly = readonly || nonEditable;
+
   const interfaceProps: any = {
     value,
-    onChange,
-    disabled: disabled || readonly,
-    readonly,
-    required,
+    onChange: nonEditable ? undefined : onChange,
+    disabled: disabled || isEffectivelyReadonly,
+    readonly: isEffectivelyReadonly,
+    required: nonEditable ? false : required,
     error,
     autofocus,
     // Note: label is NOT passed here because FormField already renders FormFieldLabel
@@ -204,9 +252,11 @@ export const FormFieldInterface: React.FC<FormFieldInterfaceProps> = ({
   // Note: File interfaces (File, FileImage, Files) now use @buildpad/hooks useFiles
   // directly and don't need an external upload handler passed in
 
-  // Render interface component
+  // Render interface component wrapped in error boundary
   return (
-    <InterfaceComponent {...interfaceProps} />
+    <InterfaceErrorBoundary interfaceName={interfaceConfig.type} fieldKey={field.field}>
+      <InterfaceComponent {...interfaceProps} />
+    </InterfaceErrorBoundary>
   );
 };
 

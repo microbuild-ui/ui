@@ -29,6 +29,8 @@ export interface FormGroupFieldProps {
   validationErrors: ValidationError[];
   /** Whether the form is disabled */
   disabled?: boolean;
+  /** Whether the form is non-editable (view-only, distinct from disabled) */
+  nonEditable?: boolean;
   /** Whether the form is loading */
   loading?: boolean;
   /** Primary key */
@@ -39,6 +41,8 @@ export interface FormGroupFieldProps {
   onFieldUnset: (fieldName: string) => void;
   /** Get validation error for a field */
   getFieldError: (fieldName: string) => ValidationError | undefined;
+  /** Set of field keys that are non-editable due to permission read/write distinction */
+  nonEditableFields?: Set<string>;
   /** CSS class */
   className?: string;
 }
@@ -64,6 +68,7 @@ function ChildFieldsRenderer({
   values,
   initialValues,
   disabled,
+  nonEditable,
   loading,
   primaryKey,
   onFieldChange,
@@ -71,11 +76,13 @@ function ChildFieldsRenderer({
   getFieldError,
   allFields,
   validationErrors,
+  nonEditableFields,
 }: {
   childFields: TFormField[];
   values: Record<string, any>;
   initialValues: Record<string, any>;
   disabled: boolean;
+  nonEditable: boolean;
   loading: boolean;
   primaryKey?: string | number;
   onFieldChange: (fieldName: string, value: any) => void;
@@ -83,6 +90,7 @@ function ChildFieldsRenderer({
   getFieldError: (fieldName: string) => ValidationError | undefined;
   allFields: Field[];
   validationErrors: ValidationError[];
+  nonEditableFields?: Set<string>;
 }) {
   return (
     <Stack gap="md">
@@ -99,14 +107,18 @@ function ChildFieldsRenderer({
               initialValues={initialValues}
               validationErrors={validationErrors}
               disabled={disabled}
+              nonEditable={nonEditable}
               loading={loading}
               primaryKey={primaryKey}
               onFieldChange={onFieldChange}
               onFieldUnset={onFieldUnset}
               getFieldError={getFieldError}
+              nonEditableFields={nonEditableFields}
             />
           );
         }
+
+        const isFieldNonEditable = nonEditable || (nonEditableFields?.has(child.field) ?? false);
 
         return (
           <FormField
@@ -117,6 +129,7 @@ function ChildFieldsRenderer({
             onChange={(value) => onFieldChange(child.field, value)}
             onUnset={() => onFieldUnset(child.field)}
             disabled={disabled}
+            nonEditable={isFieldNonEditable}
             loading={loading}
             validationError={getFieldError(child.field)}
             primaryKey={primaryKey}
@@ -137,11 +150,13 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
   initialValues,
   validationErrors,
   disabled = false,
+  nonEditable = false,
   loading = false,
   primaryKey,
   onFieldChange,
   onFieldUnset,
   getFieldError,
+  nonEditableFields,
   className,
 }) => {
   const interfaceConfig = useMemo(() => getFieldInterface(field), [field]);
@@ -165,6 +180,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
     values,
     initialValues,
     disabled,
+    nonEditable,
     loading,
     primaryKey,
     onFieldChange,
@@ -172,6 +188,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
     getFieldError,
     allFields,
     validationErrors,
+    nonEditableFields,
   };
 
   // Render based on group interface type
@@ -246,6 +263,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
               hideLabel: true,
             } as TFormField;
 
+            const isSectionNonEditable = nonEditable || (nonEditableFields?.has(section.field) ?? false);
             return (
               <FormField
                 key={section.field}
@@ -255,6 +273,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
                 onChange={(value) => onFieldChange(section.field, value)}
                 onUnset={() => onFieldUnset(section.field)}
                 disabled={disabled}
+                nonEditable={isSectionNonEditable}
                 loading={loading}
                 validationError={getFieldError(section.field)}
                 primaryKey={primaryKey}

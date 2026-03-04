@@ -16,6 +16,10 @@ export {
   updateFieldWidths, 
   getFieldWidthClass 
 } from './update-field-widths';
+export { applyConditions, type FieldCondition } from './apply-conditions';
+export { pushGroupOptionsDown } from './push-group-options-down';
+export { updateSystemDivider } from './update-system-divider';
+export { setPrimaryKeyReadonly } from './set-primary-key-readonly';
 
 // Re-export commonly used utilities from @buildpad/utils for convenience
 export { 

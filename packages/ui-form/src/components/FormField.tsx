@@ -29,6 +29,8 @@ export interface FormFieldProps {
   disabled?: boolean;
   /** Field is readonly (view only) */
   readonly?: boolean;
+  /** Field is non-editable (view-only, distinct from disabled - shows values but blocks editing) */
+  nonEditable?: boolean;
   /** Field is loading */
   loading?: boolean;
   /** Validation error for this field */
@@ -54,6 +56,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   onUnset: _onUnset, // prefixed with _ to indicate it's intentionally unused for now
   disabled = false,
   readonly = false,
+  nonEditable = false,
   loading = false,
   validationError,
   primaryKey,
@@ -89,9 +92,19 @@ export const FormField: React.FC<FormFieldProps> = ({
     return null;
   }, [value, field]);
 
-  // Check if field has been edited
+  // Check if field has been edited (deep comparison for objects/arrays)
   const isEdited = useMemo(() => {
-    return value !== undefined && value !== initialValue;
+    if (value === undefined) return false;
+    if (value === initialValue) return false;
+    // Deep comparison for non-primitive values
+    if (typeof value === 'object' && value !== null && typeof initialValue === 'object' && initialValue !== null) {
+      try {
+        return JSON.stringify(value) !== JSON.stringify(initialValue);
+      } catch {
+        return true;
+      }
+    }
+    return true;
   }, [value, initialValue]);
 
   // Get validation error message
@@ -128,14 +141,21 @@ export const FormField: React.FC<FormFieldProps> = ({
   // Get field width class
   const widthClass = useMemo(() => {
     const width = field.meta?.width || 'full';
-    return `field-width-${width}`;
+    if (width === 'half-right') return 'field-width-half-right';
+    if (width === 'half' || width === 'half-left') return 'field-width-half';
+    if (width === 'fill') return 'field-width-fill';
+    return 'field-width-full';
   }, [field.meta?.width]);
+
+  // Classes for validation state
+  const invalidClass = validationError ? 'invalid' : '';
 
   return (
     <Box
-      className={`form-field ${widthClass} ${className || ''}`}
+      className={`form-field ${widthClass} ${invalidClass} ${className || ''}`}
       data-field={field.field}
-      data-edited={isEdited}
+      data-edited={isEdited || undefined}
+      data-invalid={validationError ? true : undefined}
     >
       <Stack gap="xs">
         {/* Field Label */}
@@ -154,6 +174,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           onChange={onChange}
           disabled={isDisabled}
           readonly={readonly}
+          nonEditable={nonEditable}
           loading={loading}
           required={isRequired}
           error={errorMessage}

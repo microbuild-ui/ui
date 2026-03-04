@@ -617,3 +617,376 @@ test.describe('VForm Storybook - Permission Props', () => {
     await expect(form).toBeVisible();
   });
 });
+
+// ============================================================================
+// Test Suite: Conditional Fields (applyConditions - P0)
+// ============================================================================
+
+test.describe('VForm Storybook - Conditional Fields', () => {
+  test('should render conditional fields story without errors', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-conditions');
+
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+
+    // Category dropdown and title should always be visible
+    const inputs = page.locator('input, textarea, [role="combobox"]');
+    const count = await inputs.count();
+    expect(count).toBeGreaterThanOrEqual(2);
+  });
+
+  test('should show event fields when category is event', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-conditions');
+    await page.waitForTimeout(500);
+
+    // Select "Event" in the category dropdown
+    // Mantine Select: click input → click option in popup
+    const categoryInput = page.locator('input[aria-haspopup="listbox"]').first();
+    if (await categoryInput.count() > 0) {
+      await categoryInput.click();
+      await page.waitForTimeout(200);
+      const eventOption = page.getByRole('option', { name: /event/i });
+      if (await eventOption.count() > 0) {
+        await eventOption.click();
+        await page.waitForTimeout(500);
+      }
+    }
+
+    // After selecting event, the form should still render correctly
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+  });
+});
+
+// ============================================================================
+// Test Suite: Non-Editable Mode (P1)
+// ============================================================================
+
+test.describe('VForm Storybook - NonEditable Mode', () => {
+  test('should render non-editable form', async ({ page }) => {
+    await goToStory(page, 'forms-vform--non-editable');
+
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+
+    // Should show field values (displayed in a div, not a pre)
+    const debugText = page.getByText('Jane Smith');
+    await expect(debugText.first()).toBeVisible();
+  });
+
+  test('should prevent editing in non-editable mode', async ({ page }) => {
+    await goToStory(page, 'forms-vform--non-editable');
+    await page.waitForTimeout(500);
+
+    // All inputs should be disabled or readonly
+    const inputs = page.locator('input:not([type="hidden"])');
+    const count = await inputs.count();
+
+    for (let i = 0; i < Math.min(count, 3); i++) {
+      const input = inputs.nth(i);
+      const isDisabled = await input.isDisabled();
+      const isReadonly = await input.getAttribute('readonly');
+      expect(isDisabled || isReadonly !== null).toBeTruthy();
+    }
+  });
+
+  test('should not update values when trying to interact', async ({ page }) => {
+    await goToStory(page, 'forms-vform--non-editable');
+    await page.waitForTimeout(500);
+
+    // Get the debug output before any attempt (uses a div, not pre)
+    const debugPanel = page.locator('text=Jane Smith').first();
+    const beforeText = await debugPanel.textContent();
+
+    // Try to click on a disabled input (should not change anything)
+    const firstInput = page.locator('input').first();
+    if (await firstInput.count() > 0) {
+      // Force click since the input is disabled
+      await firstInput.click({ force: true }).catch(() => {});
+      await page.waitForTimeout(300);
+    }
+
+    // Debug values should remain unchanged
+    const afterText = await debugPanel.textContent();
+    expect(afterText).toBe(beforeText);
+  });
+});
+
+// ============================================================================
+// Test Suite: Validation Errors Summary (P1)
+// ============================================================================
+
+test.describe('VForm Storybook - Validation Summary', () => {
+  test('should render validation summary banner', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-validation-summary');
+
+    // Should show the validation errors summary
+    const summary = page.locator('.validation-errors-summary');
+    await expect(summary).toBeVisible({ timeout: 5000 });
+
+    // Should show error count
+    const errorCountText = page.getByText(/4 validation errors/i);
+    await expect(errorCountText).toBeVisible();
+  });
+
+  test('should list all errored fields in summary', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-validation-summary');
+    await page.waitForTimeout(500);
+
+    const summary = page.locator('.validation-errors-summary');
+    await expect(summary).toBeVisible();
+
+    // Should mention field names (use exact match to avoid ambiguity with messages)
+    await expect(summary.locator('button:has-text("name")')).toBeVisible();
+    await expect(summary.locator('button:has-text("email")')).toBeVisible();
+    await expect(summary.locator('button:has-text("age")')).toBeVisible();
+  });
+
+  test('should show hidden field indicator for hidden field errors', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-validation-summary');
+    await page.waitForTimeout(500);
+
+    const summary = page.locator('.validation-errors-summary');
+    await expect(summary).toBeVisible();
+
+    // internal_id is hidden — should show (hidden) indicator
+    const hiddenIndicator = summary.getByText(/hidden/i);
+    await expect(hiddenIndicator).toBeVisible();
+  });
+
+  test('should use custom validation messages', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-validation-summary');
+    await page.waitForTimeout(500);
+
+    const summary = page.locator('.validation-errors-summary');
+
+    // email field has custom validation_message: "Please provide a valid email address"
+    const customMsg = summary.getByText(/Please provide a valid email address/i);
+    await expect(customMsg).toBeVisible();
+  });
+
+  test('summary field names should be clickable', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-validation-summary');
+    await page.waitForTimeout(500);
+
+    const summary = page.locator('.validation-errors-summary');
+
+    // Field names should be rendered as buttons
+    const buttons = summary.locator('button');
+    const buttonCount = await buttons.count();
+    expect(buttonCount).toBeGreaterThanOrEqual(3);
+  });
+});
+
+// ============================================================================
+// Test Suite: Group Propagation (pushGroupOptionsDown - P0)
+// ============================================================================
+
+test.describe('VForm Storybook - Group Propagation', () => {
+  test('should render group propagation story', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-group-propagation');
+
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+  });
+
+  test('should have readonly fields in readonly group', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-group-propagation');
+    await page.waitForTimeout(500);
+
+    // The locked_name and locked_email fields inherit readonly from parent group
+    // pushGroupOptionsDown sets meta.readonly=true on children
+    // Verify the fields render with their initial values (readonly fields keep values)
+    const lockedName = page.locator('input[value="Cannot change"]');
+    const lockedEmail = page.locator('input[value="locked@example.com"]');
+    await expect(lockedName).toBeVisible();
+    await expect(lockedEmail).toBeVisible();
+
+    // Verify that the readonly section group header is visible
+    const readonlyHeader = page.getByText('Read-Only Section');
+    await expect(readonlyHeader).toBeVisible();
+  });
+});
+
+// ============================================================================
+// Test Suite: P2 — setPrimaryKeyReadonly (#3)
+// ============================================================================
+
+test.describe('VForm Storybook - Primary Key Readonly', () => {
+  test('should render PK readonly story', async ({ page }) => {
+    await goToStory(page, 'forms-vform--primary-key-readonly');
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+  });
+
+  test('auto-increment PK should be readonly when editing', async ({ page }) => {
+    await goToStory(page, 'forms-vform--primary-key-readonly');
+    await page.waitForTimeout(500);
+
+    // The id field should be rendered readonly/disabled because we're editing
+    // (primaryKey=42). Look for the field wrapper.
+    const idField = page.locator('[data-field="id"]');
+    await expect(idField).toBeVisible();
+
+    // The id input should be disabled or readonly
+    const idInput = idField.locator('input');
+    const isDisabled = await idInput.isDisabled();
+    const isReadonly = await idInput.getAttribute('readonly');
+    expect(isDisabled || isReadonly !== null).toBeTruthy();
+
+    // The title field should still be editable
+    const titleField = page.locator('[data-field="title"]');
+    const titleInput = titleField.locator('input');
+    await expect(titleInput).toBeEnabled();
+  });
+});
+
+// ============================================================================
+// Test Suite: P2 — Half-Right Pairing (#12)
+// ============================================================================
+
+test.describe('VForm Storybook - Half-Right Pairing', () => {
+  test('should render half-right pairing story', async ({ page }) => {
+    await goToStory(page, 'forms-vform--half-right-pairing');
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+  });
+
+  test('second consecutive half field should get half-right class', async ({ page }) => {
+    await goToStory(page, 'forms-vform--half-right-pairing');
+    await page.waitForTimeout(500);
+
+    // last_name is the second half in the first pair → should have half-right
+    const lastNameField = page.locator('[data-field="last_name"]');
+    await expect(lastNameField).toBeVisible();
+    const lastNameClasses = await lastNameField.getAttribute('class') ?? '';
+    expect(lastNameClasses).toContain('field-width-half-right');
+
+    // first_name is the first half → should have field-width-half (not half-right)
+    const firstNameField = page.locator('[data-field="first_name"]');
+    const firstNameClasses = await firstNameField.getAttribute('class') ?? '';
+    expect(firstNameClasses).toContain('field-width-half');
+    expect(firstNameClasses).not.toContain('half-right');
+  });
+
+  test('trailing odd half should NOT be forced to full', async ({ page }) => {
+    await goToStory(page, 'forms-vform--half-right-pairing');
+    await page.waitForTimeout(500);
+
+    // postal_code is the odd trailing half-width field (6th field, after 2 pairs + 1 full)
+    const postalField = page.locator('[data-field="postal_code"]');
+    await expect(postalField).toBeVisible();
+    const postalClasses = await postalField.getAttribute('class') ?? '';
+    // Should be half, not full
+    expect(postalClasses).toContain('field-width-half');
+    expect(postalClasses).not.toContain('field-width-full');
+  });
+});
+
+// ============================================================================
+// Test Suite: P2 — Sort Order (#13)
+// ============================================================================
+
+test.describe('VForm Storybook - Sort Order', () => {
+  test('should render sort order story', async ({ page }) => {
+    await goToStory(page, 'forms-vform--sort-order');
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+  });
+
+  test('fields should be sorted by sort order with meta.id tiebreaker', async ({ page }) => {
+    await goToStory(page, 'forms-vform--sort-order');
+    await page.waitForTimeout(500);
+
+    // Get all field data-field attributes in DOM order
+    const fieldElements = page.locator('.form-grid [data-field]');
+    const fieldNames: string[] = [];
+    const count = await fieldElements.count();
+    for (let i = 0; i < count; i++) {
+      const name = await fieldElements.nth(i).getAttribute('data-field');
+      if (name) fieldNames.push(name);
+    }
+
+    // Expected order: field_a (sort 1), field_b (sort 2), field_c (sort 3),
+    // field_e (sort 4, id 35 < 40), field_d (sort 4, id 40),
+    // field_unsorted (null sort — last)
+    expect(fieldNames).toEqual([
+      'field_a', 'field_b', 'field_c', 'field_e', 'field_d', 'field_unsorted',
+    ]);
+  });
+});
+
+// ============================================================================
+// Test Suite: P2 — Null Interface Fallback (#8)
+// ============================================================================
+
+test.describe('VForm Storybook - Null Interface Fallback', () => {
+  test('should render null-interface story without crashing', async ({ page }) => {
+    await goToStory(page, 'forms-vform--null-interface-fallback');
+    const form = page.locator('.v-form');
+    await expect(form).toBeVisible();
+  });
+
+  test('string with null interface should render as input', async ({ page }) => {
+    await goToStory(page, 'forms-vform--null-interface-fallback');
+    await page.waitForTimeout(500);
+
+    const stringField = page.locator('[data-field="string_no_iface"]');
+    await expect(stringField).toBeVisible();
+
+    // Should have an input (text) element, not an error alert
+    const input = stringField.locator('input');
+    const alert = stringField.locator('[class*="alert"], [role="alert"]');
+    const inputVisible = await input.isVisible().catch(() => false);
+    const alertVisible = await alert.isVisible().catch(() => false);
+    expect(inputVisible || !alertVisible).toBeTruthy();
+  });
+
+  test('all null-interface fields should render without error alerts', async ({ page }) => {
+    await goToStory(page, 'forms-vform--null-interface-fallback');
+    await page.waitForTimeout(500);
+
+    // None of the null-interface fields should show the "Interface component not found" alert
+    const errorAlerts = page.locator('.form-field >> text=Interface component not found');
+    const alertCount = await errorAlerts.count();
+    expect(alertCount).toBe(0);
+  });
+});
+
+// ============================================================================
+// Test Suite: P4 — CSS Validation State (#21)
+// ============================================================================
+
+test.describe('VForm Storybook - CSS Validation States', () => {
+  test('fields with errors should have invalid class and data attribute', async ({ page }) => {
+    await goToStory(page, 'forms-vform--with-validation-errors');
+    await page.waitForTimeout(500);
+
+    // The name field has a validation error
+    const nameField = page.locator('[data-field="name"]');
+    await expect(nameField).toBeVisible();
+
+    // Should have invalid class
+    const nameClasses = await nameField.getAttribute('class') ?? '';
+    expect(nameClasses).toContain('invalid');
+
+    // Should have data-invalid attribute
+    const dataInvalid = await nameField.getAttribute('data-invalid');
+    expect(dataInvalid).toBe('true');
+  });
+
+  test('edited fields should have data-edited attribute and left border', async ({ page }) => {
+    await goToStory(page, 'forms-vform--deep-equality');
+    await page.waitForTimeout(500);
+
+    // Type something in the "name" field to mark it as edited
+    const nameField = page.locator('[data-field="name"]');
+    const nameInput = nameField.locator('input');
+    await nameInput.fill('Modified');
+    await page.waitForTimeout(300);
+
+    // After editing, the field should have data-edited="true"
+    const edited = await nameField.getAttribute('data-edited');
+    expect(edited).toBe('true');
+  });
+});

@@ -17,6 +17,8 @@ export { FormFieldInterface } from './components/FormFieldInterface';
 export type { FormFieldInterfaceProps } from './components/FormFieldInterface';
 export { FormGroupField } from './components/FormGroupField';
 export type { FormGroupFieldProps } from './components/FormGroupField';
+export { ValidationErrors } from './components/ValidationErrors';
+export type { ValidationErrorsProps } from './components/ValidationErrors';
 
 export * from './types';
 export * from './utils';

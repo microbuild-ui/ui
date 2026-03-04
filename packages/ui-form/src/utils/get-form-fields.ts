@@ -38,15 +38,19 @@ export function getFormFields(fields: Field[]): FormField[] {
       return groupB.localeCompare(groupA);
     }
 
-    // Then by sort order (ascending)
-    const sortA = a.meta?.sort ?? 0;
-    const sortB = b.meta?.sort ?? 0;
+    // Then by sort order (ascending, null sorts to end)
+    const sortA = a.meta?.sort;
+    const sortB = b.meta?.sort;
     if (sortA !== sortB) {
+      if (sortA == null) return 1;
+      if (sortB == null) return -1;
       return sortA - sortB;
     }
 
-    // Finally by field name
-    return a.field.localeCompare(b.field);
+    // Finally by meta.id ascending (Directus parity — stable insertion order)
+    const idA = (a.meta as any)?.id ?? 0;
+    const idB = (b.meta as any)?.id ?? 0;
+    return idA - idB;
   });
 
   // Separate system from user fields

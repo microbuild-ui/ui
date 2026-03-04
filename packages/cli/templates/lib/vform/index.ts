@@ -9,7 +9,7 @@
 
 // Main VForm export - VForm.tsx uses PascalCase filename
 export { VForm } from './VForm';
-export type { VFormProps } from './VForm';
+export type { VFormProps, FormAction } from './VForm';
 
 // Component exports - files in components/ use PascalCase
 export { FormField } from './components/FormField';
@@ -19,6 +19,12 @@ export { FormFieldLabel } from './components/FormFieldLabel';
 
 export { FormFieldInterface } from './components/FormFieldInterface';
 export type { FormFieldInterfaceProps } from './components/FormFieldInterface';
+
+export { FormGroupField } from './components/FormGroupField';
+export type { FormGroupFieldProps } from './components/FormGroupField';
+
+export { ValidationErrors } from './components/ValidationErrors';
+export type { ValidationErrorsProps } from './components/ValidationErrors';
 
 export * from './types';
 export * from './utils';
