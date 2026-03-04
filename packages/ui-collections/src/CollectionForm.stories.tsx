@@ -113,6 +113,14 @@ const withMockApi: Decorator = (Story) => {
         ? input.href
         : input.url;
 
+    // Mock permissions endpoint (admin — full access)
+    if (url.includes("/api/permissions/me")) {
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // Mock fields endpoint
     if (url.includes("/api/fields/")) {
       return new Response(JSON.stringify({ data: MOCK_FIELDS }), {
@@ -789,5 +797,97 @@ export const WithGroupAccordion: Story = {
   args: {
     collection: "contacts",
     mode: "create",
+  },
+};
+
+// ============================================================================
+// Permission-Restricted Stories
+// ============================================================================
+
+/**
+ * Decorator that mocks read-only permissions — user can read all fields
+ * but can only write to "title" and "status".
+ */
+const withReadOnlyPermissions: Decorator = (Story) => {
+  const originalFetch = window.fetch;
+
+  window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url;
+
+    if (url.includes("/api/permissions/me")) {
+      return new Response(
+        JSON.stringify({
+          data: {
+            posts: {
+              read: { fields: ["*"], permissions: null, validation: null, presets: null },
+              create: { fields: ["title", "status"], permissions: null, validation: null, presets: { status: "draft" } },
+              update: { fields: ["title", "status"], permissions: null, validation: null, presets: null },
+            },
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    if (url.includes("/api/fields/")) {
+      return new Response(JSON.stringify({ data: MOCK_FIELDS }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (url.match(/\/api\/items\/\w+\/\d+/)) {
+      return new Response(JSON.stringify({ data: MOCK_ITEM }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (url.includes("/api/items/") && init?.method && ["POST", "PATCH"].includes(init.method)) {
+      return new Response(JSON.stringify({ data: { id: 99 } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    return originalFetch(input, init);
+  };
+
+  React.useEffect(() => {
+    return () => {
+      window.fetch = originalFetch;
+    };
+  });
+
+  return <Story />;
+};
+
+/**
+ * Permission-restricted create form: user can only write to "title" and "status".
+ * Other fields appear read-only. Preset "status=draft" applied as default.
+ */
+export const WithRestrictedPermissions: Story = {
+  decorators: [withReadOnlyPermissions],
+  args: {
+    collection: "posts",
+    mode: "create",
+  },
+};
+
+/**
+ * Edit form with SaveOptions dropdown showing save-and-stay,
+ * save-and-add-new, save-as-copy actions.
+ */
+export const WithSaveOptions: Story = {
+  args: {
+    collection: "posts",
+    mode: "edit",
+    id: "1",
+    showSaveOptions: true,
   },
 };

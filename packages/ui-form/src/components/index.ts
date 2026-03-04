@@ -9,3 +9,6 @@
 export { FormField } from './FormField';
 export { FormFieldLabel } from './FormFieldLabel';
 export { FormFieldInterface } from './FormFieldInterface';
+export { FormGroupField } from './FormGroupField';
+export { InterfaceErrorBoundary } from './InterfaceErrorBoundary';
+export { ValidationErrors } from './ValidationErrors';

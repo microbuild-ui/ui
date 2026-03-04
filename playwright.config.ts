@@ -19,6 +19,7 @@ const DAAS_URL = process.env.NEXT_PUBLIC_BUILDPAD_DAAS_URL || 'http://localhost:
 const STORYBOOK_URL = process.env.STORYBOOK_URL || 'http://localhost:6006';
 const STORYBOOK_TABLE_URL = process.env.STORYBOOK_TABLE_URL || 'http://localhost:6007';
 const STORYBOOK_INTERFACES_URL = process.env.STORYBOOK_INTERFACES_URL || 'http://localhost:6008';
+const STORYBOOK_COLLECTIONS_URL = process.env.STORYBOOK_COLLECTIONS_URL || 'http://localhost:6009';
 
 export default defineConfig({
   testDir: './tests',
@@ -91,6 +92,17 @@ export default defineConfig({
       testMatch: /ui-interfaces\/.*storybook.*\.spec\.ts/,
       // No setup dependency - Storybook tests don't need auth
     },
+
+    // Storybook Collections Component Tests - no auth needed
+    {
+      name: 'storybook-collections',
+      use: { 
+        ...devices['Desktop Chrome'],
+        baseURL: STORYBOOK_COLLECTIONS_URL,
+      },
+      testMatch: /ui-collections\/.*storybook.*\.spec\.ts/,
+      // No setup dependency - Storybook tests don't need auth
+    },
   ],
 
   /* 
@@ -114,6 +126,12 @@ export default defineConfig({
     {
       command: 'cd packages/ui-interfaces && npx storybook dev -p 6008 --ci',
       url: STORYBOOK_INTERFACES_URL,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000, // 2 minutes to start Storybook
+    },
+    {
+      command: 'cd packages/ui-collections && npx storybook dev -p 6009 --ci',
+      url: STORYBOOK_COLLECTIONS_URL,
       reuseExistingServer: !process.env.CI,
       timeout: 120000, // 2 minutes to start Storybook
     },

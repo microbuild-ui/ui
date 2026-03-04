@@ -5,8 +5,16 @@
  * Uses VForm for the actual form rendering with all @buildpad/ui-interfaces components.
  *
  * Architecture:
- * - CollectionForm = Data layer (fetch fields, load/save items, CRUD operations)
+ * - CollectionForm = Data layer (fetch fields, load/save items, CRUD operations, permissions)
  * - VForm = Presentation layer (renders fields with proper interfaces from @buildpad/ui-interfaces)
+ *
+ * Permission enforcement (mirrors Directus item.vue + get-fields.ts):
+ * - Fetches field-level read/write permissions from PermissionsService
+ * - Filters fields: only shows fields the user can read
+ * - Marks non-writable fields as readonly
+ * - Applies permission presets as default values on create
+ * - Computes isSavable (hasEdits + saveAllowed)
+ * - Surfaces validation errors per-field from the DaaS backend
  *
  * @package @buildpad/ui-collections
  */
@@ -22,7 +30,8 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import { FieldsService, apiRequest } from "@buildpad/services";
+import { FieldsService, PermissionsService, apiRequest } from "@buildpad/services";
+import type { CollectionActionAccess } from "@buildpad/services";
 import type { Field } from "@buildpad/types";
 import { VForm } from "@buildpad/ui-form";
 import { IconAlertCircle, IconCheck, IconX } from "@tabler/icons-react";
@@ -33,6 +42,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { SaveOptions, type SaveAction } from "./SaveOptions";
 
 export interface CollectionFormProps {
   /** Collection name */
@@ -47,10 +57,24 @@ export interface CollectionFormProps {
   onSuccess?: (data?: Record<string, unknown>) => void;
   /** Callback on cancel */
   onCancel?: () => void;
+  /** Callback to navigate to a new create form (for save-and-add-new) */
+  onNavigateToCreate?: () => void;
   /** Fields to exclude from form */
   excludeFields?: string[];
   /** Fields to show (if set, only these fields are shown) */
   includeFields?: string[];
+  /** Whether to show the SaveOptions dropdown alongside the save button */
+  showSaveOptions?: boolean;
+}
+
+/** Permission state exposed to parent components */
+export interface FormPermissionState {
+  createAllowed: boolean;
+  updateAllowed: boolean;
+  deleteAllowed: boolean;
+  saveAllowed: boolean;
+  hasEdits: boolean;
+  isSavable: boolean;
 }
 
 // System fields that should be auto-generated
@@ -86,8 +110,10 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
   defaultValues,
   onSuccess,
   onCancel,
+  onNavigateToCreate,
   excludeFields,
   includeFields,
+  showSaveOptions = false,
 }) => {
   // Use stable references for optional props
   const stableDefaultValues = useMemo(
@@ -103,21 +129,30 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
   const [fields, setFields] = useState<Field[]>([]);
   const [formData, setFormData] =
     useState<Record<string, unknown>>(stableDefaultValues);
+  const [initialFormData, setInitialFormData] =
+    useState<Record<string, unknown>>(stableDefaultValues);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  // ----- Permission state -----
+  const [createAllowed, setCreateAllowed] = useState(true);
+  const [updateAllowed, setUpdateAllowed] = useState(true);
+  const [deleteAllowed, setDeleteAllowed] = useState(false);
+  const [readableFieldNames, setReadableFieldNames] = useState<string[] | null>(null);
+  const [writableFieldNames, setWritableFieldNames] = useState<string[] | null>(null);
 
   // Track if data has been loaded to prevent re-fetching
   const dataLoadedRef = useRef(false);
   const lastLoadKey = useRef<string>("");
 
-  // Load fields and item data
+  // =========================================================================
+  // Permission-aware field + item loading
+  // =========================================================================
   useEffect(() => {
-    // Create a unique key for this load request
     const loadKey = `${collection}-${id}-${mode}`;
-
-    // Skip if already loaded for the same key
     if (dataLoadedRef.current && lastLoadKey.current === loadKey) {
       return;
     }
@@ -126,13 +161,47 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
       try {
         setLoading(true);
         setError(null);
+        setFieldErrors({});
 
-        // Load fields for the collection
+        // Fetch fields + permissions in parallel
         const fieldsService = new FieldsService();
-        const allFields = await fieldsService.readAll(collection);
+        const [allFields, collectionAccess] = await Promise.all([
+          fieldsService.readAll(collection),
+          PermissionsService.getMyCollectionAccess().catch(() => ({})),
+        ]);
 
-        // Filter out system fields and alias fields (like O2M, M2M)
-        const editableFields = allFields.filter((f) => {
+        const access = collectionAccess?.[collection] || {};
+        const readAccess: CollectionActionAccess | undefined = access.read;
+        const createAccess: CollectionActionAccess | undefined = access.create;
+        const updateAccess: CollectionActionAccess | undefined = access.update;
+        const deleteAccess: CollectionActionAccess | undefined = access.delete;
+
+        // Determine create/update/delete allowed
+        // If the access map is empty (admin or failed fetch), assume full access
+        const isEmptyAccess = Object.keys(collectionAccess || {}).length === 0;
+        setCreateAllowed(isEmptyAccess || !!createAccess);
+        setUpdateAllowed(isEmptyAccess || !!updateAccess);
+        setDeleteAllowed(isEmptyAccess || !!deleteAccess);
+
+        // Compute readable field names
+        let readFields: string[] | null = null;
+        if (!isEmptyAccess && readAccess) {
+          readFields = readAccess.fields || null; // null = wildcard
+          if (readFields && readFields.includes("*")) readFields = null;
+        }
+        setReadableFieldNames(readFields);
+
+        // Compute writable field names for the current action
+        const actionAccess = mode === "create" ? createAccess : updateAccess;
+        let writeFields: string[] | null = null;
+        if (!isEmptyAccess && actionAccess) {
+          writeFields = actionAccess.fields || null;
+          if (writeFields && writeFields.includes("*")) writeFields = null;
+        }
+        setWritableFieldNames(writeFields);
+
+        // Filter fields based on read permissions, system fields, etc.
+        let editableFields = allFields.filter((f) => {
           // Exclude system fields unless they're in defaultValues
           if (
             SYSTEM_FIELDS.includes(f.field) &&
@@ -141,12 +210,11 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
             return false;
           }
           // Exclude alias fields UNLESS they are group interfaces
-          // Group fields have type="alias" with special=["alias","group","no-data"]
           if (f.type === "alias") {
-            const isGroup = f.meta?.special?.includes?.('group');
+            const isGroup = f.meta?.special?.includes?.("group");
             const isPresentation =
-              f.meta?.interface === 'presentation-divider' ||
-              f.meta?.interface === 'presentation-notice';
+              f.meta?.interface === "presentation-divider" ||
+              f.meta?.interface === "presentation-notice";
             if (!isGroup && !isPresentation) {
               return false;
             }
@@ -162,17 +230,52 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
           return true;
         });
 
+        // Apply read permission filter — only show fields the user can read
+        if (readFields) {
+          const readSet = new Set(readFields);
+          editableFields = editableFields.filter(
+            (f) => readSet.has(f.field) || f.type === "alias",
+          );
+        }
+
+        // Mark non-writable fields as readonly
+        if (writeFields) {
+          const writeSet = new Set(writeFields);
+          editableFields = editableFields.map((f) => {
+            if (f.type === "alias") return f; // groups aren't data fields
+            if (!writeSet.has(f.field)) {
+              return {
+                ...f,
+                meta: { ...f.meta!, readonly: true },
+              };
+            }
+            return f;
+          });
+        }
+
         setFields(editableFields);
+
+        // Build initial form data
+        let initialData: Record<string, unknown> = { ...stableDefaultValues };
+
+        // Apply permission presets as defaults on create
+        if (mode === "create") {
+          const presets = actionAccess?.presets;
+          if (presets && typeof presets === "object") {
+            initialData = { ...presets, ...initialData };
+          }
+        }
 
         // If editing, load the existing item
         if (mode === "edit" && id) {
           const response = await apiRequest<{ data: Record<string, unknown> }>(
             `/api/items/${collection}/${id}`,
           );
-          setFormData({ ...stableDefaultValues, ...response.data });
-        } else {
-          setFormData(stableDefaultValues);
+          initialData = { ...initialData, ...response.data };
         }
+
+        setFormData(initialData);
+        setInitialFormData(initialData);
 
         // Mark as loaded
         dataLoadedRef.current = true;
@@ -197,24 +300,91 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
     stableIncludeFields,
   ]);
 
+  // =========================================================================
+  // Derived state: hasEdits, saveAllowed, isSavable
+  // =========================================================================
+  const hasEdits = useMemo(() => {
+    // Compare current formData to initialFormData
+    const keys = new Set([
+      ...Object.keys(formData),
+      ...Object.keys(initialFormData),
+    ]);
+    for (const key of keys) {
+      if (READ_ONLY_FIELDS.includes(key)) continue;
+      if (formData[key] !== initialFormData[key]) return true;
+    }
+    return false;
+  }, [formData, initialFormData]);
+
+  const saveAllowed = useMemo(() => {
+    if (mode === "create") return createAllowed;
+    return updateAllowed;
+  }, [mode, createAllowed, updateAllowed]);
+
+  const isSavable = useMemo(() => {
+    return saveAllowed && (mode === "create" || hasEdits);
+  }, [saveAllowed, mode, hasEdits]);
+
+  // =========================================================================
+  // Compute disabledOptions for SaveOptions
+  // =========================================================================
+  const disabledSaveOptions = useMemo<SaveAction[]>(() => {
+    const disabled: SaveAction[] = [];
+    if (!isSavable) {
+      disabled.push("save-and-stay", "save-and-add-new", "save-as-copy");
+    }
+    if (mode === "create") {
+      disabled.push("save-as-copy"); // Can't copy an item that doesn't exist yet
+    }
+    if (!hasEdits) {
+      disabled.push("discard-and-stay");
+    }
+    return disabled;
+  }, [isSavable, mode, hasEdits]);
+
   // Update form field - used by VForm's onUpdate callback
   const handleFormUpdate = useCallback((values: Record<string, unknown>) => {
     setFormData((prev) => ({
       ...prev,
       ...values,
     }));
-    setSuccess(false); // Clear success message when user edits
+    setSuccess(false);
+    setFieldErrors({}); // Clear field errors when user edits
   }, []);
 
   // Compute primary key for VForm context
   const primaryKey = mode === "create" ? "+" : id;
 
-  // Submit form
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // =========================================================================
+  // Parse DaaS validation errors into per-field errors
+  // =========================================================================
+  const parseValidationErrors = (err: unknown): Record<string, string> => {
+    if (!err || typeof err !== "object") return {};
+    const errObj = err as Record<string, unknown>;
+
+    // DaaS returns: { errors: [{ message, extensions: { code, field } }] }
+    if (Array.isArray(errObj.errors)) {
+      const fieldErrs: Record<string, string> = {};
+      for (const e of errObj.errors) {
+        const field = e?.extensions?.field || e?.field;
+        const message = e?.message || "Validation failed";
+        if (field) {
+          fieldErrs[String(field)] = String(message);
+        }
+      }
+      return fieldErrs;
+    }
+    return {};
+  };
+
+  // =========================================================================
+  // Save handler
+  // =========================================================================
+  const handleSave = async (afterSave?: "stay" | "add-new" | "copy") => {
     setSaving(true);
     setError(null);
     setSuccess(false);
+    setFieldErrors({});
 
     try {
       // Remove read-only fields from data
@@ -225,29 +395,86 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
         }
       });
 
-      if (mode === "create") {
+      // Only send changed fields in edit mode (PATCH semantics)
+      if (mode === "edit" && id) {
+        const changedData: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(dataToSave)) {
+          if (initialFormData[key] !== value) {
+            changedData[key] = value;
+          }
+        }
+
+        await apiRequest(`/api/items/${collection}/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(changedData),
+        });
+
+        setSuccess(true);
+        setInitialFormData({ ...formData }); // Reset "hasEdits" baseline
+
+        if (afterSave === "copy") {
+          // Save as copy: create a new item with current data (without id)
+          const copyData = { ...dataToSave };
+          delete copyData.id;
+          const copyResponse = await apiRequest<{ data: Record<string, unknown> }>(
+            `/api/items/${collection}`,
+            { method: "POST", body: JSON.stringify(copyData) },
+          );
+          onSuccess?.({ ...copyData, id: copyResponse.data?.id });
+          return;
+        }
+
+        if (afterSave === "add-new") {
+          onNavigateToCreate?.();
+          return;
+        }
+
+        onSuccess?.({ ...dataToSave, id });
+      } else {
+        // Create mode
         const response = await apiRequest<{ data: Record<string, unknown> }>(
           `/api/items/${collection}`,
           { method: "POST", body: JSON.stringify(dataToSave) },
         );
         const newId = response.data?.id;
         setSuccess(true);
+
+        if (afterSave === "add-new") {
+          onSuccess?.({ ...dataToSave, id: newId });
+          onNavigateToCreate?.();
+          return;
+        }
+
         onSuccess?.({ ...dataToSave, id: newId });
-      } else if (id) {
-        await apiRequest(`/api/items/${collection}/${id}`, {
-          method: "PATCH",
-          body: JSON.stringify(dataToSave),
-        });
-        setSuccess(true);
-        onSuccess?.({ ...dataToSave, id });
       }
     } catch (err) {
       console.error("Error saving item:", err);
-      setError(err instanceof Error ? err.message : "Failed to save item");
+      // Try to parse per-field validation errors
+      const perFieldErrors = parseValidationErrors(err);
+      if (Object.keys(perFieldErrors).length > 0) {
+        setFieldErrors(perFieldErrors);
+        setError("Validation failed. Please fix the highlighted fields.");
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to save item");
+      }
     } finally {
       setSaving(false);
     }
   };
+
+  // Submit form (primary save)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSave();
+  };
+
+  // Discard changes
+  const handleDiscard = useCallback(() => {
+    setFormData(initialFormData);
+    setFieldErrors({});
+    setSuccess(false);
+    setError(null);
+  }, [initialFormData]);
 
   if (loading) {
     return (
@@ -287,20 +514,42 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
         <Stack gap="md">
           {fields.length === 0 ? (
             <Text c="dimmed" ta="center" py="xl">
-              No editable fields found for {collection}
+              {!saveAllowed
+                ? `You don't have permission to ${mode} items in ${collection}`
+                : `No editable fields found for ${collection}`}
             </Text>
           ) : (
-            <VForm
-              collection={collection}
-              fields={fields}
-              modelValue={formData}
-              initialValues={defaultValues}
-              onUpdate={handleFormUpdate}
-              primaryKey={primaryKey}
-              disabled={saving}
-              loading={saving}
-              showNoVisibleFields={false}
-            />
+            <>
+              <VForm
+                collection={collection}
+                fields={fields}
+                modelValue={formData}
+                initialValues={defaultValues}
+                onUpdate={handleFormUpdate}
+                primaryKey={primaryKey}
+                disabled={saving || !saveAllowed}
+                loading={saving}
+                showNoVisibleFields={false}
+              />
+              {/* Per-field validation errors */}
+              {Object.keys(fieldErrors).length > 0 && (
+                <Stack gap={4} data-testid="form-field-errors">
+                  {Object.entries(fieldErrors).map(([field, msg]) => (
+                    <Alert
+                      key={field}
+                      icon={<IconAlertCircle size={14} />}
+                      color="red"
+                      variant="light"
+                      p="xs"
+                    >
+                      <Text size="sm">
+                        <strong>{field}</strong>: {msg}
+                      </Text>
+                    </Alert>
+                  ))}
+                </Stack>
+              )}
+            </>
           )}
 
           <Group justify="flex-end" mt="md">
@@ -315,15 +564,28 @@ export const CollectionForm: React.FC<CollectionFormProps> = ({
                 Cancel
               </Button>
             )}
-            <Button
-              type="submit"
-              loading={saving}
-              disabled={fields.length === 0}
-              leftSection={<IconCheck size={16} />}
-              data-testid="form-submit-btn"
-            >
-              {mode === "create" ? "Create" : "Save"}
-            </Button>
+            <Group gap={0}>
+              <Button
+                type="submit"
+                loading={saving}
+                disabled={!isSavable || fields.length === 0}
+                leftSection={<IconCheck size={16} />}
+                data-testid="form-submit-btn"
+                style={showSaveOptions ? { borderTopRightRadius: 0, borderBottomRightRadius: 0 } : undefined}
+              >
+                {mode === "create" ? "Create" : "Save"}
+              </Button>
+              {showSaveOptions && (
+                <SaveOptions
+                  disabledOptions={disabledSaveOptions}
+                  disabled={saving}
+                  onSaveAndStay={() => handleSave("stay")}
+                  onSaveAndAddNew={() => handleSave("add-new")}
+                  onSaveAsCopy={() => handleSave("copy")}
+                  onDiscardAndStay={handleDiscard}
+                />
+              )}
+            </Group>
           </Group>
         </Stack>
       </form>

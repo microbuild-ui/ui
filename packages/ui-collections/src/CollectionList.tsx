@@ -16,6 +16,7 @@
 import {
   ActionIcon,
   Alert,
+  Badge,
   Button,
   Group,
   Menu,
@@ -24,6 +25,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
 import {
   FieldsService,
@@ -38,12 +40,15 @@ import {
   IconAlignCenter,
   IconAlignLeft,
   IconAlignRight,
+  IconArchive,
+  IconCheck,
   IconEyeOff,
   IconPlus,
   IconRefresh,
   IconSearch,
   IconSortAscending,
   IconSortDescending,
+  IconX,
 } from "@tabler/icons-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./CollectionList.css";
@@ -54,6 +59,9 @@ export interface BulkAction {
   color?: string;
   action: (selectedIds: (string | number)[]) => void | Promise<void>;
 }
+
+/** Archive filter mode for collections with an archive field */
+export type ArchiveFilter = "all" | "archived" | "unarchived";
 
 export interface CollectionListProps {
   /** Collection name to display */
@@ -86,6 +94,12 @@ export interface CollectionListProps {
   rowHeight?: number;
   /** Table spacing preset */
   tableSpacing?: "compact" | "cozy" | "comfortable";
+  /** Archive field name (e.g. "status" or "archived"). When set, archive filter UI is shown. */
+  archiveField?: string;
+  /** Value that indicates an item is archived (default: "archived") */
+  archiveValue?: string;
+  /** Value that indicates an item is not archived (default: "draft") */
+  unarchiveValue?: string;
   /** Callback when item row is clicked */
   onItemClick?: (item: AnyItem) => void;
   /** Callback when visible fields change */
@@ -129,6 +143,9 @@ export const CollectionList: React.FC<CollectionListProps> = ({
   primaryKeyField = "id",
   rowHeight: rowHeightProp,
   tableSpacing = "cozy",
+  archiveField,
+  archiveValue = "archived",
+  unarchiveValue = "draft",
   onItemClick,
   onFieldsChange,
   onSortChange: onSortChangeProp,
@@ -149,6 +166,9 @@ export const CollectionList: React.FC<CollectionListProps> = ({
 
   // ----- Sort state -----
   const [sort, setSort] = useState<Sort>({ by: null, desc: false });
+
+  // ----- Archive filter state -----
+  const [archiveFilterMode, setArchiveFilterMode] = useState<ArchiveFilter>("all");
 
   // ----- Header state (for resize/reorder persistence) -----
   const [headerOverrides, setHeaderOverrides] = useState<
@@ -271,9 +291,23 @@ export const CollectionList: React.FC<CollectionListProps> = ({
       // DaaS expects CSV format, not JSON arrays
       query.fields = fieldsToFetch.join(',');
 
-      // Filter
+      // Filter — combine user filter with archive filter
+      const combinedFilters: Record<string, unknown>[] = [];
       if (filter && Object.keys(filter).length > 0) {
-        query.filter = filter;
+        combinedFilters.push(filter);
+      }
+      // Archive filter
+      if (archiveField && archiveFilterMode !== "all") {
+        if (archiveFilterMode === "archived") {
+          combinedFilters.push({ [archiveField]: { _eq: archiveValue } });
+        } else {
+          combinedFilters.push({ [archiveField]: { _neq: archiveValue } });
+        }
+      }
+      if (combinedFilters.length === 1) {
+        query.filter = combinedFilters[0];
+      } else if (combinedFilters.length > 1) {
+        query.filter = { _and: combinedFilters };
       }
 
       // Search
@@ -328,6 +362,9 @@ export const CollectionList: React.FC<CollectionListProps> = ({
     search,
     sort,
     primaryKeyField,
+    archiveField,
+    archiveFilterMode,
+    archiveValue,
   ]);
 
   useEffect(() => {
@@ -352,8 +389,11 @@ export const CollectionList: React.FC<CollectionListProps> = ({
     return visibleFieldKeys.map((key) => {
       const fieldMeta = permittedFields.find((f) => f.field === key);
       const overrides = headerOverrides[key] || {};
+      // Use field.meta?.field (display name) or humanize the key.
+      // Directus uses field `name` for display; DaaS uses meta.note as a tooltip.
+      // The header text should be the humanized field name, not the note.
       const label =
-        fieldMeta?.meta?.note ||
+        (fieldMeta as Record<string, unknown> | undefined)?.name as string ||
         key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
       return {
@@ -362,7 +402,8 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         sortable: enableSort,
         align: (overrides.align as Alignment) || "left",
         width: overrides.width ?? null,
-        // Attach field metadata for consumers
+        // Attach field metadata for consumers and renderCell
+        description: fieldMeta?.meta?.note || undefined,
         field: fieldMeta,
         ...overrides,
       } as HeaderRaw;
@@ -527,6 +568,112 @@ export const CollectionList: React.FC<CollectionListProps> = ({
     return permittedFields.filter((f) => !visibleFieldKeys.includes(f.field));
   }, [permittedFields, visibleFieldKeys]);
 
+  // =========================================================================
+  // Determine if any filter/search is active (for empty state messaging)
+  // =========================================================================
+  const hasAppliedFilter = useMemo(() => {
+    return (
+      search.trim().length > 0 ||
+      (filter && Object.keys(filter).length > 0) ||
+      (archiveField && archiveFilterMode !== "all")
+    );
+  }, [search, filter, archiveField, archiveFilterMode]);
+
+  // =========================================================================
+  // Field-type-aware cell renderer
+  // Mirrors Directus adjustFieldsForDisplays — booleans show icons,
+  // dates/timestamps are formatted, numbers use locale, relations show FK.
+  // =========================================================================
+  const fieldTypeRenderCell = useCallback(
+    (item: Record<string, unknown>, header: Header): React.ReactNode | null => {
+      const fieldMeta = permittedFields.find((f) => f.field === header.value);
+      if (!fieldMeta) return null; // fall back to VTable default
+
+      const value = item[header.value];
+      if (value === null || value === undefined) return null; // VTable shows "—"
+
+      const fieldType = fieldMeta.type;
+
+      // ---------- Boolean ----------
+      if (fieldType === "boolean") {
+        return value ? (
+          <IconCheck size={16} color="var(--mantine-color-green-6)" aria-label="Yes" />
+        ) : (
+          <IconX size={16} color="var(--mantine-color-gray-4)" aria-label="No" />
+        );
+      }
+
+      // ---------- Datetime / Timestamp / Date ----------
+      if (
+        fieldType === "timestamp" ||
+        fieldType === "dateTime" ||
+        fieldType === "date"
+      ) {
+        try {
+          const dateObj = new Date(value as string);
+          if (isNaN(dateObj.getTime())) return null;
+          if (fieldType === "date") {
+            return (
+              <Text size="sm" truncate="end">
+                {dateObj.toLocaleDateString()}
+              </Text>
+            );
+          }
+          return (
+            <Text size="sm" truncate="end">
+              {dateObj.toLocaleString()}
+            </Text>
+          );
+        } catch {
+          return null;
+        }
+      }
+
+      // ---------- Integer / Float / Decimal / BigInteger ----------
+      if (
+        fieldType === "integer" ||
+        fieldType === "float" ||
+        fieldType === "decimal" ||
+        fieldType === "bigInteger"
+      ) {
+        const num = Number(value);
+        if (!isNaN(num)) {
+          return (
+            <Text size="sm" truncate="end">
+              {num.toLocaleString()}
+            </Text>
+          );
+        }
+        return null;
+      }
+
+      // ---------- JSON (display as badge) ----------
+      if (fieldType === "json") {
+        return (
+          <Badge variant="light" size="sm" color="gray">
+            JSON
+          </Badge>
+        );
+      }
+
+      // ---------- UUID (truncate) ----------
+      if (fieldType === "uuid") {
+        const str = String(value);
+        return (
+          <Tooltip label={str} openDelay={300}>
+            <Text size="sm" truncate="end" style={{ maxWidth: 120 }}>
+              {str.substring(0, 8)}…
+            </Text>
+          </Tooltip>
+        );
+      }
+
+      // ---------- Default: let VTable handle it ----------
+      return null;
+    },
+    [permittedFields],
+  );
+
   const renderHeaderAppend = useCallback(() => {
     if (!enableAddField || hiddenFields.length === 0) return null;
     return (
@@ -569,6 +716,23 @@ export const CollectionList: React.FC<CollectionListProps> = ({
               }
               className="collection-list-search"
               data-testid="collection-list-search"
+            />
+          )}
+          {archiveField && (
+            <Select
+              value={archiveFilterMode}
+              onChange={(val) => {
+                if (val) setArchiveFilterMode(val as ArchiveFilter);
+              }}
+              data={[
+                { value: "all", label: "All Items" },
+                { value: "unarchived", label: "Active Items" },
+                { value: "archived", label: "Archived Items" },
+              ]}
+              size="sm"
+              leftSection={<IconArchive size={14} />}
+              data-testid="collection-list-archive-filter"
+              style={{ width: 160 }}
             />
           )}
           <ActionIcon
@@ -631,10 +795,15 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         fixedHeader
         loading={loading}
         loadingText="Loading items..."
-        noItemsText="No items found"
+        noItemsText={
+          hasAppliedFilter
+            ? "No results — try adjusting your search or filters"
+            : "No items in this collection"
+        }
         rowHeight={rowHeight}
         selectionUseKeys
         clickable={!!onItemClick}
+        renderCell={fieldTypeRenderCell}
         renderHeaderContextMenu={
           enableHeaderMenu ? renderHeaderContextMenu : undefined
         }

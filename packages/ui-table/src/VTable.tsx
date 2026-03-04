@@ -338,6 +338,23 @@ export const VTable: React.FC<VTableProps> = ({
     (item: Item): boolean => {
       const itemKeyValue = item[itemKey];
 
+      // If the item has no valid PK, fall back to $index-based matching
+      if (itemKeyValue === undefined || itemKeyValue === null) {
+        if (item.$index !== undefined) {
+          const fallbackKey = `$index-${item.$index}`;
+          return value.some((selected) => {
+            if (typeof selected === "object" && selected !== null) {
+              const selKey = (selected as Item)[itemKey];
+              if (selKey === undefined || selKey === null) {
+                return (selected as Item).$index === item.$index;
+              }
+            }
+            return selected === fallbackKey;
+          });
+        }
+        return false;
+      }
+
       if (selectionUseKeys) {
         return value.includes(itemKeyValue);
       }

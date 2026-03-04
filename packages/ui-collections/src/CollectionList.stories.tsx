@@ -150,7 +150,7 @@ const MOCK_FIELDS = [
       field: "published_at",
       hidden: false,
       readonly: false,
-      note: "Published",
+      note: "When the post was published",
     },
     schema: {
       name: "published_at",
@@ -158,6 +158,28 @@ const MOCK_FIELDS = [
       data_type: "timestamptz",
       is_primary_key: false,
       is_nullable: true,
+      is_unique: false,
+      has_auto_increment: false,
+    },
+  },
+  {
+    field: "featured",
+    type: "boolean",
+    collection: "posts",
+    meta: {
+      id: 8,
+      collection: "posts",
+      field: "featured",
+      hidden: false,
+      readonly: false,
+      note: "Is this a featured post?",
+    },
+    schema: {
+      name: "featured",
+      table: "posts",
+      data_type: "boolean",
+      is_primary_key: false,
+      is_nullable: false,
       is_unique: false,
       has_auto_increment: false,
     },
@@ -172,7 +194,8 @@ const MOCK_ITEMS = [
     author: "Jane Smith",
     category: "Tutorial",
     word_count: 2400,
-    published_at: "2025-06-01",
+    published_at: "2025-06-01T10:30:00Z",
+    featured: true,
   },
   {
     id: 2,
@@ -181,7 +204,8 @@ const MOCK_ITEMS = [
     author: "John Doe",
     category: "Guide",
     word_count: 1800,
-    published_at: "2025-06-10",
+    published_at: "2025-06-10T14:00:00Z",
+    featured: false,
   },
   {
     id: 3,
@@ -191,6 +215,7 @@ const MOCK_ITEMS = [
     category: "Tutorial",
     word_count: 3100,
     published_at: null,
+    featured: false,
   },
   {
     id: 4,
@@ -199,7 +224,8 @@ const MOCK_ITEMS = [
     author: "Bob Wilson",
     category: "Security",
     word_count: 2200,
-    published_at: "2025-07-01",
+    published_at: "2025-07-01T09:00:00Z",
+    featured: true,
   },
   {
     id: 5,
@@ -209,6 +235,7 @@ const MOCK_ITEMS = [
     category: "Guide",
     word_count: 2750,
     published_at: null,
+    featured: false,
   },
   {
     id: 6,
@@ -217,7 +244,8 @@ const MOCK_ITEMS = [
     author: "Jane Smith",
     category: "DevOps",
     word_count: 1600,
-    published_at: "2025-07-15",
+    published_at: "2025-07-15T16:30:00Z",
+    featured: false,
   },
   {
     id: 7,
@@ -227,6 +255,7 @@ const MOCK_ITEMS = [
     category: "Advanced",
     word_count: 4200,
     published_at: null,
+    featured: true,
   },
   {
     id: 8,
@@ -235,7 +264,8 @@ const MOCK_ITEMS = [
     author: "Alice Brown",
     category: "Guide",
     word_count: 1950,
-    published_at: "2025-08-01",
+    published_at: "2025-08-01T11:00:00Z",
+    featured: false,
   },
   {
     id: 9,
@@ -244,7 +274,8 @@ const MOCK_ITEMS = [
     author: "Bob Wilson",
     category: "Advanced",
     word_count: 3600,
-    published_at: "2025-08-15",
+    published_at: "2025-08-15T08:45:00Z",
+    featured: false,
   },
   {
     id: 10,
@@ -254,6 +285,7 @@ const MOCK_ITEMS = [
     category: "Architecture",
     word_count: 2900,
     published_at: null,
+    featured: true,
   },
 ];
 
@@ -271,6 +303,14 @@ const withMockApi: Decorator = (Story) => {
         : input instanceof URL
         ? input.href
         : input.url;
+
+    // Mock permissions endpoint (admin — full access)
+    if (url.includes("/api/permissions/me")) {
+      return new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // Mock fields endpoint
     if (url.includes("/api/fields/")) {
@@ -490,6 +530,33 @@ export const SpecificFields: Story = {
     fields: ["id", "title", "author", "published_at"],
     enableSort: true,
     enableResize: true,
+    limit: 25,
+  },
+};
+
+/**
+ * With archive filter — shows a dropdown to filter by archive status.
+ * Uses the `status` field as the archive field.
+ */
+export const WithArchiveFilter: Story = {
+  args: {
+    collection: "posts",
+    archiveField: "status",
+    archiveValue: "archived",
+    enableSearch: true,
+    limit: 25,
+  },
+};
+
+/**
+ * Type-aware cell rendering — boolean, timestamp, integer fields
+ * render with proper formatting instead of raw text.
+ */
+export const TypeAwareRendering: Story = {
+  args: {
+    collection: "posts",
+    fields: ["id", "title", "featured", "word_count", "published_at"],
+    enableSort: true,
     limit: 25,
   },
 };

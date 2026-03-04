@@ -6,10 +6,10 @@
  */
 
 export { CollectionForm } from './CollectionForm';
-export type { CollectionFormProps } from './CollectionForm';
+export type { CollectionFormProps, FormPermissionState } from './CollectionForm';
 
 export { CollectionList } from './CollectionList';
-export type { CollectionListProps, BulkAction } from './CollectionList';
+export type { CollectionListProps, BulkAction, ArchiveFilter } from './CollectionList';
 
 export { FilterPanel } from './FilterPanel';
 export type { FilterPanelProps, FilterRule, FilterGroup } from './FilterPanel';
