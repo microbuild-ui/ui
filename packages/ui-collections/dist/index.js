@@ -325,7 +325,8 @@ var CollectionList = ({
         let visible = fieldsResult.filter((f) => {
           if (SYSTEM_FIELDS2.includes(f.field)) return false;
           if (f.type === "alias") return false;
-          if (f.meta?.hidden) return false;
+          const isHidden = f.meta?.hidden ?? f.hidden;
+          if (isHidden) return false;
           return true;
         });
         setReadableFields(permFields);
@@ -346,6 +347,10 @@ var CollectionList = ({
             initial.unshift(primaryKeyField);
           }
           setVisibleFieldKeys(initial);
+        }
+        if (visible.length === 0 && !cancelled) {
+          setError(`No visible fields found for collection "${collection}". Verify the collection exists and has non-hidden fields.`);
+          setLoading(false);
         }
       } catch (err) {
         console.error("Error loading fields:", err);
@@ -370,13 +375,13 @@ var CollectionList = ({
       const query = {
         limit,
         page,
-        meta: ["total_count", "filter_count"]
+        meta: "total_count,filter_count"
       };
       const fieldsToFetch = [...visibleFieldKeys];
       if (!fieldsToFetch.includes(primaryKeyField)) {
         fieldsToFetch.unshift(primaryKeyField);
       }
-      query.fields = fieldsToFetch;
+      query.fields = fieldsToFetch.join(",");
       if (filter && Object.keys(filter).length > 0) {
         query.filter = filter;
       }
@@ -392,11 +397,16 @@ var CollectionList = ({
           typeof v === "object" ? JSON.stringify(v) : String(v)
         ])
       ).toString();
-      const response = await apiRequest2(`/api/items/${collection}${queryString ? `?${queryString}` : ""}`);
-      setItems(response.data || []);
-      setTotalCount(
-        response.meta?.total_count || response.meta?.filter_count || response.data?.length || 0
-      );
+      const rawResponse = await apiRequest2(`/api/items/${collection}${queryString ? `?${queryString}` : ""}`);
+      if (Array.isArray(rawResponse)) {
+        setItems(rawResponse);
+        setTotalCount(rawResponse.length);
+      } else {
+        setItems(rawResponse.data || []);
+        setTotalCount(
+          rawResponse.meta?.total_count || rawResponse.meta?.filter_count || rawResponse.data?.length || 0
+        );
+      }
     } catch (err) {
       console.error("Error loading items:", err);
       setError(err instanceof Error ? err.message : "Failed to load items");

@@ -4,7 +4,7 @@
   "private": true,
   "description": "Shared components between Next.js projects",
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm --filter @buildpad/ui-form build && pnpm -r --filter '!@buildpad/ui-form' build",
     "build:cli": "pnpm --filter @buildpad/cli build",
     "build:host": "pnpm --filter storybook-host build",
     "build:mcp": "pnpm --filter @buildpad/mcp build",

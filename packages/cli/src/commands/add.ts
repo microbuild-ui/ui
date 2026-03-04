@@ -370,7 +370,11 @@ async function copyComponent(
     content = transformImports(content, config, file.target);
     
     // Transform relative imports for flattened folder structure
-    content = transformRelativeImports(content, file.source, file.target, config.aliases.components);
+    // Skip for VForm files — they keep their nested folder structure and
+    // transformIntraComponentImports already resolved their paths correctly.
+    if (!(component.name === 'vform' || file.target.includes('/vform/'))) {
+      content = transformRelativeImports(content, file.source, file.target, config.aliases.components);
+    }
     
     // Apply VForm-specific transformations for files in vform folder
     if (component.name === 'vform' || file.target.includes('/vform/')) {

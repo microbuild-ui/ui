@@ -656,7 +656,7 @@ export const SelectDropdownM2O: React.FC<SelectDropdownM2OProps> = ({
                                 : undefined,
                           }}
                           onClick={() => {
-                            handleSelect(item.id);
+                            handleSelect(item.id as string | number);
                             closeSelectModal();
                           }}
                         >
@@ -671,7 +671,7 @@ export const SelectDropdownM2O: React.FC<SelectDropdownM2OProps> = ({
                               variant={value === item.id ? "filled" : "light"}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleSelect(item.id);
+                                handleSelect(item.id as string | number);
                                 closeSelectModal();
                               }}
                             >

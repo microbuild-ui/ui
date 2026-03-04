@@ -18,7 +18,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --external react --external @mantine/core --external @mantine/hooks --external @tabler/icons-react",
+    "build": "rm -f dist/*.d.ts dist/*.d.cts dist/*.d.ts.map dist/*.d.cts.map && tsup src/index.ts --format esm,cjs --dts --external react --external @mantine/core --external @mantine/hooks --external @tabler/icons-react",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
     "clean": "rimraf dist",
     "typecheck": "tsc --noEmit",
