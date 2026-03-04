@@ -39,7 +39,7 @@ export function updateFieldWidths(fields: FormField[]): FormField[] {
     if (width === 'fill') {
       width = prevHalfInGroup[group] ? 'half' : 'half';
       // fill always resolves to half (takes half the row); if previous was half the
-      // two will pair up naturally. Directus resolves fill to half.
+      // two will pair up naturally. DaaS resolves fill to half.
     }
 
     if (width === 'half' || width === 'half-left' || width === 'half-right') {

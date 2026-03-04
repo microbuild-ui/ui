@@ -176,7 +176,7 @@ function renderTemplate(
 
 /**
  * Deep-interpolate {{field}} placeholders in a filter object using parent form values.
- * Matches Directus's adjustFilterForField behavior.
+ * Matches DaaS's adjustFilterForField behavior.
  */
 function interpolateFilter(
   filter: Record<string, unknown>,
@@ -214,7 +214,7 @@ function formatCount(n: number): string {
 /**
  * ListO2M — One-to-Many relationship interface
  *
- * Implements all 10 improvements matching Directus 11.14.0 behavior:
+ * Implements all 10 improvements matching DaaS 11.14.0 behavior:
  * 1. Changeset staging — mutations are deferred until parent form saves
  * 2. Permission checking — create/update/delete gates via usePermissions
  * 3. Circular field exclusion — FK field hidden in edit modal

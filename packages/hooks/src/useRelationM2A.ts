@@ -203,7 +203,7 @@ export function useRelationM2A(collection: string, field: string) {
                     return;
                 }
 
-                // Check interface from meta (Directus format) or top-level (DaaS flat format)
+                // Check interface from meta (DaaS format) or top-level (DaaS flat format)
                 const fieldInterface = currentField.meta?.interface || (currentField as unknown as Record<string, unknown>).interface;
                 if (fieldInterface !== 'list-m2a') {
                     setError(`Field "${field}" is not configured as a list-m2a interface`);
@@ -221,7 +221,7 @@ export function useRelationM2A(collection: string, field: string) {
                 const collections = Array.isArray(collectionsResponse) ? collectionsResponse : (collectionsResponse.data || []);
 
                 // ============================================================
-                // M2A Relation Discovery (two-step, following Directus pattern)
+                // M2A Relation Discovery (two-step, following DaaS pattern)
                 // ============================================================
                 // M2A uses TWO relations on the junction table:
                 //   1. O2M "junction" relation: links parent → junction (has junction_field, sort_field)
@@ -231,12 +231,12 @@ export function useRelationM2A(collection: string, field: string) {
                 // Step 2: Follow junction_field to find the M2A companion
                 // Step 3: Get one_allowed_collections from the companion
 
-                // Helper to read a property from either top-level (DaaS flat) or meta (Directus nested)
+                // Helper to read a property from either top-level (DaaS flat) or meta (DaaS nested)
                 const getRelProp = (rel: Relation, prop: string): unknown =>
                     (rel as Record<string, unknown>)[prop] ?? (rel.meta as Record<string, unknown> | undefined)?.[prop];
 
                 // --- Step 1: Find the O2M junction relation ---
-                // Directus format: related_collection=parent, meta.one_field=alias, meta.junction_field defined
+                // DaaS format: related_collection=parent, meta.one_field=alias, meta.junction_field defined
                 // DaaS flat format: one_collection=parent, one_field=alias, junction_field defined
                 let junctionRel = relations.find((rel: Relation) =>
                     rel.related_collection === collection &&
@@ -244,7 +244,7 @@ export function useRelationM2A(collection: string, field: string) {
                     rel.meta?.junction_field
                 );
 
-                // Fallback: Directus format using meta.one_collection instead of related_collection
+                // Fallback: DaaS format using meta.one_collection instead of related_collection
                 if (!junctionRel) {
                     junctionRel = relations.find((rel: Relation) =>
                         rel.meta?.one_collection === collection &&
@@ -486,7 +486,7 @@ export interface M2AItem {
 }
 
 /**
- * Local-first changes structure following Directus ChangesItem pattern.
+ * Local-first changes structure following DaaS ChangesItem pattern.
  * All mutations are staged locally until the parent form saves.
  */
 export interface ChangesItem {
@@ -533,7 +533,7 @@ function isEmptyEdits(item: Record<string, unknown>, pkField: string): boolean {
 /**
  * Custom hook for managing M2A relationship items with **local-first** state.
  *
- * Follows the Directus `useRelationMultiple` ChangesItem pattern:
+ * Follows the DaaS `useRelationMultiple` ChangesItem pattern:
  * - All create / update / delete operations are staged locally in a
  *   `{create:[], update:[], delete:[]}` structure.
  * - Nothing is persisted until the consumer calls the parent form save,
@@ -580,7 +580,7 @@ export function useRelationM2AItems(
             };
 
             // Fetch junction items with flat fields only.
-            // NOTE: We do NOT use Directus M2A colon syntax (e.g. "item:collection_name.*")
+            // NOTE: We do NOT use DaaS M2A colon syntax (e.g. "item:collection_name.*")
             // because the DaaS/Supabase backend does not support it.
             // Instead we fetch flat junction data, then resolve nested items manually.
             //

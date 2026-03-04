@@ -5,7 +5,7 @@
  * Covers: accordion mode (one-at-a-time), multi-expand mode, start states (closed/first/opened),
  * badge, disabled, section toggling, fallback rendering.
  * 
- * Directus equivalent: group-accordion
+ * DaaS equivalent: group-accordion
  * DaaS options: accordionMode (boolean), start ('opened' | 'closed' | 'first')
  * 
  * Run: pnpm test:storybook:interfaces

@@ -8,7 +8,7 @@
  * - CollectionForm = Data layer (fetch fields, load/save items, CRUD operations, permissions)
  * - VForm = Presentation layer (renders fields with proper interfaces from @buildpad/ui-interfaces)
  *
- * Permission enforcement (mirrors Directus item.vue + get-fields.ts):
+ * Permission enforcement (mirrors DaaS item.vue + get-fields.ts):
  * - Fetches field-level read/write permissions from PermissionsService
  * - Filters fields: only shows fields the user can read
  * - Marks non-writable fields as readonly

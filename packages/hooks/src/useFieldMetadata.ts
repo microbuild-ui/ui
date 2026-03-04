@@ -6,7 +6,7 @@
  * - Field type information for value formatting
  * - Width hints based on field type
  *
- * Follows the Directus `fieldsStore.getField()` pattern.
+ * Follows the DaaS `fieldsStore.getField()` pattern.
  *
  * @module @buildpad/hooks/useFieldMetadata
  */

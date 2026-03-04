@@ -43,7 +43,7 @@ export interface JunctionItemFormProps {
 /**
  * JunctionItemForm
  *
- * Renders a two-section form following the Directus OverlayItemContent pattern:
+ * Renders a two-section form following the DaaS OverlayItemContent pattern:
  *
  * 1. **Related item fields** — the target collection's editable fields,
  *    rendered under the junction's `junctionField` key so edits produce

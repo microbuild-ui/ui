@@ -1,11 +1,11 @@
 /**
  * useRelationPermissionsM2O
  *
- * Port of the Directus useRelationPermissionsM2O composable.
+ * Port of the DaaS useRelationPermissionsM2O composable.
  *
  * Checks related-collection permissions for the M2O interface.
  *
- * Permission logic (matches Directus exactly):
+ * Permission logic (matches DaaS exactly):
  * - createAllowed = related.create
  * - updateAllowed = related.update
  *
@@ -26,7 +26,7 @@ export interface RelationPermissionsM2O {
 }
 
 /**
- * Hook to compute M2O relation permissions following the Directus pattern.
+ * Hook to compute M2O relation permissions following the DaaS pattern.
  *
  * @param relationInfo - Resolved M2ORelationInfo (null while loading)
  */

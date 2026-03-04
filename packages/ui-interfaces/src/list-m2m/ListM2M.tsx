@@ -3,7 +3,7 @@
 /**
  * ListM2M — Many-to-Many relational interface component.
  *
- * Complete rewrite addressing P0 and P1 discrepancies with Directus 11.14.0:
+ * Complete rewrite addressing P0 and P1 discrepancies with DaaS 11.14.0:
  *
  * P0 (Data Integrity):
  * - Local-first staged changes via useRelationMultipleM2M (no immediate API calls)
@@ -108,7 +108,7 @@ export interface ListM2MProps {
     template?: string;
     /** Whether the interface is disabled (no edits at all) */
     disabled?: boolean;
-    /** Non-editable mode: items visible but action buttons hidden (Directus parity) */
+    /** Non-editable mode: items visible but action buttons hidden (DaaS parity) */
     nonEditable?: boolean;
     /** Enable create new items button */
     enableCreate?: boolean;

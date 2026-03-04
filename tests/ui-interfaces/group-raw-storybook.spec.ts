@@ -4,7 +4,7 @@
  * Tests the @buildpad/ui-interfaces GroupRaw component in isolation using Storybook.
  * Covers: transparent rendering, inline children, no visual container.
  * 
- * Directus equivalent: group-raw (no options, pass-through wrapper)
+ * DaaS equivalent: group-raw (no options, pass-through wrapper)
  * 
  * Run: pnpm test:storybook:interfaces
  */

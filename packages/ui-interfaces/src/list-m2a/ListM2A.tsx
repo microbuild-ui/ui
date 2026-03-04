@@ -338,7 +338,7 @@ export const ListM2A: React.FC<ListM2AProps> = ({
         ) || [];
     }, [relationInfo?.allowedCollections]);
 
-    // Per-collection permission maps (Directus-style)
+    // Per-collection permission maps (DaaS-style)
     const {
         createAllowed: permCreateAllowed,
         selectAllowed: permSelectAllowed,

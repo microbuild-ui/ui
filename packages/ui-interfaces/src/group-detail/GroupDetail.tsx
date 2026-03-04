@@ -161,7 +161,7 @@ export function GroupDetail({
   // Initialize state, auto-open if there are validation errors
   const [isOpen, setIsOpen] = useState(start === 'open' || validationMessages.length > 0);
 
-  // Re-evaluate start state when loading finishes (matches directus behavior)
+  // Re-evaluate start state when loading finishes
   const [wasLoading, setWasLoading] = useState(loading);
   useEffect(() => {
     if (wasLoading && !loading) {

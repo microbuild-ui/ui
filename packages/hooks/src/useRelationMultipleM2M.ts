@@ -11,7 +11,7 @@
  * - `displayItems` merges fetched server data with local changes so the
  *   UI always reflects the user's in-progress edits.
  *
- * Port of the Directus `use-relation-multiple` composable, specialised for
+ * Port of the DaaS `use-relation-multiple` composable, specialised for
  * M2M relations (junction table pattern).
  *
  * @module @buildpad/hooks/useRelationMultipleM2M

@@ -19,7 +19,7 @@ import * as Interfaces from '@buildpad/ui-interfaces';
 
 /**
  * Get the default interface name for a given field type.
- * Mirrors Directus getDefaultInterfaceForType so that fields with
+ * Mirrors DaaS getDefaultInterfaceForType so that fields with
  * `meta.interface === null` still render a sensible component.
  */
 function getDefaultInterfaceForType(type: string | undefined | null): InterfaceType {
