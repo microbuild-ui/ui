@@ -5,7 +5,7 @@
  * Ships with English defaults; consumers can supply partial or full overrides
  * via the `translations` prop.
  *
- * Translation keys match Directus 11.14.0 conventions where applicable.
+ * Translation keys match DaaS 11.14.0 conventions where applicable.
  *
  * @module @buildpad/ui-interfaces/list-m2m/translations
  */

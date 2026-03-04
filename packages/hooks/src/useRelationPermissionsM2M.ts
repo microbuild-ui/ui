@@ -1,11 +1,11 @@
 /**
  * useRelationPermissionsM2M
  *
- * Port of the Directus useRelationPermissionsM2M composable.
+ * Port of the DaaS useRelationPermissionsM2M composable.
  *
  * Checks **both** junction and related-collection permissions per CRUD operation.
  *
- * Permission logic (matches Directus exactly):
+ * Permission logic (matches DaaS exactly):
  * - createAllowed = junction.create AND related.create
  * - selectAllowed = junction.create  (linking existing = only needs junction row)
  * - updateAllowed = junction.update AND related.update
@@ -34,7 +34,7 @@ export interface RelationPermissionsM2M {
 }
 
 /**
- * Hook to compute M2M relation permissions following the Directus pattern.
+ * Hook to compute M2M relation permissions following the DaaS pattern.
  *
  * @param relationInfo - Resolved M2MRelationInfo (null while loading)
  */

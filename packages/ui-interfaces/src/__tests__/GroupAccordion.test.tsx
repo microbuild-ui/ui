@@ -224,10 +224,10 @@ describe('GroupAccordion', () => {
   });
 
   // =========================================================================
-  // Regular (non-group) fields as accordion sections — Directus pattern
+  // Regular (non-group) fields as accordion sections — DaaS pattern
   // =========================================================================
 
-  describe('regular fields as sections (Directus pattern)', () => {
+  describe('regular fields as sections (DaaS pattern)', () => {
     const regularField = {
       name: 'Test Accordion',
       meta: { field: 'test_accordion', special: ['alias', 'group', 'no-data'] },

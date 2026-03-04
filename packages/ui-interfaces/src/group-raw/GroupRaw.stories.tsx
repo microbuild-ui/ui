@@ -17,7 +17,7 @@ const meta: Meta<typeof GroupRaw> = {
 - No collapsible behavior
 - No visual border or header
 - Simply groups fields logically in the schema
-- Directus equivalent: group-raw
+- DaaS equivalent: group-raw
 
 ## Usage
 \`\`\`tsx

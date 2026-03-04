@@ -1,7 +1,7 @@
 /**
  * useRelationPermissionsM2A
  *
- * Port of the Directus useRelationPermissionsM2A composable.
+ * Port of the DaaS useRelationPermissionsM2A composable.
  *
  * Checks **both** junction and related-collection permissions per CRUD operation
  * and returns per-collection permission maps consumed by the ListM2A component.
@@ -36,7 +36,7 @@ export interface RelationPermissionsM2A {
 }
 
 /**
- * Hook to compute M2A relation permissions following the Directus pattern.
+ * Hook to compute M2A relation permissions following the DaaS pattern.
  *
  * @param relationInfo – resolved M2ARelationInfo (null while loading)
  */

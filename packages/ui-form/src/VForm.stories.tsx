@@ -775,7 +775,7 @@ const mixedGroupFields: Field[] = [
 ];
 
 // Fields with group-accordion wrapper (sections are sub-groups)
-// Directus pattern: accordion children are group fields, each containing form fields
+// DaaS pattern: accordion children are group fields, each containing form fields
 const groupAccordionFields: Field[] = [
   createField('page_title', 'string', 'input', {
     meta: { width: 'full', required: true, sort: 1 },
@@ -866,8 +866,8 @@ export const WithGroupAccordion: Story = {
   },
 };
 
-// Accordion with regular (non-group) fields as direct children — Directus pattern
-// In Directus, ALL direct children of an accordion become sections,
+// Accordion with regular (non-group) fields as direct children — DaaS pattern
+// In DaaS, ALL direct children of an accordion become sections,
 // including regular fields like text inputs. The field renders inside
 // the expanded section with hideLabel.
 const regularAccordionFields: Field[] = [
@@ -895,10 +895,10 @@ const regularAccordionFields: Field[] = [
 ];
 
 /**
- * Accordion with regular fields as sections (Directus pattern).
+ * Accordion with regular fields as sections (DaaS pattern).
  * Each direct child field becomes a section header.
  * The section content renders the field itself (with hideLabel).
- * This matches the Directus data model screenshot where test_input,
+ * This matches the DaaS data model screenshot where test_input,
  * test_input2, and rich_text_editor are direct children of the accordion.
  */
 export const WithRegularFieldAccordion: Story = {
@@ -908,7 +908,7 @@ export const WithRegularFieldAccordion: Story = {
       description: {
         story: 'Accordion with regular (non-group) fields as direct children. '
           + 'Each field becomes a section header, and the input renders inside '
-          + 'the expanded section. Matches the Directus accordion pattern.',
+          + 'the expanded section. Matches the DaaS accordion pattern.',
       },
     },
   },

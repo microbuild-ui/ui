@@ -413,7 +413,7 @@ export const VForm: React.FC<VFormProps> = ({
     [fields, stableInitialValues, defaultValues, stableModelValue, onUpdate]
   );
 
-  // Handle field unset (skip if field is disabled/readonly — matches Directus guard)
+  // Handle field unset (skip if field is disabled/readonly — matches DaaS guard)
   const handleFieldUnset = useCallback(
     (fieldName: string) => {
       // Guard: don't unset disabled/readonly fields

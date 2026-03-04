@@ -17,10 +17,10 @@ import {
  * as expandable sections. Each child becomes a section header; the section
  * content is rendered via `renderSection`.
  *
- * Directus equivalent: group-accordion
+ * DaaS equivalent: group-accordion
  * Options: accordionMode (boolean), start ('opened' | 'closed' | 'first')
  *
- * In Directus, every direct child of the accordion (whether a regular field
+ * In DaaS, every direct child of the accordion (whether a regular field
  * or a nested group) becomes an accordion section. The section header shows
  * the field name, and the section content renders the field itself (with
  * hideLabel) plus any nested children if it's a group.
@@ -145,7 +145,7 @@ export function GroupAccordion({
   const groupFieldName = field?.meta?.field;
 
   // Find ALL direct child fields that belong to this accordion group.
-  // Matches Directus limitFields(): fields.filter(f => f.meta?.group === field.meta?.field)
+  // Matches DaaS limitFields(): fields.filter(f => f.meta?.group === field.meta?.field)
   // Every direct child becomes a section — regardless of whether it's a group or regular field.
   const sectionFields = useMemo(() => {
     if (!groupFieldName) return [];

@@ -20,7 +20,7 @@ const meta: Meta<typeof GroupAccordion> = {
 - Shift+click to toggle all (multi mode)
 - Validation error auto-open
 - Edited indicator
-- Directus equivalent: group-accordion
+- DaaS equivalent: group-accordion
 
 ## Usage
 \`\`\`tsx
@@ -155,8 +155,8 @@ export const Disabled: Story = {
 };
 
 // ============================================================================
-// Regular fields as sections (Directus pattern)
-// In Directus, ALL direct children of an accordion become sections,
+// Regular fields as sections (DaaS pattern)
+// In DaaS, ALL direct children of an accordion become sections,
 // including regular (non-group) fields like text inputs.
 // ============================================================================
 
@@ -189,7 +189,7 @@ const regularSectionFields = [
 const regularAllFields = [regularAccordionField as any, ...regularSectionFields];
 
 /**
- * Regular fields as accordion sections (Directus pattern).
+ * Regular fields as accordion sections (DaaS pattern).
  * Each direct child field becomes a section header.
  * The section content renders the field itself (with hideLabel).
  */

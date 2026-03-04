@@ -3,7 +3,7 @@
  *
  * Replaces `{{field}}` and `{{nested.field.path}}` placeholders in a template
  * string with values resolved from an item data object. Mirrors the core
- * behaviour of Directus's `render-template` Vue component but returns a plain
+ * behaviour of DaaS's `render-template` Vue component but returns a plain
  * string (no component rendering).
  *
  * Features:

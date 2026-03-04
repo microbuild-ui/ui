@@ -4,7 +4,7 @@
  *
  * Wraps field interface components so that a runtime error in one
  * interface doesn't crash the entire form.  Shows a warning notice
- * instead, matching Directus's `<v-error-boundary>` + `#fallback` pattern.
+ * instead, matching DaaS's `<v-error-boundary>` + `#fallback` pattern.
  */
 
 import { Component, type ErrorInfo, type ReactNode } from 'react';

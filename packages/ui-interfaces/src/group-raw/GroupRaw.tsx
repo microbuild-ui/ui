@@ -5,7 +5,7 @@ import { Box } from '@mantine/core';
  * GroupRaw - Transparent group wrapper that renders child fields inline
  * without any visual container or collapsible behavior.
  *
- * Directus equivalent: group-raw (no options, just a pass-through wrapper)
+ * DaaS equivalent: group-raw (no options, just a pass-through wrapper)
  */
 export interface GroupRawProps {
   /** Field configuration object */

@@ -234,7 +234,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
           accordionMode={interfaceConfig.props?.accordionMode as boolean}
           start={interfaceConfig.props?.start as 'opened' | 'closed' | 'first'}
           renderSection={(section) => {
-            // Matches Directus accordion-section.vue fieldsInSection logic:
+            // Matches DaaS accordion-section.vue fieldsInSection logic:
             // 1. Always include the section field itself (with hideLabel)
             // 2. If the section is a group, also include its nested children
             const isGroup = section.meta?.special?.includes?.('group');
@@ -252,7 +252,7 @@ export const FormGroupField: React.FC<FormGroupFieldProps> = ({
             }
 
             // Section is a regular field — render the field itself (hideLabel)
-            // This matches Directus: [merge({}, field, { hideLabel: true })]
+            // This matches DaaS: [merge({}, field, { hideLabel: true })]
             // Look up the full Field object from allFields to guarantee all
             // properties (type, schema, collection, meta) are present, since
             // the renderSection callback type only declares a subset.

@@ -201,7 +201,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         if (cancelled) return;
 
         // All non-system, non-hidden, non-alias fields
-        // DaaS flat format has hidden/type at top level; Directus nests in meta
+        // DaaS flat format has hidden/type at top level; DaaS nests in meta
         let visible = fieldsResult.filter((f: Field) => {
           if (SYSTEM_FIELDS.includes(f.field)) return false;
           if (f.type === "alias") return false;
@@ -333,7 +333,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         { data: Record<string, unknown>[]; meta?: { total_count?: number; filter_count?: number } } | Record<string, unknown>[]
       >(`/api/items/${collection}${queryString ? `?${queryString}` : ""}`);
 
-      // Handle both { data: [...] } (Directus) and flat array (DaaS) formats
+      // Handle both { data: [...] } (DaaS) and flat array (DaaS) formats
       if (Array.isArray(rawResponse)) {
         setItems(rawResponse);
         setTotalCount(rawResponse.length);
@@ -390,7 +390,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
       const fieldMeta = permittedFields.find((f) => f.field === key);
       const overrides = headerOverrides[key] || {};
       // Use field.meta?.field (display name) or humanize the key.
-      // Directus uses field `name` for display; DaaS uses meta.note as a tooltip.
+      // DaaS uses field `name` for display; DaaS uses meta.note as a tooltip.
       // The header text should be the humanized field name, not the note.
       const label =
         (fieldMeta as Record<string, unknown> | undefined)?.name as string ||
@@ -581,7 +581,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
 
   // =========================================================================
   // Field-type-aware cell renderer
-  // Mirrors Directus adjustFieldsForDisplays — booleans show icons,
+  // Mirrors DaaS adjustFieldsForDisplays — booleans show icons,
   // dates/timestamps are formatted, numbers use locale, relations show FK.
   // =========================================================================
   const fieldTypeRenderCell = useCallback(

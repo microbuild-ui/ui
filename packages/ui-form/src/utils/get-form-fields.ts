@@ -47,7 +47,7 @@ export function getFormFields(fields: Field[]): FormField[] {
       return sortA - sortB;
     }
 
-    // Finally by meta.id ascending (Directus parity — stable insertion order)
+    // Finally by meta.id ascending (DaaS parity — stable insertion order)
     const idA = (a.meta as any)?.id ?? 0;
     const idB = (b.meta as any)?.id ?? 0;
     return idA - idB;
