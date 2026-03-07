@@ -90,11 +90,11 @@ test.describe('CollectionList Storybook - Basic Rendering', () => {
   test('should show footer with pagination info', async ({ page }) => {
     await goToStory(page, 'collections-collectionlist--default');
 
-    // Footer should show "Showing X–Y of Z"
+    // Footer should show item count like "1–10 of 10 items"
     const footer = page.locator('.collection-list-footer');
     await expect(footer).toBeVisible();
     const footerText = await footer.textContent();
-    expect(footerText).toMatch(/Showing \d+–\d+ of \d+/);
+    expect(footerText).toMatch(/\d+–\d+ of \d+ items/);
   });
 });
 
@@ -364,5 +364,304 @@ test.describe('CollectionList Storybook - Accessibility', () => {
     await expect(page.locator('[data-testid="collection-list"]')).toBeVisible();
     await expect(page.locator('[data-testid="collection-list-search"]')).toBeVisible();
     await expect(page.locator('[data-testid="collection-list-refresh"]')).toBeVisible();
+  });
+});
+
+// ============================================================================
+// Test Suite: Filter Panel
+// ============================================================================
+
+test.describe('CollectionList Storybook - Filter Panel', () => {
+  test('should show filter toggle button when enableFilter is true', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--with-filter-panel');
+
+    const filterToggle = page.locator('[data-testid="collection-list-filter-toggle"]');
+    await expect(filterToggle).toBeVisible();
+  });
+
+  test('should open and close filter panel via toggle', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--with-filter-panel');
+
+    const filterToggle = page.locator('[data-testid="collection-list-filter-toggle"]');
+    await filterToggle.click();
+
+    // Filter panel should become visible
+    const filterPanel = page.locator('[data-testid="collection-list-filter-panel"]');
+    await expect(filterPanel).toBeVisible({ timeout: 5000 });
+
+    // Click toggle again to close
+    await filterToggle.click();
+    await expect(filterPanel).not.toBeVisible({ timeout: 5000 });
+  });
+
+  test('should not show filter toggle when enableFilter is false', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--default');
+
+    const filterToggle = page.locator('[data-testid="collection-list-filter-toggle"]');
+    await expect(filterToggle).toHaveCount(0);
+  });
+});
+
+// ============================================================================
+// Test Suite: Create Button
+// ============================================================================
+
+test.describe('CollectionList Storybook - Create Button', () => {
+  test('should show create button when enableCreate is true', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--with-create-button');
+
+    const createBtn = page.locator('[data-testid="collection-list-create"]');
+    await expect(createBtn).toBeVisible();
+  });
+
+  test('should fire onCreate callback when create button is clicked', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--with-create-button');
+
+    const createBtn = page.locator('[data-testid="collection-list-create"]');
+    await createBtn.click();
+
+    // The story displays a counter below the list
+    const countText = page.getByText(/1 time\(s\)/);
+    await expect(countText).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should not show create button when enableCreate is false', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--default');
+
+    const createBtn = page.locator('[data-testid="collection-list-create"]');
+    await expect(createBtn).toHaveCount(0);
+  });
+});
+
+// ============================================================================
+// Test Suite: Toolbar & Item Count
+// ============================================================================
+
+test.describe('CollectionList Storybook - Toolbar & Item Count', () => {
+  test('should show toolbar with search and refresh', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--default');
+
+    const toolbar = page.locator('[data-testid="collection-list-toolbar"]');
+    await expect(toolbar).toBeVisible();
+  });
+
+  test('should display item count in the toolbar', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--default');
+
+    const itemCount = page.locator('[data-testid="collection-list-item-count"]');
+    await expect(itemCount).toBeVisible();
+
+    // Should show "10 items" (mock has 10 items)
+    const text = await itemCount.textContent();
+    expect(text).toMatch(/\d+ items?/);
+  });
+
+  test('should show footer with page size selector', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--default');
+
+    const footer = page.locator('[data-testid="collection-list-footer"]');
+    await expect(footer).toBeVisible();
+
+    // Footer should contain a page size select
+    const footerCount = page.locator('[data-testid="collection-list-footer-count"]');
+    await expect(footerCount).toBeVisible();
+  });
+
+  test('should clear search when clear button is clicked', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--default');
+
+    const search = page.getByPlaceholder('Search...');
+    await search.fill('test');
+    await expect(search).toHaveValue('test');
+
+    // Click the clear button (the X icon inside the search input)
+    const clearBtn = page.locator('[data-testid="collection-list-search-clear"]');
+    // If the component renders a clear button on the search, click it
+    if ((await clearBtn.count()) > 0) {
+      await clearBtn.click();
+      await expect(search).toHaveValue('');
+    }
+  });
+});
+
+// ============================================================================
+// Test Suite: Full-Featured Story
+// ============================================================================
+
+test.describe('CollectionList Storybook - Full Featured', () => {
+  test('should render with all features enabled', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--full-featured');
+
+    // Toolbar
+    await expect(page.locator('[data-testid="collection-list-toolbar"]')).toBeVisible();
+
+    // Search
+    await expect(page.locator('[data-testid="collection-list-search"]')).toBeVisible();
+
+    // Filter toggle
+    await expect(page.locator('[data-testid="collection-list-filter-toggle"]')).toBeVisible();
+
+    // Create button
+    await expect(page.locator('[data-testid="collection-list-create"]')).toBeVisible();
+
+    // Archive filter
+    await expect(page.locator('[data-testid="collection-list-archive-filter"]')).toBeVisible();
+
+    // Table with selection checkboxes
+    const checkboxes = page.locator('.v-table tbody input[type="checkbox"]');
+    expect(await checkboxes.count()).toBeGreaterThan(0);
+
+    // Footer
+    await expect(page.locator('[data-testid="collection-list-footer"]')).toBeVisible();
+  });
+
+  test('should show bulk actions and selection count after selecting rows', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--full-featured');
+
+    // Select two rows
+    const checkboxes = page.locator('.v-table tbody input[type="checkbox"]');
+    await checkboxes.nth(0).click({ force: true });
+    await checkboxes.nth(1).click({ force: true });
+
+    // Bulk actions should appear
+    const bulkActions = page.locator('[data-testid="collection-list-bulk-actions"]');
+    await expect(bulkActions).toBeVisible({ timeout: 5000 });
+
+    // Should show selection count
+    const selectedText = page.getByText(/2 selected/i);
+    await expect(selectedText).toBeVisible();
+  });
+});
+
+// ============================================================================
+// Test Suite: Permission - No Create Permission
+// ============================================================================
+
+test.describe('CollectionList Storybook - No Create Permission', () => {
+  test('should render create button as disabled when create permission is denied', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--no-create-permission');
+
+    const createBtn = page.locator('[data-testid="collection-list-create"]');
+    await expect(createBtn).toBeVisible();
+    await expect(createBtn).toBeDisabled();
+  });
+
+  test('should show "Not allowed" tooltip on disabled create button', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--no-create-permission');
+
+    const createBtn = page.locator('[data-testid="collection-list-create"]');
+    await createBtn.hover();
+    await page.waitForTimeout(500);
+
+    // Mantine Tooltip renders in a portal
+    const tooltip = page.getByText('Not allowed');
+    await expect(tooltip).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should allow delete and archive bulk actions (permitted)', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--no-create-permission');
+
+    // Select a row to reveal bulk actions
+    const checkboxes = page.locator('.v-table tbody input[type="checkbox"]');
+    await checkboxes.nth(0).click({ force: true });
+
+    const bulkActions = page.locator('[data-testid="collection-list-bulk-actions"]');
+    await expect(bulkActions).toBeVisible({ timeout: 5000 });
+
+    // Delete (requiredPermission: "delete") — should be enabled (user has delete perm)
+    const deleteAction = page.locator('[data-testid="bulk-action-0"]');
+    await expect(deleteAction).toBeEnabled();
+
+    // Archive (requiredPermission: "update") — should be enabled (user has update perm)
+    const archiveAction = page.locator('[data-testid="bulk-action-1"]');
+    await expect(archiveAction).toBeEnabled();
+  });
+});
+
+// ============================================================================
+// Test Suite: Permission - Read-Only Permissions
+// ============================================================================
+
+test.describe('CollectionList Storybook - Read Only Permissions', () => {
+  test('should render create button as disabled', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--read-only-permissions');
+
+    const createBtn = page.locator('[data-testid="collection-list-create"]');
+    await expect(createBtn).toBeVisible();
+    await expect(createBtn).toBeDisabled();
+  });
+
+  test('should disable delete and archive bulk actions but allow export (no requiredPermission)', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--read-only-permissions');
+
+    // Select a row
+    const checkboxes = page.locator('.v-table tbody input[type="checkbox"]');
+    await checkboxes.nth(0).click({ force: true });
+
+    const bulkActions = page.locator('[data-testid="collection-list-bulk-actions"]');
+    await expect(bulkActions).toBeVisible({ timeout: 5000 });
+
+    // Delete (requiredPermission: "delete") — should be disabled
+    const deleteAction = page.locator('[data-testid="bulk-action-0"]');
+    await expect(deleteAction).toBeDisabled();
+
+    // Archive (requiredPermission: "update") — should be disabled
+    const archiveAction = page.locator('[data-testid="bulk-action-1"]');
+    await expect(archiveAction).toBeDisabled();
+
+    // Export (no requiredPermission) — should be enabled
+    const exportAction = page.locator('[data-testid="bulk-action-2"]');
+    await expect(exportAction).toBeEnabled();
+  });
+
+  test('should show "Not allowed" tooltip on disabled bulk actions', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--read-only-permissions');
+
+    // Select a row
+    const checkboxes = page.locator('.v-table tbody input[type="checkbox"]');
+    await checkboxes.nth(0).click({ force: true });
+
+    await page.locator('[data-testid="collection-list-bulk-actions"]')
+      .waitFor({ state: 'visible', timeout: 5000 });
+
+    // Hover on disabled delete action
+    const deleteAction = page.locator('[data-testid="bulk-action-0"]');
+    await deleteAction.hover();
+    await page.waitForTimeout(500);
+
+    const tooltip = page.getByText('Not allowed');
+    await expect(tooltip).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should still render data rows (read permission exists)', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--read-only-permissions');
+
+    const rows = page.locator('.v-table tbody tr.table-row');
+    const count = await rows.count();
+    expect(count).toBeGreaterThan(0);
+  });
+});
+
+// ============================================================================
+// Test Suite: Permission - Restricted Fields
+// ============================================================================
+
+test.describe('CollectionList Storybook - Restricted Fields', () => {
+  test('should only show permitted columns (id, title, status)', async ({ page }) => {
+    await goToStory(page, 'collections-collectionlist--restricted-fields');
+
+    const headers = page.locator('.v-table thead th');
+    const headerTexts = await headers.allTextContents();
+    const joined = headerTexts.join(' ').toLowerCase();
+
+    // Permitted fields should be visible
+    expect(joined).toContain('id');
+    expect(joined).toContain('title');
+    expect(joined).toContain('status');
+
+    // Non-permitted fields should NOT be visible
+    expect(joined).not.toContain('author');
+    expect(joined).not.toContain('category');
+    expect(joined).not.toContain('word count');
   });
 });

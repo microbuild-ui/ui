@@ -376,10 +376,25 @@ pnpm dev:host
               collection={collection}
               enableSearch
               enableSelection
-              limit={15}
+              enableFilter
+              enableCreate
+              enableSort
+              enableResize
+              enableReorder
+              enableHeaderMenu
+              limit={25}
+              onCreate={() => alert(`Create new item in "${collection}"`)}
               onItemClick={(item) => {
                 console.log('[CollectionList] Item clicked:', item);
               }}
+              bulkActions={[
+                {
+                  label: 'Delete',
+                  color: 'red',
+                  requiredPermission: 'delete',
+                  action: (ids) => alert(`Delete: ${ids.join(', ')}`),
+                },
+              ]}
             />
           </Paper>
         ) : (
